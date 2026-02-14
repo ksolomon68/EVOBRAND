@@ -1,0 +1,434 @@
+
+import React from 'react';
+import { useState } from 'react';
+import { Helmet } from 'react-helmet';
+import { motion } from 'framer-motion';
+import { Sparkles, Zap, FileText, Video, Code, Check, ArrowRight } from 'lucide-react';
+
+const ServicesPage = () => {
+  const [selectedService, setSelectedService] = useState(0);
+
+  const services = [
+    {
+      id: 0,
+      icon: <Sparkles size={48} />,
+      title: 'Custom AI Applications',
+      description: 'Tailored AI solutions designed to solve your unique business challenges and drive measurable results.',
+      features: [
+        'Scalable Enterprise AI Architectures',
+        'High-Performance Data Processing Pipelines',
+        'Secure & Compliant Cloud Deployments',
+        'Custom Large Language Model (LLM) Integration',
+        'Microservices for AI Applications',
+        'End-to-End Enterprise Solution Development'
+      ],
+      process: [
+        { step: 'Discovery', description: 'Understanding your business needs and challenges' },
+        { step: 'Strategy', description: 'Designing the optimal AI solution architecture' },
+        { step: 'Development', description: 'Building and training custom AI models' },
+        { step: 'Launch', description: 'Deploying and integrating into your systems' },
+        { step: 'Optimize', description: 'Continuous monitoring and improvement' }
+      ],
+      pricing: [
+        {
+          tier: 'Starter',
+          price: '$5,000',
+          features: ['Basic AI Model', 'Up to 3 Features', '30 Days Support', 'Documentation'],
+          cta: 'Get Started'
+        },
+        {
+          tier: 'Professional',
+          price: '$15,000',
+          features: ['Advanced AI Models', 'Unlimited Features', '90 Days Support', 'Training & Documentation', 'API Integration'],
+          cta: 'Most Popular',
+          highlighted: true
+        },
+        {
+          tier: 'Enterprise',
+          price: 'Custom',
+          features: ['Custom AI Solutions', 'Dedicated Team', 'Ongoing Support', 'Full Integration', 'SLA Guarantee'],
+          cta: 'Contact Us'
+        }
+      ],
+      caseStudy: {
+        client: 'Tech Startup',
+        challenge: 'Manual data processing taking 40 hours/week',
+        solution: 'Custom AI automation pipeline',
+        results: ['95% time reduction', '99.8% accuracy', '$120K annual savings']
+      }
+    },
+    {
+      id: 1,
+      icon: <Zap size={48} />,
+      title: 'AI Visual Content Creation',
+      description: 'Generate stunning visuals, graphics, and brand assets using cutting-edge AI technology.',
+      features: [
+        'AI-Generated Images & Graphics',
+        'Brand Asset Creation',
+        'Marketing Material Design',
+        'Social Media Content',
+        'Product Visualization',
+        'Style Transfer & Enhancement'
+      ],
+      process: [
+        { step: 'Discovery', description: 'Understanding your brand and visual needs' },
+        { step: 'Strategy', description: 'Creating visual style guidelines' },
+        { step: 'Development', description: 'Generating AI-powered visuals' },
+        { step: 'Launch', description: 'Delivering final assets' },
+        { step: 'Optimize', description: 'Refining based on feedback' }
+      ],
+      pricing: [
+        {
+          tier: 'Starter',
+          price: '$2,000',
+          features: ['50 AI Images', 'Basic Editing', '2 Revisions', 'Commercial License'],
+          cta: 'Get Started'
+        },
+        {
+          tier: 'Professional',
+          price: '$5,000',
+          features: ['200 AI Images', 'Advanced Editing', 'Unlimited Revisions', 'Brand Guidelines', 'Priority Support'],
+          cta: 'Most Popular',
+          highlighted: true
+        },
+        {
+          tier: 'Enterprise',
+          price: 'Custom',
+          features: ['Unlimited Images', 'Dedicated Designer', 'Custom AI Models', 'Full Brand Suite', 'White Label'],
+          cta: 'Contact Us'
+        }
+      ],
+      caseStudy: {
+        client: 'E-commerce Brand',
+        challenge: 'High cost of product photography',
+        solution: 'AI-generated product visuals',
+        results: ['70% cost reduction', '5x faster production', '200+ assets/month']
+      }
+    },
+    {
+      id: 2,
+      icon: <FileText size={48} />,
+      title: 'Intelligent Document Generation',
+      description: 'Automate document creation with AI-powered templates and smart data integration.',
+      features: [
+        'Smart Document Templates',
+        'Automated Data Integration',
+        'Multi-format Export (PDF, DOCX, HTML)',
+        'Version Control & Tracking',
+        'Compliance & Security',
+        'Batch Processing'
+      ],
+      process: [
+        { step: 'Discovery', description: 'Analyzing your document workflows' },
+        { step: 'Strategy', description: 'Designing template architecture' },
+        { step: 'Development', description: 'Building intelligent templates' },
+        { step: 'Launch', description: 'Deploying automation system' },
+        { step: 'Optimize', description: 'Continuous template refinement' }
+      ],
+      pricing: [
+        {
+          tier: 'Starter',
+          price: '$3,000',
+          features: ['5 Document Templates', 'Basic Automation', '100 Docs/Month', 'Email Support'],
+          cta: 'Get Started'
+        },
+        {
+          tier: 'Professional',
+          price: '$8,000',
+          features: ['20 Templates', 'Advanced Automation', '1,000 Docs/Month', 'API Access', 'Priority Support'],
+          cta: 'Most Popular',
+          highlighted: true
+        },
+        {
+          tier: 'Enterprise',
+          price: 'Custom',
+          features: ['Unlimited Templates', 'Custom Workflows', 'Unlimited Docs', 'Dedicated Support', 'SLA'],
+          cta: 'Contact Us'
+        }
+      ],
+      caseStudy: {
+        client: 'Legal Firm',
+        challenge: 'Manual contract generation taking hours',
+        solution: 'AI-powered document automation',
+        results: ['90% time savings', '100% accuracy', '500+ docs/month']
+      }
+    },
+    {
+      id: 3,
+      icon: <Video size={48} />,
+      title: 'AI Video Production',
+      description: 'Create professional videos with AI-assisted scripting, editing, and production.',
+      features: [
+        'AI Script Generation',
+        'Automated Video Editing',
+        'AI Voiceover Synthesis',
+        'Motion Graphics & Animation',
+        'Multi-language Support',
+        'Brand Consistency'
+      ],
+      process: [
+        { step: 'Discovery', description: 'Understanding your video goals' },
+        { step: 'Strategy', description: 'Planning content and style' },
+        { step: 'Development', description: 'AI-assisted production' },
+        { step: 'Launch', description: 'Final delivery and distribution' },
+        { step: 'Optimize', description: 'Performance analysis and refinement' }
+      ],
+      pricing: [
+        {
+          tier: 'Starter',
+          price: '$4,000',
+          features: ['5 Videos/Month', 'Up to 2 Min Each', 'Basic Editing', 'Stock Footage'],
+          cta: 'Get Started'
+        },
+        {
+          tier: 'Professional',
+          price: '$10,000',
+          features: ['15 Videos/Month', 'Up to 5 Min Each', 'Advanced Editing', 'Custom Graphics', 'Voiceover'],
+          cta: 'Most Popular',
+          highlighted: true
+        },
+        {
+          tier: 'Enterprise',
+          price: 'Custom',
+          features: ['Unlimited Videos', 'Any Length', 'Full Production', 'Dedicated Team', 'Rush Delivery'],
+          cta: 'Contact Us'
+        }
+      ],
+      caseStudy: {
+        client: 'Marketing Agency',
+        challenge: 'High video production costs',
+        solution: 'AI-powered video creation',
+        results: ['60% cost reduction', '3x faster delivery', '50+ videos/month']
+      }
+    },
+    {
+      id: 4,
+      icon: <Code size={48} />,
+      title: 'WordPress & Web Development',
+      description: 'Professional web solutions and WordPress development for modern businesses.',
+      features: [
+        'Custom WordPress Themes',
+        'Plugin Development',
+        'E-commerce Solutions',
+        'Performance Optimization',
+        'Security Hardening',
+        'Ongoing Maintenance'
+      ],
+      process: [
+        { step: 'Discovery', description: 'Understanding your web requirements' },
+        { step: 'Strategy', description: 'Planning site architecture' },
+        { step: 'Development', description: 'Building your website' },
+        { step: 'Launch', description: 'Deployment and testing' },
+        { step: 'Optimize', description: 'Maintenance and updates' }
+      ],
+      pricing: [
+        {
+          tier: 'Starter',
+          price: '$3,000',
+          features: ['5-Page Website', 'Responsive Design', 'Basic SEO', '30 Days Support'],
+          cta: 'Get Started'
+        },
+        {
+          tier: 'Professional',
+          price: '$8,000',
+          features: ['15-Page Website', 'Custom Design', 'Advanced SEO', 'E-commerce', '90 Days Support'],
+          cta: 'Most Popular',
+          highlighted: true
+        },
+        {
+          tier: 'Enterprise',
+          price: 'Custom',
+          features: ['Unlimited Pages', 'Custom Features', 'Full Integration', 'Dedicated Support', 'SLA'],
+          cta: 'Contact Us'
+        }
+      ],
+      caseStudy: {
+        client: 'Retail Business',
+        challenge: 'Outdated website with poor performance',
+        solution: 'Modern WordPress rebuild',
+        results: ['300% faster load time', '150% traffic increase', '80% bounce rate reduction']
+      }
+    }
+  ];
+
+  const currentService = services[selectedService];
+
+  return (
+    <>
+      <Helmet>
+        <title>{`${currentService.title} - EVOBRAND Services`}</title>
+        <meta name="description" content={currentService.description} />
+      </Helmet>
+
+      <div className="min-h-screen bg-[#0f1419]">
+        {/* Service Navigation */}
+        <section className="bg-[#1a2332] py-6 sticky top-20 z-40">
+          <div className="container mx-auto px-4">
+            <div className="flex overflow-x-auto space-x-4 pb-2">
+              {services.map((service, index) => (
+                <button
+                  key={service.id}
+                  onClick={() => setSelectedService(index)}
+                  className={`flex-shrink-0 px-6 py-3 rounded-lg font-medium transition-all ${selectedService === index
+                      ? 'bg-[#22c8e5] text-white'
+                      : 'bg-[#0f1419] text-gray-400 hover:text-white'
+                    }`}
+                >
+                  {service.title}
+                </button>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* Service Hero */}
+        <section className="py-20 bg-gradient-to-br from-[#1a2332] to-[#0f1419]">
+          <div className="container mx-auto px-4">
+            <motion.div
+              key={selectedService}
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="text-center max-w-4xl mx-auto"
+            >
+              <div className="text-[#22c8e5] mb-6 flex justify-center">{currentService.icon}</div>
+              <h1 className="text-4xl md:text-5xl font-bold text-white mb-6">{currentService.title}</h1>
+              <p className="text-xl text-gray-400">{currentService.description}</p>
+            </motion.div>
+          </div>
+        </section>
+
+        {/* Features */}
+        <section className="py-20 bg-[#0f1419]">
+          <div className="container mx-auto px-4">
+            <h2 className="text-3xl font-bold text-white mb-12 text-center">Key Features</h2>
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-6xl mx-auto">
+              {currentService.features.map((feature, index) => (
+                <motion.div
+                  key={index}
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ delay: index * 0.1 }}
+                  className="flex items-start space-x-3 bg-[#1a2332] p-4 rounded-lg"
+                >
+                  <Check className="text-[#22c8e5] flex-shrink-0 mt-1" size={20} />
+                  <span className="text-gray-300">{feature}</span>
+                </motion.div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* Process Timeline */}
+        <section className="py-20 bg-[#1a2332]">
+          <div className="container mx-auto px-4">
+            <h2 className="text-3xl font-bold text-white mb-12 text-center">Our Process</h2>
+            <div className="max-w-4xl mx-auto">
+              {currentService.process.map((step, index) => (
+                <motion.div
+                  key={index}
+                  initial={{ opacity: 0, x: -30 }}
+                  whileInView={{ opacity: 1, x: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ delay: index * 0.1 }}
+                  className="flex items-start space-x-4 mb-8"
+                >
+                  <div className="flex-shrink-0 w-12 h-12 bg-[#22c8e5] rounded-full flex items-center justify-center text-white font-bold">
+                    {index + 1}
+                  </div>
+                  <div className="flex-1">
+                    <h3 className="text-xl font-bold text-white mb-2">{step.step}</h3>
+                    <p className="text-gray-400">{step.description}</p>
+                  </div>
+                </motion.div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* Pricing */}
+        <section className="py-20 bg-[#0f1419]">
+          <div className="container mx-auto px-4">
+            <h2 className="text-3xl font-bold text-white mb-12 text-center">Pricing Plans</h2>
+            <div className="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto">
+              {currentService.pricing.map((plan, index) => (
+                <motion.div
+                  key={index}
+                  initial={{ opacity: 0, y: 30 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ delay: index * 0.1 }}
+                  className={`bg-[#1a2332] p-8 rounded-xl ${plan.highlighted ? 'border-2 border-[#22c8e5] transform scale-105' : 'border border-gray-800'
+                    }`}
+                >
+                  <h3 className="text-2xl font-bold text-white mb-2">{plan.tier}</h3>
+                  <p className="text-4xl font-bold text-[#22c8e5] mb-6">{plan.price}</p>
+                  <ul className="space-y-3 mb-8">
+                    {plan.features.map((feature, idx) => (
+                      <li key={idx} className="flex items-start space-x-2 text-gray-300">
+                        <Check className="text-[#22c8e5] flex-shrink-0 mt-1" size={16} />
+                        <span className="text-sm">{feature}</span>
+                      </li>
+                    ))}
+                  </ul>
+                  <button className={`w-full py-3 rounded-lg font-semibold transition-colors ${plan.highlighted
+                      ? 'bg-[#22c8e5] text-white hover:bg-[#1ba3c0]'
+                      : 'bg-[#0f1419] text-[#22c8e5] hover:bg-[#22c8e5] hover:text-white'
+                    }`}>
+                    {plan.cta}
+                  </button>
+                </motion.div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* Case Study */}
+        <section className="py-20 bg-[#1a2332]">
+          <div className="container mx-auto px-4">
+            <h2 className="text-3xl font-bold text-white mb-12 text-center">Success Story</h2>
+            <div className="max-w-4xl mx-auto bg-[#0f1419] p-8 rounded-xl">
+              <h3 className="text-2xl font-bold text-[#22c8e5] mb-4">{currentService.caseStudy.client}</h3>
+              <div className="space-y-4">
+                <div>
+                  <p className="text-sm text-gray-500 mb-1">Challenge</p>
+                  <p className="text-gray-300">{currentService.caseStudy.challenge}</p>
+                </div>
+                <div>
+                  <p className="text-sm text-gray-500 mb-1">Solution</p>
+                  <p className="text-gray-300">{currentService.caseStudy.solution}</p>
+                </div>
+                <div>
+                  <p className="text-sm text-gray-500 mb-2">Results</p>
+                  <div className="grid md:grid-cols-3 gap-4">
+                    {currentService.caseStudy.results.map((result, index) => (
+                      <div key={index} className="bg-[#1a2332] p-4 rounded-lg text-center">
+                        <p className="text-2xl font-bold text-[#22c8e5]">{result}</p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* CTA */}
+        <section className="py-20 bg-gradient-to-br from-[#1a2332] to-[#22c8e5]">
+          <div className="container mx-auto px-4 text-center">
+            <h2 className="text-4xl font-bold text-white mb-6">Ready to Get Started?</h2>
+            <p className="text-xl text-white/90 mb-8">Let's discuss how we can help transform your business</p>
+            <a
+              href="/contact"
+              className="inline-flex items-center px-8 py-4 bg-white text-[#1a2332] rounded-lg font-semibold hover:bg-gray-100 transition-colors"
+            >
+              Contact Us <ArrowRight className="ml-2" size={20} />
+            </a>
+          </div>
+        </section>
+      </div>
+    </>
+  );
+};
+
+export default ServicesPage;
