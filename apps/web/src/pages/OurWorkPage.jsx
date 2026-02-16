@@ -118,6 +118,65 @@ const OurWorkPage = () => {
     }
   ];
 
+  const newPortfolioItems = [
+    {
+      id: 13,
+      title: 'Rowdy T Burger Stop',
+      category: 'Web Development',
+      industry: 'Food & Beverage',
+      image: '/projects/rowdy-t-burger-stop.jpg',
+      metrics: { roi: 'Traffic', timeSaved: 'Menu Updates', revenue: 'Orders' },
+      description: 'Diner-style burger joint featuring fresh ranch beef and local flavors.'
+    },
+    {
+      id: 14,
+      title: 'Hilltop Barbers',
+      category: 'Web Development',
+      industry: 'Beauty & Wellness',
+      image: '/projects/hilltop-barbers.jpg',
+      metrics: { roi: 'Bookings', timeSaved: 'Scheduling', revenue: 'Clients' },
+      description: 'Precision & Tradition. The premier grooming experience in Waxahachie.'
+    },
+    {
+      id: 15,
+      title: 'Lateresa Jones',
+      category: 'Web Development',
+      industry: 'Political',
+      image: '/projects/lateresa-jones.jpg',
+      metrics: { roi: 'Donations', timeSaved: 'Outreach', revenue: 'Support' },
+      description: 'Florida U.S. Senate 2026. A Voice for the People.'
+    },
+    {
+      id: 16,
+      title: 'Zarate for Ellis County',
+      category: 'Web Development',
+      industry: 'Political',
+      image: '/projects/zarate-for-ellis-county.jpg',
+      metrics: { roi: 'Voters', timeSaved: 'Communication', revenue: 'Campaign' },
+      description: 'Jennifer Zarate for Ellis County District Clerk. Proven leadership and values.'
+    },
+    {
+      id: 17,
+      title: 'Cutting Edge',
+      category: 'Web Development',
+      industry: 'Beauty & Wellness',
+      image: '/projects/cutting-edge.jpg',
+      metrics: { roi: 'Reservations', timeSaved: 'Management', revenue: 'Growth' },
+      description: 'Precise. Crafted. Modern techniques with classic service.'
+    },
+    {
+      id: 18,
+      title: 'The Star List',
+      category: 'Web Development',
+      industry: 'Entertainment',
+      image: '/projects/the-star-list.jpg',
+      metrics: { roi: 'Views', timeSaved: 'Curated', revenue: 'Ads' },
+      description: 'The Ultimate Resource for Music-News and Entertainment Around the World!'
+    }
+  ];
+
+  portfolioItems.push(...newPortfolioItems);
+
   const testimonials = [
     {
       name: 'Sarah Johnson',
