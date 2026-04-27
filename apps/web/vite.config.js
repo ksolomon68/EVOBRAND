@@ -254,6 +254,8 @@ export default defineConfig({
 		alias: {
 			'@': path.resolve(__dirname, './src'),
 		},
+		// Prevent multiple React instances (fixes @react-pdf/renderer hook errors)
+		dedupe: ['react', 'react-dom'],
 	},
 	build: {
 		rollupOptions: {

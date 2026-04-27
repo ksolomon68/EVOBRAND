@@ -1,0 +1,17 @@
+{
+  "permissions": {
+    "allow": [
+      "Read(//c/Users/Keisha/Documents/EVOBRAND REBUILD/**)",
+      "Bash(npm install *)",
+      "Bash(supabase --version)",
+      "PowerShell(supabase --version 2>&1)",
+      "PowerShell(npx supabase --version 2>&1)",
+      "mcp__claude_ai_Supabase__list_tables",
+      "mcp__claude_ai_Supabase__get_logs",
+      "mcp__claude_ai_Supabase__execute_sql"
+    ],
+    "additionalDirectories": [
+      "c:\\Users\\Keisha\\.claude\\projects\\c--Users-Keisha-Documents-NEW-EVO\\memory"
+    ]
+  }
+}

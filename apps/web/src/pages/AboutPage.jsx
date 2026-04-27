@@ -1,8 +1,8 @@
 
 import React from 'react';
-import { Helmet } from 'react-helmet';
 import { motion } from 'framer-motion';
 import { Lightbulb, Target, Users, Award, MapPin, Mail, Phone } from 'lucide-react';
+import SEO from '@/components/SEO.jsx';
 
 const AboutPage = () => {
   const teamMembers = [
@@ -64,10 +64,10 @@ const AboutPage = () => {
 
   return (
     <>
-      <Helmet>
-        <title>About EVOBRAND - AI Transformation Partner | Our Story & Team</title>
-        <meta name="description" content="Learn about EVOBRAND's mission to transform businesses with AI. Meet our team, explore our values, and discover why we're different." />
-      </Helmet>
+      <SEO 
+        title="About Us"
+        description="Learn about EVOBRAND's mission to transform businesses with AI. Meet our team, explore our values, and discover why we're different."
+      />
 
       <div className="min-h-screen bg-[#0f1419]">
         {/* Hero */}

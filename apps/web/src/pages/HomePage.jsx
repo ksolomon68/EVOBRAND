@@ -2,11 +2,12 @@
 import React from 'react';
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { Helmet } from 'react-helmet';
 import { motion } from 'framer-motion';
 import { Sparkles, Zap, FileText, Video, Code } from 'lucide-react';
 import HeroAnimation from '@/components/HeroAnimation.jsx';
 import VideoLibrarySection from '@/components/VideoLibrarySection.jsx';
+import AuditorSection from '@/components/sections/AuditorSection.jsx';
+import SEO from '@/components/SEO.jsx';
 
 const HomePage = () => {
   const [typewriterText, setTypewriterText] = useState('');
@@ -67,10 +68,10 @@ const HomePage = () => {
 
   return (
     <>
-      <Helmet>
-        <title>EVOBRAND - AI Transformation Partner | Custom AI Solutions</title>
-        <meta name="description" content="Transform your business with AI-powered solutions. Custom AI applications, visual content creation, intelligent document generation, and video production." />
-      </Helmet>
+      <SEO 
+        title="Home"
+        description="Transform your business with AI-powered solutions. Custom AI applications, visual content creation, intelligent document generation, and video production by EVOBRAND."
+      />
 
       <div className="min-h-screen bg-[#0f1419]">
         {/* Hero Section */}
@@ -87,7 +88,7 @@ const HomePage = () => {
                 className="max-w-3xl pointer-events-auto"
               >
                 <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold text-white mb-6">
-                  From Concept to <span className="text-[#22c8e5]">Creation</span>
+                  Your Partner in <span className="text-[#22c8e5]">AI Transformation</span>
                 </h1>
                 <p className="text-2xl md:text-3xl text-[#22c8e5] mb-6 h-20">
                   {typewriterText}<span className="animate-pulse">|</span>
@@ -215,6 +216,9 @@ const HomePage = () => {
 
         {/* Video Library Section */}
         <VideoLibrarySection />
+
+        {/* Brand Auditor Section */}
+        <AuditorSection />
 
         {/* Final CTA */}
         <section className="py-20 bg-gradient-to-br from-[#1a2332] to-[#22c8e5]">

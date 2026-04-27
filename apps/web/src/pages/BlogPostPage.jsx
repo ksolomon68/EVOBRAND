@@ -1,7 +1,7 @@
 import React from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { Helmet } from 'react-helmet';
 import { motion } from 'framer-motion';
+import SEO from '@/components/SEO.jsx';
 import { Calendar, User, ArrowLeft, Share2, Tag } from 'lucide-react';
 import { blogPosts } from '../data/blogPosts';
 
@@ -25,10 +25,12 @@ const BlogPostPage = () => {
 
     return (
         <>
-            <Helmet>
-                <title>{post.title} - EVOBRAND</title>
-                <meta name="description" content={post.excerpt} />
-            </Helmet>
+            <SEO 
+                title={post.title}
+                description={post.excerpt}
+                image={post.image}
+                article={true}
+            />
 
             <article className="min-h-screen bg-[#0f1419] pb-20">
                 {/* Hero Image */}

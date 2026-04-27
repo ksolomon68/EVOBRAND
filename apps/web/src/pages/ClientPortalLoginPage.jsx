@@ -1,169 +1,304 @@
-
-import React from 'react';
-import { useState } from 'react';
-import { Helmet } from 'react-helmet';
-import { motion } from 'framer-motion';
-import { Lock, Mail, AlertCircle } from 'lucide-react';
+import React, { useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Mail, Lock, User, ArrowRight, AlertCircle, CheckCircle2 } from 'lucide-react';
+import SEO from '@/components/SEO.jsx';
+import { useAuth } from '../hooks/useAuth.jsx';
+import { useNavigate } from 'react-router-dom';
+import { supabase } from '../lib/supabase.js';
 
 const ClientPortalLoginPage = () => {
-  const [formData, setFormData] = useState({
-    name: '',
-    email: '',
-    subject: '',
-    priority: 'Medium',
-    description: ''
-  });
-  const [submitted, setSubmitted] = useState(false);
+  const [isLogin, setIsLogin] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [success, setSuccess] = useState(false);
+  const [forgotPassword, setForgotPassword] = useState(false);
+  const [resetSent, setResetSent] = useState(false);
+  const { signIn, signUp } = useAuth();
+  const navigate = useNavigate();
 
-  const handleSubmit = (e) => {
+  const [formData, setFormData] = useState({
+    email: '',
+    password: '',
+    fullName: ''
+  });
+
+  const handleForgotPassword = async (e) => {
     e.preventDefault();
-    // Simulate submission
-    setSubmitted(true);
+    setLoading(true);
     setError('');
-    setTimeout(() => {
-      setSubmitted(false);
-      setFormData({ name: '', email: '', subject: '', priority: 'Medium', description: '' });
-    }, 3000);
+    const { error } = await supabase.auth.resetPasswordForEmail(formData.email, {
+      redirectTo: `${window.location.origin}/reset-password`,
+    });
+    if (error) {
+      setError(error.message);
+    } else {
+      setResetSent(true);
+    }
+    setLoading(false);
   };
 
-  const handleChange = (e) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value
-    });
+  const handleAuth = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    setError('');
+    
+    try {
+      if (isLogin) {
+        const { error } = await signIn({
+          email: formData.email,
+          password: formData.password
+        });
+        if (error) throw error;
+        navigate('/client-portal');
+      } else {
+        const { error } = await signUp({
+          email: formData.email,
+          password: formData.password,
+          options: {
+            data: {
+              full_name: formData.fullName
+            }
+          }
+        });
+        if (error) throw error;
+        setSuccess(true);
+      }
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
     <>
-      <Helmet>
-        <title>Support Portal - EVOBRAND</title>
-        <meta name="description" content="Submit a support ticket to EVOBRAND. Track your requests and get expert assistance." />
-      </Helmet>
+      <SEO 
+        title={forgotPassword ? 'Reset Password' : isLogin ? 'Login' : 'Create Account'}
+        description="Access your EVOBRAND client portal."
+        noindex={true}
+      />
 
-      <div className="min-h-screen bg-[#0f1419] flex items-center justify-center px-4 py-12">
+      <div className="min-h-screen bg-[#04080f] flex flex-col items-center justify-center px-4 py-20">
         <motion.div
-          initial={{ opacity: 0, y: 30 }}
+          initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="w-full max-w-2xl"
+          className="w-full max-w-md"
         >
           {/* Logo */}
-          <div className="text-center mb-8">
+          <div className="text-center mb-10">
             <motion.img
-              src="https://horizons-cdn.hostinger.com/f8ddb934-4ef0-4d1d-923b-d5395cd33cb2/b98337c63b696e237f54f7a827b0e0d4.png"
+              src="/logo.png"
               alt="EVOBRAND"
-              className="h-16 mx-auto object-contain drop-shadow-md"
-              whileHover={{ scale: 1.05 }}
+              className="h-20 mx-auto object-contain"
+              whileHover={{ scale: 1.02 }}
               transition={{ duration: 0.3 }}
             />
-            <p className="text-gray-400 mt-2">Support Portal</p>
+            <div className="h-px w-12 bg-[#22c8e5]/20 mx-auto mt-6 mb-4" />
+            <p className="text-[#22c8e5]/60 font-[Rajdhani] font-bold tracking-[0.3em] uppercase text-xs">
+              Client Portal
+            </p>
           </div>
 
-          {/* Ticket Form */}
-          <div className="bg-[#1a2332] p-8 rounded-xl shadow-2xl">
-            {submitted ? (
-              <div className="text-center py-12">
-                <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-[#22c8e5]/20 text-[#22c8e5] mb-6">
-                  <Mail size={32} />
-                </div>
-                <h2 className="text-3xl font-bold text-white mb-4">Ticket Submitted!</h2>
-                <p className="text-gray-400">
-                  Thank you for reaching out. Our support team will review your ticket and get back to you shortly.
-                </p>
-              </div>
-            ) : (
+          <div className="bg-white/5 backdrop-blur-xl border border-white/10 p-8 rounded-3xl shadow-2xl relative overflow-hidden">
+
+            {/* Sign-up success overlay */}
+            <AnimatePresence>
+              {success && (
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.9 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  className="absolute inset-0 z-20 bg-[#04080f]/95 backdrop-blur-md flex flex-col items-center justify-center p-8 text-center"
+                >
+                  <div className="w-16 h-16 rounded-full bg-green-500/20 flex items-center justify-center text-green-500 mb-6">
+                    <CheckCircle2 size={32} />
+                  </div>
+                  <h2 className="text-2xl font-bold text-white mb-4">Check your email</h2>
+                  <p className="text-white/60 mb-8">
+                    We've sent a confirmation link to <strong>{formData.email}</strong>. Please click it to activate your portal access.
+                  </p>
+                  <button
+                    onClick={() => { setSuccess(false); setIsLogin(true); }}
+                    className="text-[#22c8e5] font-bold hover:underline"
+                  >
+                    Back to login
+                  </button>
+                </motion.div>
+              )}
+            </AnimatePresence>
+
+            {/* ── Forgot-password view ── */}
+            {forgotPassword ? (
               <>
-                <h2 className="text-2xl font-bold text-white mb-6">Submit a Support Ticket</h2>
+                <button
+                  onClick={() => { setForgotPassword(false); setResetSent(false); setError(''); }}
+                  className="text-white/30 hover:text-white/60 text-xs font-bold uppercase tracking-widest mb-6 transition-colors"
+                >
+                  ← Back to login
+                </button>
+
+                {resetSent ? (
+                  <div className="flex flex-col items-center text-center py-4">
+                    <div className="w-16 h-16 rounded-full bg-[#22c8e5]/10 flex items-center justify-center mb-6">
+                      <CheckCircle2 size={32} style={{ color: '#22c8e5' }} />
+                    </div>
+                    <h2 className="text-2xl font-bold text-white mb-3">Check your inbox</h2>
+                    <p className="text-white/50 text-sm">
+                      A reset link has been sent to <strong className="text-white/70">{formData.email}</strong>. Click it to set a new password.
+                    </p>
+                  </div>
+                ) : (
+                  <>
+                    <h2 className="text-2xl font-[Rajdhani] font-bold text-white mb-2">Forgot password?</h2>
+                    <p className="text-white/40 text-sm mb-8">Enter your email and we'll send you a reset link.</p>
+
+                    {error && (
+                      <div className="mb-6 p-4 bg-red-500/10 border border-red-500/20 rounded-xl flex items-start gap-3 text-red-400 text-sm">
+                        <AlertCircle size={18} className="shrink-0" />
+                        <p>{error}</p>
+                      </div>
+                    )}
+
+                    <form onSubmit={handleForgotPassword} className="space-y-5">
+                      <div className="space-y-2">
+                        <label className="text-white/40 text-xs font-bold uppercase tracking-widest ml-1">Email Address</label>
+                        <div className="relative">
+                          <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-white/20" size={18} />
+                          <input
+                            type="email"
+                            required
+                            className="w-full bg-white/5 border border-white/10 rounded-2xl py-4 pl-12 pr-4 text-white focus:outline-none focus:border-[#22c8e5] transition-colors"
+                            placeholder="name@company.com"
+                            value={formData.email}
+                            onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                          />
+                        </div>
+                      </div>
+                      <button
+                        type="submit"
+                        disabled={loading}
+                        className="w-full bg-[#22c8e5] hover:bg-[#1ba3c0] text-[#003258] font-bold py-4 rounded-2xl transition-all flex items-center justify-center gap-2 disabled:opacity-50"
+                      >
+                        {loading
+                          ? <div className="w-5 h-5 border-2 border-[#003258]/20 border-t-[#003258] rounded-full animate-spin" />
+                          : 'SEND RESET LINK'}
+                      </button>
+                    </form>
+                  </>
+                )}
+              </>
+            ) : (
+              /* ── Login / Sign-up view ── */
+              <>
+                <div className="flex gap-4 mb-8">
+                  <button
+                    onClick={() => { setIsLogin(true); setError(''); }}
+                    className={`flex-1 py-2 rounded-xl text-sm font-bold transition-all ${isLogin ? 'bg-[#22c8e5] text-[#003258]' : 'bg-white/5 text-white/40 hover:bg-white/10'}`}
+                  >
+                    LOG IN
+                  </button>
+                  <button
+                    onClick={() => { setIsLogin(false); setError(''); }}
+                    className={`flex-1 py-2 rounded-xl text-sm font-bold transition-all ${!isLogin ? 'bg-[#22c8e5] text-[#003258]' : 'bg-white/5 text-white/40 hover:bg-white/10'}`}
+                  >
+                    SIGN UP
+                  </button>
+                </div>
+
+                <h2 className="text-2xl font-[Rajdhani] font-bold text-white mb-2">
+                  {isLogin ? 'Welcome back' : 'Start your project'}
+                </h2>
+                <p className="text-white/40 text-sm mb-8">
+                  {isLogin ? 'Sign in to manage your tickets.' : 'Create an account to access support.'}
+                </p>
 
                 {error && (
-                  <div className="mb-6 p-4 bg-red-500/10 border border-red-500/50 rounded-lg flex items-start space-x-3">
-                    <AlertCircle className="text-red-500 flex-shrink-0 mt-0.5" size={20} />
-                    <p className="text-red-400 text-sm">{error}</p>
+                  <div className="mb-6 p-4 bg-red-500/10 border border-red-500/20 rounded-xl flex items-start gap-3 text-red-400 text-sm">
+                    <AlertCircle size={18} className="shrink-0" />
+                    <p>{error}</p>
                   </div>
                 )}
 
-                <form onSubmit={handleSubmit} className="space-y-6">
-                  <div className="grid md:grid-cols-2 gap-6">
-                    <div>
-                      <label className="block text-white font-semibold mb-2">Name</label>
-                      <input
-                        type="text"
-                        name="name"
-                        value={formData.name}
-                        onChange={handleChange}
-                        className="w-full px-4 py-3 bg-[#0f1419] text-white border border-gray-700 rounded-lg focus:outline-none focus:border-[#22c8e5]"
-                        required
-                      />
+                <form onSubmit={handleAuth} className="space-y-5">
+                  {!isLogin && (
+                    <div className="space-y-2">
+                      <label className="text-white/40 text-xs font-bold uppercase tracking-widest ml-1">Full Name</label>
+                      <div className="relative">
+                        <User className="absolute left-4 top-1/2 -translate-y-1/2 text-white/20" size={18} />
+                        <input
+                          type="text"
+                          required
+                          className="w-full bg-white/5 border border-white/10 rounded-2xl py-4 pl-12 pr-4 text-white focus:outline-none focus:border-[#22c8e5] transition-colors"
+                          placeholder="John Doe"
+                          value={formData.fullName}
+                          onChange={(e) => setFormData({ ...formData, fullName: e.target.value })}
+                        />
+                      </div>
                     </div>
-                    <div>
-                      <label className="block text-white font-semibold mb-2">Email Address</label>
+                  )}
+
+                  <div className="space-y-2">
+                    <label className="text-white/40 text-xs font-bold uppercase tracking-widest ml-1">Email Address</label>
+                    <div className="relative">
+                      <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-white/20" size={18} />
                       <input
                         type="email"
-                        name="email"
-                        value={formData.email}
-                        onChange={handleChange}
-                        className="w-full px-4 py-3 bg-[#0f1419] text-white border border-gray-700 rounded-lg focus:outline-none focus:border-[#22c8e5]"
                         required
+                        className="w-full bg-white/5 border border-white/10 rounded-2xl py-4 pl-12 pr-4 text-white focus:outline-none focus:border-[#22c8e5] transition-colors"
+                        placeholder="name@company.com"
+                        value={formData.email}
+                        onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                       />
                     </div>
                   </div>
 
-                  <div>
-                    <label className="block text-white font-semibold mb-2">Subject</label>
-                    <input
-                      type="text"
-                      name="subject"
-                      value={formData.subject}
-                      onChange={handleChange}
-                      className="w-full px-4 py-3 bg-[#0f1419] text-white border border-gray-700 rounded-lg focus:outline-none focus:border-[#22c8e5]"
-                      required
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-white font-semibold mb-2">Priority</label>
-                    <select
-                      name="priority"
-                      value={formData.priority}
-                      onChange={handleChange}
-                      className="w-full px-4 py-3 bg-[#0f1419] text-white border border-gray-700 rounded-lg focus:outline-none focus:border-[#22c8e5]"
-                    >
-                      <option value="Low">Low</option>
-                      <option value="Medium">Medium</option>
-                      <option value="High">High</option>
-                      <option value="Urgent">Urgent</option>
-                    </select>
-                  </div>
-
-                  <div>
-                    <label className="block text-white font-semibold mb-2">Description</label>
-                    <textarea
-                      name="description"
-                      value={formData.description}
-                      onChange={handleChange}
-                      rows="5"
-                      className="w-full px-4 py-3 bg-[#0f1419] text-white border border-gray-700 rounded-lg focus:outline-none focus:border-[#22c8e5]"
-                      required
-                    ></textarea>
+                  <div className="space-y-2">
+                    <div className="flex justify-between items-center ml-1">
+                      <label className="text-white/40 text-xs font-bold uppercase tracking-widest">Password</label>
+                      {isLogin && (
+                        <button
+                          type="button"
+                          onClick={() => { setForgotPassword(true); setError(''); }}
+                          className="text-[#22c8e5]/60 hover:text-[#22c8e5] text-xs font-semibold transition-colors"
+                        >
+                          Forgot password?
+                        </button>
+                      )}
+                    </div>
+                    <div className="relative">
+                      <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-white/20" size={18} />
+                      <input
+                        type="password"
+                        required
+                        className="w-full bg-white/5 border border-white/10 rounded-2xl py-4 pl-12 pr-4 text-white focus:outline-none focus:border-[#22c8e5] transition-colors"
+                        placeholder="••••••••"
+                        value={formData.password}
+                        onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                      />
+                    </div>
                   </div>
 
                   <button
                     type="submit"
-                    className="w-full px-6 py-4 bg-[#22c8e5] text-white rounded-lg font-semibold hover:bg-[#1ba3c0] transition-colors"
+                    disabled={loading}
+                    className="w-full bg-[#22c8e5] hover:bg-[#1ba3c0] text-[#003258] font-bold py-4 rounded-2xl transition-all flex items-center justify-center gap-2 group disabled:opacity-50 mt-4"
                   >
-                    Submit Ticket
+                    {loading ? (
+                      <div className="w-5 h-5 border-2 border-[#003258]/20 border-t-[#003258] rounded-full animate-spin" />
+                    ) : (
+                      <>
+                        {isLogin ? 'SECURE LOGIN' : 'CREATE ACCOUNT'}
+                        <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />
+                      </>
+                    )}
                   </button>
                 </form>
               </>
             )}
           </div>
 
-          <div className="mt-6 text-center">
-            <a href="/contact" className="text-gray-400 hover:text-[#22c8e5] text-sm transition-colors">
-              Need immediate assistance? Contact us directly.
-            </a>
-          </div>
-
+          <p className="mt-8 text-center text-white/20 text-xs font-medium">
+            Protected by EVOBRAND Security Protocols
+          </p>
         </motion.div>
       </div>
     </>

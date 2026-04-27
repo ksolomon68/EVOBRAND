@@ -2,10 +2,10 @@
 import React from 'react';
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Helmet } from 'react-helmet';
 import { motion } from 'framer-motion';
 import { Search, Calendar, User, ArrowRight, TrendingUp, BookOpen, Lightbulb, BarChart } from 'lucide-react';
 import { blogPosts } from '../data/blogPosts';
+import SEO from '@/components/SEO.jsx';
 
 const ResourcesPage = () => {
   const [searchQuery, setSearchQuery] = useState('');
@@ -49,10 +49,10 @@ const ResourcesPage = () => {
 
   return (
     <>
-      <Helmet>
-        <title>Resources & Blog - EVOBRAND | AI Insights & Case Studies</title>
-        <meta name="description" content="Explore AI trends, case studies, how-to guides, and industry insights. Stay updated with the latest in AI transformation." />
-      </Helmet>
+      <SEO 
+        title="Resources & Blog"
+        description="Explore AI trends, case studies, how-to guides, and industry insights. Stay updated with the latest in AI transformation."
+      />
 
       <div className="min-h-screen bg-[#0f1419]">
         {/* Hero */}

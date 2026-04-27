@@ -1,301 +1,411 @@
+import React, { useState, useRef } from 'react';
+import { useGSAP } from '@gsap/react';
+import gsap from 'gsap';
+import { Mail, Phone, MapPin, Clock, Facebook, Youtube, Linkedin, Instagram, Send, Loader2, CheckCircle2, AlertCircle } from 'lucide-react';
+import { supabase } from '@/lib/supabase.js';
+import SchedulerWidget from '@/components/scheduler/SchedulerWidget.jsx';
+import SEO from '@/components/SEO.jsx';
 
-import React from 'react';
-import { useState } from 'react';
-import { Helmet } from 'react-helmet';
-import { motion } from 'framer-motion';
-import { Mail, Phone, MapPin, Clock, Facebook, Youtube, Linkedin, Instagram, Calendar } from 'lucide-react';
+const GOLD = '#22c8e5';
+const NAVY = '#003258';
+const BEIGE = '#ffffff';
 
-const ContactPage = () => {
-  const [formData, setFormData] = useState({
-    service: '',
-    name: '',
-    email: '',
-    message: ''
-  });
-  const [submitted, setSubmitted] = useState(false);
-  const [selectedDate, setSelectedDate] = useState('');
+const SERVICES = [
+  'Custom AI Applications',
+  'AI Visual Content Creation',
+  'Intelligent Document Generation',
+  'AI Video Production',
+  'WordPress & Web Development',
+  'General Inquiry',
+];
 
-  const services = [
-    'Custom AI Applications',
-    'AI Visual Content Creation',
-    'Intelligent Document Generation',
-    'AI Video Production',
-    'WordPress & Web Development',
-    'General Inquiry'
-  ];
+const CONTACT_METHODS = [
+  {
+    icon: Phone,
+    label: 'Phone',
+    lines: [
+      { text: '+1 214-531-4427', href: 'tel:+12145314427' },
+      { text: 'Mobile: +1 469-360-2723', href: 'tel:+14693602723' },
+    ],
+  },
+  {
+    icon: Mail,
+    label: 'Email',
+    lines: [{ text: 'info@evobrand.net', href: 'mailto:info@evobrand.net' }],
+  },
+  {
+    icon: MapPin,
+    label: 'Location',
+    lines: [{ text: 'Dallas, Texas' }],
+  },
+  {
+    icon: Clock,
+    label: 'Office Hours',
+    lines: [{ text: 'Mon – Fri' }, { text: '10:00 AM – 6:00 PM CST' }],
+  },
+];
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    setSubmitted(true);
-    setFormData({ service: '', name: '', email: '', message: '' });
-    setTimeout(() => setSubmitted(false), 3000);
-  };
+// ─── Contact Form ─────────────────────────────────────────────────────────────
+
+function ContactForm() {
+  const [form, setForm] = useState({ service: '', name: '', email: '', message: '' });
+  const [status, setStatus] = useState('idle'); // idle | loading | success | error
+  const [errorMsg, setErrorMsg] = useState('');
+  const formRef = useRef(null);
 
   const handleChange = (e) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value
-    });
+    const { name, value } = e.target;
+    setForm((p) => ({ ...p, [name]: value }));
+    if (status === 'error') setStatus('idle');
   };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (!form.name.trim() || !form.email.trim() || !form.message.trim()) {
+      setStatus('error');
+      setErrorMsg('Please fill in all required fields.');
+      return;
+    }
+
+    setStatus('loading');
+    try {
+      const { data, error } = await supabase.functions.invoke('send-contact-email', {
+        body: {
+          name: form.name.trim(),
+          email: form.email.trim(),
+          service: form.service,
+          message: form.message.trim(),
+        },
+      });
+
+      if (error || data?.error) throw new Error(data?.error ?? error?.message ?? 'Send failed');
+
+      setStatus('success');
+      setForm({ service: '', name: '', email: '', message: '' });
+    } catch (err) {
+      setStatus('error');
+      setErrorMsg(err.message || 'Failed to send your message. Please try again or email us directly.');
+    }
+  };
+
+  const inputClass =
+    'w-full px-4 py-3 rounded-xl text-sm outline-none transition-all duration-200 border placeholder:text-white/20 focus-visible:ring-2 focus-visible:ring-[#22c8e5] focus-visible:ring-offset-0';
+  const inputStyle = { background: 'rgba(10,22,40,0.7)', color: BEIGE, borderColor: 'rgba(34,200,229,0.18)' };
+
+  if (status === 'success') {
+    return (
+      <div className="flex flex-col items-center justify-center py-16 text-center">
+        <div
+          className="w-16 h-16 rounded-full flex items-center justify-center mb-5"
+          style={{ background: 'rgba(34,200,229,0.1)', border: `2px solid ${GOLD}` }}
+        >
+          <CheckCircle2 size={28} style={{ color: GOLD }} aria-hidden="true" />
+        </div>
+        <h3 className="text-xl font-bold mb-2" style={{ color: BEIGE }}>Message Sent</h3>
+        <p className="text-sm mb-6" style={{ color: 'rgba(255,255,255,0.6)' }}>
+          We'll be in touch within 1 business day.
+        </p>
+        <button
+          onClick={() => setStatus('idle')}
+          className="text-xs font-bold uppercase tracking-widest rounded transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#22c8e5]"
+          style={{ color: 'rgba(34,200,229,0.6)' }}
+        >
+          Send another message
+        </button>
+      </div>
+    );
+  }
+
+  return (
+    <form ref={formRef} onSubmit={handleSubmit} noValidate className="space-y-4" aria-label="Contact form">
+      <div>
+        <label htmlFor="cf-service" className="block text-xs font-bold uppercase tracking-widest mb-1.5" style={{ color: GOLD }}>
+          Service Interest
+        </label>
+        <select
+          id="cf-service"
+          name="service"
+          value={form.service}
+          onChange={handleChange}
+          className={inputClass}
+          style={{ ...inputStyle, appearance: 'none' }}
+        >
+          <option value="">Select a service</option>
+          {SERVICES.map((s) => <option key={s} value={s}>{s}</option>)}
+        </select>
+      </div>
+
+      <div>
+        <label htmlFor="cf-name" className="block text-xs font-bold uppercase tracking-widest mb-1.5" style={{ color: GOLD }}>
+          Full Name <span aria-hidden="true">*</span>
+        </label>
+        <input
+          id="cf-name"
+          name="name"
+          type="text"
+          value={form.name}
+          onChange={handleChange}
+          required
+          autoComplete="name"
+          className={inputClass}
+          style={inputStyle}
+          placeholder="Your full name"
+        />
+      </div>
+
+      <div>
+        <label htmlFor="cf-email" className="block text-xs font-bold uppercase tracking-widest mb-1.5" style={{ color: GOLD }}>
+          Email Address <span aria-hidden="true">*</span>
+        </label>
+        <input
+          id="cf-email"
+          name="email"
+          type="email"
+          value={form.email}
+          onChange={handleChange}
+          required
+          autoComplete="email"
+          className={inputClass}
+          style={inputStyle}
+          placeholder="you@example.com"
+        />
+      </div>
+
+      <div>
+        <label htmlFor="cf-message" className="block text-xs font-bold uppercase tracking-widest mb-1.5" style={{ color: GOLD }}>
+          Message <span aria-hidden="true">*</span>
+        </label>
+        <textarea
+          id="cf-message"
+          name="message"
+          value={form.message}
+          onChange={handleChange}
+          rows={5}
+          required
+          className={inputClass}
+          style={inputStyle}
+          placeholder="Tell us about your project or goals..."
+        />
+      </div>
+
+      {status === 'error' && (
+        <div
+          className="flex items-start gap-2 p-3 rounded-xl"
+          style={{ background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.25)' }}
+          role="alert"
+        >
+          <AlertCircle size={15} className="text-red-400 mt-0.5 flex-shrink-0" aria-hidden="true" />
+          <p className="text-red-300 text-sm">{errorMsg}</p>
+        </div>
+      )}
+
+      <button
+        type="submit"
+        disabled={status === 'loading'}
+        className="w-full py-4 rounded-xl text-sm font-bold uppercase tracking-widest flex items-center justify-center gap-2 transition-all duration-200 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#22c8e5]"
+        style={{ background: status === 'loading' ? 'rgba(34,200,229,0.5)' : GOLD, color: NAVY }}
+      >
+        {status === 'loading' ? (
+          <>
+            <Loader2 size={15} className="animate-spin" aria-hidden="true" />
+            <span>Sending...</span>
+          </>
+        ) : (
+          <>
+            <Send size={15} aria-hidden="true" />
+            <span>Send Message</span>
+          </>
+        )}
+      </button>
+    </form>
+  );
+}
+
+// ─── Page ─────────────────────────────────────────────────────────────────────
+
+export default function ContactPage() {
+  const heroRef = useRef(null);
+  const methodsRef = useRef(null);
+
+  useGSAP(() => {
+    gsap.fromTo(
+      heroRef.current?.children,
+      { opacity: 0, y: 30 },
+      { opacity: 1, y: 0, duration: 0.7, stagger: 0.12, ease: 'power2.out' }
+    );
+    if (methodsRef.current) {
+      gsap.fromTo(
+        methodsRef.current.children,
+        { opacity: 0, y: 20 },
+        {
+          opacity: 1,
+          y: 0,
+          duration: 0.5,
+          stagger: 0.08,
+          ease: 'power2.out',
+          scrollTrigger: { trigger: methodsRef.current, start: 'top 85%' },
+        }
+      );
+    }
+  }, []);
 
   return (
     <>
-      <Helmet>
-        <title>Contact EVOBRAND - Get Your Free AI Consultation | Dallas, TX</title>
-        <meta name="description" content="Contact EVOBRAND for AI solutions. Schedule a free consultation, call +1 214-531-4427, or email info@evobrand.net. Dallas, Texas office." />
-      </Helmet>
+      <SEO 
+        title="Contact Us"
+        description="Schedule a free AI consultation with EVOBRAND. Learn how our custom AI solutions can transform your business. Dallas based experts."
+      />
 
-      <div className="min-h-screen bg-[#0f1419]">
+      <div className="min-h-screen" style={{ background: NAVY }}>
         {/* Hero */}
-        <section className="py-20 bg-gradient-to-br from-[#1a2332] to-[#0f1419]">
+        <section className="py-24" style={{ background: `linear-gradient(135deg, #0D1E35 0%, ${NAVY} 100%)` }}>
           <div className="container mx-auto px-4 text-center">
-            <motion.div
-              initial={{ opacity: 0, y: 30 }}
-              animate={{ opacity: 1, y: 0 }}
-            >
-              <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-6">
-                Let's <span className="text-[#22c8e5]">Connect</span>
-              </h1>
-              <p className="text-xl text-gray-400 max-w-3xl mx-auto">
-                Ready to transform your business with AI? Get in touch for a free consultation
+            <div ref={heroRef}>
+              <p className="text-xs font-bold uppercase tracking-[0.3em] mb-4" style={{ color: GOLD }}>
+                Get in Touch
               </p>
-            </motion.div>
-          </div>
-        </section>
-
-        {/* Contact Methods */}
-        <section className="py-12 bg-[#1a2332]">
-          <div className="container mx-auto px-4">
-            <div className="grid md:grid-cols-4 gap-6">
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                className="bg-[#0f1419] p-6 rounded-xl text-center"
-              >
-                <Phone className="text-[#22c8e5] mx-auto mb-3" size={32} />
-                <h3 className="text-white font-bold mb-2">Phone</h3>
-                <a href="tel:+12145314427" className="text-gray-400 hover:text-[#22c8e5] transition-colors block">
-                  +1 214-531-4427
-                </a>
-                <a href="tel:+14693602723" className="text-gray-400 hover:text-[#22c8e5] transition-colors block text-sm mt-1">
-                  Mobile: +1 469-360-2723
-                </a>
-              </motion.div>
-
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: 0.1 }}
-                className="bg-[#0f1419] p-6 rounded-xl text-center"
-              >
-                <Mail className="text-[#22c8e5] mx-auto mb-3" size={32} />
-                <h3 className="text-white font-bold mb-2">Email</h3>
-                <a href="mailto:info@evobrand.net" className="text-gray-400 hover:text-[#22c8e5] transition-colors">
-                  info@evobrand.net
-                </a>
-              </motion.div>
-
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: 0.2 }}
-                className="bg-[#0f1419] p-6 rounded-xl text-center"
-              >
-                <MapPin className="text-[#22c8e5] mx-auto mb-3" size={32} />
-                <h3 className="text-white font-bold mb-2">Location</h3>
-                <p className="text-gray-400">Dallas, Texas</p>
-              </motion.div>
-
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: 0.3 }}
-                className="bg-[#0f1419] p-6 rounded-xl text-center"
-              >
-                <Clock className="text-[#22c8e5] mx-auto mb-3" size={32} />
-                <h3 className="text-white font-bold mb-2">Office Hours</h3>
-                <p className="text-gray-400 text-sm">Monday - Friday</p>
-                <p className="text-gray-400 text-sm">10:00 AM - 6:00 PM CST</p>
-              </motion.div>
+              <h1 className="text-5xl md:text-6xl font-bold text-white mb-5">
+                Let's <span style={{ color: GOLD }}>Connect</span>
+              </h1>
+              <div className="w-12 h-0.5 mx-auto mb-6" style={{ background: GOLD }} aria-hidden="true" />
+              <p className="text-lg max-w-2xl mx-auto" style={{ color: 'rgba(255,255,255,0.7)' }}>
+                Ready to transform your business with AI? Reach out for a free 30-minute consultation — no obligation.
+              </p>
             </div>
           </div>
         </section>
 
-        {/* Contact Form & Scheduler */}
-        <section className="py-20 bg-[#0f1419]">
+        {/* Contact method cards */}
+        <section className="py-12 border-y" style={{ background: 'rgba(13,30,53,0.6)', borderColor: `rgba(34,200,229,0.08)` }}>
           <div className="container mx-auto px-4">
-            <div className="grid lg:grid-cols-2 gap-12 max-w-6xl mx-auto">
-              {/* Contact Form */}
-              <motion.div
-                initial={{ opacity: 0, x: -30 }}
-                whileInView={{ opacity: 1, x: 0 }}
-                viewport={{ once: true }}
-                className="bg-[#1a2332] p-8 rounded-xl"
-              >
-                <h2 className="text-3xl font-bold text-white mb-6">Send Us a Message</h2>
-                <form onSubmit={handleSubmit} className="space-y-6">
-                  <div>
-                    <label className="block text-white font-semibold mb-2">Service Interest</label>
-                    <select
-                      name="service"
-                      value={formData.service}
-                      onChange={handleChange}
-                      className="w-full px-4 py-3 bg-[#0f1419] text-white border border-gray-700 rounded-lg focus:outline-none focus:border-[#22c8e5]"
-                      required
-                    >
-                      <option value="">Select a service</option>
-                      {services.map((service) => (
-                        <option key={service} value={service}>{service}</option>
-                      ))}
-                    </select>
-                  </div>
-
-                  <div>
-                    <label className="block text-white font-semibold mb-2">Name</label>
-                    <input
-                      type="text"
-                      name="name"
-                      value={formData.name}
-                      onChange={handleChange}
-                      className="w-full px-4 py-3 bg-[#0f1419] text-white border border-gray-700 rounded-lg focus:outline-none focus:border-[#22c8e5]"
-                      required
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-white font-semibold mb-2">Email</label>
-                    <input
-                      type="email"
-                      name="email"
-                      value={formData.email}
-                      onChange={handleChange}
-                      className="w-full px-4 py-3 bg-[#0f1419] text-white border border-gray-700 rounded-lg focus:outline-none focus:border-[#22c8e5]"
-                      required
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-white font-semibold mb-2">Message</label>
-                    <textarea
-                      name="message"
-                      value={formData.message}
-                      onChange={handleChange}
-                      rows="5"
-                      className="w-full px-4 py-3 bg-[#0f1419] text-white border border-gray-700 rounded-lg focus:outline-none focus:border-[#22c8e5]"
-                      required
-                    ></textarea>
-                  </div>
-
-                  <button
-                    type="submit"
-                    className="w-full px-6 py-4 bg-[#22c8e5] text-white rounded-lg font-semibold hover:bg-[#1ba3c0] transition-colors"
+            <div ref={methodsRef} className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
+              {CONTACT_METHODS.map(({ icon: Icon, label, lines }) => (
+                <div
+                  key={label}
+                  className="p-6 rounded-2xl text-center border transition-all duration-300 hover:border-[#22c8e5]/30"
+                  style={{ background: 'rgba(10,22,40,0.6)', borderColor: 'rgba(34,200,229,0.1)' }}
+                >
+                  <div
+                    className="w-10 h-10 rounded-full flex items-center justify-center mx-auto mb-3"
+                    style={{ background: 'rgba(34,200,229,0.1)' }}
+                    aria-hidden="true"
                   >
-                    {submitted ? 'Message Sent!' : 'Send Message'}
-                  </button>
-                </form>
-              </motion.div>
-
-              {/* Appointment Scheduler */}
-              <motion.div
-                initial={{ opacity: 0, x: 30 }}
-                whileInView={{ opacity: 1, x: 0 }}
-                viewport={{ once: true }}
-                className="bg-[#1a2332] p-8 rounded-xl"
-              >
-                <h2 className="text-3xl font-bold text-white mb-6">Book a Consultation</h2>
-                <p className="text-gray-400 mb-6">
-                  Schedule a free 30-minute consultation to discuss your AI transformation goals
-                </p>
-
-                <div className="space-y-6">
-                  <div>
-                    <label className="block text-white font-semibold mb-2">Select Date</label>
-                    <div className="relative">
-                      <Calendar className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
-                      <input
-                        type="date"
-                        value={selectedDate}
-                        onChange={(e) => setSelectedDate(e.target.value)}
-                        min={new Date().toISOString().split('T')[0]}
-                        className="w-full pl-12 pr-4 py-3 bg-[#0f1419] text-white border border-gray-700 rounded-lg focus:outline-none focus:border-[#22c8e5]"
-                      />
-                    </div>
+                    <Icon size={18} style={{ color: GOLD }} />
                   </div>
-
-                  <div>
-                    <label className="block text-white font-semibold mb-2">Available Time Slots</label>
-                    <div className="grid grid-cols-2 gap-3">
-                      {['10:00 AM', '11:00 AM', '1:00 PM', '2:00 PM', '3:00 PM', '4:00 PM'].map((time) => (
-                        <button
-                          key={time}
-                          className="px-4 py-3 bg-[#0f1419] text-gray-400 border border-gray-700 rounded-lg hover:border-[#22c8e5] hover:text-[#22c8e5] transition-colors"
-                        >
-                          {time}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-
-                  <button className="w-full px-6 py-4 bg-[#22c8e5] text-white rounded-lg font-semibold hover:bg-[#1ba3c0] transition-colors">
-                    Confirm Appointment
-                  </button>
+                  <h3 className="text-white font-bold text-sm mb-2">{label}</h3>
+                  {lines.map(({ text, href }) =>
+                    href ? (
+                      <a
+                        key={text}
+                        href={href}
+                        className="block text-sm transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#22c8e5] rounded"
+                        style={{ color: 'rgba(255,255,255,0.55)' }}
+                        onMouseEnter={(e) => (e.target.style.color = GOLD)}
+                        onMouseLeave={(e) => (e.target.style.color = 'rgba(255,255,255,0.55)')}
+                      >
+                        {text}
+                      </a>
+                    ) : (
+                      <p key={text} className="text-sm" style={{ color: 'rgba(255,255,255,0.55)' }}>
+                        {text}
+                      </p>
+                    )
+                  )}
                 </div>
+              ))}
+            </div>
+          </div>
+        </section>
 
-                <div className="mt-8 pt-8 border-t border-gray-700">
-                  <h3 className="text-white font-bold mb-4">What to Expect</h3>
-                  <ul className="space-y-2 text-gray-400 text-sm">
-                    <li className="flex items-start space-x-2">
-                      <span className="w-1.5 h-1.5 bg-[#22c8e5] rounded-full mt-2 flex-shrink-0"></span>
-                      <span>30-minute video call with our AI experts</span>
-                    </li>
-                    <li className="flex items-start space-x-2">
-                      <span className="w-1.5 h-1.5 bg-[#22c8e5] rounded-full mt-2 flex-shrink-0"></span>
-                      <span>Discussion of your business goals and challenges</span>
-                    </li>
-                    <li className="flex items-start space-x-2">
-                      <span className="w-1.5 h-1.5 bg-[#22c8e5] rounded-full mt-2 flex-shrink-0"></span>
-                      <span>Custom AI solution recommendations</span>
-                    </li>
-                    <li className="flex items-start space-x-2">
-                      <span className="w-1.5 h-1.5 bg-[#22c8e5] rounded-full mt-2 flex-shrink-0"></span>
-                      <span>Estimated timeline and investment</span>
-                    </li>
+        {/* Main content: form + scheduler */}
+        <section className="py-20">
+          <div className="container mx-auto px-4">
+            <div className="grid lg:grid-cols-2 gap-10 max-w-6xl mx-auto">
+              {/* Contact Form */}
+              <div
+                className="rounded-2xl p-8 border"
+                style={{ background: 'rgba(13,30,53,0.7)', borderColor: 'rgba(34,200,229,0.12)', backdropFilter: 'blur(10px)' }}
+              >
+                <div className="flex items-center gap-3 mb-7">
+                  <div
+                    className="w-8 h-8 rounded-full flex items-center justify-center"
+                    style={{ background: 'rgba(34,200,229,0.1)' }}
+                    aria-hidden="true"
+                  >
+                    <Mail size={15} style={{ color: GOLD }} />
+                  </div>
+                  <h2 className="text-base font-bold tracking-wide" style={{ color: BEIGE }}>
+                    Send Us a Message
+                  </h2>
+                </div>
+                <ContactForm />
+
+                {/* What to expect */}
+                <div className="mt-8 pt-7 border-t" style={{ borderColor: 'rgba(34,200,229,0.1)' }}>
+                  <p className="text-xs font-bold uppercase tracking-widest mb-4" style={{ color: 'rgba(34,200,229,0.6)' }}>
+                    What Happens Next
+                  </p>
+                  <ul className="space-y-2.5">
+                    {[
+                      'We review your inquiry within 1 business day',
+                      'A strategist reaches out to learn more',
+                      'We propose a custom AI solution roadmap',
+                      'You receive a detailed timeline & investment estimate',
+                    ].map((item, i) => (
+                      <li key={i} className="flex items-start gap-3 text-sm" style={{ color: 'rgba(255,255,255,0.6)' }}>
+                        <span
+                          className="w-4 h-4 rounded-full flex items-center justify-center text-[10px] font-bold flex-shrink-0 mt-0.5"
+                          style={{ background: 'rgba(34,200,229,0.15)', color: GOLD }}
+                          aria-hidden="true"
+                        >
+                          {i + 1}
+                        </span>
+                        {item}
+                      </li>
+                    ))}
                   </ul>
                 </div>
-              </motion.div>
+              </div>
+
+              {/* Scheduler */}
+              <div>
+                <SchedulerWidget />
+              </div>
             </div>
           </div>
         </section>
 
-
-
-        {/* Social Media */}
-        <section className="py-12 bg-[#0f1419]">
+        {/* Social */}
+        <section className="py-12 border-t" style={{ borderColor: 'rgba(34,200,229,0.08)' }}>
           <div className="container mx-auto px-4 text-center">
-            <h3 className="text-2xl font-bold text-white mb-6">Follow Us</h3>
-            <div className="flex justify-center space-x-6">
-              <a href="http://facebook.com/evobrandconcepts" target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-[#22c8e5] transition-colors">
-                <Facebook size={32} />
-              </a>
-              <a href="https://www.linkedin.com/company/evobrand-concepts/" target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-[#22c8e5] transition-colors">
-                <Linkedin size={32} />
-              </a>
-              <a href="https://www.instagram.com/evobrandconcepts" target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-[#22c8e5] transition-colors">
-                <Instagram size={32} />
-              </a>
-              <a href="https://www.youtube.com/channel/UC8z66n8_seQVY5PjBEDMM7w" target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-[#22c8e5] transition-colors">
-                <Youtube size={32} /> {/* Replaced Twitter with Youtube from Footer */}
-              </a>
+            <p className="text-xs font-bold uppercase tracking-[0.25em] mb-5" style={{ color: 'rgba(34,200,229,0.5)' }}>
+              Follow Our Journey
+            </p>
+            <div className="flex justify-center gap-6">
+              {[
+                { icon: Facebook, href: 'http://facebook.com/evobrandconcepts', label: 'Facebook' },
+                { icon: Linkedin, href: 'https://www.linkedin.com/company/evobrand-concepts/', label: 'LinkedIn' },
+                { icon: Instagram, href: 'https://www.instagram.com/evobrandconcepts', label: 'Instagram' },
+                { icon: Youtube, href: 'https://www.youtube.com/channel/UC8z66n8_seQVY5PjBEDMM7w', label: 'YouTube' },
+              ].map(({ icon: Icon, href, label }) => (
+                <a
+                  key={label}
+                  href={href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label={`EVOBRAND on ${label}`}
+                  className="w-10 h-10 rounded-full flex items-center justify-center border transition-all duration-200 focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#22c8e5] focus-visible:outline-offset-2"
+                  style={{ borderColor: 'rgba(34,200,229,0.2)', color: 'rgba(255,255,255,0.4)' }}
+                  onMouseEnter={(e) => { e.currentTarget.style.borderColor = GOLD; e.currentTarget.style.color = GOLD; e.currentTarget.style.background = 'rgba(34,200,229,0.1)'; }}
+                  onMouseLeave={(e) => { e.currentTarget.style.borderColor = 'rgba(34,200,229,0.2)'; e.currentTarget.style.color = 'rgba(255,255,255,0.4)'; e.currentTarget.style.background = 'transparent'; }}
+                >
+                  <Icon size={18} aria-hidden="true" />
+                </a>
+              ))}
             </div>
           </div>
         </section>
       </div>
     </>
   );
-};
-
-export default ContactPage;
+}

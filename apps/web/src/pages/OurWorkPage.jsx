@@ -1,9 +1,9 @@
 
 import React from 'react';
 import { useState } from 'react';
-import { Helmet } from 'react-helmet';
 import { motion } from 'framer-motion';
 import { Filter, TrendingUp, Clock, DollarSign, Star } from 'lucide-react';
+import SEO from '@/components/SEO.jsx';
 
 const OurWorkPage = () => {
 
@@ -206,10 +206,10 @@ const OurWorkPage = () => {
 
   return (
     <>
-      <Helmet>
-        <title>Our Work - EVOBRAND Portfolio | Case Studies & Success Stories</title>
-        <meta name="description" content="Explore our portfolio of successful AI projects. See real results, case studies, and client testimonials from businesses we've transformed." />
-      </Helmet>
+      <SEO 
+        title="Our Work"
+        description="Explore our portfolio of successful AI projects. See real results, case studies, and client testimonials from businesses we've transformed."
+      />
 
       <div className="min-h-screen bg-[#0f1419]">
         {/* Hero */}

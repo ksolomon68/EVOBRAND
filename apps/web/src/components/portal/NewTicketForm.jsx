@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
-import { X, Upload, AlertCircle } from 'lucide-react';
+import { X, Upload, Send, ShieldCheck, Zap } from 'lucide-react';
 
 const NewTicketForm = ({ onClose, onSubmit }) => {
     const [formData, setFormData] = useState({
@@ -28,82 +28,92 @@ const NewTicketForm = ({ onClose, onSubmit }) => {
     };
 
     return (
-        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+        <div className="fixed inset-0 bg-[#04080f]/90 backdrop-blur-md z-50 flex items-center justify-center p-4">
             <motion.div
-                initial={{ opacity: 0, scale: 0.95 }}
-                animate={{ opacity: 1, scale: 1 }}
-                className="bg-[#1a2332] rounded-xl w-full max-w-2xl overflow-hidden flex flex-col max-h-[90vh]"
+                initial={{ opacity: 0, scale: 0.95, y: 20 }}
+                animate={{ opacity: 1, scale: 1, y: 0 }}
+                className="bg-[#04080f] border border-white/10 rounded-[2.5rem] w-full max-w-2xl overflow-hidden flex flex-col max-h-[90vh] shadow-[0_0_100px_-20px_rgba(34,200,229,0.2)]"
             >
-                <div className="p-6 border-b border-gray-700 flex justify-between items-center bg-[#0f1419]">
-                    <h2 className="text-xl font-bold text-white">Open New Ticket</h2>
-                    <button onClick={onClose} className="text-gray-400 hover:text-white transition-colors">
-                        <X size={24} />
+                {/* Header */}
+                <div className="p-8 border-b border-white/5 flex justify-between items-center bg-gradient-to-r from-white/5 to-transparent">
+                    <div>
+                        <div className="flex items-center gap-2 mb-1">
+                            <Zap size={16} className="text-[#22c8e5]" />
+                            <h2 className="text-2xl font-bold text-white">Initialize New Transmission</h2>
+                        </div>
+                        <p className="text-white/40 text-xs font-bold uppercase tracking-widest">Support Node Alpha // Secure Entry</p>
+                    </div>
+                    <button 
+                        onClick={onClose} 
+                        className="p-3 bg-white/5 hover:bg-white/10 border border-white/10 rounded-2xl text-white/40 hover:text-white transition-all"
+                    >
+                        <X size={20} />
                     </button>
                 </div>
 
-                <div className="p-6 overflow-y-auto custom-scrollbar">
-                    <form onSubmit={handleSubmit} className="space-y-6">
-                        <div className="grid md:grid-cols-2 gap-6">
-                            <div>
-                                <label className="block text-white font-semibold mb-2 text-sm">Product / Service</label>
+                <div className="p-8 overflow-y-auto custom-scrollbar">
+                    <form onSubmit={handleSubmit} className="space-y-8">
+                        <div className="grid md:grid-cols-2 gap-8">
+                            <div className="space-y-2">
+                                <label className="text-white/40 text-xs font-bold uppercase tracking-widest ml-1">Target Cluster</label>
                                 <select
                                     name="service"
                                     value={formData.service}
                                     onChange={handleChange}
-                                    className="w-full px-4 py-3 bg-[#0f1419] text-white border border-gray-700 rounded-lg focus:outline-none focus:border-[#22c8e5]"
+                                    className="w-full px-5 py-4 bg-white/5 text-white border border-white/10 rounded-2xl focus:outline-none focus:border-[#22c8e5] transition-all font-medium appearance-none"
                                 >
-                                    <option value="Web Design">Web Design</option>
-                                    <option value="AI Automation">AI Automation</option>
-                                    <option value="Maintenance">Maintenance</option>
-                                    <option value="SEO & Marketing">SEO & Marketing</option>
+                                    <option value="Web Design" className="bg-[#04080f]">Web Design & Dev</option>
+                                    <option value="AI Automation" className="bg-[#04080f]">AI Automation</option>
+                                    <option value="Maintenance" className="bg-[#04080f]">Maintenance</option>
+                                    <option value="SEO & Marketing" className="bg-[#04080f]">SEO & Marketing</option>
                                 </select>
                             </div>
-                            <div>
-                                <label className="block text-white font-semibold mb-2 text-sm">Priority</label>
+                            <div className="space-y-2">
+                                <label className="text-white/40 text-xs font-bold uppercase tracking-widest ml-1">Urgency Level</label>
                                 <select
                                     name="priority"
                                     value={formData.priority}
                                     onChange={handleChange}
-                                    className="w-full px-4 py-3 bg-[#0f1419] text-white border border-gray-700 rounded-lg focus:outline-none focus:border-[#22c8e5]"
+                                    className="w-full px-5 py-4 bg-white/5 text-white border border-white/10 rounded-2xl focus:outline-none focus:border-[#22c8e5] transition-all font-medium appearance-none"
                                 >
-                                    <option value="Low">Low (General Inquiry)</option>
-                                    <option value="Medium">Medium (Standard Request)</option>
-                                    <option value="High">High (Important Issue)</option>
-                                    <option value="Urgent">Urgent (Critical Failure)</option>
+                                    <option value="Low" className="bg-[#04080f]">Low (General Inquiry)</option>
+                                    <option value="Medium" className="bg-[#04080f]">Medium (Standard Request)</option>
+                                    <option value="High" className="bg-[#04080f]">High (Important Issue)</option>
+                                    <option value="Urgent" className="bg-[#04080f]">Urgent (Critical Failure)</option>
                                 </select>
                             </div>
                         </div>
 
-                        <div>
-                            <label className="block text-white font-semibold mb-2 text-sm">Subject</label>
+                        <div className="space-y-2">
+                            <label className="text-white/40 text-xs font-bold uppercase tracking-widest ml-1">Transmission Subject</label>
                             <input
                                 type="text"
                                 name="subject"
                                 value={formData.subject}
                                 onChange={handleChange}
-                                placeholder="Brief summary of the issue"
-                                className="w-full px-4 py-3 bg-[#0f1419] text-white border border-gray-700 rounded-lg focus:outline-none focus:border-[#22c8e5]"
+                                placeholder="Brief summary of the operation..."
+                                className="w-full px-5 py-4 bg-white/5 text-white border border-white/10 rounded-2xl focus:outline-none focus:border-[#22c8e5] transition-all"
                                 required
                             />
                         </div>
 
-                        <div>
-                            <label className="block text-white font-semibold mb-2 text-sm">Description</label>
+                        <div className="space-y-2">
+                            <label className="text-white/40 text-xs font-bold uppercase tracking-widest ml-1">Detailed Intelligence</label>
                             <textarea
                                 name="description"
                                 value={formData.description}
                                 onChange={handleChange}
                                 rows="6"
-                                placeholder="Please describe the issue in detail..."
-                                className="w-full px-4 py-3 bg-[#0f1419] text-white border border-gray-700 rounded-lg focus:outline-none focus:border-[#22c8e5]"
+                                placeholder="Describe the requirements or issue in detail..."
+                                className="w-full px-5 py-4 bg-white/5 text-white border border-white/10 rounded-2xl focus:outline-none focus:border-[#22c8e5] transition-all resize-none"
                                 required
                             ></textarea>
                         </div>
 
                         {/* File Upload */}
-                        <div>
-                            <label className="block text-white font-semibold mb-2 text-sm">Attachments (Optional)</label>
-                            <div className="border-2 border-dashed border-gray-700 rounded-lg p-6 text-center hover:border-[#22c8e5] transition-colors bg-[#0f1419]/50">
+                        <div className="space-y-2">
+                            <label className="text-white/40 text-xs font-bold uppercase tracking-widest ml-1">Supplementary Evidence</label>
+                            <div className="border-2 border-dashed border-white/10 rounded-3xl p-8 text-center hover:border-[#22c8e5]/50 hover:bg-[#22c8e5]/5 transition-all bg-white/2">
                                 <input
                                     type="file"
                                     id="file-upload"
@@ -111,27 +121,34 @@ const NewTicketForm = ({ onClose, onSubmit }) => {
                                     onChange={handleFileChange}
                                 />
                                 <label htmlFor="file-upload" className="cursor-pointer flex flex-col items-center justify-center">
-                                    <Upload className="text-gray-400 mb-2" size={24} />
-                                    <span className="text-gray-300 text-sm">{formData.file ? formData.file.name : 'Click to upload screenshot or file'}</span>
-                                    <span className="text-gray-500 text-xs mt-1">PNG, JPG, PDF up to 5MB</span>
+                                    <Upload className="text-[#22c8e5] mb-3" size={28} />
+                                    <span className="text-white font-bold text-sm mb-1">{formData.file ? formData.file.name : 'Upload Assets'}</span>
+                                    <span className="text-white/20 text-xs uppercase tracking-widest">PNG, JPG, PDF up to 5MB</span>
                                 </label>
                             </div>
                         </div>
 
-                        <div className="flex justify-end pt-4 space-x-4">
-                            <button
-                                type="button"
-                                onClick={onClose}
-                                className="px-6 py-3 bg-transparent border border-gray-700 text-white rounded-lg hover:bg-gray-800 transition-colors"
-                            >
-                                Cancel
-                            </button>
-                            <button
-                                type="submit"
-                                className="px-6 py-3 bg-[#22c8e5] text-white rounded-lg font-semibold hover:bg-[#1ba3c0] transition-colors shadow-lg shadow-[#22c8e5]/20"
-                            >
-                                Submit Ticket
-                            </button>
+                        <div className="flex items-center justify-between pt-4">
+                            <div className="flex items-center gap-2 text-white/20">
+                                <ShieldCheck size={16} />
+                                <span className="text-[10px] font-bold uppercase tracking-widest">Secure Transmission Active</span>
+                            </div>
+                            <div className="flex gap-4">
+                                <button
+                                    type="button"
+                                    onClick={onClose}
+                                    className="px-8 py-4 bg-white/5 border border-white/10 text-white/60 rounded-2xl hover:bg-white/10 hover:text-white transition-all font-bold text-xs uppercase tracking-widest"
+                                >
+                                    Abort
+                                </button>
+                                <button
+                                    type="submit"
+                                    className="px-8 py-4 bg-[#22c8e5] text-[#003258] rounded-2xl font-bold text-xs uppercase tracking-widest hover:bg-[#1ba3c0] transition-all shadow-xl shadow-[#22c8e5]/20 flex items-center gap-2"
+                                >
+                                    <Send size={16} />
+                                    Submit Transmission
+                                </button>
+                            </div>
                         </div>
                     </form>
                 </div>

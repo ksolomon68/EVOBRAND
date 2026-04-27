@@ -1,124 +1,135 @@
-
-import React, { useState, useMemo } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import React, { useState, useMemo, useRef } from 'react';
+import { useGSAP } from '@gsap/react';
+import gsap from 'gsap';
 import { Loader2, AlertCircle } from 'lucide-react';
 import useYouTubePlaylist from '@/hooks/useYouTubePlaylist.js';
-import VideoCard from '@/components/VideoCard.jsx';
+import VideoSlider from '@/components/VideoSlider.jsx';
 import VideoModal from '@/components/VideoModal.jsx';
 
-const VideoLibrarySection = () => {
+const CATEGORIES = ['All', 'Branding', 'Automation', 'AI Solutions', 'Business Growth'];
+
+const KEYWORDS = {
+  Branding: ['brand', 'identity', 'logo', 'design', 'visual', 'creative', 'art'],
+  Automation: ['automation', 'workflow', 'bot', 'process', 'system', 'efficient', 'auto'],
+  'AI Solutions': ['ai', 'intelligence', 'gpt', 'llm', 'model', 'machine learning', 'tech', 'chatgpt'],
+  'Business Growth': ['growth', 'scale', 'marketing', 'sales', 'strategy', 'revenue', 'business', 'profit'],
+};
+
+export default function VideoLibrarySection() {
   const { videos, loading, error } = useYouTubePlaylist('PLE-KllGUkEz7CBo120L5G3NWoYKHNkWuo');
   const [selectedCategory, setSelectedCategory] = useState('All');
   const [selectedVideoId, setSelectedVideoId] = useState(null);
-
-  const categories = ['All', 'Branding', 'Automation', 'AI Solutions', 'Business Growth'];
+  const pillsRef = useRef(null);
+  const headingRef = useRef(null);
 
   const filteredVideos = useMemo(() => {
     if (selectedCategory === 'All') return videos;
-
-    const keywords = {
-      'Branding': ['brand', 'identity', 'logo', 'design', 'visual', 'creative', 'art'],
-      'Automation': ['automation', 'workflow', 'bot', 'process', 'system', 'efficient', 'auto'],
-      'AI Solutions': ['ai', 'intelligence', 'gpt', 'llm', 'model', 'machine learning', 'tech', 'chatgpt'],
-      'Business Growth': ['growth', 'scale', 'marketing', 'sales', 'strategy', 'revenue', 'business', 'profit']
-    };
-
-    const categoryKeywords = keywords[selectedCategory] || [];
-
-    return videos.filter(video => {
-      const text = (video.title + ' ' + video.description).toLowerCase();
-      return categoryKeywords.some(keyword => text.includes(keyword));
+    const kw = KEYWORDS[selectedCategory] ?? [];
+    return videos.filter((v) => {
+      const text = `${v.title} ${v.description}`.toLowerCase();
+      return kw.some((k) => text.includes(k));
     });
   }, [videos, selectedCategory]);
 
+  // Section entrance
+  useGSAP(() => {
+    if (headingRef.current) {
+      gsap.fromTo(
+        headingRef.current,
+        { opacity: 0, y: 30 },
+        { opacity: 1, y: 0, duration: 0.7, ease: 'power2.out', scrollTrigger: { trigger: headingRef.current, start: 'top 85%' } }
+      );
+    }
+    if (pillsRef.current) {
+      gsap.fromTo(
+        pillsRef.current.children,
+        { opacity: 0, y: 16 },
+        { opacity: 1, y: 0, duration: 0.4, stagger: 0.06, ease: 'power2.out', scrollTrigger: { trigger: pillsRef.current, start: 'top 90%' } }
+      );
+    }
+  }, []);
+
   return (
-    <section className="py-16 bg-[#0f1419] relative overflow-hidden">
-      {/* Background Elements */}
-      <div className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none">
-        <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-[#22c8e5]/5 rounded-full blur-3xl"></div>
-        <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-[#5668ff]/5 rounded-full blur-3xl"></div>
+    <section
+      className="py-20 relative overflow-hidden"
+      style={{ background: 'linear-gradient(180deg, #0f1419 0%, #0f1419 100%)' }}
+      aria-labelledby="video-library-heading"
+    >
+      {/* Ambient glow */}
+      <div className="absolute inset-0 pointer-events-none overflow-hidden" aria-hidden="true">
+        <div className="absolute top-1/3 left-1/4 w-80 h-80 rounded-full blur-3xl opacity-10" style={{ background: '#22c8e5' }} />
+        <div className="absolute bottom-1/4 right-1/4 w-96 h-96 rounded-full blur-3xl opacity-6" style={{ background: '#22c8e5' }} />
       </div>
 
       <div className="container mx-auto px-4 relative z-10">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          className="text-center mb-12"
-        >
-          <h2 className="text-4xl md:text-5xl font-bold text-white mb-4">Our Animated Series</h2>
-          <p className="text-xl text-gray-400 max-w-2xl mx-auto">
-            Explore our library of AI transformations, tutorials, and success stories.
+        {/* Heading */}
+        <div ref={headingRef} className="text-center mb-12">
+          <p className="text-xs font-bold uppercase tracking-[0.25em] mb-3" style={{ color: '#22c8e5' }}>
+            Our Animated Series
           </p>
-        </motion.div>
-
-        {/* Category Filters */}
-        <div className="flex flex-wrap justify-center gap-3 mb-12">
-          {categories.map((category) => (
-            <button
-              key={category}
-              onClick={() => setSelectedCategory(category)}
-              className={`px-6 py-2 rounded-full text-sm font-medium transition-all duration-300 ${selectedCategory === category
-                  ? 'bg-[#22c8e5] text-white shadow-lg shadow-[#22c8e5]/25 scale-105'
-                  : 'bg-[#1a2332] text-gray-400 hover:bg-[#2a3b55] hover:text-white border border-white/5'
-                }`}
-            >
-              {category}
-            </button>
-          ))}
+          <h2
+            id="video-library-heading"
+            className="text-4xl md:text-5xl font-bold text-white mb-4"
+          >
+            Video Library
+          </h2>
+          <p className="text-gray-400 max-w-xl mx-auto">
+            Explore our library of AI transformations, tutorials, and client success stories.
+          </p>
+          <div className="w-12 h-0.5 mx-auto mt-5" style={{ background: '#22c8e5' }} />
         </div>
 
-        {/* Content Area */}
+        {/* Category filters */}
+        <div
+          ref={pillsRef}
+          className="flex flex-wrap justify-center gap-3 mb-12"
+          role="group"
+          aria-label="Filter videos by category"
+        >
+          {CATEGORIES.map((cat) => {
+            const active = selectedCategory === cat;
+            return (
+              <button
+                key={cat}
+                onClick={() => setSelectedCategory(cat)}
+                aria-pressed={active}
+                className={`px-5 py-2 rounded-full text-sm font-semibold transition-all duration-300 border focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#22c8e5] ${
+                  active
+                    ? 'text-[#003258] border-transparent scale-105'
+                    : 'bg-transparent text-gray-400 border-white/10 hover:border-[#22c8e5]/50 hover:text-[#22c8e5]'
+                }`}
+                style={active ? { background: '#22c8e5' } : {}}
+              >
+                {cat}
+              </button>
+            );
+          })}
+        </div>
+
+        {/* Content */}
         {loading ? (
-          <div className="flex flex-col items-center justify-center py-20">
-            <Loader2 className="w-12 h-12 text-[#22c8e5] animate-spin mb-4" />
-            <p className="text-gray-400">Loading video library...</p>
+          <div className="flex flex-col items-center justify-center py-24">
+            <Loader2 className="w-10 h-10 animate-spin mb-4" style={{ color: '#22c8e5' }} aria-hidden="true" />
+            <p className="text-gray-400 text-sm tracking-widest uppercase">Loading library...</p>
           </div>
         ) : error ? (
-          <div className="flex flex-col items-center justify-center py-20 text-center">
-            <AlertCircle className="w-12 h-12 text-red-500 mb-4" />
-            <p className="text-white text-lg mb-2">Unable to load videos</p>
-            <p className="text-gray-500 max-w-md">{error}</p>
+          <div className="flex flex-col items-center justify-center py-24 text-center" role="alert">
+            <AlertCircle className="w-10 h-10 text-red-400 mb-4" aria-hidden="true" />
+            <p className="text-white text-lg mb-1">Unable to load videos</p>
+            <p className="text-gray-500 max-w-sm text-sm">{error}</p>
+          </div>
+        ) : filteredVideos.length === 0 ? (
+          <div className="flex flex-col items-center justify-center py-24 text-center">
+            <p className="text-gray-400 text-lg">No videos in this category yet.</p>
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            <AnimatePresence mode="popLayout">
-              {filteredVideos.length > 0 ? (
-                filteredVideos.map((video) => (
-                  <motion.div
-                    key={video.id}
-                    layout
-                    initial={{ opacity: 0, scale: 0.9 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    exit={{ opacity: 0, scale: 0.9 }}
-                    transition={{ duration: 0.3 }}
-                  >
-                    <VideoCard video={video} onClick={setSelectedVideoId} />
-                  </motion.div>
-                ))
-              ) : (
-                <motion.div
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  className="col-span-full text-center py-20"
-                >
-                  <p className="text-gray-400 text-lg">No videos found in this category.</p>
-                </motion.div>
-              )}
-            </AnimatePresence>
-          </div>
+          <VideoSlider videos={filteredVideos} onVideoSelect={setSelectedVideoId} />
         )}
       </div>
 
-      {/* Video Modal */}
       {selectedVideoId && (
-        <VideoModal
-          videoId={selectedVideoId}
-          onClose={() => setSelectedVideoId(null)}
-        />
+        <VideoModal videoId={selectedVideoId} onClose={() => setSelectedVideoId(null)} />
       )}
     </section>
   );
-};
-
-export default VideoLibrarySection;
+}

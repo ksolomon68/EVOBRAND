@@ -1,9 +1,10 @@
 
 import React from 'react';
 import { useState } from 'react';
-import { Helmet } from 'react-helmet';
 import { motion } from 'framer-motion';
 import { Search, Lightbulb, Code, Rocket, TrendingUp, ChevronDown, ChevronUp } from 'lucide-react';
+import ProcessVisualizer from '@/components/ProcessVisualizer.jsx';
+import SEO from '@/components/SEO.jsx';
 
 const HowItWorksPage = () => {
   const [openFaq, setOpenFaq] = useState(null);
@@ -100,10 +101,10 @@ const HowItWorksPage = () => {
 
   return (
     <>
-      <Helmet>
-        <title>How It Works - EVOBRAND Process | AI Solutions Development</title>
-        <meta name="description" content="Discover our proven process for delivering AI solutions. From discovery to launch and ongoing optimization, we ensure your project success." />
-      </Helmet>
+      <SEO 
+        title="How It Works"
+        description="Discover our proven process for delivering AI solutions. From discovery to launch and ongoing optimization, we ensure your project success."
+      />
 
       <div className="min-h-screen bg-[#0f1419]">
         {/* Hero */}
@@ -204,27 +205,42 @@ const HowItWorksPage = () => {
           </div>
         </section>
 
-        {/* Interactive Process Diagram */}
         <section className="py-20 bg-[#0f1419]">
-          <div className="container mx-auto px-4">
-            <h2 className="text-3xl font-bold text-white mb-12 text-center">Visual Process Flow</h2>
-            <div className="max-w-6xl mx-auto">
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                {processSteps.map((step, index) => (
-                  <motion.div
-                    key={index}
-                    initial={{ opacity: 0, scale: 0.9 }}
-                    whileInView={{ opacity: 1, scale: 1 }}
-                    viewport={{ once: true }}
-                    transition={{ delay: index * 0.1 }}
-                    whileHover={{ scale: 1.05 }}
-                    className="bg-gradient-to-br from-[#1a2332] to-[#22c8e5]/20 p-6 rounded-xl text-center cursor-pointer"
-                  >
-                    <div className="text-[#22c8e5] mb-3 flex justify-center">{step.icon}</div>
-                    <p className="text-xs text-gray-400 mb-1">{step.week}</p>
-                    <p className="text-sm font-bold text-white">{step.phase}</p>
-                  </motion.div>
-                ))}
+          <div className="container mx-auto px-4 text-center">
+            <h2 className="text-3xl font-bold text-white mb-16">Visual Process Flow</h2>
+            <div className="grid lg:grid-cols-2 gap-16 items-center max-w-6xl mx-auto text-left">
+              <div className="space-y-8">
+                <div className="bg-[#1a2332] p-8 rounded-2xl border border-gray-800 hover:border-[#22c8e5]/50 transition-all">
+                  <h3 className="text-2xl font-bold text-white mb-4 flex items-center">
+                    <span className="w-8 h-8 bg-[#22c8e5] rounded-lg flex items-center justify-center text-[#1a2332] text-sm mr-3">∞</span>
+                    The Operational Loop
+                  </h3>
+                  <p className="text-gray-400 mb-6">
+                    Our process isn't just a straight line—it's a continuous optimization loop. Each phase feeds data back into the central core, allowing our AI to learn and adapt to your business in real-time.
+                  </p>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="p-4 bg-[#0f1419] rounded-xl">
+                      <p className="text-[#22c8e5] font-bold">Unified</p>
+                      <p className="text-xs text-gray-500">Centralized strategy</p>
+                    </div>
+                    <div className="p-4 bg-[#0f1419] rounded-xl">
+                      <p className="text-[#22c8e5] font-bold">Iterative</p>
+                      <p className="text-xs text-gray-500">Constant improvement</p>
+                    </div>
+                  </div>
+                </div>
+                
+                <p className="text-gray-500 italic text-sm px-4">
+                  * Scroll to see the node connection protocol in action.
+                </p>
+              </div>
+
+              <div className="relative">
+                <ProcessVisualizer />
+                {/* Decorative overlay text for the visualizer */}
+                <div className="absolute top-4 left-4 font-mono text-[10px] text-[#22c8e5]/40 uppercase tracking-widest">
+                  System.Protocol.Active
+                </div>
               </div>
             </div>
           </div>

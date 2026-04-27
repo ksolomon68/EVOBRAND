@@ -1,9 +1,18 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { ArrowLeft, Clock, User, Send, CheckCircle, AlertCircle } from 'lucide-react';
+import { ArrowLeft, Clock, Send, CheckCircle2, AlertCircle, Shield, MessageSquare } from 'lucide-react';
 
 const TicketDetail = ({ ticket, onBack, onReply }) => {
     const [replyText, setReplyText] = useState('');
+    const messagesEndRef = useRef(null);
+
+    const scrollToBottom = () => {
+        messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    };
+
+    useEffect(() => {
+        scrollToBottom();
+    }, [ticket.history]);
 
     const handleReplySubmit = (e) => {
         e.preventDefault();
@@ -14,98 +23,131 @@ const TicketDetail = ({ ticket, onBack, onReply }) => {
 
     const getPriorityColor = (priority) => {
         switch (priority) {
-            case 'High': return 'text-red-400 bg-red-400/10';
-            case 'Urgent': return 'text-red-500 bg-red-500/10 border border-red-500/20';
-            case 'Medium': return 'text-yellow-400 bg-yellow-400/10';
-            default: return 'text-blue-400 bg-blue-400/10';
+            case 'High': return 'text-red-400 bg-red-400/10 border-red-400/20';
+            case 'Urgent': return 'text-red-500 bg-red-500/20 border-red-500/30';
+            case 'Medium': return 'text-yellow-400 bg-yellow-400/10 border-yellow-400/20';
+            default: return 'text-[#22c8e5] bg-[#22c8e5]/10 border-[#22c8e5]/20';
         }
     };
 
     return (
-        <div className="h-full flex flex-col">
+        <div className="h-full flex flex-col gap-6">
             {/* Header */}
-            <div className="flex items-center space-x-4 mb-6">
-                <button onClick={onBack} className="p-2 hover:bg-gray-800 rounded-lg text-gray-400 hover:text-white transition-colors">
-                    <ArrowLeft size={20} />
-                </button>
-                <div>
-                    <div className="flex items-center space-x-3">
-                        <h2 className="text-2xl font-bold text-white">{ticket.subject}</h2>
-                        <span className="text-gray-500 font-mono text-sm">{ticket.id}</span>
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
+                <div className="flex items-center gap-4">
+                    <button 
+                        onClick={onBack} 
+                        className="p-4 bg-white/5 hover:bg-[#22c8e5]/10 border border-white/10 text-white/40 hover:text-[#22c8e5] rounded-2xl transition-all"
+                    >
+                        <ArrowLeft size={20} />
+                    </button>
+                    <div>
+                        <div className="flex items-center gap-3 mb-1">
+                            <h2 className="text-3xl font-bold text-white">{ticket.subject}</h2>
+                            <span className="px-2 py-1 rounded bg-white/5 border border-white/10 text-white/20 font-mono text-xs">#{ticket.id.split('-')[0]}</span>
+                        </div>
+                        <div className="flex items-center gap-4 text-xs font-bold uppercase tracking-widest">
+                            <span className={`px-2 py-0.5 rounded border ${getPriorityColor(ticket.priority)}`}>{ticket.priority}</span>
+                            <span className="text-white/40 flex items-center gap-2">
+                                <div className={`w-1.5 h-1.5 rounded-full ${ticket.status === 'Open' ? 'bg-green-400 animate-pulse' : 'bg-white/20'}`} />
+                                {ticket.status}
+                            </span>
+                            <span className="text-white/20">{ticket.service}</span>
+                        </div>
                     </div>
-                    <div className="flex items-center space-x-4 mt-1 text-sm">
-                        <span className={`px-2 py-0.5 rounded text-xs ${getPriorityColor(ticket.priority)}`}>{ticket.priority}</span>
-                        <span className="text-gray-400 flex items-center gap-1">
-                            {ticket.status === 'Open' ? <AlertCircle size={12} className="text-green-400" /> : <CheckCircle size={12} />}
-                            {ticket.status}
-                        </span>
-                        <span className="text-gray-400">{ticket.service}</span>
-                    </div>
+                </div>
+
+                <div className="flex items-center gap-3 p-4 bg-[#22c8e5]/5 border border-[#22c8e5]/10 rounded-2xl">
+                    <Shield size={18} className="text-[#22c8e5]" />
+                    <span className="text-white/60 text-xs font-bold uppercase tracking-widest">End-to-End Encrypted Support Channel</span>
                 </div>
             </div>
 
-            <div className="flex gap-6 h-[calc(100vh-250px)]">
-                {/* Main Conversation Area */}
-                <div className="flex-1 flex flex-col bg-[#1a2332] rounded-xl overflow-hidden shadow-xl border border-gray-800">
-                    <div className="flex-1 overflow-y-auto p-6 space-y-6 custom-scrollbar">
-                        {ticket.history.map((msg) => (
-                            <div key={msg.id} className={`flex ${msg.sender === 'Client' ? 'justify-end' : 'justify-start'}`}>
-                                <div className={`max-w-[80%] rounded-2xl p-4 ${msg.sender === 'Client'
-                                        ? 'bg-[#22c8e5]/10 border border-[#22c8e5]/20 rounded-tr-none'
-                                        : 'bg-[#0f1419] border border-gray-800 rounded-tl-none'
-                                    }`}>
-                                    <div className="flex items-center justify-between mb-2">
-                                        <span className={`text-xs font-bold ${msg.sender === 'Client' ? 'text-[#22c8e5]' : 'text-gray-300'}`}>
-                                            {msg.sender === 'Client' ? 'You' : 'EVOBRAND Support'}
-                                        </span>
-                                        <span className="text-xs text-gray-500 ml-4">
-                                            {new Date(msg.timestamp).toLocaleString([], { dateStyle: 'short', timeStyle: 'short' })}
+            <div className="flex flex-col lg:flex-row gap-6 flex-1 min-h-0">
+                {/* Chat Area */}
+                <div className="flex-1 flex flex-col bg-white/5 border border-white/10 rounded-3xl overflow-hidden shadow-2xl">
+                    <div className="flex-1 overflow-y-auto p-8 space-y-8 custom-scrollbar">
+                        {ticket.history.map((msg, i) => (
+                            <motion.div 
+                                key={msg.id}
+                                initial={{ opacity: 0, y: 10 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                transition={{ delay: i * 0.1 }}
+                                className={`flex ${msg.sender === 'Client' ? 'justify-end' : 'justify-start'}`}
+                            >
+                                <div className={`max-w-[85%] group`}>
+                                    <div className={`flex items-center gap-3 mb-2 ${msg.sender === 'Client' ? 'flex-row-reverse' : ''}`}>
+                                        <div className={`w-8 h-8 rounded-lg flex items-center justify-center text-[10px] font-bold ${
+                                            msg.sender === 'Client' ? 'bg-[#22c8e5] text-[#003258]' : 'bg-white/10 text-white'
+                                        }`}>
+                                            {msg.sender === 'Client' ? 'YOU' : 'EVO'}
+                                        </div>
+                                        <span className="text-[10px] font-bold text-white/20 uppercase tracking-widest">
+                                            {new Date(msg.timestamp).toLocaleString([], { hour: '2-digit', minute: '2-digit' })}
                                         </span>
                                     </div>
-                                    <p className="text-gray-300 whitespace-pre-wrap">{msg.message}</p>
+                                    <div className={`p-5 rounded-2xl text-sm leading-relaxed ${
+                                        msg.sender === 'Client'
+                                            ? 'bg-[#22c8e5]/10 border border-[#22c8e5]/20 text-white rounded-tr-none'
+                                            : 'bg-white/5 border border-white/10 text-white/80 rounded-tl-none'
+                                    }`}>
+                                        {msg.message}
+                                    </div>
                                 </div>
-                            </div>
+                            </motion.div>
                         ))}
+                        <div ref={messagesEndRef} />
                     </div>
 
-                    {/* Reply Box */}
-                    <div className="p-4 bg-[#0f1419] border-t border-gray-800">
-                        <form onSubmit={handleReplySubmit} className="relative">
-                            <textarea
-                                value={replyText}
-                                onChange={(e) => setReplyText(e.target.value)}
-                                placeholder="Type your reply..."
-                                className="w-full pl-4 pr-12 py-3 bg-[#1a2332] text-white border border-gray-700 rounded-xl focus:outline-none focus:border-[#22c8e5] resize-none"
-                                rows="3"
-                            />
+                    {/* Reply Bar */}
+                    <div className="p-6 bg-[#04080f]/50 backdrop-blur-xl border-t border-white/10">
+                        <form onSubmit={handleReplySubmit} className="relative flex items-center gap-4">
+                            <div className="relative flex-1">
+                                <MessageSquare className="absolute left-4 top-1/2 -translate-y-1/2 text-white/20" size={18} />
+                                <input
+                                    value={replyText}
+                                    onChange={(e) => setReplyText(e.target.value)}
+                                    placeholder="Enter secure transmission..."
+                                    className="w-full pl-12 pr-4 py-4 bg-white/5 text-white border border-white/10 rounded-2xl focus:outline-none focus:border-[#22c8e5] transition-all text-sm"
+                                />
+                            </div>
                             <button
                                 type="submit"
                                 disabled={!replyText.trim()}
-                                className="absolute right-3 bottom-3 p-2 bg-[#22c8e5] text-white rounded-lg hover:bg-[#1ba3c0] disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                                className="p-4 bg-[#22c8e5] text-[#003258] rounded-2xl hover:bg-[#1ba3c0] disabled:opacity-30 disabled:grayscale transition-all shadow-lg shadow-[#22c8e5]/20"
                             >
-                                <Send size={18} />
+                                <Send size={20} />
                             </button>
                         </form>
                     </div>
                 </div>
 
-                {/* Sidebar Info */}
-                <div className="w-80 hidden lg:block space-y-6">
-                    <div className="bg-[#1a2332] rounded-xl p-6 border border-gray-800">
-                        <h3 className="text-white font-semibold mb-4 text-sm uppercase tracking-wider">Ticket Info</h3>
-                        <div className="space-y-4 text-sm">
+                {/* Info Panel */}
+                <div className="w-full lg:w-80 space-y-6">
+                    <div className="bg-white/5 border border-white/10 rounded-3xl p-8">
+                        <h3 className="text-white font-[Rajdhani] font-bold text-sm uppercase tracking-[0.2em] mb-6">Security Context</h3>
+                        <div className="space-y-6">
                             <div>
-                                <p className="text-gray-500 mb-1">Created</p>
-                                <p className="text-white">{new Date(ticket.lastUpdated).toLocaleDateString()}</p>
+                                <p className="text-white/20 text-[10px] font-bold uppercase tracking-widest mb-1">Initialization</p>
+                                <p className="text-white text-sm font-medium">{new Date(ticket.created_at).toLocaleDateString()}</p>
                             </div>
                             <div>
-                                <p className="text-gray-500 mb-1">Product</p>
-                                <p className="text-white">{ticket.service}</p>
+                                <p className="text-white/20 text-[10px] font-bold uppercase tracking-widest mb-1">Target Cluster</p>
+                                <p className="text-white text-sm font-medium">{ticket.service}</p>
                             </div>
                             <div>
-                                <p className="text-gray-500 mb-1">Attachments</p>
-                                <p className="text-gray-400 italic">None</p>
+                                <p className="text-white/20 text-[10px] font-bold uppercase tracking-widest mb-1">Assigned Unit</p>
+                                <div className="flex items-center gap-2 mt-1">
+                                    <div className="w-2 h-2 rounded-full bg-green-500" />
+                                    <p className="text-white text-sm font-medium">Core AI Team</p>
+                                </div>
                             </div>
+                        </div>
+                        
+                        <div className="mt-8 pt-8 border-t border-white/5">
+                            <button className="w-full py-4 rounded-2xl bg-red-400/5 border border-red-400/20 text-red-400 text-xs font-bold uppercase tracking-widest hover:bg-red-400/10 transition-all">
+                                Request Resolution
+                            </button>
                         </div>
                     </div>
                 </div>

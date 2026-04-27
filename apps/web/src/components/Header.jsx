@@ -13,6 +13,7 @@ const Header = () => {
     { to: '/services', label: 'Services' },
     { to: '/how-it-works', label: 'How It Works' },
     { to: '/our-work', label: 'Our Work' },
+    { to: '/auditor', label: 'Brand Auditor' },
     { to: '/resources', label: 'Resources' },
     { to: '/about', label: 'About' },
     { to: '/contact', label: 'Contact' },
@@ -25,12 +26,11 @@ const Header = () => {
           {/* Logo */}
           <NavLink to="/" className="flex items-center">
             <motion.img
-              src="https://horizons-cdn.hostinger.com/f8ddb934-4ef0-4d1d-923b-d5395cd33cb2/b98337c63b696e237f54f7a827b0e0d4.png"
-              alt="EVOBRAND - AI Transformation Partner"
-              className="h-[30px] md:h-[36px] lg:h-[48px] w-auto object-contain drop-shadow-md"
-              whileHover={{ scale: 1.05 }}
+              src="/logo.png"
+              alt="EVOBRAND"
+              className="h-[40px] md:h-[50px] lg:h-[60px] w-auto object-contain"
+              whileHover={{ scale: 1.02 }}
               transition={{ duration: 0.3 }}
-              loading="lazy"
             />
           </NavLink>
 

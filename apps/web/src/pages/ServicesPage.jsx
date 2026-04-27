@@ -1,9 +1,10 @@
 
 import React from 'react';
 import { useState } from 'react';
-import { Helmet } from 'react-helmet';
 import { motion } from 'framer-motion';
 import { Sparkles, Zap, FileText, Video, Code, Check, ArrowRight } from 'lucide-react';
+import ProcessVisualizer from '@/components/ProcessVisualizer.jsx';
+import SEO from '@/components/SEO.jsx';
 
 const ServicesPage = () => {
   const [selectedService, setSelectedService] = useState(0);
@@ -255,10 +256,10 @@ const ServicesPage = () => {
 
   return (
     <>
-      <Helmet>
-        <title>{`${currentService.title} - EVOBRAND Services`}</title>
-        <meta name="description" content={currentService.description} />
-      </Helmet>
+      <SEO 
+        title={currentService.title}
+        description={currentService.description}
+      />
 
       <div className="min-h-screen bg-[#0f1419]">
         {/* Service Navigation */}
@@ -319,29 +320,42 @@ const ServicesPage = () => {
           </div>
         </section>
 
-        {/* Process Timeline */}
         <section className="py-20 bg-[#1a2332]">
           <div className="container mx-auto px-4">
-            <h2 className="text-3xl font-bold text-white mb-12 text-center">Our Process</h2>
-            <div className="max-w-4xl mx-auto">
-              {currentService.process.map((step, index) => (
-                <motion.div
-                  key={index}
-                  initial={{ opacity: 0, x: -30 }}
-                  whileInView={{ opacity: 1, x: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ delay: index * 0.1 }}
-                  className="flex items-start space-x-4 mb-8"
-                >
-                  <div className="flex-shrink-0 w-12 h-12 bg-[#22c8e5] rounded-full flex items-center justify-center text-white font-bold">
-                    {index + 1}
-                  </div>
-                  <div className="flex-1">
-                    <h3 className="text-xl font-bold text-white mb-2">{step.step}</h3>
-                    <p className="text-gray-400">{step.description}</p>
-                  </div>
-                </motion.div>
-              ))}
+            <h2 className="text-3xl font-bold text-white mb-16 text-center">Our Process</h2>
+            
+            <div className="grid lg:grid-cols-2 gap-16 items-center max-w-6xl mx-auto">
+              {/* Left Column: Timeline Steps */}
+              <div className="space-y-12">
+                {currentService.process.map((step, index) => (
+                  <motion.div
+                    key={index}
+                    initial={{ opacity: 0, x: -30 }}
+                    whileInView={{ opacity: 1, x: 0 }}
+                    viewport={{ once: true }}
+                    transition={{ delay: index * 0.1 }}
+                    className="group flex items-start space-x-6 relative"
+                  >
+                    {/* Connecting line between steps */}
+                    {index < currentService.process.length - 1 && (
+                      <div className="absolute left-6 top-14 bottom-[-48px] w-0.5 bg-gray-800 group-hover:bg-[#22c8e5]/30 transition-colors"></div>
+                    )}
+                    
+                    <div className="flex-shrink-0 w-12 h-12 bg-[#0f1419] border border-[#22c8e5]/30 rounded-xl flex items-center justify-center text-[#22c8e5] font-bold shadow-lg shadow-[#22c8e5]/10 group-hover:bg-[#22c8e5] group-hover:text-white transition-all duration-300">
+                      {index + 1}
+                    </div>
+                    <div className="flex-1">
+                      <h3 className="text-xl font-bold text-white mb-2 group-hover:text-[#22c8e5] transition-colors">{step.step}</h3>
+                      <p className="text-gray-400 leading-relaxed">{step.description}</p>
+                    </div>
+                  </motion.div>
+                ))}
+              </div>
+
+              {/* Right Column: GSAP Animation */}
+              <div className="hidden lg:block sticky top-32">
+                <ProcessVisualizer />
+              </div>
             </div>
           </div>
         </section>
