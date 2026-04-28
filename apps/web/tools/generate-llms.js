@@ -21,10 +21,10 @@ const EXTRACTION_REGEX = {
 	route: /<Route\s+[^>]*>/g,
 	path: /path=["']([^"']+)["']/,
 	element: /element=\{<(\w+)[^}]*\/?\s*>\}/,
-	helmet: /<Helmet[^>]*?>([\s\S]*?)<\/Helmet>/i,
-	helmetTest: /<Helmet[\s\S]*?<\/Helmet>/i,
-	title: /<title[^>]*?>\s*(.*?)\s*<\/title>/i,
-	description: /<meta\s+name=["']description["']\s+content=["'](.*?)["']/i
+	helmet: /<(Helmet|SEO)[^>]*?>([\s\S]*?)<\/(Helmet|SEO)>/i,
+	helmetTest: /<(Helmet|SEO)[\s\S]*?<\/(Helmet|SEO)>/i,
+	title: /title=["']([^"']+)["']|<title[^>]*?>\s*(.*?)\s*<\/title>/i,
+	description: /description=["']([^"']+)["']|<meta\s+name=["']description["']\s+content=["'](.*?)["']/i
 };
 
 function cleanContent(content) {
@@ -86,30 +86,54 @@ function findReactFiles(dir) {
 }
 
 function extractHelmetData(content, filePath, routes) {
-	const cleanedContent = cleanContent(content);
+	// Test for existence of Helmet or SEO in original content
+	const hasMeta = EXTRACTION_REGEX.helmetTest.test(content) || /<SEO\s+[^>]*\/>/i.test(content) || /<SEO[\s\S]*?<\/SEO>/i.test(content);
+	
+	if (!hasMeta) return null;
 
-	if (!EXTRACTION_REGEX.helmetTest.test(cleanedContent)) {
-		return null;
+	let title = '';
+	let description = '';
+
+	// Try extracting from children (Helmet style)
+	const helmetMatch = content.match(EXTRACTION_REGEX.helmet);
+	if (helmetMatch) {
+		const innerContent = helmetMatch[2]; // Index 2 because of (Helmet|SEO) grouping
+		const titleMatch = innerContent.match(EXTRACTION_REGEX.title);
+		const descMatch = innerContent.match(EXTRACTION_REGEX.description);
+		
+		title = cleanText(titleMatch?.[1] || titleMatch?.[2]);
+		description = cleanText(descMatch?.[1] || descMatch?.[2]);
 	}
 
-	const helmetMatch = content.match(EXTRACTION_REGEX.helmet);
-	if (!helmetMatch) return null;
-
-	const helmetContent = helmetMatch[1];
-	const titleMatch = helmetContent.match(EXTRACTION_REGEX.title);
-	const descMatch = helmetContent.match(EXTRACTION_REGEX.description);
-
-	const title = cleanText(titleMatch?.[1]);
-	const description = cleanText(descMatch?.[1]);
+	// Try extracting from props (SEO style)
+	if (!title || !description) {
+		const seoTagMatch = content.match(/<SEO\s+([\s\S]*?)\/?>/i) || content.match(/<SEO\s+([\s\S]*?)>[\s\S]*?<\/SEO>/i);
+		if (seoTagMatch) {
+			const props = seoTagMatch[1];
+			if (!title) {
+				const titleProp = props.match(/title=["']([^"']+)["']/i);
+				title = cleanText(titleProp?.[1]);
+			}
+			if (!description) {
+				const descProp = props.match(/description=["']([^"']+)["']/i);
+				description = cleanText(descProp?.[1]);
+			}
+		}
+	}
 
 	const fileName = path.basename(filePath, path.extname(filePath));
-	const url = routes.length && routes.has(fileName)
+	const formattedFileName = fileName
+		.replace(/Page$/, '')
+		.replace(/([A-Z])/g, ' $1')
+		.trim();
+
+	const url = routes && routes.size && routes.has(fileName)
 		? routes.get(fileName)
 		: generateFallbackUrl(fileName);
 
 	return {
 		url,
-		title: title || 'Untitled Page',
+		title: title || formattedFileName,
 		description: description || 'No description available'
 	};
 }
@@ -175,8 +199,6 @@ function main() {
 	fs.writeFileSync(outputPath, llmsTxtContent, 'utf8');
 }
 
-const isMainModule = import.meta.url === `file://${process.argv[1]}`;
-
-if (isMainModule) {
+if (import.meta.url.includes(encodeURI(process.argv[1].replace(/\\/g, '/')).replace(/%5C/g, '/'))) {
 	main();
 }

@@ -1,0 +1,14 @@
+## Pages
+- [About Us](/about): Learn about EVOBRAND
+- [Audit Results](/auditorresults): View your personalized AI-powered brand audit report from EVOBRAND.
+- [Blog Post](/blogpost): No description available
+- [Client Portal](/clientportal): EVOBRAND Client Portal - Secure access to your projects and meetings.
+- [Client Portal Login](/clientportallogin): Access your EVOBRAND client portal.
+- [Contact Us](/contact): Schedule a free AI consultation with EVOBRAND. Learn how our custom AI solutions can transform your business. Dallas based experts.
+- [Free Brand Audit](/auditor): Get an AI-powered brand audit in 4 minutes. Free. No fluff. Instant score, 5-category breakdown, and a personalized action plan from EVOBRAND.
+- [Home](/home): Transform your business with AI-powered solutions. Custom AI applications, visual content creation, intelligent document generation, and video production by EVOBRAND.
+- [How It Works](/howitworks): Discover our proven process for delivering AI solutions. From discovery to launch and ongoing optimization, we ensure your project success.
+- [Our Work](/ourwork): Explore our portfolio of successful AI projects. See real results, case studies, and client testimonials from businesses we
+- [Reset Password](/resetpassword): Reset your EVOBRAND client portal password.
+- [Resources & Blog](/resources): Explore AI trends, case studies, how-to guides, and industry insights. Stay updated with the latest in AI transformation.
+- [Services](/services): No description available
