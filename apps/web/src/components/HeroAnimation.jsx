@@ -15,28 +15,22 @@ const HeroAnimation = ({ scrollContainerRef }) => {
     const imgArray = [];
 
     const loadImages = async () => {
+      const promises = [];
       for (let i = 1; i <= frameCount; i++) {
         const img = new Image();
-        // Construct filename: _MConverter.eu_envato_video_gen_Feb_06_2026_6_14_36-X.png
-        // Note: The file naming seems to be index-based.
-        // Based on the file list, the pattern is consistent.
-        // We need to handle the path correctly relative to public/
         img.src = `/header/_MConverter.eu_envato_video_gen_Feb_06_2026_6_14_36-${i}.png`;
-
-        await new Promise((resolve) => {
-          img.onload = () => {
-            loadedCount++;
-            if (loadedCount === frameCount) {
-              setIsLoading(false);
-            }
-            resolve();
-          };
-          // If a single image fails, we still want to continue, maybe log it
+        
+        const promise = new Promise((resolve) => {
+          img.onload = resolve;
           img.onerror = resolve;
         });
+        promises.push(promise);
         imgArray.push(img);
       }
+      
+      await Promise.all(promises);
       setImages(imgArray);
+      setIsLoading(false);
     };
 
     loadImages();
