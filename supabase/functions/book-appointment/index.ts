@@ -233,28 +233,42 @@ async function sendEmails(params: {
     day: "numeric",
   });
 
-  const send = (payload: object) =>
-    fetch("https://api.resend.com/emails", {
+  const send = async (payload: object) => {
+    const res = await fetch("https://api.resend.com/emails", {
       method: "POST",
       headers: { Authorization: `Bearer ${key}`, "Content-Type": "application/json" },
       body: JSON.stringify(payload),
     });
+    const data = await res.json();
+    if (!res.ok) {
+      console.error("[Resend Error]:", data);
+      throw new Error(`Resend API error: ${JSON.stringify(data)}`);
+    }
+    return data;
+  };
 
-  // Confirmation to client
-  await send({
-    from: "EVOBRAND <no-reply@evobrand.net>",
-    to: [params.clientEmail],
-    subject: `Consultation Confirmed — ${formattedDate} at ${params.timeSlot}`,
-    html: clientConfirmationHtml({ ...params, formattedDate }),
-  });
+  try {
+    // Confirmation to client
+    await send({
+      from: "EVOBRAND <no-reply@evobrand.net>",
+      to: [params.clientEmail],
+      subject: `Consultation Confirmed — ${formattedDate} at ${params.timeSlot}`,
+      html: clientConfirmationHtml({ ...params, formattedDate }),
+    });
+    console.log("Client confirmation email sent successfully to:", params.clientEmail);
 
-  // Internal notification to admin
-  await send({
-    from: "EVOBRAND Scheduler <no-reply@evobrand.net>",
-    to: ["info@evobrand.net"],
-    subject: `New Booking: ${params.clientName} — ${formattedDate} at ${params.timeSlot}`,
-    html: adminNotificationHtml({ ...params, formattedDate }),
-  });
+    // Internal notification to admin
+    await send({
+      from: "EVOBRAND Scheduler <no-reply@evobrand.net>",
+      to: ["info@evobrand.net"],
+      subject: `New Booking: ${params.clientName} — ${formattedDate} at ${params.timeSlot}`,
+      html: adminNotificationHtml({ ...params, formattedDate }),
+    });
+    console.log("Admin notification email sent successfully.");
+  } catch (err) {
+    console.error("Failed to send booking emails:", err);
+    throw err;
+  }
 }
 
 function clientConfirmationHtml(p: {

@@ -3,7 +3,7 @@ import { AnimatePresence, motion } from 'framer-motion';
 import SEO from '@/components/SEO.jsx';
 import {
   LayoutDashboard, Plus, LogOut, Ticket, Bell,
-  Loader2, Calendar, ShieldCheck,
+  Loader2, Calendar, ShieldCheck, Server
 } from 'lucide-react';
 import TicketList from '../components/portal/TicketList';
 import NewTicketForm from '../components/portal/NewTicketForm';
@@ -57,7 +57,10 @@ function Sidebar({ user, view, setView, setSelectedTicket, openTicketCount, hand
   const navItems = [
     { key: 'dashboard', icon: LayoutDashboard, label: 'Dashboard', badge: openTicketCount },
     { key: 'meetings', icon: Calendar, label: 'My Meetings' },
-    ...(isAdmin ? [{ key: 'admin', icon: ShieldCheck, label: 'Admin Controls' }] : []),
+    ...(isAdmin ? [
+      { key: 'admin', icon: ShieldCheck, label: 'Admin Controls' },
+      { key: 'wp-maintenance', icon: Server, label: 'WP Maintenance' }
+    ] : []),
   ];
 
   const initials =
@@ -244,6 +247,7 @@ const ClientPortalPage = () => {
     detail: `Ticket · ${selectedTicket?.id?.slice(0, 8) ?? ''}`,
     meetings: 'My Meetings',
     admin: 'Admin Controls',
+    'wp-maintenance': 'WP Maintenance CMS',
   }[view] ?? 'Dashboard';
 
   if (authLoading || loading) {
@@ -429,6 +433,25 @@ const ClientPortalPage = () => {
                     transition={{ duration: 0.25 }}
                   >
                     <AdminBlackoutPanel user={user} />
+                  </motion.div>
+                )}
+
+                {/* ── WP Maintenance CMS ── */}
+                {view === 'wp-maintenance' && (
+                  <motion.div
+                    key="wp-maintenance"
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -10 }}
+                    transition={{ duration: 0.25 }}
+                    className="h-[calc(100vh-140px)] w-full rounded-2xl overflow-hidden border"
+                    style={{ borderColor: 'rgba(34,200,229,0.15)', background: 'rgba(10,22,40,0.5)' }}
+                  >
+                    <iframe 
+                      src="http://localhost:3500" 
+                      title="WP Maintenance CMS"
+                      className="w-full h-full border-0"
+                    />
                   </motion.div>
                 )}
               </AnimatePresence>

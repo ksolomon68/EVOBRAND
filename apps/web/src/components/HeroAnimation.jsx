@@ -110,14 +110,25 @@ const HeroAnimation = ({ scrollContainerRef }) => {
     <div className="absolute inset-0 w-full h-full bg-[#0f1419]">
       <canvas
         ref={canvasRef}
-        className="w-full h-full block object-cover"
+        className="w-full h-full block object-cover relative z-0"
       />
-      {/* Optional Loading State or Fallback */}
+      
+      {/* Fallback/First Frame Image - visible until canvas starts rendering */}
       {isLoading && (
-        <div className="absolute inset-0 flex items-center justify-center bg-[#0f1419] z-20">
-          {/* Simple loading spinner or just background */}
+        <img 
+          src="/header/_MConverter.eu_envato_video_gen_Feb_06_2026_6_14_36-1.png"
+          alt="EVOBRAND Hero"
+          className="absolute inset-0 w-full h-full object-cover z-[-1]"
+        />
+      )}
+
+      {/* Loading Indicator (Subtle) */}
+      {isLoading && (
+        <div className="absolute bottom-10 right-10 z-10">
+          <div className="w-6 h-6 border-2 border-[#22c8e5] border-t-transparent rounded-full animate-spin"></div>
         </div>
       )}
+
       {/* Gradient Overlay for text readability */}
       <div className="absolute inset-0 bg-gradient-to-r from-[#0f1419]/90 via-[#0f1419]/40 to-transparent z-10 pointer-events-none" />
       <div className="absolute inset-0 bg-gradient-to-t from-[#0f1419] via-transparent to-transparent z-10 pointer-events-none" />
