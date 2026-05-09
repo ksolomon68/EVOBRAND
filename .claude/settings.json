@@ -8,7 +8,8 @@
       "PowerShell(npx supabase --version 2>&1)",
       "mcp__claude_ai_Supabase__list_tables",
       "mcp__claude_ai_Supabase__get_logs",
-      "mcp__claude_ai_Supabase__execute_sql"
+      "mcp__claude_ai_Supabase__execute_sql",
+      "Bash(git remote *)"
     ],
     "additionalDirectories": [
       "c:\\Users\\Keisha\\.claude\\projects\\c--Users-Keisha-Documents-NEW-EVO\\memory"

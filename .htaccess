@@ -1,0 +1,13 @@
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    RewriteBase /
+    
+    # 1. If the request is for an actual file in the build folder (like assets), serve it
+    RewriteCond %{DOCUMENT_ROOT}/dist/apps/web/%{REQUEST_URI} -f
+    RewriteRule ^(.*)$ dist/apps/web/$1 [L]
+    
+    # 2. If it's the root or a sub-page, serve the index.html from the build folder
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteCond %{REQUEST_FILENAME} !-d
+    RewriteRule . dist/apps/web/index.html [L]
+</IfModule>
