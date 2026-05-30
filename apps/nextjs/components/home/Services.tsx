@@ -81,11 +81,11 @@ export default function Services() {
             What We Do
           </div>
           <h2 className="text-4xl sm:text-5xl font-bold text-white mb-4">
-            End-to-End Digital Excellence
+            Services Built for Scale
           </h2>
           <p className="text-gray-400 max-w-2xl mx-auto">
-            From initial strategy through deployment and beyond, we deliver the full spectrum of
-            capabilities that modern enterprise demands.
+            From intelligent automation to immersive brand experiences — every solution is engineered
+            to perform at enterprise scale.
           </p>
         </AnimatedSection>
 

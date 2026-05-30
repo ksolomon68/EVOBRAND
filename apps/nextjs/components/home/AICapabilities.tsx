@@ -74,10 +74,13 @@ export default function AICapabilities() {
             AI Capabilities
           </div>
           <h2 className="text-4xl sm:text-5xl font-bold text-white mb-4">
-            Enterprise AI. Production-Ready.
+            Intelligence at the Core of{' '}
+            <span className="bg-gradient-to-r from-[#6366f1] to-[#00d4ff] bg-clip-text text-transparent">
+              Everything We Build
+            </span>
           </h2>
           <p className="text-gray-400 max-w-2xl mx-auto">
-            We don&apos;t just integrate AI — we architect intelligent systems that transform how your organization operates.
+            We don&apos;t just integrate AI — we architect intelligent systems that transform how your organization operates at every level.
           </p>
         </AnimatedSection>
 
