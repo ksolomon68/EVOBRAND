@@ -15,6 +15,7 @@ export default function ResetPasswordPage() {
   const navigate = useNavigate();
 
   useEffect(() => {
+    if (!supabase) return;
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event) => {
       if (event === 'PASSWORD_RECOVERY') setReady(true);
     });
@@ -27,6 +28,7 @@ export default function ResetPasswordPage() {
     if (password.length < 8) { setError('Password must be at least 8 characters.'); return; }
     setLoading(true);
     setError('');
+    if (!supabase) { setError('Password reset is not configured.'); setLoading(false); return; }
     const { error } = await supabase.auth.updateUser({ password });
     if (error) {
       setError(error.message);
