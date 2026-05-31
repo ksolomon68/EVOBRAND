@@ -18,7 +18,9 @@ const HeroAnimation = ({ scrollContainerRef }) => {
       const promises = [];
       for (let i = 1; i <= frameCount; i++) {
         const img = new Image();
-        img.src = `/header/_MConverter.eu_envato_video_gen_Feb_06_2026_6_14_36-${i}.png`;
+        // padStart(3, '0') makes 1 into 001, 12 into 012, etc.
+        const paddedIndex = i.toString().padStart(3, '0');
+        img.src = `/header/ezgif-frame-${paddedIndex}.jpg`;
         
         const promise = new Promise((resolve) => {
           img.onload = resolve;
@@ -116,7 +118,7 @@ const HeroAnimation = ({ scrollContainerRef }) => {
       {/* Fallback/First Frame Image - visible until canvas starts rendering */}
       {isLoading && (
         <img 
-          src="/header/_MConverter.eu_envato_video_gen_Feb_06_2026_6_14_36-1.png"
+          src="/header/ezgif-frame-001.jpg"
           alt="EVOBRAND Hero"
           className="absolute inset-0 w-full h-full object-cover z-[-1]"
         />
