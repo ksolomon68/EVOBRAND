@@ -9,6 +9,46 @@ const OurWorkPage = () => {
 
   const portfolioItems = [
     {
+      id: 101,
+      title: 'Common Ground Ministries',
+      category: 'Web Development',
+      industry: 'Non-profit',
+      image: '/projects/cgm.png',
+      metrics: { roi: 'Community', timeSaved: 'Outreach', revenue: 'Donations' },
+      description: 'Where every child is celebrated for who they are. Serving at-risk children with faith, mentorship, and a safe place to grow.',
+      link: 'https://evobrand.net/cgm/'
+    },
+    {
+      id: 102,
+      title: 'ChamberOS',
+      category: 'SaaS Platform',
+      industry: 'Business Solutions',
+      image: '/projects/chamberos.png',
+      metrics: { roi: '12+ Hours/Wk', timeSaved: '19 Modules', revenue: '$0 Setup' },
+      description: 'Stop running your chamber on spreadsheets. The all-in-one platform built to automate dues, events, governance, advocacy, and member engagement.',
+      link: 'https://evobrand.net/chamberos'
+    },
+    {
+      id: 103,
+      title: 'PrimeReach',
+      category: 'SaaS Platform',
+      industry: 'Government',
+      image: '/projects/primereach.png',
+      metrics: { roi: 'SBE Readiness', timeSaved: 'White-Label', revenue: 'State-DOT' },
+      description: 'Connect your prime contractors with qualified small businesses. A turnkey, white-label government contracting platform built for transportation and infrastructure agencies.',
+      link: 'https://primereachgov.com/'
+    },
+    {
+      id: 104,
+      title: 'VibeHyr',
+      category: 'Web Development',
+      industry: 'Education',
+      image: '/projects/vibehyr.png',
+      metrics: { roi: '4 Core Courses', timeSaved: 'Reality Potential', revenue: '3 Tiers' },
+      description: 'Build your reality. Where neuroscience meets Neville Goddard. Master your internal state through structured courses, daily journaling, and community.',
+      link: 'https://vibehyr.com/'
+    },
+    {
       id: 11,
       title: 'True Releaf',
       category: 'E-commerce',
@@ -34,15 +74,6 @@ const OurWorkPage = () => {
       image: '/projects/breaking-silences.jpg',
       metrics: { roi: 'N/A', timeSaved: 'High', revenue: 'N/A' },
       description: 'A secure platform featuring live debates, discussion forums, and groups for free speech.'
-    },
-    {
-      id: 2,
-      title: 'MWS & Associates',
-      category: 'Web Development',
-      industry: 'Consulting',
-      image: '/projects/mws-associates.jpg',
-      metrics: { roi: 'Targeted', timeSaved: 'Optimized', revenue: 'Growth' },
-      description: 'Management consulting platform driving innovation for public and private sectors.'
     },
     {
       id: 3,
@@ -119,33 +150,6 @@ const OurWorkPage = () => {
   ];
 
   const newPortfolioItems = [
-    {
-      id: 13,
-      title: 'Rowdy T Burger Stop',
-      category: 'Web Development',
-      industry: 'Food & Beverage',
-      image: '/projects/rowdy-t-burger-stop.jpg',
-      metrics: { roi: 'Traffic', timeSaved: 'Menu Updates', revenue: 'Orders' },
-      description: 'Diner-style burger joint featuring fresh ranch beef and local flavors.'
-    },
-    {
-      id: 14,
-      title: 'Hilltop Barbers',
-      category: 'Web Development',
-      industry: 'Beauty & Wellness',
-      image: '/projects/hilltop-barbers.jpg',
-      metrics: { roi: 'Bookings', timeSaved: 'Scheduling', revenue: 'Clients' },
-      description: 'Precision & Tradition. The premier grooming experience in Waxahachie.'
-    },
-    {
-      id: 15,
-      title: 'Lateresa Jones',
-      category: 'Web Development',
-      industry: 'Political',
-      image: '/projects/lateresa-jones.jpg',
-      metrics: { roi: 'Donations', timeSaved: 'Outreach', revenue: 'Support' },
-      description: 'Florida U.S. Senate 2026. A Voice for the People.'
-    },
     {
       id: 16,
       title: 'Zarate for Ellis County',
@@ -234,13 +238,16 @@ const OurWorkPage = () => {
           <div className="container mx-auto px-4">
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
               {portfolioItems.map((item, index) => (
-                <motion.div
+                <motion.a
+                  href={item.link || '#'}
+                  target={item.link ? '_blank' : '_self'}
+                  rel="noopener noreferrer"
                   key={item.id}
                   initial={{ opacity: 0, y: 30 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: index * 0.1 }}
                   whileHover={{ y: -10 }}
-                  className="bg-[#1a2332] rounded-xl overflow-hidden cursor-pointer group"
+                  className="bg-[#1a2332] rounded-xl overflow-hidden cursor-pointer group block"
                 >
                   <div className="relative h-48 overflow-hidden">
                     <img
@@ -271,7 +278,7 @@ const OurWorkPage = () => {
                     </div>
                     <span className="text-xs text-gray-500">{item.industry}</span>
                   </div>
-                </motion.div>
+                </motion.a>
               ))}
             </div>
           </div>
@@ -322,7 +329,7 @@ const OurWorkPage = () => {
             <p className="text-xl text-white/90 mb-8">Join our growing list of successful clients</p>
             <a
               href="/contact"
-              className="inline-block px-8 py-4 bg-white text-[#1a2332] rounded-lg font-semibold hover:bg-gray-100 transition-colors"
+              className="inline-block px-8 py-4 bg-white text-[#1a2332] rounded-full font-bold hover:shadow-lg hover:bg-gray-100 transition-all"
             >
               Get Started Today
             </a>

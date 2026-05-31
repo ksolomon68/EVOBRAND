@@ -53,7 +53,7 @@ export default function ResetPasswordPage() {
           <div className="text-center mb-10">
             <img src="/logo.png" alt="EVOBRAND" className="h-20 mx-auto object-contain" />
             <div className="h-px w-12 bg-[#22c8e5]/20 mx-auto mt-6 mb-4" />
-            <p className="text-[#22c8e5]/60 font-[Rajdhani] font-bold tracking-[0.3em] uppercase text-xs">
+            <p className="text-[#22c8e5]/60 font-bold tracking-[0.3em] uppercase text-xs">
               Reset Password
             </p>
           </div>
@@ -74,7 +74,7 @@ export default function ResetPasswordPage() {
               </div>
             ) : (
               <>
-                <h2 className="text-2xl font-[Rajdhani] font-bold text-white mb-2">Set new password</h2>
+                <h2 className="text-2xl font-bold text-white mb-2">Set new password</h2>
                 <p className="text-white/40 text-sm mb-8">Choose a strong password for your account.</p>
 
                 {error && (

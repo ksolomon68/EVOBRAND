@@ -14,9 +14,9 @@ const Header = () => {
     { to: '/how-it-works', label: 'How It Works' },
     { to: '/our-work', label: 'Our Work' },
     { to: '/auditor', label: 'Brand Auditor' },
-    { to: '/resources', label: 'Resources' },
     { to: '/about', label: 'About' },
     { to: '/contact', label: 'Contact' },
+    { to: '/contract-builder', label: 'Contract Builder' },
   ];
 
   return (
@@ -51,7 +51,7 @@ const Header = () => {
             ))}
             <NavLink
               to="/client-portal"
-              className="text-sm font-medium text-white hover:text-[#22c8e5] transition-colors px-4 py-2 border border-[#22c8e5] rounded-md"
+              className="text-sm font-bold text-[#22c8e5] hover:bg-[#22c8e5] hover:text-[#003258] transition-colors px-6 py-2 border-2 border-[#22c8e5] rounded-full"
             >
               Client Portal
             </NavLink>
@@ -96,7 +96,7 @@ const Header = () => {
               <NavLink
                 to="/client-portal"
                 onClick={() => setMobileMenuOpen(false)}
-                className="text-lg font-medium text-white hover:text-[#22c8e5] transition-colors px-4 py-2 border border-[#22c8e5] rounded-md text-center"
+                className="text-lg font-bold text-[#22c8e5] hover:bg-[#22c8e5] hover:text-[#003258] transition-colors px-6 py-3 border-2 border-[#22c8e5] rounded-full text-center mt-4"
               >
                 Client Portal
               </NavLink>

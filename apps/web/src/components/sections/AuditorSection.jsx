@@ -23,7 +23,7 @@ const CHALLENGES = [
 const inputClass = `
   w-full bg-white/10 border border-white/20 rounded-xl px-4 py-3 
   text-white placeholder-white/40 focus:outline-none focus:border-[#22C8E5]
-  transition-all duration-200 font-[Source_Sans_3] text-sm
+  transition-all duration-200 text-sm
 `;
 
 const PROOF_POINTS = [
@@ -106,13 +106,13 @@ const AuditorSection = () => {
             viewport={{ once: true }}
             transition={{ duration: 0.8 }}
           >
-            <span className="inline-block px-3 py-1 rounded-full bg-[#22C8E5]/10 border border-[#22C8E5]/20 text-[#22C8E5] text-xs font-[Rajdhani] tracking-widest uppercase mb-6">
+            <span className="inline-block px-3 py-1 rounded-full bg-[#22C8E5]/10 border border-[#22C8E5]/20 text-[#22C8E5] text-xs tracking-widest uppercase mb-6">
               Free · AI-Powered · Instant
             </span>
-            <h2 className="text-4xl md:text-5xl lg:text-6xl font-[Rajdhani] font-bold text-white leading-tight mb-6">
+            <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white leading-tight mb-6">
               HOW STRONG IS YOUR BRAND?
             </h2>
-            <p className="text-white/60 font-[Source_Sans_3] text-lg mb-8 leading-relaxed">
+            <p className="text-white/60 text-lg mb-8 leading-relaxed">
               Get an AI-powered audit in 4 minutes.{' '}
               <span className="text-white">Free. No fluff. No sales pitch.</span>
             </p>
@@ -125,7 +125,7 @@ const AuditorSection = () => {
                   whileInView={{ opacity: 1, x: 0 }}
                   viewport={{ once: true }}
                   transition={{ delay: 0.2 + i * 0.1 }}
-                  className="flex items-center gap-3 text-white/80 font-[Source_Sans_3]"
+                  className="flex items-center gap-3 text-white/80 "
                 >
                   <span className="w-7 h-7 rounded-full bg-[#22C8E5]/15 flex items-center justify-center text-[#22C8E5] flex-shrink-0">
                     {p.icon}
@@ -138,13 +138,13 @@ const AuditorSection = () => {
             {/* Score preview decoration */}
             <div className="hidden lg:flex items-center gap-6">
               <div className="text-center">
-                <p className="font-[Rajdhani] font-bold text-5xl text-[#22C8E5] leading-none">87</p>
-                <p className="text-white/30 text-xs font-[Source_Sans_3] mt-1">Sample Score</p>
+                <p className="font-bold text-5xl text-[#22C8E5] leading-none">87</p>
+                <p className="text-white/30 text-xs mt-1">Sample Score</p>
               </div>
               <div className="flex-1 space-y-2">
                 {['Visual Identity', 'Digital Presence', 'Brand Clarity'].map((label, i) => (
                   <div key={label} className="flex items-center gap-3">
-                    <span className="text-white/40 text-xs font-[Source_Sans_3] w-28">{label}</span>
+                    <span className="text-white/40 text-xs w-28">{label}</span>
                     <div className="flex-1 h-1 bg-white/10 rounded-full overflow-hidden">
                       <motion.div
                         className="h-full bg-[#22C8E5] rounded-full"
@@ -154,7 +154,7 @@ const AuditorSection = () => {
                         transition={{ duration: 1, delay: 0.4 + i * 0.15 }}
                       />
                     </div>
-                    <span className="text-[#22C8E5] text-xs font-[Rajdhani] w-6 text-right">
+                    <span className="text-[#22C8E5] text-xs w-6 text-right">
                       {[78, 65, 90][i]}
                     </span>
                   </div>
@@ -173,10 +173,10 @@ const AuditorSection = () => {
             <div className="bg-white/5 backdrop-blur-md border border-white/10 rounded-3xl p-8">
               {/* Mini progress */}
               <div className="flex items-center justify-between mb-6">
-                <p className="text-[#22C8E5] text-xs font-[Rajdhani] font-semibold tracking-widest uppercase">
+                <p className="text-[#22C8E5] text-xs font-semibold tracking-widest uppercase">
                   Quick Audit Preview
                 </p>
-                <p className="text-white/30 text-xs font-[Rajdhani]">Step {step} of 2</p>
+                <p className="text-white/30 text-xs ">Step {step} of 2</p>
               </div>
               <div className="w-full h-0.5 bg-white/10 rounded-full mb-8 overflow-hidden">
                 <motion.div
@@ -194,7 +194,7 @@ const AuditorSection = () => {
                   exit={{ opacity: 0, x: -30 }}
                   transition={{ duration: 0.3 }}
                 >
-                  <h3 className="font-[Rajdhani] font-bold text-white text-xl mb-6">
+                  <h3 className="font-bold text-white text-xl mb-6">
                     Tell us about your business.
                   </h3>
                   <div className="space-y-4">
@@ -239,7 +239,7 @@ const AuditorSection = () => {
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ duration: 0.3 }}
                 >
-                  <h3 className="font-[Rajdhani] font-bold text-white text-xl mb-4">
+                  <h3 className="font-bold text-white text-xl mb-4">
                     Biggest brand challenges?
                   </h3>
                   <div className="flex flex-wrap gap-2 mb-2">
@@ -249,7 +249,7 @@ const AuditorSection = () => {
                         type="button"
                         onClick={() => toggleChallenge(c)}
                         className={`
-                          px-3 py-1.5 rounded-full border text-xs font-[Source_Sans_3] 
+                          px-3 py-1.5 rounded-full border text-xs 
                           transition-all duration-200 cursor-pointer
                           ${form.challenges.includes(c)
                             ? 'bg-[#22C8E5] border-[#22C8E5] text-[#003258] font-semibold'
@@ -266,7 +266,7 @@ const AuditorSection = () => {
               )}
 
               {error && (
-                <p className="text-red-400 text-xs mt-3 font-[Source_Sans_3]">{error}</p>
+                <p className="text-red-400 text-xs mt-3 ">{error}</p>
               )}
 
               <motion.button
@@ -281,13 +281,13 @@ const AuditorSection = () => {
                   ],
                 } : {}}
                 transition={{ duration: 1.8, repeat: Infinity }}
-                className="w-full mt-8 py-4 bg-[#22C8E5] text-[#003258] rounded-xl font-[Rajdhani] font-bold uppercase tracking-wider text-base hover:bg-[#1db5d0] transition-colors cursor-pointer"
+                className="w-full mt-8 py-4 bg-[#22C8E5] text-[#003258] rounded-xl font-bold uppercase tracking-wider text-base hover:bg-[#1db5d0] transition-colors cursor-pointer"
                 id="section-auditor-cta"
               >
                 {step === 1 ? 'Continue →' : 'Get My Free Brand Score →'}
               </motion.button>
 
-              <p className="text-white/20 text-xs text-center mt-4 font-[Source_Sans_3]">
+              <p className="text-white/20 text-xs text-center mt-4 ">
                 Free · Takes 4 minutes · No credit card
               </p>
             </div>

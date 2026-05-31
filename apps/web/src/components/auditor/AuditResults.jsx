@@ -108,10 +108,10 @@ const LoadingState = ({ hasWebsite }) => {
             transition={{ duration: 0.4 }}
             className="text-center mb-8"
           >
-            <p className="text-white font-[Rajdhani] font-bold text-xl mb-1">
+            <p className="text-white font-bold text-xl mb-1">
               {currentPhase.label}
             </p>
-            <p className="text-white/40 font-[Source_Sans_3] text-sm">
+            <p className="text-white/40 text-sm">
               {currentPhase.sub}
             </p>
           </motion.div>
@@ -136,7 +136,7 @@ const LoadingState = ({ hasWebsite }) => {
         )}
 
         {hasWebsite && (
-          <p className="text-white/20 text-xs font-[Source_Sans_3] mt-6 text-center">
+          <p className="text-white/20 text-xs mt-6 text-center">
             Live internet scan in progress — this takes ~15 seconds
           </p>
         )}
@@ -162,24 +162,24 @@ const ScoreHero = ({ report }) => {
         />
         <div className="relative flex items-center justify-center gap-6">
           <span
-            className="font-[Rajdhani] font-bold leading-none"
+            className="font-bold leading-none"
             style={{ fontSize: 'clamp(80px, 15vw, 140px)', color: '#22C8E5' }}
           >
             <ScoreCounter target={report.overall_score} duration={2.5} />
           </span>
           <div className="flex flex-col items-center">
             <div
-              className="w-16 h-16 rounded-full flex items-center justify-center border-2 font-[Rajdhani] font-bold text-3xl"
+              className="w-16 h-16 rounded-full flex items-center justify-center border-2 font-bold text-3xl"
               style={{ borderColor: gradeColor, color: gradeColor, background: `${gradeColor}15` }}
             >
               {report.grade}
             </div>
-            <span className="text-white/40 text-xs mt-1 font-[Source_Sans_3]">Grade</span>
+            <span className="text-white/40 text-xs mt-1 ">Grade</span>
           </div>
         </div>
       </div>
-      <p className="text-white/40 text-sm font-[Source_Sans_3] uppercase tracking-widest mb-4">Overall Brand Score</p>
-      <h2 className="text-2xl md:text-3xl font-[Rajdhani] font-bold text-white max-w-2xl mx-auto leading-tight">
+      <p className="text-white/40 text-sm uppercase tracking-widest mb-4">Overall Brand Score</p>
+      <h2 className="text-2xl md:text-3xl font-bold text-white max-w-2xl mx-auto leading-tight">
         {report.headline}
       </h2>
     </motion.div>
@@ -194,8 +194,8 @@ const CategoryCard = ({ cat, delay }) => (
     className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-6"
   >
     <div className="flex items-center justify-between mb-3">
-      <h3 className="font-[Rajdhani] font-bold text-white text-lg">{cat.label}</h3>
-      <span className="font-[Rajdhani] font-bold text-[#22C8E5] text-2xl">{cat.score}</span>
+      <h3 className="font-bold text-white text-lg">{cat.label}</h3>
+      <span className="font-bold text-[#22C8E5] text-2xl">{cat.score}</span>
     </div>
     <div className="w-full h-1.5 bg-white/10 rounded-full mb-4 overflow-hidden">
       <motion.div
@@ -205,7 +205,7 @@ const CategoryCard = ({ cat, delay }) => (
         transition={{ duration: 1, delay: delay + 0.2, ease: 'easeOut' }}
       />
     </div>
-    <p className="text-white/50 text-sm font-[Source_Sans_3] leading-relaxed">{cat.insight}</p>
+    <p className="text-white/50 text-sm leading-relaxed">{cat.insight}</p>
   </motion.div>
 );
 
@@ -218,20 +218,20 @@ const RecommendationCard = ({ rec, delay }) => (
     style={{ borderTopColor: '#22C8E5' }}
   >
     <div className="flex items-start justify-between mb-4">
-      <span className="font-[Rajdhani] font-bold text-[#22C8E5]/30 text-5xl leading-none">
+      <span className="font-bold text-[#22C8E5]/30 text-5xl leading-none">
         {String(rec.priority).padStart(2, '0')}
       </span>
       <div className="flex gap-2 flex-wrap justify-end">
-        <span className={`text-xs px-2 py-1 rounded-full border font-[Source_Sans_3] font-semibold ${IMPACT_COLORS[rec.impact]}`}>
+        <span className={`text-xs px-2 py-1 rounded-full border font-semibold ${IMPACT_COLORS[rec.impact]}`}>
           {rec.impact} Impact
         </span>
-        <span className="text-xs px-2 py-1 rounded-full border border-white/10 text-white/40 font-[Source_Sans_3]">
+        <span className="text-xs px-2 py-1 rounded-full border border-white/10 text-white/40 ">
           {rec.effort} Effort
         </span>
       </div>
     </div>
-    <h3 className="font-[Rajdhani] font-bold text-white text-xl mb-3">{rec.title}</h3>
-    <p className="text-white/60 text-sm font-[Source_Sans_3] leading-relaxed">{rec.detail}</p>
+    <h3 className="font-bold text-white text-xl mb-3">{rec.title}</h3>
+    <p className="text-white/60 text-sm leading-relaxed">{rec.detail}</p>
   </motion.div>
 );
 
@@ -260,7 +260,7 @@ const AuditResults = ({ report, onDownloadPDF, isLoading, hasWebsite }) => {
             transition={{ duration: 0.7, delay: 0.3 }}
             className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-6 flex flex-col"
           >
-            <h3 className="font-[Rajdhani] font-bold text-white text-xl mb-4 text-center">Brand Radar</h3>
+            <h3 className="font-bold text-white text-xl mb-4 text-center">Brand Radar</h3>
             <ScoreRadar categories={report.categories} />
           </motion.div>
 
@@ -275,8 +275,8 @@ const AuditResults = ({ report, onDownloadPDF, isLoading, hasWebsite }) => {
                 className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-xl px-5 py-4"
               >
                 <div className="flex items-center justify-between mb-2">
-                  <span className="font-[Rajdhani] font-semibold text-white text-base">{cat.label}</span>
-                  <span className="font-[Rajdhani] font-bold text-[#22C8E5]">{cat.score}/100</span>
+                  <span className="font-semibold text-white text-base">{cat.label}</span>
+                  <span className="font-bold text-[#22C8E5]">{cat.score}/100</span>
                 </div>
                 <div className="w-full h-1 bg-white/10 rounded-full overflow-hidden">
                   <motion.div
@@ -299,13 +299,13 @@ const AuditResults = ({ report, onDownloadPDF, isLoading, hasWebsite }) => {
           className="grid md:grid-cols-2 gap-6 mb-16"
         >
           <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-6">
-            <h3 className="font-[Rajdhani] font-bold text-white text-xl mb-5 flex items-center gap-2">
+            <h3 className="font-bold text-white text-xl mb-5 flex items-center gap-2">
               <CheckCircle size={20} className="text-green-400" />
               What's Working
             </h3>
             <ul className="space-y-3">
               {(report.strengths || []).map((s, i) => (
-                <li key={i} className="flex items-start gap-3 text-white/70 font-[Source_Sans_3] text-sm leading-relaxed">
+                <li key={i} className="flex items-start gap-3 text-white/70 text-sm leading-relaxed">
                   <span className="w-1.5 h-1.5 bg-green-400 rounded-full mt-2 flex-shrink-0" />
                   {s}
                 </li>
@@ -313,13 +313,13 @@ const AuditResults = ({ report, onDownloadPDF, isLoading, hasWebsite }) => {
             </ul>
           </div>
           <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-6">
-            <h3 className="font-[Rajdhani] font-bold text-white text-xl mb-5 flex items-center gap-2">
+            <h3 className="font-bold text-white text-xl mb-5 flex items-center gap-2">
               <TrendingUp size={20} className="text-[#22C8E5]" />
               Where to Grow
             </h3>
             <ul className="space-y-3">
               {(report.gaps || []).map((g, i) => (
-                <li key={i} className="flex items-start gap-3 text-white/70 font-[Source_Sans_3] text-sm leading-relaxed">
+                <li key={i} className="flex items-start gap-3 text-white/70 text-sm leading-relaxed">
                   <ArrowRight size={14} className="text-[#22C8E5] mt-1 flex-shrink-0" />
                   {g}
                 </li>
@@ -335,7 +335,7 @@ const AuditResults = ({ report, onDownloadPDF, isLoading, hasWebsite }) => {
           transition={{ duration: 0.5, delay: 1.2 }}
           className="mb-16"
         >
-          <h3 className="font-[Rajdhani] font-bold text-white text-2xl md:text-3xl mb-6">
+          <h3 className="font-bold text-white text-2xl md:text-3xl mb-6">
             Your Action Plan
           </h3>
           <div className="grid md:grid-cols-3 gap-5">
@@ -352,13 +352,13 @@ const AuditResults = ({ report, onDownloadPDF, isLoading, hasWebsite }) => {
           transition={{ duration: 0.7, delay: 1.5 }}
           className="bg-gradient-to-br from-[#003258] to-[#022040] border border-[#22C8E5]/20 rounded-2xl p-8 md:p-10 text-center"
         >
-          <p className="text-white/80 font-[Source_Sans_3] text-lg mb-6 max-w-2xl mx-auto leading-relaxed">
+          <p className="text-white/80 text-lg mb-6 max-w-2xl mx-auto leading-relaxed">
             {report.cta}
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center mb-6">
             <Link
               to="/contact"
-              className="inline-flex items-center justify-center gap-2 px-8 py-4 bg-[#22C8E5] text-[#003258] rounded-xl font-[Rajdhani] font-bold uppercase tracking-wider hover:bg-[#1db5d0] transition-colors"
+              className="inline-flex items-center justify-center gap-2 px-8 py-4 bg-[#22C8E5] text-[#003258] rounded-xl font-bold uppercase tracking-wider hover:bg-[#1db5d0] transition-colors"
               id="audit-book-call-btn"
             >
               <Calendar size={18} />
@@ -366,14 +366,14 @@ const AuditResults = ({ report, onDownloadPDF, isLoading, hasWebsite }) => {
             </Link>
             <button
               onClick={handleDownloadPDF}
-              className="inline-flex items-center justify-center gap-2 px-8 py-4 border border-[#22C8E5]/40 text-[#22C8E5] rounded-xl font-[Rajdhani] font-bold uppercase tracking-wider hover:border-[#22C8E5] transition-colors cursor-pointer"
+              className="inline-flex items-center justify-center gap-2 px-8 py-4 border border-[#22C8E5]/40 text-[#22C8E5] rounded-xl font-bold uppercase tracking-wider hover:border-[#22C8E5] transition-colors cursor-pointer"
               id="audit-download-pdf-btn"
             >
               <Download size={18} />
               Download PDF Report
             </button>
           </div>
-          <p className="text-white/30 text-sm font-[Source_Sans_3]">
+          <p className="text-white/30 text-sm ">
             Keisha Solomon · CEO, EVOBRAND Concepts · Dallas, TX
           </p>
         </motion.div>

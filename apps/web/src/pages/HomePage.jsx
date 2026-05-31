@@ -7,6 +7,9 @@ import { Sparkles, Zap, FileText, Video, Code } from 'lucide-react';
 import HeroAnimation from '@/components/HeroAnimation.jsx';
 import VideoLibrarySection from '@/components/VideoLibrarySection.jsx';
 import AuditorSection from '@/components/sections/AuditorSection.jsx';
+import ServicesBuiltForScale from '@/components/sections/ServicesBuiltForScale.jsx';
+import AICapabilities from '@/components/sections/AICapabilities.jsx';
+import BookingSection from '@/components/sections/BookingSection.jsx';
 import SEO from '@/components/SEO.jsx';
 
 const HomePage = () => {
@@ -99,13 +102,13 @@ const HomePage = () => {
                 <div className="flex flex-col sm:flex-row gap-4">
                   <Link
                     to="/contact"
-                    className="px-8 py-4 bg-gradient-to-r from-[#5668ff] to-[#22c8e5] text-white rounded-lg font-semibold hover:shadow-lg hover:shadow-[#22c8e5]/50 transition-all text-center"
+                    className="px-8 py-4 bg-[#22c8e5] text-[#003258] rounded-full font-bold hover:shadow-lg hover:shadow-[#22c8e5]/50 hover:bg-opacity-90 transition-all text-center"
                   >
                     Start Your AI Transformation
                   </Link>
                   <Link
                     to="/how-it-works"
-                    className="px-8 py-4 border-2 border-[#22c8e5] text-[#22c8e5] rounded-lg font-semibold hover:bg-[#22c8e5] hover:text-white transition-all text-center"
+                    className="px-8 py-4 border-2 border-[#22c8e5] text-[#22c8e5] rounded-full font-bold hover:bg-[#22c8e5] hover:text-[#003258] transition-all text-center"
                   >
                     See How It Works
                   </Link>
@@ -140,46 +143,10 @@ const HomePage = () => {
         </section>
 
         {/* Services Section */}
-        <section className="py-20 bg-[#0f1419]">
-          <div className="container mx-auto px-4">
-            <motion.div
-              initial={{ opacity: 0, y: 30 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              className="text-center mb-12"
-            >
-              <h2 className="text-4xl md:text-5xl font-bold text-white mb-4">Our Services</h2>
-              <p className="text-xl text-gray-400">Comprehensive AI solutions for modern businesses</p>
-            </motion.div>
+        <ServicesBuiltForScale />
 
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {services.map((service, index) => (
-                <motion.div
-                  key={index}
-                  initial={{ opacity: 0, y: 30 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ delay: index * 0.1 }}
-                  whileHover={{ y: -10, boxShadow: '0 20px 40px rgba(34, 200, 229, 0.3)' }}
-                  className={`bg-[#1a2332] p-6 rounded-xl border border-gray-800 hover:border-[#22c8e5] transition-all ${service.emphasized ? 'lg:col-span-1' : 'lg:col-span-1 opacity-80'
-                    }`}
-                >
-                  <div className="text-[#22c8e5] mb-4">{service.icon}</div>
-                  <h3 className="text-xl font-bold text-white mb-3">{service.title}</h3>
-                  <p className="text-gray-400 mb-4">{service.description}</p>
-                  <ul className="space-y-2">
-                    {service.features.map((feature, idx) => (
-                      <li key={idx} className="text-sm text-gray-500 flex items-center">
-                        <span className="w-1.5 h-1.5 bg-[#22c8e5] rounded-full mr-2"></span>
-                        {feature}
-                      </li>
-                    ))}
-                  </ul>
-                </motion.div>
-              ))}
-            </div>
-          </div>
-        </section>
+        {/* AI Capabilities Section */}
+        <AICapabilities />
 
         {/* Trust Section */}
         <section className="py-20 bg-[#1a2332]">
@@ -220,6 +187,9 @@ const HomePage = () => {
         {/* Brand Auditor Section */}
         <AuditorSection />
 
+        {/* Booking Section */}
+        <BookingSection />
+
         {/* Final CTA */}
         <section className="py-20 bg-gradient-to-br from-[#1a2332] to-[#22c8e5]">
           <div className="container mx-auto px-4 text-center">
@@ -235,21 +205,15 @@ const HomePage = () => {
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
                 <Link
                   to="/contact"
-                  className="px-8 py-4 bg-white text-[#1a2332] rounded-lg font-semibold hover:bg-gray-100 transition-colors"
+                  className="px-8 py-4 bg-[#22c8e5] text-[#003258] rounded-full font-bold hover:shadow-lg hover:bg-opacity-90 transition-all"
                 >
                   Book Free Consultation
                 </Link>
                 <Link
                   to="/our-work"
-                  className="px-8 py-4 border-2 border-white text-white rounded-lg font-semibold hover:bg-white hover:text-[#1a2332] transition-all"
+                  className="px-8 py-4 border-2 border-[#22c8e5] text-[#22c8e5] rounded-full font-bold hover:bg-[#22c8e5] hover:text-[#003258] transition-all"
                 >
                   Explore Our Work
-                </Link>
-                <Link
-                  to="/resources"
-                  className="px-8 py-4 border-2 border-white text-white rounded-lg font-semibold hover:bg-white hover:text-[#1a2332] transition-all"
-                >
-                  View Case Studies
                 </Link>
               </div>
             </motion.div>

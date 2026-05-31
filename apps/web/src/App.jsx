@@ -18,6 +18,7 @@ import AuditorPage from '@/pages/AuditorPage.jsx';
 import AuditorResultsPage from '@/pages/AuditorResultsPage.jsx';
 import ClientPortalLoginPage from '@/pages/ClientPortalLoginPage.jsx';
 import ResetPasswordPage from '@/pages/ResetPasswordPage.jsx';
+import ContractCustomizerPage from '@/pages/ContractCustomizerPage.jsx';
 
 function App() {
   return (
@@ -40,6 +41,7 @@ function App() {
             <Route path="/blog/:slug" element={<BlogPostPage />} />
             <Route path="/auditor" element={<AuditorPage />} />
             <Route path="/auditor/results/:id" element={<AuditorResultsPage />} />
+            <Route path="/contract-builder" element={<ContractCustomizerPage />} />
           </Routes>
         </main>
         <Footer />

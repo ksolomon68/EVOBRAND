@@ -92,13 +92,13 @@ const AuditorPage = () => {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.8 }}
               >
-                <span className="inline-block px-4 py-1.5 rounded-full bg-[#22C8E5]/10 border border-[#22C8E5]/20 text-[#22C8E5] text-sm font-[Rajdhani] tracking-widest uppercase mb-6">
+                <span className="inline-block px-4 py-1.5 rounded-full bg-[#22C8E5]/10 border border-[#22C8E5]/20 text-[#22C8E5] text-sm tracking-widest uppercase mb-6">
                   AI-Powered · Free · Instant
                 </span>
-                <h1 className="text-4xl md:text-6xl font-[Rajdhani] font-bold text-white mb-4">
+                <h1 className="text-4xl md:text-6xl font-bold text-white mb-4">
                   HOW STRONG IS YOUR BRAND?
                 </h1>
-                <p className="text-white/60 font-[Source_Sans_3] text-lg max-w-xl mx-auto">
+                <p className="text-white/60 text-lg max-w-xl mx-auto">
                   Get an honest AI-generated brand score in under 4 minutes. 5-category breakdown. Personalized action plan. No fluff.
                 </p>
               </motion.div>
@@ -108,7 +108,7 @@ const AuditorPage = () => {
           {/* Form card */}
           <div className="container mx-auto px-4 max-w-2xl pb-20">
             {error && (
-              <div className="mb-6 p-4 bg-red-500/10 border border-red-500/20 rounded-xl text-red-400 text-sm font-[Source_Sans_3]">
+              <div className="mb-6 p-4 bg-red-500/10 border border-red-500/20 rounded-xl text-red-400 text-sm ">
                 ⚠ {error}
               </div>
             )}
@@ -122,7 +122,7 @@ const AuditorPage = () => {
             </motion.div>
 
             {/* Trust signals */}
-            <div className="flex flex-wrap justify-center gap-6 mt-8 text-white/30 text-xs font-[Source_Sans_3]">
+            <div className="flex flex-wrap justify-center gap-6 mt-8 text-white/30 text-xs ">
               <span>🔒 Your data is private</span>
               <span>⚡ Results in seconds</span>
               <span>📧 Report emailed to you</span>

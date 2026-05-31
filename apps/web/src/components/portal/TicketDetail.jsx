@@ -73,21 +73,21 @@ const TicketDetail = ({ ticket, onBack, onReply }) => {
                                 initial={{ opacity: 0, y: 10 }}
                                 animate={{ opacity: 1, y: 0 }}
                                 transition={{ delay: i * 0.1 }}
-                                className={`flex ${msg.sender === 'Client' ? 'justify-end' : 'justify-start'}`}
+                                className={`flex ${!msg.sender_is_admin ? 'justify-end' : 'justify-start'}`}
                             >
                                 <div className={`max-w-[85%] group`}>
-                                    <div className={`flex items-center gap-3 mb-2 ${msg.sender === 'Client' ? 'flex-row-reverse' : ''}`}>
+                                    <div className={`flex items-center gap-3 mb-2 ${!msg.sender_is_admin ? 'flex-row-reverse' : ''}`}>
                                         <div className={`w-8 h-8 rounded-lg flex items-center justify-center text-[10px] font-bold ${
-                                            msg.sender === 'Client' ? 'bg-[#22c8e5] text-[#003258]' : 'bg-white/10 text-white'
+                                            !msg.sender_is_admin ? 'bg-[#22c8e5] text-[#003258]' : 'bg-white/10 text-white'
                                         }`}>
-                                            {msg.sender === 'Client' ? 'YOU' : 'EVO'}
+                                            {!msg.sender_is_admin ? 'YOU' : 'EVO'}
                                         </div>
                                         <span className="text-[10px] font-bold text-white/20 uppercase tracking-widest">
-                                            {new Date(msg.timestamp).toLocaleString([], { hour: '2-digit', minute: '2-digit' })}
+                                            {new Date(msg.timestamp || msg.created_at).toLocaleString([], { hour: '2-digit', minute: '2-digit' })}
                                         </span>
                                     </div>
                                     <div className={`p-5 rounded-2xl text-sm leading-relaxed ${
-                                        msg.sender === 'Client'
+                                        !msg.sender_is_admin
                                             ? 'bg-[#22c8e5]/10 border border-[#22c8e5]/20 text-white rounded-tr-none'
                                             : 'bg-white/5 border border-white/10 text-white/80 rounded-tl-none'
                                     }`}>
@@ -125,7 +125,7 @@ const TicketDetail = ({ ticket, onBack, onReply }) => {
                 {/* Info Panel */}
                 <div className="w-full lg:w-80 space-y-6">
                     <div className="bg-white/5 border border-white/10 rounded-3xl p-8">
-                        <h3 className="text-white font-[Rajdhani] font-bold text-sm uppercase tracking-[0.2em] mb-6">Security Context</h3>
+                        <h3 className="text-white font-bold text-sm uppercase tracking-[0.2em] mb-6">Security Context</h3>
                         <div className="space-y-6">
                             <div>
                                 <p className="text-white/20 text-[10px] font-bold uppercase tracking-widest mb-1">Initialization</p>
@@ -133,7 +133,7 @@ const TicketDetail = ({ ticket, onBack, onReply }) => {
                             </div>
                             <div>
                                 <p className="text-white/20 text-[10px] font-bold uppercase tracking-widest mb-1">Target Cluster</p>
-                                <p className="text-white text-sm font-medium">{ticket.service}</p>
+                                <p className="text-white text-sm font-medium">{ticket.service || 'Support'}</p>
                             </div>
                             <div>
                                 <p className="text-white/20 text-[10px] font-bold uppercase tracking-widest mb-1">Assigned Unit</p>
@@ -142,6 +142,17 @@ const TicketDetail = ({ ticket, onBack, onReply }) => {
                                     <p className="text-white text-sm font-medium">Core AI Team</p>
                                 </div>
                             </div>
+                            {ticket.quoted_price > 0 && (
+                                <div className="pt-4 border-t border-white/10">
+                                    <p className="text-[#22c8e5]/60 text-[10px] font-bold uppercase tracking-widest mb-1">Estimated Cost</p>
+                                    <p className="text-[#22c8e5] text-2xl font-bold">${Number(ticket.quoted_price).toFixed(2)}</p>
+                                    {ticket.is_paid ? (
+                                        <span className="inline-block mt-2 px-2 py-1 bg-green-500/20 text-green-400 text-[10px] font-bold uppercase rounded border border-green-500/30">Paid</span>
+                                    ) : (
+                                        <span className="inline-block mt-2 px-2 py-1 bg-yellow-500/20 text-yellow-400 text-[10px] font-bold uppercase rounded border border-yellow-500/30">Unpaid Invoice</span>
+                                    )}
+                                </div>
+                            )}
                         </div>
                         
                         <div className="mt-8 pt-8 border-t border-white/5">

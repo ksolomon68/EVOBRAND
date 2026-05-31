@@ -38,12 +38,32 @@ const ResourcesPage = () => {
   const startIndex = (currentPage - 1) * postsPerPage;
   const paginatedPosts = filteredPosts.slice(startIndex, startIndex + postsPerPage);
 
-  const handleNewsletterSubmit = (e) => {
+  const [status, setStatus] = useState('idle');
+
+  const handleNewsletterSubmit = async (e) => {
     e.preventDefault();
     if (email) {
-      setSubscribed(true);
-      setEmail('');
-      setTimeout(() => setSubscribed(false), 3000);
+      setStatus('loading');
+      try {
+        const response = await fetch('http://localhost:5000/api/newsletter/subscribe', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email }),
+        });
+
+        if (response.ok) {
+          setSubscribed(true);
+          setEmail('');
+          setStatus('idle');
+          setTimeout(() => setSubscribed(false), 3000);
+        } else {
+          setStatus('idle');
+          alert('Failed to subscribe. Please try again.');
+        }
+      } catch (err) {
+        setStatus('idle');
+        alert('Network error. Please try again.');
+      }
     }
   };
 
@@ -249,9 +269,10 @@ const ResourcesPage = () => {
                 />
                 <button
                   type="submit"
-                  className="px-8 py-4 bg-[#22c8e5] text-white rounded-lg font-semibold hover:bg-[#1ba3c0] transition-colors"
+                  disabled={status === 'loading'}
+                  className="px-8 py-4 bg-[#22c8e5] text-white rounded-lg font-semibold hover:bg-[#1ba3c0] transition-colors disabled:opacity-50"
                 >
-                  {subscribed ? 'Subscribed!' : 'Subscribe'}
+                  {status === 'loading' ? 'Subscribing...' : subscribed ? 'Subscribed!' : 'Subscribe'}
                 </button>
               </form>
             </div>

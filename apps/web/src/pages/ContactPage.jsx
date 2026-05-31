@@ -69,16 +69,21 @@ function ContactForm() {
 
     setStatus('loading');
     try {
-      const { data, error } = await supabase.functions.invoke('send-contact-email', {
-        body: {
+      const response = await fetch('http://localhost:5000/api/support/ticket', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
           name: form.name.trim(),
           email: form.email.trim(),
-          service: form.service,
+          subject: form.service || 'General Inquiry',
           message: form.message.trim(),
-        },
+        }),
       });
 
-      if (error || data?.error) throw new Error(data?.error ?? error?.message ?? 'Send failed');
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Send failed');
+      }
 
       setStatus('success');
       setForm({ service: '', name: '', email: '', message: '' });

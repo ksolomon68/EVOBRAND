@@ -9,7 +9,7 @@ import TicketList from '../components/portal/TicketList';
 import NewTicketForm from '../components/portal/NewTicketForm';
 import TicketDetail from '../components/portal/TicketDetail';
 import MyMeetings from '../components/portal/MyMeetings';
-import AdminBlackoutPanel from '../components/admin/AdminBlackoutPanel';
+import AdminTicketPanel from '../components/admin/AdminTicketPanel';
 import { useAuth } from '../hooks/useAuth.jsx';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
@@ -171,42 +171,53 @@ const ClientPortalPage = () => {
     if (user) fetchTickets();
   }, [user]);
 
+  const API_URL = 'http://localhost:5000/api/support';
+
   const fetchTickets = async () => {
     setLoading(true);
-    const { data, error } = await supabase
-      .from('tickets')
-      .select(`*, ticket_messages(id, message, sender_type, created_at)`)
-      .eq('client_id', user.id)
-      .order('created_at', { ascending: false });
+    try {
+      const token = localStorage.getItem('evobrand_token');
+      const response = await fetch(`${API_URL}/tickets`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.error);
 
-    if (!error && data) {
+      // The backend returns an array of tickets
       setTickets(
-        data.map((t) => ({
+        data.tickets.map((t) => ({
           ...t,
-          lastUpdated: t.created_at,
-          service: t.category ?? 'Support',
-          history: (t.ticket_messages ?? [])
-            .sort((a, b) => new Date(a.created_at) - new Date(b.created_at))
-            .map((m) => ({ id: m.id, sender: m.sender_type, message: m.message, timestamp: m.created_at })),
+          lastUpdated: t.updated_at,
+          service: 'Support', // Fallback or could map to category if added
         }))
       );
+    } catch (err) {
+      console.error('Error fetching tickets:', err);
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
   };
 
   const handleCreateTicket = async (formData) => {
     try {
-      const { data: ticket, error: ticketError } = await supabase
-        .from('tickets')
-        .insert([{ client_id: user.id, subject: formData.subject, priority: formData.priority, category: formData.service, status: 'Open' }])
-        .select()
-        .single();
-      if (ticketError) throw ticketError;
-
-      const { error: msgError } = await supabase
-        .from('ticket_messages')
-        .insert([{ ticket_id: ticket.id, sender_id: user.id, sender_type: 'Client', message: formData.description }]);
-      if (msgError) throw msgError;
+      const token = localStorage.getItem('evobrand_token');
+      const response = await fetch(`${API_URL}/ticket`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          email: user.email,
+          name: user.name,
+          subject: formData.subject,
+          message: formData.description,
+          priority: formData.priority?.toLowerCase() || 'normal'
+        })
+      });
+      
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.error);
 
       fetchTickets();
       setShowNewTicketModal(false);
@@ -218,16 +229,30 @@ const ClientPortalPage = () => {
 
   const handleClientReply = async (ticketId, message) => {
     try {
-      const { error } = await supabase
-        .from('ticket_messages')
-        .insert([{ ticket_id: ticketId, sender_id: user.id, sender_type: 'Client', message }]);
-      if (error) throw error;
-      await fetchTickets();
-      setTickets((prev) => {
-        const updated = prev.find((t) => t.id === ticketId);
-        if (updated) setSelectedTicket(updated);
-        return prev;
+      const token = localStorage.getItem('evobrand_token');
+      const response = await fetch(`${API_URL}/tickets/${ticketId}/reply`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({ message })
       });
+      
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.error);
+
+      await fetchTickets();
+      // Refetch the detail view to get the latest thread
+      if (selectedTicket && selectedTicket.id === ticketId) {
+         const detailResponse = await fetch(`${API_URL}/tickets/${ticketId}`, {
+           headers: { 'Authorization': `Bearer ${token}` }
+         });
+         if (detailResponse.ok) {
+           const detailData = await detailResponse.json();
+           setSelectedTicket({ ...detailData.ticket, history: detailData.replies });
+         }
+      }
     } catch (err) {
       console.error('Error replying:', err);
       alert('Failed to send reply.');
@@ -423,7 +448,7 @@ const ClientPortalPage = () => {
                   </motion.div>
                 )}
 
-                {/* ── Admin Blackout Panel ── */}
+                {/* ── Admin Controls Panel ── */}
                 {view === 'admin' && (
                   <motion.div
                     key="admin"
@@ -432,7 +457,7 @@ const ClientPortalPage = () => {
                     exit={{ opacity: 0, y: -10 }}
                     transition={{ duration: 0.25 }}
                   >
-                    <AdminBlackoutPanel user={user} />
+                    <AdminTicketPanel user={user} />
                   </motion.div>
                 )}
 

@@ -46,8 +46,8 @@ const AuditorResultsPage = () => {
     return (
       <div className="min-h-screen bg-[#04080f] flex items-center justify-center px-4">
         <div className="text-center">
-          <p className="text-red-400 font-[Source_Sans_3] mb-4">⚠ {error}</p>
-          <Link to="/auditor" className="text-[#22C8E5] font-[Rajdhani] font-semibold hover:underline">
+          <p className="text-red-400 mb-4">⚠ {error}</p>
+          <Link to="/auditor" className="text-[#22C8E5] font-semibold hover:underline">
             Start a new audit →
           </Link>
         </div>

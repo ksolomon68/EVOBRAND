@@ -3,7 +3,7 @@ import React from 'react';
 import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Sparkles, Zap, FileText, Video, Code, Check, ArrowRight } from 'lucide-react';
-import ProcessVisualizer from '@/components/ProcessVisualizer.jsx';
+
 import SEO from '@/components/SEO.jsx';
 
 const ServicesPage = () => {
@@ -249,6 +249,54 @@ const ServicesPage = () => {
         solution: 'Modern WordPress rebuild',
         results: ['300% faster load time', '150% traffic increase', '80% bounce rate reduction']
       }
+    },
+    {
+      id: 5,
+      icon: <Check size={48} />,
+      title: 'WCAG Accessibility',
+      description: 'Ensure your digital experiences are universally accessible. We audit, remediate, and maintain your platforms to meet and exceed WCAG standards.',
+      features: [
+        'Comprehensive Accessibility Audits',
+        'WCAG 2.1 AA/AAA Remediation',
+        'Screen Reader Optimization',
+        'Keyboard Navigation Enhancements',
+        'Color Contrast Adjustments',
+        'Ongoing Compliance Monitoring'
+      ],
+      process: [
+        { step: 'Audit', description: 'Deep scan of your digital properties' },
+        { step: 'Report', description: 'Detailed compliance roadmap' },
+        { step: 'Remediate', description: 'Fixing accessibility barriers' },
+        { step: 'Test', description: 'Screen reader and manual testing' },
+        { step: 'Certify', description: 'Providing compliance documentation' }
+      ],
+      pricing: [
+        {
+          tier: 'Audit Only',
+          price: '$2,500',
+          features: ['Full WCAG 2.1 Audit', 'Executive Summary', 'Detailed Defect Report', 'Remediation Roadmap'],
+          cta: 'Get Started'
+        },
+        {
+          tier: 'Remediation',
+          price: '$7,500',
+          features: ['Full Audit', 'Code Remediation', 'Screen Reader Testing', 'Accessibility Statement', '30 Days Support'],
+          cta: 'Most Popular',
+          highlighted: true
+        },
+        {
+          tier: 'Enterprise',
+          price: 'Custom',
+          features: ['Continuous Monitoring', 'Dedicated Team', 'Legal Support', 'Training Sessions', 'SLA Guarantee'],
+          cta: 'Contact Us'
+        }
+      ],
+      caseStudy: {
+        client: 'Global E-Commerce Brand',
+        challenge: 'Legal pressure due to non-compliant website',
+        solution: 'Full WCAG 2.1 AA remediation',
+        results: ['100% Compliance Achieved', 'Zero Legal Issues', '15% Conversion Increase']
+      }
     }
   ];
 
@@ -265,14 +313,14 @@ const ServicesPage = () => {
         {/* Service Navigation */}
         <section className="bg-[#1a2332] py-6 sticky top-20 z-40">
           <div className="container mx-auto px-4">
-            <div className="flex overflow-x-auto space-x-4 pb-2">
+            <div className="flex flex-wrap justify-center gap-4 pb-2">
               {services.map((service, index) => (
                 <button
                   key={service.id}
                   onClick={() => setSelectedService(index)}
-                  className={`flex-shrink-0 px-6 py-3 rounded-lg font-medium transition-all ${selectedService === index
-                      ? 'bg-[#22c8e5] text-white'
-                      : 'bg-[#0f1419] text-gray-400 hover:text-white'
+                  className={`px-6 py-3 rounded-full font-bold transition-all ${selectedService === index
+                      ? 'bg-[#22c8e5] text-[#003258] shadow-[0_0_15px_rgba(34,200,229,0.3)]'
+                      : 'bg-[#0f1419] text-gray-400 hover:text-white border border-white/5'
                     }`}
                 >
                   {service.title}
@@ -298,73 +346,103 @@ const ServicesPage = () => {
           </div>
         </section>
 
-        {/* Features */}
-        <section className="py-20 bg-[#0f1419]">
-          <div className="container mx-auto px-4">
-            <h2 className="text-3xl font-bold text-white mb-12 text-center">Key Features</h2>
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-6xl mx-auto">
-              {currentService.features.map((feature, index) => (
-                <motion.div
-                  key={index}
-                  initial={{ opacity: 0, y: 20 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ delay: index * 0.1 }}
-                  className="flex items-start space-x-3 bg-[#1a2332] p-4 rounded-lg"
-                >
-                  <Check className="text-[#22c8e5] flex-shrink-0 mt-1" size={20} />
-                  <span className="text-gray-300">{feature}</span>
-                </motion.div>
-              ))}
-            </div>
-          </div>
-        </section>
+        {/* Bento Dashboard */}
+        <section className="py-12 bg-[#0f1419]">
+          <div className="container mx-auto px-4 max-w-6xl">
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+              
+              {/* Left Column - Main Feature Box */}
+              <motion.div
+                initial={{ opacity: 0, scale: 0.95 }}
+                animate={{ opacity: 1, scale: 1 }}
+                className="lg:col-span-2 bg-[#1a2332] rounded-3xl p-8 border border-white/5 flex flex-col"
+              >
+                <div className="flex items-center gap-4 mb-8">
+                  <div className="w-12 h-12 bg-[#22c8e5]/10 rounded-xl flex items-center justify-center text-[#22c8e5]">
+                    <Check size={24} />
+                  </div>
+                  <h2 className="text-2xl font-bold text-white">What You Get</h2>
+                </div>
+                
+                <div className="grid sm:grid-cols-2 gap-4 flex-grow">
+                  {currentService.features.map((feature, index) => (
+                    <div key={index} className="flex items-start gap-3 bg-[#0f1419] p-4 rounded-2xl border border-white/5">
+                      <Check className="text-[#22c8e5] flex-shrink-0 mt-0.5" size={18} />
+                      <span className="text-gray-300 text-sm font-medium">{feature}</span>
+                    </div>
+                  ))}
+                </div>
+              </motion.div>
 
-        <section className="py-20 bg-[#1a2332]">
-          <div className="container mx-auto px-4">
-            <h2 className="text-3xl font-bold text-white mb-16 text-center">Our Process</h2>
-            
-            <div className="grid lg:grid-cols-2 gap-16 items-center max-w-6xl mx-auto">
-              {/* Left Column: Timeline Steps */}
-              <div className="space-y-12">
+              {/* Right Column - Stacked Boxes */}
+              <div className="flex flex-col gap-6">
+                
+                {/* Pricing Box */}
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.1 }}
+                  className="bg-gradient-to-br from-[#22c8e5]/10 to-[#1a2332] rounded-3xl p-8 border border-[#22c8e5]/20 flex-1 flex flex-col justify-center"
+                >
+                  <h3 className="text-lg font-bold text-white mb-2">Investment</h3>
+                  <p className="text-sm text-gray-400 mb-6">Starting from</p>
+                  <p className="text-4xl font-bold text-[#22c8e5] mb-6">
+                    {currentService.pricing[0].price}
+                  </p>
+                  <a href="#pricing-full" className="w-full py-3 bg-[#22c8e5] text-[#003258] rounded-xl font-bold hover:shadow-lg hover:shadow-[#22c8e5]/20 transition-all text-center block">
+                    View Full Pricing
+                  </a>
+                </motion.div>
+
+                {/* Case Study Highlight Box */}
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.2 }}
+                  className="bg-[#1a2332] rounded-3xl p-8 border border-white/5 flex-1"
+                >
+                  <h3 className="text-lg font-bold text-white mb-4">Success Metric</h3>
+                  <div className="bg-[#0f1419] p-4 rounded-2xl border border-white/5 mb-4">
+                    <p className="text-[#22c8e5] font-bold text-xl mb-1">{currentService.caseStudy.results[0]}</p>
+                    <p className="text-xs text-gray-500 uppercase tracking-wider">{currentService.caseStudy.client}</p>
+                  </div>
+                  <p className="text-sm text-gray-400 line-clamp-2">{currentService.caseStudy.solution}</p>
+                </motion.div>
+
+              </div>
+            </div>
+
+            {/* Horizontal Timeline */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.3 }}
+              className="mt-6 bg-[#1a2332] rounded-3xl p-8 border border-white/5 relative z-0"
+            >
+              <h2 className="text-xl font-bold text-white mb-8">Implementation Process</h2>
+              <div className="flex flex-col md:flex-row justify-between relative">
+                {/* Connecting Line */}
+                <div className="absolute top-6 left-12 right-12 h-0.5 bg-[#22c8e5]/20 hidden md:block -z-10"></div>
+                
                 {currentService.process.map((step, index) => (
-                  <motion.div
-                    key={index}
-                    initial={{ opacity: 0, x: -30 }}
-                    whileInView={{ opacity: 1, x: 0 }}
-                    viewport={{ once: true }}
-                    transition={{ delay: index * 0.1 }}
-                    className="group flex items-start space-x-6 relative"
-                  >
-                    {/* Connecting line between steps */}
-                    {index < currentService.process.length - 1 && (
-                      <div className="absolute left-6 top-14 bottom-[-48px] w-0.5 bg-gray-800 group-hover:bg-[#22c8e5]/30 transition-colors"></div>
-                    )}
-                    
-                    <div className="flex-shrink-0 w-12 h-12 bg-[#0f1419] border border-[#22c8e5]/30 rounded-xl flex items-center justify-center text-[#22c8e5] font-bold shadow-lg shadow-[#22c8e5]/10 group-hover:bg-[#22c8e5] group-hover:text-white transition-all duration-300">
+                  <div key={index} className="flex flex-col items-center text-center relative max-w-[180px] mb-8 md:mb-0 group">
+                    <div className="w-12 h-12 bg-[#0f1419] border-2 border-[#22c8e5] rounded-full flex items-center justify-center text-[#22c8e5] font-bold mb-4 group-hover:bg-[#22c8e5] group-hover:text-[#003258] transition-colors shadow-[0_0_15px_rgba(34,200,229,0.2)]">
                       {index + 1}
                     </div>
-                    <div className="flex-1">
-                      <h3 className="text-xl font-bold text-white mb-2 group-hover:text-[#22c8e5] transition-colors">{step.step}</h3>
-                      <p className="text-gray-400 leading-relaxed">{step.description}</p>
-                    </div>
-                  </motion.div>
+                    <h3 className="text-white font-bold mb-2">{step.step}</h3>
+                    <p className="text-sm text-gray-400 leading-tight">{step.description}</p>
+                  </div>
                 ))}
               </div>
-
-              {/* Right Column: GSAP Animation */}
-              <div className="hidden lg:block sticky top-32">
-                <ProcessVisualizer />
-              </div>
-            </div>
+            </motion.div>
           </div>
         </section>
 
-        {/* Pricing */}
-        <section className="py-20 bg-[#0f1419]">
-          <div className="container mx-auto px-4">
-            <h2 className="text-3xl font-bold text-white mb-12 text-center">Pricing Plans</h2>
-            <div className="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto">
+        {/* Full Pricing Reference */}
+        <section id="pricing-full" className="py-20 bg-[#0f1419]">
+          <div className="container mx-auto px-4 max-w-6xl">
+            <h2 className="text-3xl font-bold text-white mb-12 text-center">Comprehensive Pricing</h2>
+            <div className="grid md:grid-cols-3 gap-8">
               {currentService.pricing.map((plan, index) => (
                 <motion.div
                   key={index}
@@ -372,11 +450,11 @@ const ServicesPage = () => {
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true }}
                   transition={{ delay: index * 0.1 }}
-                  className={`bg-[#1a2332] p-8 rounded-xl ${plan.highlighted ? 'border-2 border-[#22c8e5] transform scale-105' : 'border border-gray-800'
+                  className={`bg-[#1a2332] p-8 rounded-3xl ${plan.highlighted ? 'border-2 border-[#22c8e5] transform scale-105 shadow-xl shadow-[#22c8e5]/10' : 'border border-white/5'
                     }`}
                 >
-                  <h3 className="text-2xl font-bold text-white mb-2">{plan.tier}</h3>
-                  <p className="text-4xl font-bold text-[#22c8e5] mb-6">{plan.price}</p>
+                  <h3 className="text-xl font-bold text-white mb-2">{plan.tier}</h3>
+                  <p className="text-3xl font-bold text-[#22c8e5] mb-6">{plan.price}</p>
                   <ul className="space-y-3 mb-8">
                     {plan.features.map((feature, idx) => (
                       <li key={idx} className="flex items-start space-x-2 text-gray-300">
@@ -385,44 +463,14 @@ const ServicesPage = () => {
                       </li>
                     ))}
                   </ul>
-                  <button className={`w-full py-3 rounded-lg font-semibold transition-colors ${plan.highlighted
-                      ? 'bg-[#22c8e5] text-white hover:bg-[#1ba3c0]'
-                      : 'bg-[#0f1419] text-[#22c8e5] hover:bg-[#22c8e5] hover:text-white'
+                  <a href="/contact" className={`w-full py-3 rounded-full font-bold transition-all text-center block ${plan.highlighted
+                      ? 'bg-[#22c8e5] text-[#003258] hover:shadow-lg hover:bg-opacity-90'
+                      : 'border-2 border-[#22c8e5] text-[#22c8e5] hover:bg-[#22c8e5] hover:text-[#003258]'
                     }`}>
                     {plan.cta}
-                  </button>
+                  </a>
                 </motion.div>
               ))}
-            </div>
-          </div>
-        </section>
-
-        {/* Case Study */}
-        <section className="py-20 bg-[#1a2332]">
-          <div className="container mx-auto px-4">
-            <h2 className="text-3xl font-bold text-white mb-12 text-center">Success Story</h2>
-            <div className="max-w-4xl mx-auto bg-[#0f1419] p-8 rounded-xl">
-              <h3 className="text-2xl font-bold text-[#22c8e5] mb-4">{currentService.caseStudy.client}</h3>
-              <div className="space-y-4">
-                <div>
-                  <p className="text-sm text-gray-500 mb-1">Challenge</p>
-                  <p className="text-gray-300">{currentService.caseStudy.challenge}</p>
-                </div>
-                <div>
-                  <p className="text-sm text-gray-500 mb-1">Solution</p>
-                  <p className="text-gray-300">{currentService.caseStudy.solution}</p>
-                </div>
-                <div>
-                  <p className="text-sm text-gray-500 mb-2">Results</p>
-                  <div className="grid md:grid-cols-3 gap-4">
-                    {currentService.caseStudy.results.map((result, index) => (
-                      <div key={index} className="bg-[#1a2332] p-4 rounded-lg text-center">
-                        <p className="text-2xl font-bold text-[#22c8e5]">{result}</p>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              </div>
             </div>
           </div>
         </section>
@@ -434,7 +482,7 @@ const ServicesPage = () => {
             <p className="text-xl text-white/90 mb-8">Let's discuss how we can help transform your business</p>
             <a
               href="/contact"
-              className="inline-flex items-center px-8 py-4 bg-white text-[#1a2332] rounded-lg font-semibold hover:bg-gray-100 transition-colors"
+              className="inline-flex items-center px-8 py-4 bg-[#22c8e5] text-[#003258] rounded-full font-bold hover:shadow-lg hover:bg-opacity-90 transition-all"
             >
               Contact Us <ArrowRight className="ml-2" size={20} />
             </a>

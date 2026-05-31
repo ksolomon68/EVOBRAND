@@ -122,10 +122,9 @@ const AuditForm = ({ onComplete, prefillData }) => {
   const inputClass = `
     w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 
     text-white placeholder-white/30 focus:outline-none focus:border-[#22C8E5]
-    transition-all duration-200 font-[Source_Sans_3]
-  `;
+    transition-all duration-200   `;
 
-  const labelClass = 'block text-white/70 text-sm mb-2 font-[Source_Sans_3]';
+  const labelClass = 'block text-white/70 text-sm mb-2 ';
 
   return (
     <div className="relative w-full">
@@ -141,10 +140,10 @@ const AuditForm = ({ onComplete, prefillData }) => {
 
       {/* Step counter */}
       <div className="flex items-center justify-between mb-8">
-        <p className="text-[#22C8E5] text-sm font-[Rajdhani] font-semibold tracking-widest uppercase">
+        <p className="text-[#22C8E5] text-sm font-semibold tracking-widest uppercase">
           Brand Audit
         </p>
-        <p className="text-white/40 text-sm font-[Rajdhani]">
+        <p className="text-white/40 text-sm ">
           Step {step} of {TOTAL_STEPS}
         </p>
       </div>
@@ -155,10 +154,10 @@ const AuditForm = ({ onComplete, prefillData }) => {
           {/* STEP 1 — The Basics */}
           {step === 1 && (
             <div>
-              <h2 className="text-2xl md:text-3xl font-[Rajdhani] font-bold text-white mb-2">
+              <h2 className="text-2xl md:text-3xl font-bold text-white mb-2">
                 Tell us about your business.
               </h2>
-              <p className="text-white/50 mb-8 font-[Source_Sans_3]">Let's start with the basics.</p>
+              <p className="text-white/50 mb-8 ">Let's start with the basics.</p>
               <div className="space-y-5">
                 <div>
                   <label className={labelClass}>Business name *</label>
@@ -177,13 +176,13 @@ const AuditForm = ({ onComplete, prefillData }) => {
                 <div className="relative">
                   <label className={labelClass}>
                     Website URL
-                    <span className="ml-2 inline-flex items-center gap-1 text-[10px] font-[Rajdhani] tracking-widest uppercase bg-[#22C8E5]/10 text-[#22C8E5] border border-[#22C8E5]/20 rounded-full px-2 py-0.5">
+                    <span className="ml-2 inline-flex items-center gap-1 text-[10px] tracking-widest uppercase bg-[#22C8E5]/10 text-[#22C8E5] border border-[#22C8E5]/20 rounded-full px-2 py-0.5">
                       <span className="inline-block w-1.5 h-1.5 rounded-full bg-[#22C8E5] animate-pulse" />
                       Enables live scan
                     </span>
                   </label>
                   <div className="relative">
-                    <span className="absolute left-4 top-1/2 -translate-y-1/2 text-white/30 text-sm font-[Source_Sans_3] pointer-events-none">🌐</span>
+                    <span className="absolute left-4 top-1/2 -translate-y-1/2 text-white/30 text-sm pointer-events-none">🌐</span>
                     <input
                       type="url"
                       placeholder="https://yourwebsite.com"
@@ -236,10 +235,10 @@ const AuditForm = ({ onComplete, prefillData }) => {
           {/* STEP 2 — Challenges */}
           {step === 2 && (
             <div>
-              <h2 className="text-2xl md:text-3xl font-[Rajdhani] font-bold text-white mb-2">
+              <h2 className="text-2xl md:text-3xl font-bold text-white mb-2">
                 What's your biggest brand challenge right now?
               </h2>
-              <p className="text-white/50 mb-8 font-[Source_Sans_3]">Select all that apply.</p>
+              <p className="text-white/50 mb-8 ">Select all that apply.</p>
               <div className="flex flex-wrap gap-3">
                 {CHALLENGES.map((c) => (
                   <button
@@ -247,7 +246,7 @@ const AuditForm = ({ onComplete, prefillData }) => {
                     type="button"
                     onClick={() => toggleChallenge(c)}
                     className={`
-                      px-4 py-2.5 rounded-full border text-sm font-[Source_Sans_3] 
+                      px-4 py-2.5 rounded-full border text-sm 
                       transition-all duration-200 cursor-pointer
                       ${form.challenges.includes(c)
                         ? 'bg-[#22C8E5] border-[#22C8E5] text-[#003258] font-semibold shadow-lg shadow-[#22C8E5]/20'
@@ -267,16 +266,16 @@ const AuditForm = ({ onComplete, prefillData }) => {
           {/* STEP 3 — Digital Presence */}
           {step === 3 && (
             <div>
-              <h2 className="text-2xl md:text-3xl font-[Rajdhani] font-bold text-white mb-2">
+              <h2 className="text-2xl md:text-3xl font-bold text-white mb-2">
                 Rate your current digital presence.
               </h2>
-              <p className="text-white/50 mb-8 font-[Source_Sans_3]">1 = poor, 5 = excellent</p>
+              <p className="text-white/50 mb-8 ">1 = poor, 5 = excellent</p>
               <div className="space-y-7">
                 {DIGITAL_FIELDS.map(({ key, label }) => (
                   <div key={key}>
                     <div className="flex items-center justify-between mb-3">
-                      <label className="text-white/80 text-sm font-[Source_Sans_3]">{label}</label>
-                      <span className="text-[#22C8E5] font-[Rajdhani] font-bold text-xl w-8 text-right">
+                      <label className="text-white/80 text-sm ">{label}</label>
+                      <span className="text-[#22C8E5] font-bold text-xl w-8 text-right">
                         {form.digital[key]}
                       </span>
                     </div>
@@ -304,10 +303,10 @@ const AuditForm = ({ onComplete, prefillData }) => {
           {/* STEP 4 — Audience */}
           {step === 4 && (
             <div>
-              <h2 className="text-2xl md:text-3xl font-[Rajdhani] font-bold text-white mb-2">
+              <h2 className="text-2xl md:text-3xl font-bold text-white mb-2">
                 Who are you trying to reach?
               </h2>
-              <p className="text-white/50 mb-8 font-[Source_Sans_3]">Help us understand your target market.</p>
+              <p className="text-white/50 mb-8 ">Help us understand your target market.</p>
               <div className="space-y-5">
                 <div>
                   <label className={labelClass}>Primary audience *</label>
@@ -352,10 +351,10 @@ const AuditForm = ({ onComplete, prefillData }) => {
           {/* STEP 5 — Brand Consistency */}
           {step === 5 && (
             <div>
-              <h2 className="text-2xl md:text-3xl font-[Rajdhani] font-bold text-white mb-2">
+              <h2 className="text-2xl md:text-3xl font-bold text-white mb-2">
                 How consistent is your brand across touchpoints?
               </h2>
-              <p className="text-white/50 mb-8 font-[Source_Sans_3]">Be honest — this helps us give better recommendations.</p>
+              <p className="text-white/50 mb-8 ">Be honest — this helps us give better recommendations.</p>
               <div className="space-y-3">
                 {CONSISTENCY_OPTIONS.map((opt) => (
                   <button
@@ -371,7 +370,7 @@ const AuditForm = ({ onComplete, prefillData }) => {
                     `}
                     id={`consistency-${opt.value}`}
                   >
-                    <span className="font-[Source_Sans_3] text-white">
+                    <span className="text-white">
                       <span className="mr-3">{opt.emoji}</span>
                       {opt.label}
                     </span>
@@ -385,10 +384,10 @@ const AuditForm = ({ onComplete, prefillData }) => {
           {/* STEP 6 — Contact */}
           {step === 6 && (
             <div>
-              <h2 className="text-2xl md:text-3xl font-[Rajdhani] font-bold text-white mb-2">
+              <h2 className="text-2xl md:text-3xl font-bold text-white mb-2">
                 Where should we send your full report?
               </h2>
-              <p className="text-white/50 mb-8 font-[Source_Sans_3]">Your results will be emailed instantly.</p>
+              <p className="text-white/50 mb-8 ">Your results will be emailed instantly.</p>
               <div className="space-y-5">
                 <div>
                   <label className={labelClass}>First name *</label>
@@ -442,7 +441,7 @@ const AuditForm = ({ onComplete, prefillData }) => {
                       </svg>
                     )}
                   </div>
-                  <span className="text-white/70 text-sm font-[Source_Sans_3] leading-relaxed">
+                  <span className="text-white/70 text-sm leading-relaxed">
                     I'd like a free 15-min strategy call with Keisha to review my results
                   </span>
                 </label>
@@ -459,7 +458,7 @@ const AuditForm = ({ onComplete, prefillData }) => {
           onClick={back}
           disabled={step === 1}
           className={`
-            flex items-center gap-2 px-5 py-3 rounded-xl font-[Rajdhani] font-semibold
+            flex items-center gap-2 px-5 py-3 rounded-xl font-semibold
             transition-all duration-200
             ${step === 1 ? 'opacity-0 pointer-events-none' : 'text-white/60 hover:text-white'}
           `}
@@ -474,7 +473,7 @@ const AuditForm = ({ onComplete, prefillData }) => {
             type="button"
             onClick={next}
             whileTap={{ scale: 0.97 }}
-            className="flex items-center gap-2 px-8 py-3.5 bg-[#22C8E5] text-[#003258] rounded-xl font-[Rajdhani] font-bold uppercase tracking-wider hover:bg-[#1db5d0] transition-colors cursor-pointer"
+            className="flex items-center gap-2 px-8 py-3.5 bg-[#22C8E5] text-[#003258] rounded-xl font-bold uppercase tracking-wider hover:bg-[#1db5d0] transition-colors cursor-pointer"
             id="audit-next-btn"
           >
             Continue
@@ -493,7 +492,7 @@ const AuditForm = ({ onComplete, prefillData }) => {
               ],
             }}
             transition={{ duration: 1.8, repeat: Infinity, ease: 'easeInOut' }}
-            className="flex items-center gap-3 px-8 py-4 bg-[#22C8E5] text-[#003258] rounded-xl font-[Rajdhani] font-bold uppercase tracking-wider text-lg hover:bg-[#1db5d0] transition-colors cursor-pointer"
+            className="flex items-center gap-3 px-8 py-4 bg-[#22C8E5] text-[#003258] rounded-xl font-bold uppercase tracking-wider text-lg hover:bg-[#1db5d0] transition-colors cursor-pointer"
             id="audit-submit-btn"
           >
             <Zap size={20} />

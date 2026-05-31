@@ -1,37 +1,84 @@
 import { useState, useEffect, createContext, useContext } from 'react';
-import { supabase } from '../lib/supabase';
 
 const AuthContext = createContext();
+const API_URL = 'http://localhost:5000/api/auth';
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Check active session
-    const getSession = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      setUser(session?.user ?? null);
-      setLoading(false);
+    // Check active session via JWT
+    const checkSession = async () => {
+      const token = localStorage.getItem('evobrand_token');
+      if (!token) {
+        setLoading(false);
+        return;
+      }
+
+      try {
+        const response = await fetch(`${API_URL}/me`, {
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          setUser(data.user);
+        } else {
+          // Token invalid or expired
+          localStorage.removeItem('evobrand_token');
+        }
+      } catch (err) {
+        console.error('Session check failed:', err);
+      } finally {
+        setLoading(false);
+      }
     };
 
-    getSession();
-
-    // Listen for changes
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      setUser(session?.user ?? null);
-      setLoading(false);
-    });
-
-    return () => {
-      subscription.unsubscribe();
-    };
+    checkSession();
   }, []);
 
+  const signUp = async ({ email, password, name }) => {
+    const response = await fetch(`${API_URL}/register`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, password, name })
+    });
+
+    const data = await response.json();
+    if (!response.ok) throw new Error(data.error || 'Registration failed');
+
+    localStorage.setItem('evobrand_token', data.token);
+    setUser(data.user);
+    return { data: { user: data.user }, error: null };
+  };
+
+  const signIn = async ({ email, password }) => {
+    const response = await fetch(`${API_URL}/login`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, password })
+    });
+
+    const data = await response.json();
+    if (!response.ok) throw new Error(data.error || 'Login failed');
+
+    localStorage.setItem('evobrand_token', data.token);
+    setUser(data.user);
+    return { data: { user: data.user }, error: null };
+  };
+
+  const signOut = () => {
+    localStorage.removeItem('evobrand_token');
+    setUser(null);
+  };
+
   const value = {
-    signUp: (data) => supabase.auth.signUp(data),
-    signIn: (data) => supabase.auth.signInWithPassword(data),
-    signOut: () => supabase.auth.signOut(),
+    signUp,
+    signIn,
+    signOut,
     user,
     loading
   };

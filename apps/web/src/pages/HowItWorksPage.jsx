@@ -69,7 +69,8 @@ const HowItWorksPage = () => {
     { service: 'AI Visual Content Creation', timeline: '2-4 weeks', complexity: 'Medium' },
     { service: 'Intelligent Document Generation', timeline: '4-8 weeks', complexity: 'Medium' },
     { service: 'AI Video Production', timeline: '3-6 weeks', complexity: 'Medium' },
-    { service: 'WordPress & Web Development', timeline: '4-8 weeks', complexity: 'Low-Medium' }
+    { service: 'WordPress & Web Development', timeline: '4-8 weeks', complexity: 'Low-Medium' },
+    { service: 'WCAG Accessibility', timeline: '2-6 weeks', complexity: 'Medium' }
   ];
 
   const faqs = [
@@ -294,7 +295,7 @@ const HowItWorksPage = () => {
             <p className="text-xl text-white/90 mb-8">Let's discuss your project and create a custom roadmap</p>
             <a
               href="/contact"
-              className="inline-block px-8 py-4 bg-white text-[#1a2332] rounded-lg font-semibold hover:bg-gray-100 transition-colors"
+              className="inline-block px-8 py-4 bg-[#22c8e5] text-[#003258] rounded-full font-bold hover:shadow-lg hover:bg-opacity-90 transition-all"
             >
               Schedule Free Consultation
             </a>

@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useRef } from 'react';
+import React, { useState, useMemo, useRef, useEffect } from 'react';
 import { useGSAP } from '@gsap/react';
 import gsap from 'gsap';
 import { Loader2, AlertCircle } from 'lucide-react';
@@ -21,6 +21,7 @@ export default function VideoLibrarySection() {
   const [selectedVideoId, setSelectedVideoId] = useState(null);
   const pillsRef = useRef(null);
   const headingRef = useRef(null);
+  const canvasRef = useRef(null);
 
   const filteredVideos = useMemo(() => {
     if (selectedCategory === 'All') return videos;
@@ -30,6 +31,96 @@ export default function VideoLibrarySection() {
       return kw.some((k) => text.includes(k));
     });
   }, [videos, selectedCategory]);
+
+      // Canvas animated background
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+
+    let animationFrameId;
+    let width = (canvas.width = canvas.offsetWidth);
+    let height = (canvas.height = canvas.offsetHeight);
+
+    const particles = [];
+    const particleCount = Math.min(50, Math.floor((width * height) / 25000));
+
+    class Particle {
+      constructor() {
+        this.x = Math.random() * width;
+        this.y = Math.random() * height;
+        this.vx = (Math.random() - 0.5) * 0.35;
+        this.vy = (Math.random() - 0.5) * 0.35;
+        this.radius = Math.random() * 1.8 + 1;
+        this.alpha = Math.random() * 0.2 + 0.05; // Reduced opacity
+      }
+
+      update() {
+        this.x += this.vx;
+        this.y += this.vy;
+
+        if (this.x < 0 || this.x > width) this.vx = -this.vx;
+        if (this.y < 0 || this.y > height) this.vy = -this.vy;
+      }
+
+      draw() {
+        ctx.beginPath();
+        ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(34, 200, 229, ${this.alpha})`;
+        ctx.fill();
+      }
+    }
+
+    for (let i = 0; i < particleCount; i++) {
+      particles.push(new Particle());
+    }
+
+    const handleResize = () => {
+      if (!canvas) return;
+      width = canvas.width = canvas.offsetWidth;
+      height = canvas.height = canvas.offsetHeight;
+    };
+
+    window.addEventListener('resize', handleResize);
+
+    const animate = () => {
+      ctx.clearRect(0, 0, width, height);
+
+      // Draw connections
+      for (let i = 0; i < particles.length; i++) {
+        for (let j = i + 1; j < particles.length; j++) {
+          const dx = particles[i].x - particles[j].x;
+          const dy = particles[i].y - particles[j].y;
+          const dist = Math.sqrt(dx * dx + dy * dy);
+
+          if (dist < 110) {
+            ctx.beginPath();
+            ctx.moveTo(particles[i].x, particles[i].y);
+            ctx.lineTo(particles[j].x, particles[j].y);
+            ctx.strokeStyle = `rgba(34, 200, 229, ${0.05 * (1 - dist / 110)})`; // Reduced connection opacity
+            ctx.lineWidth = 0.7;
+            ctx.stroke();
+          }
+        }
+      }
+
+      // Update and draw particles
+      particles.forEach((p) => {
+        p.update();
+        p.draw();
+      });
+
+      animationFrameId = requestAnimationFrame(animate);
+    };
+
+    animate();
+
+    return () => {
+      window.removeEventListener('resize', handleResize);
+      cancelAnimationFrame(animationFrameId);
+    };
+  }, []);
 
   // Section entrance
   useGSAP(() => {
@@ -52,13 +143,16 @@ export default function VideoLibrarySection() {
   return (
     <section
       className="py-20 relative overflow-hidden"
-      style={{ background: 'linear-gradient(180deg, #0f1419 0%, #0f1419 100%)' }}
+      style={{ background: 'linear-gradient(180deg, #070a0e 0%, #0f1419 100%)' }}
       aria-labelledby="video-library-heading"
     >
+      {/* Animated Canvas Background */}
+      <canvas ref={canvasRef} className="absolute inset-0 w-full h-full pointer-events-none opacity-50" aria-hidden="true" />
+
       {/* Ambient glow */}
       <div className="absolute inset-0 pointer-events-none overflow-hidden" aria-hidden="true">
-        <div className="absolute top-1/3 left-1/4 w-80 h-80 rounded-full blur-3xl opacity-10" style={{ background: '#22c8e5' }} />
-        <div className="absolute bottom-1/4 right-1/4 w-96 h-96 rounded-full blur-3xl opacity-6" style={{ background: '#22c8e5' }} />
+        <div className="absolute top-1/3 left-1/4 w-80 h-80 rounded-full blur-3xl opacity-5" style={{ background: '#22c8e5' }} />
+        <div className="absolute bottom-1/4 right-1/4 w-96 h-96 rounded-full blur-3xl opacity-0" style={{ background: '#22c8e5' }} />
       </div>
 
       <div className="container mx-auto px-4 relative z-10">
@@ -73,7 +167,7 @@ export default function VideoLibrarySection() {
           >
             Video Library
           </h2>
-          <p className="text-gray-400 max-w-xl mx-auto">
+          <p className="text-gray-300 max-w-xl mx-auto">
             Explore our library of AI transformations, tutorials, and client success stories.
           </p>
           <div className="w-12 h-0.5 mx-auto mt-5" style={{ background: '#22c8e5' }} />

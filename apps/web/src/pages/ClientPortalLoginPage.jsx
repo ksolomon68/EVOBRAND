@@ -4,7 +4,6 @@ import { Mail, Lock, User, ArrowRight, AlertCircle, CheckCircle2 } from 'lucide-
 import SEO from '@/components/SEO.jsx';
 import { useAuth } from '../hooks/useAuth.jsx';
 import { useNavigate } from 'react-router-dom';
-import { supabase } from '../lib/supabase.js';
 
 const ClientPortalLoginPage = () => {
   const [isLogin, setIsLogin] = useState(true);
@@ -24,17 +23,8 @@ const ClientPortalLoginPage = () => {
 
   const handleForgotPassword = async (e) => {
     e.preventDefault();
-    setLoading(true);
-    setError('');
-    const { error } = await supabase.auth.resetPasswordForEmail(formData.email, {
-      redirectTo: `${window.location.origin}/reset-password`,
-    });
-    if (error) {
-      setError(error.message);
-    } else {
-      setResetSent(true);
-    }
-    setLoading(false);
+    alert('Password reset is currently disabled while we upgrade our systems. Please contact support.');
+    setForgotPassword(false);
   };
 
   const handleAuth = async (e) => {
@@ -54,14 +44,10 @@ const ClientPortalLoginPage = () => {
         const { error } = await signUp({
           email: formData.email,
           password: formData.password,
-          options: {
-            data: {
-              full_name: formData.fullName
-            }
-          }
+          name: formData.fullName
         });
         if (error) throw error;
-        setSuccess(true);
+        navigate('/client-portal');
       }
     } catch (err) {
       setError(err.message);
@@ -94,37 +80,14 @@ const ClientPortalLoginPage = () => {
               transition={{ duration: 0.3 }}
             />
             <div className="h-px w-12 bg-[#22c8e5]/20 mx-auto mt-6 mb-4" />
-            <p className="text-[#22c8e5]/60 font-[Rajdhani] font-bold tracking-[0.3em] uppercase text-xs">
+            <p className="text-[#22c8e5]/60 font-bold tracking-[0.3em] uppercase text-xs">
               Client Portal
             </p>
           </div>
 
           <div className="bg-white/5 backdrop-blur-xl border border-white/10 p-8 rounded-3xl shadow-2xl relative overflow-hidden">
 
-            {/* Sign-up success overlay */}
-            <AnimatePresence>
-              {success && (
-                <motion.div
-                  initial={{ opacity: 0, scale: 0.9 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  className="absolute inset-0 z-20 bg-[#04080f]/95 backdrop-blur-md flex flex-col items-center justify-center p-8 text-center"
-                >
-                  <div className="w-16 h-16 rounded-full bg-green-500/20 flex items-center justify-center text-green-500 mb-6">
-                    <CheckCircle2 size={32} />
-                  </div>
-                  <h2 className="text-2xl font-bold text-white mb-4">Check your email</h2>
-                  <p className="text-white/60 mb-8">
-                    We've sent a confirmation link to <strong>{formData.email}</strong>. Please click it to activate your portal access.
-                  </p>
-                  <button
-                    onClick={() => { setSuccess(false); setIsLogin(true); }}
-                    className="text-[#22c8e5] font-bold hover:underline"
-                  >
-                    Back to login
-                  </button>
-                </motion.div>
-              )}
-            </AnimatePresence>
+
 
             {/* ── Forgot-password view ── */}
             {forgotPassword ? (
@@ -148,7 +111,7 @@ const ClientPortalLoginPage = () => {
                   </div>
                 ) : (
                   <>
-                    <h2 className="text-2xl font-[Rajdhani] font-bold text-white mb-2">Forgot password?</h2>
+                    <h2 className="text-2xl font-bold text-white mb-2">Forgot password?</h2>
                     <p className="text-white/40 text-sm mb-8">Enter your email and we'll send you a reset link.</p>
 
                     {error && (
@@ -204,7 +167,7 @@ const ClientPortalLoginPage = () => {
                   </button>
                 </div>
 
-                <h2 className="text-2xl font-[Rajdhani] font-bold text-white mb-2">
+                <h2 className="text-2xl font-bold text-white mb-2">
                   {isLogin ? 'Welcome back' : 'Start your project'}
                 </h2>
                 <p className="text-white/40 text-sm mb-8">

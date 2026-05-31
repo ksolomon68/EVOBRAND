@@ -5,7 +5,6 @@ import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Facebook, Linkedin, Instagram, Youtube, Mail, Phone, MapPin } from 'lucide-react';
 
-import { subscribeToNewsletter } from '../services/mailchimp';
 
 const Footer = () => {
   const [email, setEmail] = useState('');
@@ -16,19 +15,33 @@ const Footer = () => {
     e.preventDefault();
     if (email) {
       setStatus('loading');
-      const result = await subscribeToNewsletter(email);
+      try {
+        const response = await fetch('http://localhost:5000/api/newsletter/subscribe', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email }),
+        });
 
-      if (result.success) {
-        setStatus('success');
-        setMessage('Subscribed!');
-        setEmail('');
-        setTimeout(() => {
-          setStatus('idle');
-          setMessage('');
-        }, 3000);
-      } else {
+        if (response.ok) {
+          setStatus('success');
+          setMessage('Subscribed!');
+          setEmail('');
+          setTimeout(() => {
+            setStatus('idle');
+            setMessage('');
+          }, 3000);
+        } else {
+          const errorData = await response.json();
+          setStatus('error');
+          setMessage(errorData.error || 'Failed to subscribe');
+          setTimeout(() => {
+            setStatus('idle');
+            setMessage('');
+          }, 5000);
+        }
+      } catch (err) {
         setStatus('error');
-        setMessage(result.message);
+        setMessage('Network error, try again later');
         setTimeout(() => {
           setStatus('idle');
           setMessage('');
@@ -78,7 +91,6 @@ const Footer = () => {
               <li><Link to="/services" className="text-gray-400 hover:text-[#22c8e5] transition-colors text-sm">Services</Link></li>
               <li><Link to="/about" className="text-gray-400 hover:text-[#22c8e5] transition-colors text-sm">About</Link></li>
               <li><Link to="/contact" className="text-gray-400 hover:text-[#22c8e5] transition-colors text-sm">Contact</Link></li>
-              <li><Link to="/resources" className="text-gray-400 hover:text-[#22c8e5] transition-colors text-sm">Resources</Link></li>
             </ul>
           </div>
 
