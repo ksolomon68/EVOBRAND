@@ -134,7 +134,8 @@ function AddBlackoutForm({ onAdded }) {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           date: date,
-          reason: mode === 'slot' ? `${slot} - ${reason}` : reason,
+          time: mode === 'slot' ? slot : null,
+          reason: reason.trim() || null,
         }),
       });
 
@@ -281,9 +282,9 @@ function BlackoutList({ blackouts, onDelete }) {
             <div className="min-w-0">
               <p className="text-sm font-semibold" style={{ color: BEIGE }}>
                 {formattedDate}
-                {b.time_slot ? (
+                {b.time ? (
                   <span className="ml-2 text-xs font-normal" style={{ color: 'rgba(255,255,255,0.5)' }}>
-                    · {b.time_slot}
+                    · {b.time}
                   </span>
                 ) : (
                   <span className="ml-2 text-xs font-bold uppercase tracking-widest px-1.5 py-0.5 rounded" style={{ background: 'rgba(34,200,229,0.12)', color: GOLD }}>
@@ -300,7 +301,7 @@ function BlackoutList({ blackouts, onDelete }) {
             <button
               type="button"
               onClick={() => onDelete(b.id)}
-              aria-label={`Remove blackout on ${formattedDate}${b.time_slot ? ` at ${b.time_slot}` : ''}`}
+              aria-label={`Remove blackout on ${formattedDate}${b.time ? ` at ${b.time}` : ''}`}
               className="flex-shrink-0 w-7 h-7 rounded-lg flex items-center justify-center transition-all duration-200 focus-visible:outline focus-visible:outline-2 focus-visible:outline-red-400"
               style={{ color: 'rgba(248,113,113,0.5)' }}
               onMouseEnter={(e) => { e.currentTarget.style.color = '#f87171'; e.currentTarget.style.background = 'rgba(248,113,113,0.1)'; }}

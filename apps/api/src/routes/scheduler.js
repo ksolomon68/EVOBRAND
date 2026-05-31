@@ -15,15 +15,15 @@ router.get('/blackout-dates', async (req, res) => {
 
 // Add blackout date
 router.post('/blackout-dates', async (req, res) => {
-  const { date, reason } = req.body;
+  const { date, time, reason } = req.body;
   if (!date) return res.status(400).json({ error: 'Date is required' });
 
   try {
     const [result] = await pool.query(
-      'INSERT INTO blackout_dates (date, reason) VALUES (?, ?)',
-      [date, reason]
+      'INSERT INTO blackout_dates (date, time, reason) VALUES (?, ?, ?)',
+      [date, time || null, reason]
     );
-    res.json({ id: result.insertId, date, reason });
+    res.json({ id: result.insertId, date, time, reason });
   } catch (error) {
     console.error('Error adding blackout date:', error);
     res.status(500).json({ error: 'Failed to add blackout date' });

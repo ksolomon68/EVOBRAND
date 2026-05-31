@@ -211,7 +211,7 @@ function TimeSlotPicker({ selectedDate, selectedSlot, onSelect, blackoutDates, b
 
   const isSlotBlocked = useCallback((slot) => {
     return (
-      blackoutDates.some((b) => b.blackout_date === selectedDate && (b.time_slot === null || b.time_slot === slot)) ||
+      blackoutDates.some((b) => b.date === selectedDate && (b.time === null || b.time === undefined || b.time === slot)) ||
       bookedSlots.includes(slot)
     );
   }, [blackoutDates, bookedSlots, selectedDate]);

@@ -70,10 +70,14 @@ async function initializeDatabase() {
       CREATE TABLE IF NOT EXISTS blackout_dates (
         id INT AUTO_INCREMENT PRIMARY KEY,
         date DATE NOT NULL,
+        time VARCHAR(50),
         reason VARCHAR(255),
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       )
     `);
+
+    // Add missing time column if upgrading
+    await pool.query(`ALTER TABLE blackout_dates ADD COLUMN IF NOT EXISTS time VARCHAR(50)`).catch(() => {});
 
     // Create Meetings table
     await pool.query(`
