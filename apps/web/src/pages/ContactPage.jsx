@@ -69,7 +69,10 @@ function ContactForm() {
 
     setStatus('loading');
     try {
-      const response = await fetch('https://evobrandconcepts.com/api/support/ticket', {
+      const API_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' 
+        ? 'http://localhost:5000/api/support/ticket' 
+        : 'https://evobrandconcepts.com/api/support/ticket';
+      const response = await fetch(API_URL, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

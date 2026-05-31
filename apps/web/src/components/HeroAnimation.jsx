@@ -6,8 +6,9 @@ const HeroAnimation = ({ scrollContainerRef }) => {
   const [images, setImages] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
 
-  // Total number of frames
-  const frameCount = 121;
+  const startFrame = 38;
+  const endFrame = 76;
+  const frameCount = endFrame - startFrame + 1;
 
   // Preload images
   useEffect(() => {
@@ -16,7 +17,7 @@ const HeroAnimation = ({ scrollContainerRef }) => {
 
     const loadImages = async () => {
       const promises = [];
-      for (let i = 1; i <= frameCount; i++) {
+      for (let i = startFrame; i <= endFrame; i++) {
         const img = new Image();
         // padStart(3, '0') makes 1 into 001, 12 into 012, etc.
         const paddedIndex = i.toString().padStart(3, '0');
@@ -118,7 +119,7 @@ const HeroAnimation = ({ scrollContainerRef }) => {
       {/* Fallback/First Frame Image - visible until canvas starts rendering */}
       {isLoading && (
         <img 
-          src="/header/ezgif-frame-001.jpg"
+          src="/header/ezgif-frame-038.jpg"
           alt="EVOBRAND Hero"
           className="absolute inset-0 w-full h-full object-cover z-[-1]"
         />
