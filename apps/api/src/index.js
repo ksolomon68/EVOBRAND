@@ -43,6 +43,12 @@ app.use('/api/auth', authRoutes);
 app.use('/api/scheduler', schedulerRoutes);
 app.use('/api/auditor', auditorRoutes);
 
+// TEMPORARY ADMIN ROUTE - trigger database initialization
+app.get('/api/admin/init-db', (req, res) => {
+  res.send('Initializing database... The server will automatically restart.');
+  require('./db/init.js');
+});
+
 // cPanel Passenger often strips the Application URL prefix from requests.
 // We mount them at the root as well so they work on the live server.
 app.use('/support', supportRoutes);
