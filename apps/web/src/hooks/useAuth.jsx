@@ -1,7 +1,7 @@
 import { useState, useEffect, createContext, useContext } from 'react';
 
 const AuthContext = createContext();
-const API_URL = 'http://localhost:5000/api/auth';
+const API_URL = 'https://evobrandconcepts.com/api/auth';
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);

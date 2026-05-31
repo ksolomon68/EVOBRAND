@@ -171,7 +171,7 @@ const ClientPortalPage = () => {
     if (user) fetchTickets();
   }, [user]);
 
-  const API_URL = 'http://localhost:5000/api/support';
+  const API_URL = 'https://evobrandconcepts.com/api/support';
 
   const fetchTickets = async () => {
     setLoading(true);

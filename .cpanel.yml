@@ -2,6 +2,4 @@
 deployment:
   tasks:
     - export DEPLOYPATH=/home/evobrandconcepts/public_html
-    - npm install
-    - npm run build
     - /bin/cp -R dist/apps/web/* $DEPLOYPATH
