@@ -23,6 +23,12 @@ app.use('/api/support', supportRoutes);
 app.use('/api/newsletter', newsletterRoutes);
 app.use('/api/auth', authRoutes);
 
+// cPanel Passenger often strips the Application URL prefix from requests.
+// We mount them at the root as well so they work on the live server.
+app.use('/support', supportRoutes);
+app.use('/newsletter', newsletterRoutes);
+app.use('/auth', authRoutes);
+
 // Start server
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
