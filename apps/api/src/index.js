@@ -33,17 +33,23 @@ app.get('/api/crash', (req, res) => {
 // Import Routes
 const supportRoutes = require('./routes/support');
 const newsletterRoutes = require('./routes/newsletter');
+const schedulerRoutes = require('./routes/scheduler');
+const auditorRoutes = require('./routes/auditor');
 const authRoutes = require('./routes/auth');
 
 app.use('/api/support', supportRoutes);
 app.use('/api/newsletter', newsletterRoutes);
 app.use('/api/auth', authRoutes);
+app.use('/api/scheduler', schedulerRoutes);
+app.use('/api/auditor', auditorRoutes);
 
 // cPanel Passenger often strips the Application URL prefix from requests.
 // We mount them at the root as well so they work on the live server.
 app.use('/support', supportRoutes);
 app.use('/newsletter', newsletterRoutes);
 app.use('/auth', authRoutes);
+app.use('/scheduler', schedulerRoutes);
+app.use('/auditor', auditorRoutes);
 
 // Start server
 app.listen(PORT, () => {

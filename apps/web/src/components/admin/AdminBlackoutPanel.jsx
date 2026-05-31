@@ -2,7 +2,10 @@ import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useGSAP } from '@gsap/react';
 import gsap from 'gsap';
 import { ChevronLeft, ChevronRight, Plus, Trash2, Loader2, AlertCircle, ShieldAlert } from 'lucide-react';
-import { supabase } from '@/lib/supabase.js';
+
+const API_BASE = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' 
+  ? 'http://localhost:5000/api' 
+  : 'https://evobrandconcepts.com/api';
 
 const GOLD = '#22c8e5';
 const NAVY = '#003258';
@@ -125,19 +128,24 @@ function AddBlackoutForm({ onAdded }) {
     setLoading(true);
     setError('');
 
-    const { error: dbErr } = await supabase.from('blackout_dates').insert({
-      blackout_date: date,
-      time_slot: mode === 'slot' ? slot : null,
-      reason: reason.trim() || null,
-    });
+    try {
+      const res = await fetch(`${API_BASE}/scheduler/blackout-dates`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          date: date,
+          reason: mode === 'slot' ? `${slot} - ${reason}` : reason,
+        }),
+      });
 
-    if (dbErr) {
-      setError(dbErr.message);
-    } else {
+      if (!res.ok) throw new Error('Failed to add blackout date');
+      
       onAdded();
       setDate('');
       setSlot('');
       setReason('');
+    } catch (dbErr) {
+      setError(dbErr.message);
     }
     setLoading(false);
   };
@@ -253,12 +261,12 @@ function BlackoutList({ blackouts, onDelete }) {
     );
   }
 
-  const sorted = [...blackouts].sort((a, b) => a.blackout_date.localeCompare(b.blackout_date));
+  const sorted = [...blackouts].sort((a, b) => a.date.localeCompare(b.date));
 
   return (
     <ul className="space-y-2" aria-label="Blackout dates list">
       {sorted.map((b) => {
-        const formattedDate = new Date(b.blackout_date + 'T12:00:00').toLocaleDateString('en-US', {
+        const formattedDate = new Date(b.date + 'T12:00:00').toLocaleDateString('en-US', {
           weekday: 'short',
           month: 'short',
           day: 'numeric',
@@ -320,12 +328,14 @@ export default function AdminBlackoutPanel({ user }) {
   }, []);
 
   const fetchBlackouts = useCallback(() => {
-    supabase
-      .from('blackout_dates')
-      .select('*')
-      .order('blackout_date', { ascending: true })
-      .then(({ data }) => {
-        if (data) setBlackouts(data);
+    fetch(`${API_BASE}/scheduler/blackout-dates`)
+      .then((res) => res.json())
+      .then((data) => {
+        if (Array.isArray(data)) setBlackouts(data);
+        setLoading(false);
+      })
+      .catch((err) => {
+        console.error('Failed to load blackout dates', err);
         setLoading(false);
       });
   }, []);
@@ -333,8 +343,12 @@ export default function AdminBlackoutPanel({ user }) {
   useEffect(() => { fetchBlackouts(); }, [fetchBlackouts]);
 
   const handleDelete = async (id) => {
-    const { error } = await supabase.from('blackout_dates').delete().eq('id', id);
-    if (!error) setBlackouts((prev) => prev.filter((b) => b.id !== id));
+    try {
+      const res = await fetch(`${API_BASE}/scheduler/blackout-dates/${id}`, { method: 'DELETE' });
+      if (res.ok) setBlackouts((prev) => prev.filter((b) => b.id !== id));
+    } catch (err) {
+      console.error('Failed to delete blackout date', err);
+    }
   };
 
   if (!isAdmin) {

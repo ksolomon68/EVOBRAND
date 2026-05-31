@@ -65,6 +65,34 @@ async function initializeDatabase() {
       )
     `);
 
+    // Create BlackoutDates table
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS blackout_dates (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        date DATE NOT NULL,
+        reason VARCHAR(255),
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      )
+    `);
+
+    // Create Meetings table
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS meetings (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        user_id INT,
+        date DATE NOT NULL,
+        time VARCHAR(50) NOT NULL,
+        duration INT DEFAULT 30,
+        type ENUM('discovery', 'support', 'strategy', 'other') DEFAULT 'discovery',
+        status ENUM('scheduled', 'completed', 'canceled') DEFAULT 'scheduled',
+        meet_link VARCHAR(255),
+        notes TEXT,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+        FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+      )
+    `);
+
     console.log('Database initialization complete.');
     process.exit(0);
   } catch (error) {

@@ -6,7 +6,9 @@ import SEO from '@/components/SEO.jsx';
 import AuditResults from '@/components/auditor/AuditResults';
 import { downloadAuditPDF } from '@/components/auditor/AuditPDF';
 
-const SUPABASE_FUNCTION_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/brand-audit`;
+const SUPABASE_FUNCTION_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' 
+  ? 'http://localhost:5000/api/auditor/audit' 
+  : 'https://evobrandconcepts.com/api/auditor/audit';
 
 const AuditorPage = () => {
   const navigate = useNavigate();

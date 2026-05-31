@@ -2,7 +2,10 @@ import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useGSAP } from '@gsap/react';
 import gsap from 'gsap';
 import { Calendar, Clock, Video, CheckCircle2, XCircle, AlertCircle, Loader2, ExternalLink } from 'lucide-react';
-import { supabase } from '@/lib/supabase.js';
+
+const API_BASE = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' 
+  ? 'http://localhost:5000/api' 
+  : 'https://evobrandconcepts.com/api';
 
 const GOLD = '#22c8e5';
 const NAVY = '#003258';
@@ -50,8 +53,8 @@ function formatBookingDate(dateStr) {
 }
 
 function isUpcoming(booking) {
-  if (booking.status !== 'confirmed') return false;
-  const bookingDate = new Date(`${booking.booking_date}T23:59:59`);
+  if (booking.status !== 'scheduled' && booking.status !== 'confirmed') return false;
+  const bookingDate = new Date(`${booking.date}T23:59:59`);
   return bookingDate >= new Date();
 }
 
@@ -87,12 +90,12 @@ function MeetingCard({ booking, index }) {
       }}
       onMouseEnter={() => handleHover(true)}
       onMouseLeave={() => handleHover(false)}
-      aria-label={`${booking.service} session on ${formatBookingDate(booking.booking_date)}`}
+      aria-label={`${booking.type || 'Consultation'} session on ${formatBookingDate(booking.date)}`}
     >
       <div className="flex flex-wrap items-start justify-between gap-4 mb-4">
         <div>
           <h3 className="font-bold text-base mb-1" style={{ color: BEIGE }}>
-            {booking.service}
+            {booking.type || 'Consultation'}
           </h3>
           {upcoming && (
             <span
@@ -119,13 +122,13 @@ function MeetingCard({ booking, index }) {
         <div className="flex items-center gap-2">
           <Calendar size={13} style={{ color: GOLD }} aria-hidden="true" />
           <span className="text-sm" style={{ color: 'rgba(255,255,255,0.75)' }}>
-            {formatBookingDate(booking.booking_date)}
+            {formatBookingDate(booking.date)}
           </span>
         </div>
         <div className="flex items-center gap-2">
           <Clock size={13} style={{ color: GOLD }} aria-hidden="true" />
           <span className="text-sm" style={{ color: 'rgba(255,255,255,0.75)' }}>
-            {booking.time_slot} CST · 30 min
+            {booking.time} CST · {booking.duration || 30} min
           </span>
         </div>
       </div>
@@ -136,10 +139,10 @@ function MeetingCard({ booking, index }) {
         </p>
       )}
 
-      {/* Google Meet link if confirmed and has event */}
-      {upcoming && booking.google_event_id && (
+      {/* Meeting link if scheduled and has link */}
+      {upcoming && booking.meet_link && (
         <a
-          href={`https://calendar.google.com/calendar/event?eid=${booking.google_event_id}`}
+          href={booking.meet_link}
           target="_blank"
           rel="noopener noreferrer"
           className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-widest px-4 py-2 rounded-xl transition-all duration-200 focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#22c8e5]"
@@ -213,13 +216,14 @@ export default function MyMeetings({ userId }) {
   useEffect(() => {
     if (!userId) return;
     setLoading(true);
-    supabase
-      .from('bookings')
-      .select('*')
-      .eq('client_id', userId)
-      .order('booking_date', { ascending: false })
-      .then(({ data, error }) => {
-        if (!error && data) setBookings(data);
+    fetch(`${API_BASE}/scheduler/meetings/${userId}`)
+      .then((res) => res.json())
+      .then((data) => {
+        if (Array.isArray(data)) setBookings(data);
+        setLoading(false);
+      })
+      .catch((err) => {
+        console.error('Failed to load meetings', err);
         setLoading(false);
       });
   }, [userId]);

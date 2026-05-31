@@ -2,7 +2,10 @@ import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useGSAP } from '@gsap/react';
 import gsap from 'gsap';
 import { ChevronLeft, ChevronRight, Calendar, Clock, CheckCircle2, Loader2, AlertCircle } from 'lucide-react';
-import { supabase } from '@/lib/supabase.js';
+
+const API_BASE = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' 
+  ? 'http://localhost:5000/api' 
+  : 'https://evobrandconcepts.com/api';
 
 // ─── Constants ──────────────────────────────────────────────────────────────
 
@@ -292,22 +295,24 @@ function ConfirmForm({ selectedDate, selectedSlot, onBack, onSuccess }) {
     setError('');
 
     try {
-      const { data: { session } } = await supabase.auth.getSession();
-
-      const { data, error: fnErr } = await supabase.functions.invoke('book-appointment', {
-        body: {
+      const res = await fetch(`${API_BASE}/scheduler/book`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
           clientName: form.name.trim(),
           clientEmail: form.email.trim(),
           service: form.service,
           date: selectedDate,
-          timeSlot: selectedSlot,
-          notes: form.notes.trim() || null,
-          clientId: session?.user?.id ?? null,
-        },
+          time: selectedSlot,
+          type: 'discovery',
+          notes: form.notes.trim() || '',
+        }),
       });
 
-      if (fnErr || data?.error) {
-        throw new Error(data?.error ?? fnErr?.message ?? 'Booking failed');
+      const data = await res.json();
+      
+      if (!res.ok || data.error) {
+        throw new Error(data.error || 'Booking failed');
       }
 
       onSuccess({ ...form, date: selectedDate, slot: selectedSlot });
@@ -501,27 +506,25 @@ export default function SchedulerWidget() {
   const [booking, setBooking] = useState(null);
   const panelRef = useRef(null);
 
-  // Fetch blackout dates (public read)
+  // Fetch blackout dates
   useEffect(() => {
-    supabase
-      .from('blackout_dates')
-      .select('blackout_date, time_slot')
-      .then(({ data }) => {
-        if (data) setBlackoutDates(data);
-      });
+    fetch(`${API_BASE}/scheduler/blackout-dates`)
+      .then((res) => res.json())
+      .then((data) => {
+        if (Array.isArray(data)) setBlackoutDates(data);
+      })
+      .catch((err) => console.error('Failed to load blackout dates', err));
   }, []);
 
   // Fetch booked slots whenever selected date changes
   useEffect(() => {
     if (!selectedDate) return;
-    supabase
-      .from('bookings')
-      .select('time_slot')
-      .eq('booking_date', selectedDate)
-      .eq('status', 'confirmed')
-      .then(({ data }) => {
-        setBookedSlots(data ? data.map((b) => b.time_slot) : []);
-      });
+    fetch(`${API_BASE}/scheduler/booked-slots?date=${selectedDate}`)
+      .then((res) => res.json())
+      .then((data) => {
+        if (Array.isArray(data)) setBookedSlots(data);
+      })
+      .catch((err) => console.error('Failed to load booked slots', err));
   }, [selectedDate]);
 
   // Animate panel transition between steps
