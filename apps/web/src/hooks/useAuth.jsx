@@ -2,6 +2,14 @@ import { useState, useEffect, createContext, useContext } from 'react';
 
 const AuthContext = createContext();
 const API_URL = 'https://evobrandconcepts.com/api/auth';
+const TIMEOUT_MS = 10000;
+
+function fetchWithTimeout(url, options = {}) {
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), TIMEOUT_MS);
+  return fetch(url, { ...options, signal: controller.signal })
+    .finally(() => clearTimeout(timer));
+}
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
@@ -17,7 +25,7 @@ export const AuthProvider = ({ children }) => {
       }
 
       try {
-        const response = await fetch(`${API_URL}/me`, {
+        const response = await fetchWithTimeout(`${API_URL}/me`, {
           headers: {
             'Authorization': `Bearer ${token}`
           }
@@ -41,11 +49,16 @@ export const AuthProvider = ({ children }) => {
   }, []);
 
   const signUp = async ({ email, password, name }) => {
-    const response = await fetch(`${API_URL}/register`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email, password, name })
-    });
+    let response;
+    try {
+      response = await fetchWithTimeout(`${API_URL}/register`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password, name })
+      });
+    } catch (err) {
+      throw new Error(err.name === 'AbortError' ? 'Request timed out — please try again.' : 'Unable to reach the server. Check your connection.');
+    }
 
     const data = await response.json();
     if (!response.ok) throw new Error(data.error || 'Registration failed');
@@ -56,11 +69,16 @@ export const AuthProvider = ({ children }) => {
   };
 
   const signIn = async ({ email, password }) => {
-    const response = await fetch(`${API_URL}/login`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email, password })
-    });
+    let response;
+    try {
+      response = await fetchWithTimeout(`${API_URL}/login`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password })
+      });
+    } catch (err) {
+      throw new Error(err.name === 'AbortError' ? 'Request timed out — please try again.' : 'Unable to reach the server. Check your connection.');
+    }
 
     const data = await response.json();
     if (!response.ok) throw new Error(data.error || 'Login failed');
