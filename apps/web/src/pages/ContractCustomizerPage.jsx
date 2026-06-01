@@ -47,7 +47,7 @@ const ContractCustomizerPage = () => {
   const agency = {
     name: 'EVOBRAND Concepts LLC',
     address: 'Dallas, Texas 75001',
-    email: 'info@evobrandconcepts.com'
+    email: 'info@evobrand.net'
   };
 
   const [clientInfo, setClientInfo] = useState({

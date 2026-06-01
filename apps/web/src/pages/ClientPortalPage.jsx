@@ -270,12 +270,12 @@ const ClientPortalPage = () => {
   };
 
   const handleCloseTicket = async (ticketId) => {
-    if (!window.confirm('Are you sure you want to close this ticket?')) return;
     try {
       const token = localStorage.getItem('evobrand_token');
       const response = await fetch(`${API_URL}/tickets/${ticketId}/close`, {
         method: 'POST',
         headers: {
+          'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`
         }
       });

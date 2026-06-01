@@ -135,7 +135,7 @@ router.post('/ticket', async (req, res) => {
       try {
         await transporter.sendMail({
           from: `"EVOBRAND Support" <${process.env.SMTP_USER || 'no-reply@evobrandconcepts.com'}>`,
-          to: 'info@evobrandconcepts.com',
+          to: 'info@evobrand.net',
           subject: `New Ticket: ${subject}`,
           html: `<p><strong>New Support Ticket from ${name || email}</strong></p>
                  <p><strong>Priority:</strong> ${priority || 'normal'}</p>
@@ -184,11 +184,12 @@ router.post('/tickets/:id/reply', authenticateToken, async (req, res) => {
 
   try {
     // Verify access
-    const [tickets] = await pool.query('SELECT user_id FROM support_tickets WHERE id = ?', [ticketId]);
+    const [tickets] = await pool.query('SELECT t.*, u.email as user_email, u.name as user_name FROM support_tickets t LEFT JOIN users u ON t.user_id = u.id WHERE t.id = ?', [ticketId]);
     if (tickets.length === 0) return res.status(404).json({ error: 'Ticket not found' });
     
+    const currentTicket = tickets[0];
     const admin = await isAdminUser(req.user.id);
-    if (!admin && tickets[0].user_id !== req.user.id) {
+    if (!admin && currentTicket.user_id !== req.user.id) {
       return res.status(403).json({ error: 'Access denied' });
     }
 
@@ -202,9 +203,31 @@ router.post('/tickets/:id/reply', authenticateToken, async (req, res) => {
     if (!admin) {
       await pool.query('UPDATE support_tickets SET status = "open", updated_at = NOW() WHERE id = ?', [ticketId]);
       await notifyAdmins('New Ticket Reply', `Client replied to ticket #${ticketId}`, '/client-portal', 'ticket');
+      
+      // Email Admin
+      await transporter.sendMail({
+        from: `"EVOBRAND Support" <${process.env.SMTP_USER || 'no-reply@evobrandconcepts.com'}>`,
+        to: 'info@evobrand.net',
+        subject: `New Reply: Ticket #${ticketId}`,
+        html: `<p>The client has replied to ticket #${ticketId} ("${currentTicket.subject}"). The status is now <strong>OPEN</strong>.</p>
+               <p><strong>Message:</strong><br/>${message}</p>`
+      }).catch(err => console.error('Admin email fail:', err));
+
     } else {
       await pool.query('UPDATE support_tickets SET status = "in_progress", updated_at = NOW() WHERE id = ?', [ticketId]);
-      await createNotification(tickets[0].user_id, 'New Reply', `You received a reply on your ticket`, '/client-portal', 'ticket');
+      await createNotification(currentTicket.user_id, 'New Reply', `You received a reply on your ticket`, '/client-portal', 'ticket');
+      
+      // Email User
+      if (currentTicket.user_email) {
+        await transporter.sendMail({
+          from: `"EVOBRAND Support" <${process.env.SMTP_USER || 'no-reply@evobrandconcepts.com'}>`,
+          to: currentTicket.user_email,
+          subject: `New Reply on Ticket: ${currentTicket.subject}`,
+          html: `<p>Hi ${currentTicket.user_name || ''},</p>
+                 <p>An admin has replied to your ticket "<strong>${currentTicket.subject}</strong>". The status is now <strong>IN PROGRESS</strong>.</p>
+                 <p><strong>Reply:</strong><br/>${message}</p>`
+        }).catch(err => console.error('Status email fail:', err));
+      }
     }
 
     res.status(201).json({ message: 'Reply added successfully' });
@@ -223,25 +246,52 @@ router.put('/tickets/:id', authenticateToken, async (req, res) => {
   try {
     const admin = await isAdminUser(req.user.id);
     if (!admin) return res.status(403).json({ error: 'Admin access required' });
-    const [result] = await pool.query(
+
+    const [currentTickets] = await pool.query('SELECT t.*, u.email as user_email, u.name as user_name FROM support_tickets t LEFT JOIN users u ON t.user_id = u.id WHERE t.id = ?', [ticketId]);
+    if (currentTickets.length === 0) return res.status(404).json({ error: 'Ticket not found' });
+    const currentTicket = currentTickets[0];
+
+    await pool.query(
       'UPDATE support_tickets SET status = COALESCE(?, status), priority = COALESCE(?, priority), quoted_price = COALESCE(?, quoted_price), is_paid = COALESCE(?, is_paid) WHERE id = ?',
       [status, priority, quoted_price, is_paid, ticketId]
     );
 
-    if (result.affectedRows === 0) return res.status(404).json({ error: 'Ticket not found' });
-    
-    // If a quoted_price or is_paid was updated, notify the client
+    // Notifications
     if (quoted_price !== undefined || is_paid !== undefined) {
-      const [tickets] = await pool.query('SELECT user_id FROM support_tickets WHERE id = ?', [ticketId]);
-      if (tickets.length > 0 && tickets[0].user_id) {
+      if (currentTicket.user_id) {
         await createNotification(
-          tickets[0].user_id, 
+          currentTicket.user_id, 
           'Ticket Invoice Updated', 
           `The pricing or invoice status for your ticket #${ticketId} has been updated.`, 
           '/client-portal', 
           'invoice'
         );
       }
+    }
+
+    // Status email updates
+    if (status && status !== currentTicket.status) {
+      const formattedStatus = status.replace('_', ' ').toUpperCase();
+      
+      // Email User
+      if (currentTicket.user_email) {
+        await transporter.sendMail({
+          from: `"EVOBRAND Support" <${process.env.SMTP_USER || 'no-reply@evobrandconcepts.com'}>`,
+          to: currentTicket.user_email,
+          subject: `Ticket Status Updated: ${currentTicket.subject}`,
+          html: `<p>Hi ${currentTicket.user_name || ''},</p>
+                 <p>The status of your ticket "<strong>${currentTicket.subject}</strong>" has been updated to <strong>${formattedStatus}</strong>.</p>
+                 <p>Log in to your Client Portal for more details.</p>`
+        }).catch(err => console.error('Status email fail:', err));
+      }
+      
+      // Email Admin
+      await transporter.sendMail({
+        from: `"EVOBRAND Support" <${process.env.SMTP_USER || 'no-reply@evobrandconcepts.com'}>`,
+        to: 'info@evobrand.net',
+        subject: `Ticket Status Changed: #${ticketId}`,
+        html: `<p>Ticket #${ticketId} ("${currentTicket.subject}") status changed to <strong>${formattedStatus}</strong> by an admin.</p>`
+      }).catch(err => console.error('Admin email fail:', err));
     }
 
     res.status(200).json({ message: 'Ticket updated successfully' });
@@ -258,15 +308,37 @@ router.post('/tickets/:id/close', authenticateToken, async (req, res) => {
 
   try {
     // Verify access
-    const [tickets] = await pool.query('SELECT user_id FROM support_tickets WHERE id = ?', [ticketId]);
+    const [tickets] = await pool.query('SELECT t.*, u.email as user_email, u.name as user_name FROM support_tickets t LEFT JOIN users u ON t.user_id = u.id WHERE t.id = ?', [ticketId]);
     if (tickets.length === 0) return res.status(404).json({ error: 'Ticket not found' });
     
+    const currentTicket = tickets[0];
     const admin = await isAdminUser(req.user.id);
-    if (!admin && tickets[0].user_id !== req.user.id) {
+    if (!admin && currentTicket.user_id !== req.user.id) {
       return res.status(403).json({ error: 'Access denied' });
     }
 
     await pool.query('UPDATE support_tickets SET status = "closed", updated_at = NOW() WHERE id = ?', [ticketId]);
+
+    if (currentTicket.status !== 'closed') {
+      // Email User
+      if (currentTicket.user_email) {
+        await transporter.sendMail({
+          from: `"EVOBRAND Support" <${process.env.SMTP_USER || 'no-reply@evobrandconcepts.com'}>`,
+          to: currentTicket.user_email,
+          subject: `Ticket Closed: ${currentTicket.subject}`,
+          html: `<p>Hi ${currentTicket.user_name || ''},</p>
+                 <p>Your ticket "<strong>${currentTicket.subject}</strong>" has been closed.</p>`
+        }).catch(err => console.error('Status email fail:', err));
+      }
+      
+      // Email Admin
+      await transporter.sendMail({
+        from: `"EVOBRAND Support" <${process.env.SMTP_USER || 'no-reply@evobrandconcepts.com'}>`,
+        to: 'info@evobrand.net',
+        subject: `Ticket Closed by Client: #${ticketId}`,
+        html: `<p>Ticket #${ticketId} ("${currentTicket.subject}") was closed by the client.</p>`
+      }).catch(err => console.error('Admin email fail:', err));
+    }
 
     res.status(200).json({ message: 'Ticket closed successfully' });
   } catch (error) {

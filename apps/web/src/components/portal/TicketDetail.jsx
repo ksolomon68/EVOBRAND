@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { ArrowLeft, Send, Shield, MessageSquare, DollarSign, CheckCircle2 } from 'lucide-react';
+import { ArrowLeft, Clock, Send, CheckCircle2, AlertCircle, Shield, MessageSquare, Loader2, DollarSign } from 'lucide-react';
 
 const API_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
     ? 'http://localhost:5000/api/support'
@@ -13,6 +13,8 @@ const TicketDetail = ({ ticket, onBack, onReply, onClose, user, onRefresh }) => 
     const [isPaid, setIsPaid] = useState(ticket.is_paid === 1 || ticket.is_paid === true);
     const [priceSaving, setPriceSaving] = useState(false);
     const [priceMsg, setPriceMsg] = useState('');
+    const [showConfirmClose, setShowConfirmClose] = useState(false);
+    const [isClosing, setIsClosing] = useState(false);
     const messagesEndRef = useRef(null);
     const isAdmin = user?.is_admin === 1 || user?.is_admin === true;
 
@@ -260,25 +262,53 @@ const TicketDetail = ({ ticket, onBack, onReply, onClose, user, onRefresh }) => 
                             ) : null}
                         </div>
                         
-                        <div className="mt-8 pt-8 border-t border-white/5">
-                            {ticket.status !== 'closed' && ticket.status !== 'resolved' && (
-                                <button
-                                    onClick={() => {
-                                        if (window.confirm('Mark this ticket as resolved? This will close the support request.')) {
-                                            onClose(ticket.id);
-                                        }
-                                    }}
-                                    className="w-full py-4 rounded-2xl bg-red-400/5 border border-red-400/20 text-red-400 text-xs font-bold uppercase tracking-widest hover:bg-red-400/10 transition-all"
-                                >
-                                    Close Ticket
-                                </button>
-                            )}
-                            {(ticket.status === 'closed' || ticket.status === 'resolved') && (
+                        {ticket.status !== 'resolved' && ticket.status !== 'closed' && onClose && (
+                            <div className="mt-8 pt-8 border-t border-white/5">
+                                {!showConfirmClose ? (
+                                    <button 
+                                        onClick={() => setShowConfirmClose(true)}
+                                        className="w-full py-4 rounded-2xl bg-red-400/5 border border-red-400/20 text-red-400 text-xs font-bold uppercase tracking-widest hover:bg-red-400/10 transition-all"
+                                    >
+                                        Close Ticket
+                                    </button>
+                                ) : (
+                                    <div className="p-4 rounded-2xl bg-red-400/10 border border-red-400/30 text-center">
+                                        <p className="text-white text-sm font-bold mb-4">Are you sure you want to close this ticket?</p>
+                                        <div className="flex gap-2">
+                                            <button 
+                                                onClick={() => setShowConfirmClose(false)}
+                                                disabled={isClosing}
+                                                className="flex-1 py-2.5 rounded-xl bg-white/5 text-white/60 hover:text-white hover:bg-white/10 text-xs font-bold uppercase transition-all"
+                                            >
+                                                Cancel
+                                            </button>
+                                            <button 
+                                                onClick={async () => {
+                                                    setIsClosing(true);
+                                                    try {
+                                                        await onClose(ticket.id);
+                                                    } finally {
+                                                        setIsClosing(false);
+                                                        setShowConfirmClose(false);
+                                                    }
+                                                }}
+                                                disabled={isClosing}
+                                                className="flex-1 py-2.5 rounded-xl bg-red-500 text-white text-[10px] font-bold uppercase hover:bg-red-600 transition-all disabled:opacity-50 flex items-center justify-center gap-2"
+                                            >
+                                                {isClosing ? <Loader2 size={14} className="animate-spin" /> : 'Confirm Close'}
+                                            </button>
+                                        </div>
+                                    </div>
+                                )}
+                            </div>
+                        )}
+                        {(ticket.status === 'closed' || ticket.status === 'resolved') && (
+                            <div className="mt-8 pt-8 border-t border-white/5">
                                 <div className="w-full py-4 rounded-2xl bg-white/5 border border-white/10 text-white/30 text-xs font-bold uppercase tracking-widest text-center">
                                     Ticket Closed
                                 </div>
-                            )}
-                        </div>
+                            </div>
+                        )}
                     </div>
                 </div>
             </div>

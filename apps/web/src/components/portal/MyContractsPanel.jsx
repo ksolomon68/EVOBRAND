@@ -26,7 +26,7 @@ function ContractModal({ contract, onClose }) {
     : contract.contract_data;
   const { clientInfo = {}, project = {}, selectedServices = [], clauses = {} } = data;
 
-  const agency = { name: 'EVOBRAND Concepts LLC', address: 'Dallas, Texas 75001', email: 'info@evobrandconcepts.com' };
+  const agency = { name: 'EVOBRAND Concepts LLC', address: 'Dallas, Texas 75001', email: 'info@evobrand.net' };
   const fmtDate = (d) => { if (!d) return '[DATE]'; const dt = new Date(`${d}T00:00:00`); return isNaN(dt) ? d : dt.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }); };
   const fmtCurrency = (v) => { const n = Number(v); return (!v || isNaN(n)) ? '$0.00' : n.toLocaleString('en-US', { style: 'currency', currency: 'USD' }); };
 
