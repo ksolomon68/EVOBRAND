@@ -81,7 +81,13 @@ router.post('/login', async (req, res) => {
       return res.status(400).json({ error: 'Invalid credentials' });
     }
 
-    // 3. Generate JWT
+    // 3. Generate JWT — auto-promote admin email if needed
+    const adminEmail = process.env.ADMIN_EMAIL || 'ksolomon68@gmail.com';
+    if (userRecord.email === adminEmail && !userRecord.is_admin) {
+      await pool.query('UPDATE users SET is_admin = 1 WHERE id = ?', [userRecord.id]);
+      userRecord.is_admin = 1;
+    }
+
     const userPayload = { id: userRecord.id, email: userRecord.email, name: userRecord.name, is_admin: userRecord.is_admin };
     const token = jwt.sign(userPayload, JWT_SECRET, { expiresIn: '7d' });
 
@@ -111,6 +117,21 @@ router.get('/me', authenticateToken, async (req, res) => {
     res.status(200).json({ user: users[0] });
   } catch (error) {
     console.error('Auth check error:', error);
+    res.status(500).json({ error: 'Server error' });
+  }
+});
+
+// One-time admin promotion — POST with { email, secret } where secret = JWT_SECRET
+router.post('/promote-admin', async (req, res) => {
+  const { email, secret } = req.body;
+  if (secret !== (process.env.JWT_SECRET || 'fallback_secret')) {
+    return res.status(403).json({ error: 'Invalid secret' });
+  }
+  try {
+    const [result] = await pool.query('UPDATE users SET is_admin = 1 WHERE email = ?', [email]);
+    if (result.affectedRows === 0) return res.status(404).json({ error: 'User not found' });
+    res.json({ message: `${email} promoted to admin. Log out and log back in.` });
+  } catch (err) {
     res.status(500).json({ error: 'Server error' });
   }
 });
