@@ -82,7 +82,7 @@ router.post('/login', async (req, res) => {
     }
 
     // 3. Generate JWT — auto-promote admin email if needed
-    const adminEmail = process.env.ADMIN_EMAIL || 'ksolomon68@gmail.com';
+    const adminEmail = process.env.ADMIN_EMAIL || 'ks@evobrand.net';
     if (userRecord.email === adminEmail && !userRecord.is_admin) {
       await pool.query('UPDATE users SET is_admin = 1 WHERE id = ?', [userRecord.id]);
       userRecord.is_admin = 1;
