@@ -1,10 +1,18 @@
 const express = require('express');
 const router = express.Router();
 const pool = require('../db/connection');
-const { Resend } = require('resend');
+const nodemailer = require('nodemailer');
 const { authenticateToken, requireAdmin } = require('../middleware/auth');
 
-const resend = new Resend(process.env.EMAIL_API_KEY);
+const transporter = nodemailer.createTransport({
+  host: process.env.SMTP_HOST || 'mail.evobrandconcepts.com',
+  port: process.env.SMTP_PORT || 465,
+  secure: true,
+  auth: {
+    user: process.env.SMTP_USER || 'no-reply@evobrandconcepts.com',
+    pass: process.env.SMTP_PASS || '_rW+*ze&E%qw.AJ]'
+  }
+});
 
 // @route GET /api/support/tickets
 // @desc  Get all tickets (Admins see all, users see their own)
@@ -106,7 +114,27 @@ router.post('/ticket', async (req, res) => {
       await connection.commit();
       const ticketId = ticketResult.insertId;
 
-      // Resend Notification logic here...
+      // Send Email Notifications
+      try {
+        await transporter.sendMail({
+          from: `"EVOBRAND Support" <${process.env.SMTP_USER || 'no-reply@evobrandconcepts.com'}>`,
+          to: 'info@evobrandconcepts.com',
+          subject: `New Ticket: ${subject}`,
+          html: `<p><strong>New Support Ticket from ${name || email}</strong></p>
+                 <p><strong>Priority:</strong> ${priority || 'normal'}</p>
+                 <p><strong>Message:</strong><br/>${message}</p>`
+        });
+        await transporter.sendMail({
+          from: `"EVOBRAND Support" <${process.env.SMTP_USER || 'no-reply@evobrandconcepts.com'}>`,
+          to: email,
+          subject: `Ticket Received: ${subject}`,
+          html: `<p>Hi ${name || ''},</p>
+                 <p>We have successfully received your support ticket. Our team will review it and get back to you shortly.</p>
+                 <p><strong>Your Message:</strong><br/>${message}</p>`
+        });
+      } catch (emailErr) {
+        console.error('Email notification failed:', emailErr);
+      }
       res.status(201).json({ message: 'Support ticket created successfully', ticketId });
     } catch (err) {
       await connection.rollback();
