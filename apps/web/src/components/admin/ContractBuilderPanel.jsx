@@ -181,22 +181,22 @@ export default function ContractBuilderPanel() {
               <div><label className={labelClass}>Total Project Fee</label><input type="number" className={inputClass} placeholder="5000" value={project.fee} onChange={e => setProject({ ...project, fee: e.target.value })} /></div>
               <div><label className={labelClass}>Revisions Included</label>
                 <select className={inputClass} value={project.revisions} onChange={e => setProject({ ...project, revisions: e.target.value })}>
-                  {['2', '3', '5', 'Unlimited'].map(v => <option key={v}>{v}</option>)}
+                  {['2', '3', '5', 'Unlimited'].map(v => <option key={v} className="bg-[#0a0f14] text-white">{v}</option>)}
                 </select>
               </div>
               <div className="md:col-span-2"><label className={labelClass}>Payment Structure</label>
                 <select className={inputClass} value={project.payment} onChange={e => setProject({ ...project, payment: e.target.value })}>
-                  {['50% upfront, 50% on delivery', '33% upfront, 33% at midpoint, 33% on delivery', 'Monthly retainer', 'Net 30 upon delivery'].map(v => <option key={v}>{v}</option>)}
+                  {['50% upfront, 50% on delivery', '33% upfront, 33% at midpoint, 33% on delivery', 'Monthly retainer', 'Net 30 upon delivery'].map(v => <option key={v} className="bg-[#0a0f14] text-white">{v}</option>)}
                 </select>
               </div>
               <div><label className={labelClass}>Governing State</label>
                 <select className={inputClass} value={project.state} onChange={e => setProject({ ...project, state: e.target.value })}>
-                  {['Texas', 'California', 'New York', 'Florida', 'Delaware', 'Other'].map(v => <option key={v}>{v}</option>)}
+                  {['Texas', 'California', 'New York', 'Florida', 'Delaware', 'Other'].map(v => <option key={v} className="bg-[#0a0f14] text-white">{v}</option>)}
                 </select>
               </div>
               <div><label className={labelClass}>Dispute Resolution</label>
                 <select className={inputClass} value={project.dispute} onChange={e => setProject({ ...project, dispute: e.target.value })}>
-                  {['Binding Arbitration (AAA)', 'Mediation then Litigation', 'Litigation only'].map(v => <option key={v}>{v}</option>)}
+                  {['Binding Arbitration (AAA)', 'Mediation then Litigation', 'Litigation only'].map(v => <option key={v} className="bg-[#0a0f14] text-white">{v}</option>)}
                 </select>
               </div>
             </div>
