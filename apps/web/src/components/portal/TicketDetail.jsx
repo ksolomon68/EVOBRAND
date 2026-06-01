@@ -82,7 +82,7 @@ const TicketDetail = ({ ticket, onBack, onReply, onCloseTicket }) => {
                                         <div className={`w-8 h-8 rounded-lg flex items-center justify-center text-[10px] font-bold ${
                                             !msg.sender_is_admin ? 'bg-[#22c8e5] text-[#003258]' : 'bg-white/10 text-white'
                                         }`}>
-                                            {!msg.sender_is_admin ? 'YOU' : 'EVO'}
+                                            {!msg.sender_is_admin ? 'YOU' : 'EVOBRAND'}
                                         </div>
                                         <span className="text-[10px] font-bold text-white/20 uppercase tracking-widest">
                                             {new Date(msg.timestamp || msg.created_at).toLocaleString([], { hour: '2-digit', minute: '2-digit' })}
