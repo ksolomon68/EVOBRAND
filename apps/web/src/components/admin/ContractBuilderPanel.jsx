@@ -4,7 +4,7 @@ import { Check, Download, FileText, Send, Loader2, CheckCircle2 } from 'lucide-r
 
 const API_BASE = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
   ? 'http://localhost:5000/api'
-  : 'https://evobrandconcepts.com/api';
+  : (window.location.origin + '/api');
 
 const availableServices = [
   { id: 'ai-app', label: 'Custom AI App', icon: '⚡' },

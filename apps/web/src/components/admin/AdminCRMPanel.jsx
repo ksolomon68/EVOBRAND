@@ -3,7 +3,7 @@ import { Users, Mail, Plus, Trash2, Send, CheckCircle2, AlertCircle, Loader2 } f
 
 const API_BASE = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' 
   ? 'http://localhost:5000' 
-  : 'https://evobrandconcepts.com';
+  : window.location.origin;
 
 const BEIGE = '#b49969';
 

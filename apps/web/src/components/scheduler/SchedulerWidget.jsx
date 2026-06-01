@@ -5,7 +5,7 @@ import { ChevronLeft, ChevronRight, Calendar, Clock, CheckCircle2, Loader2, Aler
 
 const API_BASE = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' 
   ? 'http://localhost:5000/api' 
-  : 'https://evobrandconcepts.com/api';
+  : (window.location.origin + '/api');
 
 // ─── Constants ──────────────────────────────────────────────────────────────
 

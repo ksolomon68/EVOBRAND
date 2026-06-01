@@ -5,7 +5,7 @@ import { Calendar, Clock, Video, CheckCircle2, XCircle, AlertCircle, Loader2, Ex
 
 const API_BASE = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' 
   ? 'http://localhost:5000/api' 
-  : 'https://evobrandconcepts.com/api';
+  : (window.location.origin + '/api');
 
 const GOLD = '#22c8e5';
 const NAVY = '#003258';
