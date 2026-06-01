@@ -167,7 +167,7 @@ const TicketDetail = ({ ticket, onBack, onReply, onClose }) => {
                                     }}
                                     className="w-full py-4 rounded-2xl bg-red-400/5 border border-red-400/20 text-red-400 text-xs font-bold uppercase tracking-widest hover:bg-red-400/10 transition-all"
                                 >
-                                    Request Resolution
+                                    Close Ticket
                                 </button>
                             )}
                             {(ticket.status === 'closed' || ticket.status === 'resolved') && (
