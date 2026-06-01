@@ -1,19 +1,27 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { X, Upload, Send, ShieldCheck, Zap } from 'lucide-react';
 
+const DRAFT_KEY = 'evobrand_ticket_draft';
+
 const NewTicketForm = ({ onClose, onSubmit }) => {
-    const [formData, setFormData] = useState({
-        subject: '',
-        priority: 'Medium',
-        service: 'Web Design',
-        description: '',
-        file: null
+    const [formData, setFormData] = useState(() => {
+        try {
+            const saved = localStorage.getItem(DRAFT_KEY);
+            if (saved) return { file: null, ...JSON.parse(saved) };
+        } catch {}
+        return { subject: '', priority: 'Medium', service: 'Web Design', description: '', file: null };
     });
+
+    useEffect(() => {
+        const { file, ...saveable } = formData;
+        localStorage.setItem(DRAFT_KEY, JSON.stringify(saveable));
+    }, [formData]);
 
     const handleSubmit = (e) => {
         e.preventDefault();
         onSubmit(formData);
+        localStorage.removeItem(DRAFT_KEY);
     };
 
     const handleChange = (e) => {

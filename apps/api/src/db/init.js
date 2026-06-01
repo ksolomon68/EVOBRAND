@@ -75,6 +75,8 @@ async function initializeDatabase() {
     await pool.query(`ALTER TABLE support_tickets ADD COLUMN IF NOT EXISTS priority ENUM('low', 'normal', 'high', 'urgent') DEFAULT 'normal'`).catch(() => {});
     await pool.query(`ALTER TABLE support_tickets ADD COLUMN IF NOT EXISTS quoted_price DECIMAL(10,2) DEFAULT NULL`).catch(() => {});
     await pool.query(`ALTER TABLE support_tickets ADD COLUMN IF NOT EXISTS is_paid BOOLEAN DEFAULT FALSE`).catch(() => {});
+    // Add pending status to enum if not already present
+    await pool.query(`ALTER TABLE support_tickets MODIFY COLUMN status ENUM('open', 'in_progress', 'pending', 'resolved', 'closed') DEFAULT 'open'`).catch(() => {});
 
     // Create TicketReplies table
     await pool.query(`

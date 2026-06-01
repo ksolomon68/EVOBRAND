@@ -167,15 +167,15 @@ const ClientPortalPage = () => {
   }, [user, authLoading, navigate]);
 
   useEffect(() => {
-    if (user) fetchTickets();
+    if (user) fetchTickets(true);
   }, [user]);
 
   const API_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' 
     ? 'http://localhost:5000/api/support' 
     : (window.location.origin + '/api/support');
 
-  const fetchTickets = async () => {
-    setLoading(true);
+  const fetchTickets = async (isInitial = false) => {
+    if (isInitial) setLoading(true);
     try {
       const token = localStorage.getItem('evobrand_token');
       const controller = new AbortController();
@@ -192,7 +192,6 @@ const ClientPortalPage = () => {
       const data = await response.json();
       if (!response.ok) throw new Error(data.error);
 
-      // The backend returns an array of tickets
       setTickets(
         (data.tickets || []).map((t) => ({
           ...t,
@@ -202,9 +201,10 @@ const ClientPortalPage = () => {
         }))
       );
     } catch (err) {
+      // Keep stale ticket data — don't blank the list on API error
       console.error('Error fetching tickets:', err);
     } finally {
-      setLoading(false);
+      if (isInitial) setLoading(false);
     }
   };
 

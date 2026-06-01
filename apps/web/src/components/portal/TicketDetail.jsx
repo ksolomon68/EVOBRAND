@@ -3,7 +3,8 @@ import { motion } from 'framer-motion';
 import { ArrowLeft, Clock, Send, CheckCircle2, AlertCircle, Shield, MessageSquare } from 'lucide-react';
 
 const TicketDetail = ({ ticket, onBack, onReply, onClose }) => {
-    const [replyText, setReplyText] = useState('');
+    const draftKey = `evobrand_reply_draft_${ticket.id}`;
+    const [replyText, setReplyText] = useState(() => sessionStorage.getItem(draftKey) || '');
     const messagesEndRef = useRef(null);
 
     const scrollToBottom = () => {
@@ -16,11 +17,17 @@ const TicketDetail = ({ ticket, onBack, onReply, onClose }) => {
         scrollToBottom();
     }, [history]);
 
+    const handleReplyChange = (e) => {
+        setReplyText(e.target.value);
+        sessionStorage.setItem(draftKey, e.target.value);
+    };
+
     const handleReplySubmit = (e) => {
         e.preventDefault();
         if (!replyText.trim()) return;
         onReply(ticket.id, replyText);
         setReplyText('');
+        sessionStorage.removeItem(draftKey);
     };
 
     const getPriorityColor = (priority) => {
@@ -108,7 +115,7 @@ const TicketDetail = ({ ticket, onBack, onReply, onClose }) => {
                                 <MessageSquare className="absolute left-4 top-1/2 -translate-y-1/2 text-white/20" size={18} />
                                 <input
                                     value={replyText}
-                                    onChange={(e) => setReplyText(e.target.value)}
+                                    onChange={handleReplyChange}
                                     placeholder="Enter secure transmission..."
                                     className="w-full pl-12 pr-4 py-4 bg-white/5 text-white border border-white/10 rounded-2xl focus:outline-none focus:border-[#22c8e5] transition-all text-sm"
                                 />
