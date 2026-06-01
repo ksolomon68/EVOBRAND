@@ -3,7 +3,7 @@ import { AnimatePresence, motion } from 'framer-motion';
 import SEO from '@/components/SEO.jsx';
 import {
   LayoutDashboard, Plus, LogOut, Ticket, Bell,
-  Loader2, Calendar, ShieldCheck, Server, Users
+  Loader2, Calendar, ShieldCheck, Server, Users, FileText
 } from 'lucide-react';
 import TicketList from '../components/portal/TicketList';
 import NewTicketForm from '../components/portal/NewTicketForm';
@@ -11,6 +11,8 @@ import TicketDetail from '../components/portal/TicketDetail';
 import MyMeetings from '../components/portal/MyMeetings';
 import AdminTicketPanel from '../components/admin/AdminTicketPanel';
 import AdminCRMPanel from '../components/admin/AdminCRMPanel';
+import ContractBuilderPanel from '../components/admin/ContractBuilderPanel';
+import MyContractsPanel from '../components/portal/MyContractsPanel';
 import { useAuth } from '../hooks/useAuth.jsx';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
@@ -58,9 +60,11 @@ function Sidebar({ user, view, setView, setSelectedTicket, openTicketCount, hand
   const navItems = [
     { key: 'dashboard', icon: LayoutDashboard, label: 'Dashboard', badge: openTicketCount },
     { key: 'meetings', icon: Calendar, label: 'My Meetings' },
+    { key: 'my-contracts', icon: FileText, label: 'My Contracts' },
     ...(isAdmin ? [
       { key: 'admin', icon: ShieldCheck, label: 'Admin Controls' },
-      { key: 'crm', icon: Users, label: 'CRM & Campaigns' }
+      { key: 'crm', icon: Users, label: 'CRM & Campaigns' },
+      { key: 'contract-builder', icon: FileText, label: 'Contract Builder' },
     ] : []),
   ];
 
@@ -274,8 +278,10 @@ const ClientPortalPage = () => {
     dashboard: 'Operational Dashboard',
     detail: 'Ticket Details',
     meetings: 'My Meetings',
+    'my-contracts': 'My Contracts',
     admin: 'Admin Controls',
     crm: 'CRM & Campaigns',
+    'contract-builder': 'Contract Builder',
   }[view] ?? 'Dashboard';
 
   if (authLoading || loading) {
@@ -477,6 +483,30 @@ const ClientPortalPage = () => {
                   </motion.div>
                 )}
 
+                {/* ── Contract Builder (admin) ── */}
+                {view === 'contract-builder' && (
+                  <motion.div
+                    key="contract-builder"
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -10 }}
+                    transition={{ duration: 0.2 }}
+                  >
+                    <ContractBuilderPanel />
+                  </motion.div>
+                )}
+
+                {/* ── My Contracts (all users) ── */}
+                {view === 'my-contracts' && (
+                  <motion.div
+                    key="my-contracts"
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -10 }}
+                    transition={{ duration: 0.2 }}
+                  >
+                    <MyContractsPanel user={user} />
+                  </motion.div>
                 )}
               </AnimatePresence>
             </div>

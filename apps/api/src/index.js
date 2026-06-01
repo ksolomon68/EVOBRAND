@@ -37,6 +37,7 @@ const schedulerRoutes = require('./routes/scheduler');
 const auditorRoutes = require('./routes/auditor');
 const authRoutes = require('./routes/auth');
 const crmRoutes = require('./routes/crm');
+const contractRoutes = require('./routes/contracts');
 
 // TEMPORARY ADMIN ROUTE - trigger database initialization
 app.get('/api/admin/init-db', (req, res) => {
@@ -50,6 +51,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/scheduler', schedulerRoutes);
 app.use('/api/auditor', auditorRoutes);
 app.use('/api/crm', crmRoutes);
+app.use('/api/contracts', contractRoutes);
 
 // cPanel Passenger often strips the Application URL prefix from requests.
 // We mount them at the root as well so they work on the live server.
@@ -59,6 +61,7 @@ app.use('/auth', authRoutes);
 app.use('/scheduler', schedulerRoutes);
 app.use('/auditor', auditorRoutes);
 app.use('/crm', crmRoutes);
+app.use('/contracts', contractRoutes);
 
 // Start server
 app.listen(PORT, () => {
