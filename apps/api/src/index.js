@@ -31,40 +31,50 @@ app.get('/api/crash', (req, res) => {
 });
 
 // Import Routes
-const supportRoutes = require('./routes/support');
-const newsletterRoutes = require('./routes/newsletter');
-const schedulerRoutes = require('./routes/scheduler');
-const auditorRoutes = require('./routes/auditor');
-const authRoutes = require('./routes/auth');
-const crmRoutes = require('./routes/crm');
-const contractRoutes = require('./routes/contracts');
-const notificationRoutes = require('./routes/notifications');
+let supportRoutes, newsletterRoutes, schedulerRoutes, auditorRoutes, authRoutes, crmRoutes, contractRoutes, notificationRoutes;
+try {
+  supportRoutes = require('./routes/support');
+  newsletterRoutes = require('./routes/newsletter');
+  authRoutes = require('./routes/auth');
+  schedulerRoutes = require('./routes/scheduler');
+  auditorRoutes = require('./routes/auditor');
+  crmRoutes = require('./routes/crm');
+  contractRoutes = require('./routes/contracts');
+  notificationRoutes = require('./routes/notifications');
+} catch (err) {
+  console.error('Error loading routes:', err.message);
+  fs.writeFileSync(__dirname + '/crash.log', err.stack);
+}
 
-// TEMPORARY ADMIN ROUTE - trigger database initialization
-app.get('/api/admin/init-db', (req, res) => {
-  res.send('Initializing database... The server will automatically restart if successful.');
-  require('./db/init.js'); 
+app.get('/api/install-log', (req, res) => {
+  try {
+    const log = fs.readFileSync(__dirname + '/install.log', 'utf8');
+    res.type('text/plain').send(log);
+  } catch (err) {
+    res.status(200).send('No install log found: ' + err.message);
+  }
 });
 
-app.use('/api/support', supportRoutes);
-app.use('/api/newsletter', newsletterRoutes);
-app.use('/api/auth', authRoutes);
-app.use('/api/scheduler', schedulerRoutes);
-app.use('/api/auditor', auditorRoutes);
-app.use('/api/crm', crmRoutes);
-app.use('/api/contracts', contractRoutes);
-app.use('/api/notifications', notificationRoutes);
+// Mount routes if loaded
+if (supportRoutes) app.use('/api/support', supportRoutes);
+if (newsletterRoutes) app.use('/api/newsletter', newsletterRoutes);
+if (authRoutes) app.use('/api/auth', authRoutes);
+if (schedulerRoutes) app.use('/api/scheduler', schedulerRoutes);
+if (auditorRoutes) app.use('/api/auditor', auditorRoutes);
+if (crmRoutes) app.use('/api/crm', crmRoutes);
+if (contractRoutes) app.use('/api/contracts', contractRoutes);
+if (notificationRoutes) app.use('/api/notifications', notificationRoutes);
 
 // cPanel Passenger often strips the Application URL prefix from requests.
 // We mount them at the root as well so they work on the live server.
-app.use('/support', supportRoutes);
-app.use('/newsletter', newsletterRoutes);
-app.use('/auth', authRoutes);
-app.use('/scheduler', schedulerRoutes);
-app.use('/auditor', auditorRoutes);
-app.use('/crm', crmRoutes);
-app.use('/contracts', contractRoutes);
-app.use('/notifications', notificationRoutes);
+if (supportRoutes) app.use('/support', supportRoutes);
+if (newsletterRoutes) app.use('/newsletter', newsletterRoutes);
+if (authRoutes) app.use('/auth', authRoutes);
+if (schedulerRoutes) app.use('/scheduler', schedulerRoutes);
+if (auditorRoutes) app.use('/auditor', auditorRoutes);
+if (crmRoutes) app.use('/crm', crmRoutes);
+if (contractRoutes) app.use('/contracts', contractRoutes);
+if (notificationRoutes) app.use('/notifications', notificationRoutes);
 
 // Scheduled Tasks
 // Run every 6 hours to auto-close inactive tickets
