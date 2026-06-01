@@ -183,9 +183,17 @@ const ClientPortalPage = () => {
     setLoading(true);
     try {
       const token = localStorage.getItem('evobrand_token');
-      const response = await fetch(`${API_URL}/tickets`, {
-        headers: { 'Authorization': `Bearer ${token}` }
-      });
+      const controller = new AbortController();
+      const timer = setTimeout(() => controller.abort(), 10000);
+      let response;
+      try {
+        response = await fetch(`${API_URL}/tickets`, {
+          headers: { 'Authorization': `Bearer ${token}` },
+          signal: controller.signal,
+        });
+      } finally {
+        clearTimeout(timer);
+      }
       const data = await response.json();
       if (!response.ok) throw new Error(data.error);
 
