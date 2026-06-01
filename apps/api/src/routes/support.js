@@ -17,8 +17,16 @@ const transporter = nodemailer.createTransport({
 
 // Helper: check if requester is admin from DB (not token, which may be stale)
 async function isAdminUser(userId) {
-  const [rows] = await pool.query('SELECT is_admin FROM users WHERE id = ?', [userId]);
-  return rows[0]?.is_admin == 1 || rows[0]?.is_admin === true;
+  const adminEmail = process.env.ADMIN_EMAIL || 'ks@evobrand.net';
+  const [rows] = await pool.query('SELECT is_admin, email FROM users WHERE id = ?', [userId]);
+  if (!rows[0]) return false;
+  // Accept if DB flag is set OR if it's the designated admin email
+  if (rows[0].email === adminEmail) {
+    // Ensure DB is kept in sync
+    await pool.query('UPDATE users SET is_admin = 1 WHERE id = ?', [userId]).catch(() => {});
+    return true;
+  }
+  return rows[0].is_admin == 1 || rows[0].is_admin === true;
 }
 
 // @route GET /api/support/tickets
