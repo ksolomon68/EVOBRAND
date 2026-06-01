@@ -100,9 +100,14 @@ function ContractModal({ contract, onClose }) {
                 <p className="text-sm">Keisha Solomon, CEO</p>
               </div>
               <div>
-                <div className="border-b border-black mb-6" />
+                <div className="border-b border-black mb-2 pb-1 text-xl" style={{ fontFamily: "'Brush Script MT', cursive", minHeight: '2rem' }}>
+                  {contract.client_signature || ''}
+                </div>
                 <p className="text-sm font-bold uppercase">Client — {clientInfo.companyName || '[COMPANY]'}</p>
-                <p className="text-sm">{clientInfo.repName || '[REPRESENTATIVE]'}{clientInfo.title ? `, ${clientInfo.title}` : ''}</p>
+                <p className="text-sm">{contract.client_signature || clientInfo.repName || '[REPRESENTATIVE]'}{clientInfo.title ? `, ${clientInfo.title}` : ''}</p>
+                {contract.client_signed_at && (
+                  <p className="text-sm">Date: {new Date(contract.client_signed_at).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}</p>
+                )}
               </div>
             </div>
           </div>
