@@ -18,7 +18,7 @@ const transporter = nodemailer.createTransport({
 // Helper: check if requester is admin from DB (not token, which may be stale)
 async function isAdminUser(userId) {
   const [rows] = await pool.query('SELECT is_admin FROM users WHERE id = ?', [userId]);
-  return rows[0]?.is_admin === 1 || rows[0]?.is_admin === true;
+  return rows[0]?.is_admin == 1 || rows[0]?.is_admin === true;
 }
 
 // @route GET /api/support/tickets

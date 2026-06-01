@@ -14,16 +14,16 @@ const authenticateToken = (req, res, next) => {
   });
 };
 
-// Always checks the DB so admin status works even on old tokens
+// Always checks the DB — works even with stale tokens
 const requireAdmin = async (req, res, next) => {
-  if (!req.user) return res.status(403).json({ error: 'Admin access required' });
+  if (!req.user?.id) return res.status(403).json({ error: 'Admin access required' });
   try {
     const [rows] = await pool.query('SELECT is_admin FROM users WHERE id = ?', [req.user.id]);
-    if (!rows[0]?.is_admin && !req.user.is_admin) return res.status(403).json({ error: 'Admin access required' });
+    const isAdmin = rows[0]?.is_admin == 1 || rows[0]?.is_admin === true;
+    if (!isAdmin) return res.status(403).json({ error: 'Admin access required' });
     next();
   } catch (err) {
     console.error('requireAdmin DB error:', err);
-    if (req.user.is_admin) return next(); // Fallback to token
     res.status(500).json({ error: 'Server error' });
   }
 };
