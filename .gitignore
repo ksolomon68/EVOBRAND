@@ -9,3 +9,4 @@ yarn-error.log*
 supabase/.temp
 deploy.zip
 apps/web/dist/
+apps/api/src/crash.log

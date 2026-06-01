@@ -5,6 +5,12 @@ deployment:
     - export DEPLOYPATH=/home/evobrandconcepts/public_html
     - /bin/cp -R dist/apps/web/* $DEPLOYPATH
 
-    # Restart Node.js Passenger app — tries common cPanel paths
+    # Deploy API source files (try both common cPanel Node.js app paths)
+    - mkdir -p /home/evobrandconcepts/evobrand/apps/api/src && /bin/cp -R apps/api/src/* /home/evobrandconcepts/evobrand/apps/api/src/ || true
+    - /bin/cp apps/api/package.json /home/evobrandconcepts/evobrand/apps/api/ || true
+    - mkdir -p /home/evobrandconcepts/nodeapp/src && /bin/cp -R apps/api/src/* /home/evobrandconcepts/nodeapp/src/ || true
+    - /bin/cp apps/api/package.json /home/evobrandconcepts/nodeapp/ || true
+
+    # Restart Node.js Passenger app
     - mkdir -p /home/evobrandconcepts/evobrand/apps/api/tmp && touch /home/evobrandconcepts/evobrand/apps/api/tmp/restart.txt
     - mkdir -p /home/evobrandconcepts/nodeapp/tmp && touch /home/evobrandconcepts/nodeapp/tmp/restart.txt
