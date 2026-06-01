@@ -477,6 +477,8 @@ const ClientPortalPage = () => {
                       onBack={() => setView('dashboard')}
                       onReply={handleClientReply}
                       onClose={handleCloseTicket}
+                      user={user}
+                      onRefresh={fetchTickets}
                     />
                   </motion.div>
                 )}

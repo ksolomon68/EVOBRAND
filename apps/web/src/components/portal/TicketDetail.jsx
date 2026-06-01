@@ -1,11 +1,20 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { ArrowLeft, Clock, Send, CheckCircle2, AlertCircle, Shield, MessageSquare } from 'lucide-react';
+import { ArrowLeft, Send, Shield, MessageSquare, DollarSign, CheckCircle2 } from 'lucide-react';
 
-const TicketDetail = ({ ticket, onBack, onReply, onClose }) => {
+const API_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+    ? 'http://localhost:5000/api/support'
+    : (window.location.origin + '/api/support');
+
+const TicketDetail = ({ ticket, onBack, onReply, onClose, user, onRefresh }) => {
     const draftKey = `evobrand_reply_draft_${ticket.id}`;
     const [replyText, setReplyText] = useState(() => sessionStorage.getItem(draftKey) || '');
+    const [priceInput, setPriceInput] = useState(String(ticket.quoted_price > 0 ? ticket.quoted_price : ''));
+    const [isPaid, setIsPaid] = useState(ticket.is_paid === 1 || ticket.is_paid === true);
+    const [priceSaving, setPriceSaving] = useState(false);
+    const [priceMsg, setPriceMsg] = useState('');
     const messagesEndRef = useRef(null);
+    const isAdmin = user?.is_admin === 1 || user?.is_admin === true;
 
     const scrollToBottom = () => {
         messagesEndRef.current?.scrollIntoView({ behavior: "smooth", block: "nearest" });
@@ -16,6 +25,31 @@ const TicketDetail = ({ ticket, onBack, onReply, onClose }) => {
     useEffect(() => {
         scrollToBottom();
     }, [history]);
+
+    const savePrice = async (updates) => {
+        setPriceSaving(true);
+        setPriceMsg('');
+        try {
+            const token = localStorage.getItem('evobrand_token');
+            const res = await fetch(`${API_URL}/tickets/${ticket.id}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+                body: JSON.stringify(updates),
+            });
+            const data = await res.json().catch(() => ({}));
+            if (res.ok) {
+                setPriceMsg('Saved');
+                setTimeout(() => setPriceMsg(''), 2000);
+                if (onRefresh) onRefresh();
+            } else {
+                setPriceMsg(data.error || 'Save failed');
+            }
+        } catch {
+            setPriceMsg('Network error');
+        } finally {
+            setPriceSaving(false);
+        }
+    };
 
     const handleReplyChange = (e) => {
         setReplyText(e.target.value);
@@ -151,7 +185,48 @@ const TicketDetail = ({ ticket, onBack, onReply, onClose }) => {
                                     <p className="text-white text-sm font-medium">Core AI Team</p>
                                 </div>
                             </div>
-                            {ticket.quoted_price > 0 && (
+                            {isAdmin ? (
+                                <div className="pt-4 border-t border-white/10">
+                                    <p className="text-[#22c8e5]/60 text-[10px] font-bold uppercase tracking-widest mb-3 flex items-center gap-1.5">
+                                        <DollarSign size={11} /> Quoted Price
+                                    </p>
+                                    <div className="flex gap-2 mb-2">
+                                        <div className="relative flex-1">
+                                            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-white/40 text-sm font-bold">$</span>
+                                            <input
+                                                type="number"
+                                                min="0"
+                                                step="0.01"
+                                                value={priceInput}
+                                                onChange={(e) => setPriceInput(e.target.value)}
+                                                placeholder="0.00"
+                                                className="w-full bg-white/5 border border-[rgba(34,200,229,0.3)] text-white font-bold pl-7 pr-3 py-2 rounded-lg text-sm focus:outline-none focus:border-[#22c8e5]"
+                                            />
+                                        </div>
+                                        <button
+                                            onClick={() => savePrice({ quoted_price: parseFloat(priceInput) || 0 })}
+                                            disabled={priceSaving}
+                                            className="px-3 py-2 rounded-lg text-sm font-bold disabled:opacity-50 transition-colors"
+                                            style={{ background: 'rgba(34,200,229,0.15)', color: '#22c8e5' }}
+                                        >
+                                            {priceSaving ? '…' : 'Save'}
+                                        </button>
+                                    </div>
+                                    {priceMsg && (
+                                        <p className={`text-xs font-bold mb-2 ${priceMsg === 'Saved' ? 'text-green-400' : 'text-red-400'}`}>{priceMsg}</p>
+                                    )}
+                                    <label className="flex items-center gap-2 cursor-pointer mt-2">
+                                        <input
+                                            type="checkbox"
+                                            checked={isPaid}
+                                            onChange={(e) => { setIsPaid(e.target.checked); savePrice({ is_paid: e.target.checked ? 1 : 0 }); }}
+                                            className="w-4 h-4 rounded accent-[#22c8e5]"
+                                        />
+                                        <span className="text-sm text-white/70 font-bold">Mark as Paid</span>
+                                        {isPaid && <CheckCircle2 size={13} className="text-green-400 ml-auto" />}
+                                    </label>
+                                </div>
+                            ) : ticket.quoted_price > 0 ? (
                                 <div className="pt-4 border-t border-white/10">
                                     <p className="text-[#22c8e5]/60 text-[10px] font-bold uppercase tracking-widest mb-1">Estimated Cost</p>
                                     <p className="text-[#22c8e5] text-2xl font-bold">${Number(ticket.quoted_price).toFixed(2)}</p>
@@ -161,7 +236,7 @@ const TicketDetail = ({ ticket, onBack, onReply, onClose }) => {
                                         <span className="inline-block mt-2 px-2 py-1 bg-yellow-500/20 text-yellow-400 text-[10px] font-bold uppercase rounded border border-yellow-500/30">Unpaid Invoice</span>
                                     )}
                                 </div>
-                            )}
+                            ) : null}
                         </div>
                         
                         <div className="mt-8 pt-8 border-t border-white/5">
