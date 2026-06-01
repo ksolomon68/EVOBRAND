@@ -199,8 +199,9 @@ const ClientPortalPage = () => {
 
       // The backend returns an array of tickets
       setTickets(
-        data.tickets.map((t) => ({
+        (data.tickets || []).map((t) => ({
           ...t,
+          status: t.status?.toLowerCase() || 'open',
           lastUpdated: t.updated_at,
           service: 'Support', // Fallback or could map to category if added
         }))

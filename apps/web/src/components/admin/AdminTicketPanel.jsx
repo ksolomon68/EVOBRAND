@@ -290,13 +290,26 @@ export default function AdminTicketPanel({ user }) {
     setLoading(true);
     try {
       const token = localStorage.getItem('evobrand_token');
-      const res = await fetch(`${API_URL}/tickets`, {
-        headers: { 'Authorization': `Bearer ${token}` },
-      });
+      const controller = new AbortController();
+      const timer = setTimeout(() => controller.abort(), 10000);
+      let res;
+      try {
+        res = await fetch(`${API_URL}/tickets`, {
+          headers: { 'Authorization': `Bearer ${token}` },
+          signal: controller.signal,
+        });
+      } finally {
+        clearTimeout(timer);
+      }
       const data = await res.json();
-      if (res.ok) setTickets(data.tickets || []);
+      if (res.ok) {
+        setTickets((data.tickets || []).map(t => ({
+          ...t,
+          status: t.status?.toLowerCase() || 'open'
+        })));
+      }
     } catch (err) {
-      console.error(err);
+      console.error('Admin fetch tickets error:', err);
     } finally {
       setLoading(false);
     }
