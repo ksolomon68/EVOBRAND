@@ -3,7 +3,7 @@ import { AnimatePresence, motion } from 'framer-motion';
 import SEO from '@/components/SEO.jsx';
 import {
   LayoutDashboard, Plus, LogOut, Ticket, Bell,
-  Loader2, Calendar, ShieldCheck, Server, Users, FileText
+  Loader2, Calendar, ShieldCheck, Users, FileText
 } from 'lucide-react';
 import TicketList from '../components/portal/TicketList';
 import NewTicketForm from '../components/portal/NewTicketForm';
@@ -15,7 +15,6 @@ import ContractBuilderPanel from '../components/admin/ContractBuilderPanel';
 import MyContractsPanel from '../components/portal/MyContractsPanel';
 import { useAuth } from '../hooks/useAuth.jsx';
 import { useNavigate } from 'react-router-dom';
-import { supabase } from '../lib/supabase';
 
 const GOLD = '#22c8e5';
 const NAVY = '#003258';

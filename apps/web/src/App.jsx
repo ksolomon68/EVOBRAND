@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import ScrollToTop from '@/components/ScrollToTop.jsx';
 import Header from '@/components/Header.jsx';
 import Footer from '@/components/Footer.jsx';
@@ -18,7 +18,6 @@ import AuditorPage from '@/pages/AuditorPage.jsx';
 import AuditorResultsPage from '@/pages/AuditorResultsPage.jsx';
 import ClientPortalLoginPage from '@/pages/ClientPortalLoginPage.jsx';
 import ResetPasswordPage from '@/pages/ResetPasswordPage.jsx';
-import { Navigate } from 'react-router-dom';
 
 function App() {
   return (
