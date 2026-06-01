@@ -358,7 +358,7 @@ export default function AdminCRMPanel({ user }) {
                             </div>
                             <div>
                               <p className="text-sm font-bold text-white">
-                                {contact.first_name || contact.last_name ? \`\${contact.first_name || ''} \${contact.last_name || ''}\` : 'Unknown'}
+                                {contact.first_name || contact.last_name ? `${contact.first_name || ''} ${contact.last_name || ''}` : 'Unknown'}
                               </p>
                               <p className="text-xs text-white/40">{contact.email}</p>
                             </div>
@@ -368,9 +368,9 @@ export default function AdminCRMPanel({ user }) {
                           <span className="bg-white/10 px-2 py-1 rounded-md text-xs">{contact.list_name}</span>
                         </td>
                         <td className="p-4">
-                          <span className={\`text-[10px] font-bold uppercase tracking-wider px-2 py-1 rounded-full \${
+                          <span className={`text-[10px] font-bold uppercase tracking-wider px-2 py-1 rounded-full ${
                             contact.status === 'subscribed' ? 'bg-emerald-500/20 text-emerald-400' : 'bg-red-500/20 text-red-400'
-                          }\`}>
+                          }`}>
                             {contact.status}
                           </span>
                         </td>
@@ -481,9 +481,9 @@ export default function AdminCRMPanel({ user }) {
                         <h4 className="font-bold text-white text-lg">{campaign.subject}</h4>
                         <p className="text-xs text-[#22c8e5] font-bold mt-1">To: {campaign.list_name || 'Unknown List'}</p>
                       </div>
-                      <span className={\`text-[10px] font-bold uppercase tracking-wider px-2 py-1 rounded-full \${
+                      <span className={`text-[10px] font-bold uppercase tracking-wider px-2 py-1 rounded-full ${
                         campaign.status === 'sent' ? 'bg-emerald-500/20 text-emerald-400' : 'bg-amber-500/20 text-amber-400'
-                      }\`}>
+                      }`}>
                         {campaign.status}
                       </span>
                     </div>
@@ -495,8 +495,8 @@ export default function AdminCRMPanel({ user }) {
                     <div className="flex items-center justify-between mt-4 pt-4 border-t border-white/10">
                       <div className="text-xs text-white/40">
                         {campaign.status === 'sent' 
-                          ? \`Sent: \${new Date(campaign.sent_at).toLocaleString()}\` 
-                          : \`Created: \${new Date(campaign.created_at).toLocaleString()}\`}
+                          ? `Sent: ${new Date(campaign.sent_at).toLocaleString()}` 
+                          : `Created: ${new Date(campaign.created_at).toLocaleString()}`}
                       </div>
                       
                       {campaign.status === 'draft' && (

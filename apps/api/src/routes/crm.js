@@ -157,7 +157,7 @@ router.post('/campaigns/:id/send', async (req, res) => {
     // 4. Mark campaign as sent
     await pool.query('UPDATE crm_campaigns SET status = "sent", sent_at = CURRENT_TIMESTAMP WHERE id = ?', [id]);
     
-    res.json({ success: true, message: \`Campaign sent successfully to \${emails.length} subscribers\` });
+    res.json({ success: true, message: `Campaign sent successfully to ${emails.length} subscribers` });
   } catch (error) {
     console.error('Error sending CRM campaign:', error);
     res.status(500).json({ error: 'Failed to send campaign', details: error.message });
