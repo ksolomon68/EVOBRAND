@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { Loader2, ShieldAlert, Ticket, DollarSign, Reply, CheckCircle, AlertCircle } from 'lucide-react';
 
-const API_URL = 'https://evobrandconcepts.com/api/support';
+const API_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' 
+  ? 'http://localhost:5000/api/support' 
+  : 'https://evobrandconcepts.com/api/support';
 
 export default function AdminTicketPanel({ user }) {
   const [tickets, setTickets] = useState([]);
