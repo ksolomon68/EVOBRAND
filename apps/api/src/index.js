@@ -48,7 +48,7 @@ try {
 
 app.get('/api/install-log', (req, res) => {
   try {
-    const log = fs.readFileSync(__dirname + '/install.log', 'utf8');
+    const log = fs.readFileSync(__dirname + '/../install.log', 'utf8');
     res.type('text/plain').send(log);
   } catch (err) {
     res.status(200).send('No install log found: ' + err.message);
@@ -57,7 +57,7 @@ app.get('/api/install-log', (req, res) => {
 
 app.get('/install-log', (req, res) => {
   try {
-    const log = fs.readFileSync(__dirname + '/install.log', 'utf8');
+    const log = fs.readFileSync(__dirname + '/../install.log', 'utf8');
     res.type('text/plain').send(log);
   } catch (err) {
     res.status(200).send('No install log found: ' + err.message);
