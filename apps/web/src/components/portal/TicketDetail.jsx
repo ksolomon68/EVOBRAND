@@ -10,9 +10,11 @@ const TicketDetail = ({ ticket, onBack, onReply }) => {
         messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
     };
 
+    const history = ticket.history || [];
+
     useEffect(() => {
         scrollToBottom();
-    }, [ticket.history]);
+    }, [history]);
 
     const handleReplySubmit = (e) => {
         e.preventDefault();
@@ -67,7 +69,7 @@ const TicketDetail = ({ ticket, onBack, onReply }) => {
                 {/* Chat Area */}
                 <div className="flex-1 flex flex-col bg-white/5 border border-white/10 rounded-3xl overflow-hidden shadow-2xl">
                     <div className="flex-1 overflow-y-auto p-8 space-y-8 custom-scrollbar">
-                        {ticket.history.map((msg, i) => (
+                        {history.map((msg, i) => (
                             <motion.div 
                                 key={msg.id}
                                 initial={{ opacity: 0, y: 10 }}

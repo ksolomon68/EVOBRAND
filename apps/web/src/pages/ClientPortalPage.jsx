@@ -430,7 +430,18 @@ const ClientPortalPage = () => {
                       </div>
                     </div>
 
-                    <TicketList tickets={tickets} onViewTicket={(ticket) => { setSelectedTicket(ticket); setView('detail'); }} />
+                    <TicketList tickets={tickets} onViewTicket={async (ticket) => {
+                      setSelectedTicket(ticket);
+                      setView('detail');
+                      try {
+                        const token = localStorage.getItem('evobrand_token');
+                        const res = await fetch(`${API_URL}/tickets/${ticket.id}`, { headers: { 'Authorization': `Bearer ${token}` } });
+                        if (res.ok) {
+                          const data = await res.json();
+                          setSelectedTicket({ ...data.ticket, history: data.replies });
+                        }
+                      } catch (err) { console.error(err); }
+                    }} />
                   </motion.div>
                 )}
 

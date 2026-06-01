@@ -9,7 +9,7 @@ import VideoLibrarySection from '@/components/VideoLibrarySection.jsx';
 import AuditorSection from '@/components/sections/AuditorSection.jsx';
 import ServicesBuiltForScale from '@/components/sections/ServicesBuiltForScale.jsx';
 import AICapabilities from '@/components/sections/AICapabilities.jsx';
-import BookingSection from '@/components/sections/BookingSection.jsx';
+import SchedulerWidget from '@/components/scheduler/SchedulerWidget.jsx';
 import SEO from '@/components/SEO.jsx';
 
 const HomePage = () => {
@@ -188,7 +188,16 @@ const HomePage = () => {
         <AuditorSection />
 
         {/* Booking Section */}
-        <BookingSection />
+        <section id="booking" className="py-20 bg-[#0d0d18]">
+          <div className="container mx-auto px-4 max-w-xl">
+            <div className="text-center mb-12">
+              <p className="text-[#22c8e5] text-xs font-bold tracking-[0.25em] uppercase mb-3">Schedule a Meeting</p>
+              <h2 className="text-4xl md:text-5xl font-bold text-white mb-4">Book a Strategy Call</h2>
+              <p className="text-[#8892a4] text-lg max-w-lg mx-auto">Select a date and time and let's start building your competitive advantage.</p>
+            </div>
+            <SchedulerWidget />
+          </div>
+        </section>
 
         {/* Final CTA */}
         <section className="py-20 bg-gradient-to-br from-[#1a2332] to-[#22c8e5]">
