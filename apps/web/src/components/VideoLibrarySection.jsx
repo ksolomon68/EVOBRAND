@@ -1,7 +1,7 @@
 import React, { useState, useMemo, useRef, useEffect } from 'react';
 import { useGSAP } from '@gsap/react';
 import gsap from 'gsap';
-import { Loader2, AlertCircle } from 'lucide-react';
+import { Loader2 } from 'lucide-react';
 import useYouTubePlaylist from '@/hooks/useYouTubePlaylist.js';
 import VideoSlider from '@/components/VideoSlider.jsx';
 import VideoModal from '@/components/VideoModal.jsx';
@@ -207,10 +207,12 @@ export default function VideoLibrarySection() {
             <p className="text-gray-400 text-sm tracking-widest uppercase">Loading library...</p>
           </div>
         ) : error ? (
-          <div className="flex flex-col items-center justify-center py-24 text-center" role="alert">
-            <AlertCircle className="w-10 h-10 text-red-400 mb-4" aria-hidden="true" />
-            <p className="text-white text-lg mb-1">Unable to load videos</p>
-            <p className="text-gray-500 max-w-sm text-sm">{error}</p>
+          <div className="flex flex-col items-center justify-center py-24 text-center">
+            <div className="w-20 h-20 rounded-2xl flex items-center justify-center mb-6" style={{ background: 'rgba(34,200,229,0.08)', border: '1px solid rgba(34,200,229,0.15)' }}>
+              <span className="text-4xl">🎬</span>
+            </div>
+            <p className="text-white text-xl font-bold mb-2">Coming Soon</p>
+            <p className="text-gray-500 max-w-sm text-sm">Our video library is on its way. Check back soon for AI tutorials and client stories.</p>
           </div>
         ) : filteredVideos.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-24 text-center">

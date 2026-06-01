@@ -521,22 +521,28 @@ export default function SchedulerWidget() {
   // Fetch blackout dates
   useEffect(() => {
     fetch(`${API_BASE}/scheduler/blackout-dates`)
-      .then((res) => res.json())
+      .then((res) => {
+        if (!res.ok || !res.headers.get('content-type')?.includes('application/json')) return [];
+        return res.json();
+      })
       .then((data) => {
         if (Array.isArray(data)) setBlackoutDates(data);
       })
-      .catch((err) => console.error('Failed to load blackout dates', err));
+      .catch(() => {});
   }, []);
 
   // Fetch booked slots whenever selected date changes
   useEffect(() => {
     if (!selectedDate) return;
     fetch(`${API_BASE}/scheduler/booked-slots?date=${selectedDate}`)
-      .then((res) => res.json())
+      .then((res) => {
+        if (!res.ok || !res.headers.get('content-type')?.includes('application/json')) return [];
+        return res.json();
+      })
       .then((data) => {
         if (Array.isArray(data)) setBookedSlots(data);
       })
-      .catch((err) => console.error('Failed to load booked slots', err));
+      .catch(() => {});
   }, [selectedDate]);
 
   // Animate panel transition between steps
