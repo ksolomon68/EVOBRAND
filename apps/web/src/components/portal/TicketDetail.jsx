@@ -44,7 +44,7 @@ const TicketDetail = ({ ticket, onBack, onReply }) => {
                     <div>
                         <div className="flex items-center gap-3 mb-1">
                             <h2 className="text-3xl font-bold text-white">{ticket.subject}</h2>
-                            <span className="px-2 py-1 rounded bg-white/5 border border-white/10 text-white/20 font-mono text-xs">#{ticket.id.split('-')[0]}</span>
+                            <span className="px-2 py-1 rounded bg-white/5 border border-white/10 text-white/20 font-mono text-xs">#{String(ticket.id).split('-')[0]}</span>
                         </div>
                         <div className="flex items-center gap-4 text-xs font-bold uppercase tracking-widest">
                             <span className={`px-2 py-0.5 rounded border ${getPriorityColor(ticket.priority)}`}>{ticket.priority}</span>

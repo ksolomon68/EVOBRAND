@@ -43,7 +43,7 @@ const TicketList = ({ tickets, onViewTicket }) => {
                             <div>
                                 <div className="flex items-center gap-3 mb-1">
                                     <h3 className="text-white font-bold group-hover:text-[#22c8e5] transition-colors">{ticket.subject}</h3>
-                                    <span className="text-white/20 font-mono text-xs">#{ticket.id.split('-')[0]}</span>
+                                    <span className="text-white/20 font-mono text-xs">#{String(ticket.id).split('-')[0]}</span>
                                 </div>
                                 <div className="flex items-center gap-4">
                                     <span className="text-white/40 text-xs font-bold uppercase tracking-widest">{ticket.service}</span>
