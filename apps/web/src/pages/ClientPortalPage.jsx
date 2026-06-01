@@ -345,44 +345,6 @@ const ClientPortalPage = () => {
           setMobileOpen={setMobileNavOpen}
         />
 
-        {/* Mobile Sidebar Overlay */}
-        <AnimatePresence>
-          {mobileMenuOpen && (
-            <>
-              <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                onClick={() => setMobileMenuOpen(false)}
-                className="fixed inset-0 bg-[#04080f]/80 backdrop-blur-sm z-40 md:hidden"
-              />
-              <motion.div
-                initial={{ x: '-100%' }}
-                animate={{ x: 0 }}
-                exit={{ x: '-100%' }}
-                transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-                className="fixed inset-y-0 left-0 w-72 bg-[#04080f] z-50 md:hidden border-r border-white/10 flex flex-col"
-              >
-                <div className="flex justify-end p-4">
-                  <button onClick={() => setMobileMenuOpen(false)} className="text-white/40 hover:text-white p-2">
-                    <X size={20} />
-                  </button>
-                </div>
-                <div className="flex-1 overflow-y-auto">
-                  <Sidebar
-                    user={user}
-                    view={view}
-                    setView={(v) => { setView(v); setMobileMenuOpen(false); }}
-                    setSelectedTicket={setSelectedTicket}
-                    openTicketCount={openTicketCount}
-                    handleSignOut={handleSignOut}
-                  />
-                </div>
-              </motion.div>
-            </>
-          )}
-        </AnimatePresence>
-
         {/* Main content */}
         <main className="flex-1 flex flex-col h-screen overflow-hidden min-w-0" style={{ background: '#04080f' }}>
           {/* Top bar */}
