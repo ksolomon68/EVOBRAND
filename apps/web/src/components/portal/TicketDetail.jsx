@@ -110,6 +110,27 @@ const TicketDetail = ({ ticket, onBack, onReply, onClose, user, onRefresh }) => 
                 {/* Chat Area */}
                 <div className="flex-1 flex flex-col bg-white/5 border border-white/10 rounded-3xl overflow-hidden shadow-2xl">
                     <div className="flex-1 overflow-y-auto p-8 space-y-8 custom-scrollbar">
+                        {/* Original ticket message */}
+                        {ticket.message && (
+                            <motion.div
+                                initial={{ opacity: 0, y: 10 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                className="flex justify-end"
+                            >
+                                <div className="max-w-[85%]">
+                                    <div className="flex items-center gap-3 mb-2 flex-row-reverse">
+                                        <div className="w-8 h-8 rounded-lg flex items-center justify-center text-[10px] font-bold bg-[#22c8e5] text-[#003258]">YOU</div>
+                                        <span className="text-[10px] font-bold text-white/20 uppercase tracking-widest">
+                                            {new Date(ticket.created_at).toLocaleString([], { hour: '2-digit', minute: '2-digit' })}
+                                        </span>
+                                    </div>
+                                    <div className="p-5 rounded-2xl text-sm leading-relaxed bg-[#22c8e5]/10 border border-[#22c8e5]/20 text-white rounded-tr-none">
+                                        {ticket.message}
+                                    </div>
+                                </div>
+                            </motion.div>
+                        )}
+                        {/* Replies */}
                         {history.map((msg, i) => (
                             <motion.div 
                                 key={msg.id}
