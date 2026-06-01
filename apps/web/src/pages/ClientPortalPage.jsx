@@ -53,7 +53,7 @@ function NavItem({ icon: Icon, label, active, onClick, badge }) {
 // ─── Sidebar ──────────────────────────────────────────────────────────────────
 
 function Sidebar({ user, view, setView, setSelectedTicket, openTicketCount, handleSignOut }) {
-  const isAdmin = user?.user_metadata?.role === 'admin';
+  const isAdmin = user?.is_admin === 1 || user?.is_admin === true;
 
   const navItems = [
     { key: 'dashboard', icon: LayoutDashboard, label: 'Dashboard', badge: openTicketCount },
@@ -66,7 +66,7 @@ function Sidebar({ user, view, setView, setSelectedTicket, openTicketCount, hand
   ];
 
   const initials =
-    user?.user_metadata?.full_name
+    user?.name
       ?.split(' ')
       .map((n) => n[0])
       .join('') ?? 'U';
@@ -134,7 +134,7 @@ function Sidebar({ user, view, setView, setSelectedTicket, openTicketCount, hand
           </div>
           <div className="overflow-hidden">
             <p className="text-white text-sm font-bold truncate">
-              {user?.user_metadata?.full_name ?? 'Project Lead'}
+              {user?.name || 'Project Lead'}
             </p>
             <p className="text-white/40 text-xs truncate">{user?.email}</p>
           </div>
@@ -173,7 +173,9 @@ const ClientPortalPage = () => {
     if (user) fetchTickets();
   }, [user]);
 
-  const API_URL = 'https://evobrandconcepts.com/api/support';
+  const API_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' 
+    ? 'http://localhost:5000/api/support' 
+    : 'https://evobrandconcepts.com/api/support';
 
   const fetchTickets = async () => {
     setLoading(true);
