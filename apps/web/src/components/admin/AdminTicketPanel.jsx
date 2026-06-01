@@ -1,110 +1,321 @@
-import React, { useState, useEffect } from 'react';
-import { Loader2, ShieldAlert, Ticket, DollarSign, Reply, CheckCircle, AlertCircle } from 'lucide-react';
+import React, { useState, useEffect, useRef } from 'react';
+import {
+  Loader2, ShieldAlert, ArrowLeft, Send, DollarSign,
+  CheckCircle2, Clock, AlertCircle, Users, Tag
+} from 'lucide-react';
 
-const API_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' 
-  ? 'http://localhost:5000/api/support' 
+const API_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+  ? 'http://localhost:5000/api/support'
   : 'https://evobrandconcepts.com/api/support';
+
+const GOLD = '#22c8e5';
+const NAVY = '#003258';
+
+const STATUS_OPTS = ['open', 'in_progress', 'resolved', 'closed'];
+const PRIORITY_OPTS = ['low', 'normal', 'high', 'urgent'];
+
+const statusColor = (s) => ({
+  open: 'text-green-400 bg-green-400/10 border-green-400/30',
+  in_progress: 'text-yellow-400 bg-yellow-400/10 border-yellow-400/30',
+  resolved: 'text-white/30 bg-white/5 border-white/10',
+  closed: 'text-white/20 bg-white/5 border-white/5',
+}[s] || 'text-white/40 bg-white/5 border-white/10');
+
+const priorityColor = (p) => ({
+  urgent: 'text-red-400',
+  high: 'text-orange-400',
+  normal: 'text-yellow-400',
+  low: 'text-white/40',
+}[p] || 'text-white/40');
+
+function TicketRow({ t, onOpen }) {
+  return (
+    <tr
+      className="border-b border-white/5 hover:bg-white/[0.03] cursor-pointer transition-colors"
+      onClick={() => onOpen(t)}
+    >
+      <td className="px-5 py-4">
+        <p className="text-white font-semibold text-sm truncate max-w-[220px]">{t.subject}</p>
+        <p className="text-white/30 text-xs mt-0.5">#{t.id}</p>
+      </td>
+      <td className="px-5 py-4 text-white/50 text-sm">{t.user_name || t.user_email}</td>
+      <td className="px-5 py-4">
+        <span className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase border ${statusColor(t.status)}`}>
+          {t.status?.replace('_', ' ')}
+        </span>
+      </td>
+      <td className={`px-5 py-4 text-sm font-bold ${priorityColor(t.priority)}`}>
+        {t.priority}
+      </td>
+      <td className="px-5 py-4 text-sm font-bold" style={{ color: GOLD }}>
+        {t.quoted_price > 0 ? `$${Number(t.quoted_price).toFixed(2)}` : '—'}
+      </td>
+      <td className="px-5 py-4 text-white/30 text-xs">
+        {t.updated_at ? new Date(t.updated_at).toLocaleDateString() : '—'}
+      </td>
+    </tr>
+  );
+}
+
+function TicketDetail({ ticket, onBack, onRefresh }) {
+  const [history, setHistory] = useState(ticket.history || []);
+  const [replyText, setReplyText] = useState('');
+  const [priceInput, setPriceInput] = useState(String(ticket.quoted_price || ''));
+  const [saving, setSaving] = useState(false);
+  const [saveMsg, setSaveMsg] = useState('');
+  const [sending, setSending] = useState(false);
+  const bottomRef = useRef(null);
+
+  useEffect(() => {
+    bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }, [history]);
+
+  const authHeader = () => ({
+    'Content-Type': 'application/json',
+    'Authorization': `Bearer ${localStorage.getItem('evobrand_token')}`,
+  });
+
+  const update = async (updates) => {
+    setSaving(true);
+    setSaveMsg('');
+    try {
+      const res = await fetch(`${API_URL}/tickets/${ticket.id}`, {
+        method: 'PUT',
+        headers: authHeader(),
+        body: JSON.stringify(updates),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (res.ok) {
+        setSaveMsg('Saved');
+        setTimeout(() => setSaveMsg(''), 2000);
+        onRefresh();
+      } else {
+        setSaveMsg(data.error || 'Save failed');
+      }
+    } catch {
+      setSaveMsg('Network error');
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const sendReply = async (e) => {
+    e.preventDefault();
+    if (!replyText.trim()) return;
+    setSending(true);
+    try {
+      const res = await fetch(`${API_URL}/tickets/${ticket.id}/reply`, {
+        method: 'POST',
+        headers: authHeader(),
+        body: JSON.stringify({ message: replyText }),
+      });
+      if (res.ok) {
+        setReplyText('');
+        // reload replies
+        const r2 = await fetch(`${API_URL}/tickets/${ticket.id}`, {
+          headers: { 'Authorization': `Bearer ${localStorage.getItem('evobrand_token')}` },
+        });
+        if (r2.ok) {
+          const d = await r2.json();
+          setHistory(d.replies || []);
+        }
+        onRefresh();
+      }
+    } catch { /* ignore */ }
+    setSending(false);
+  };
+
+  return (
+    <div>
+      <button onClick={onBack} className="flex items-center gap-2 text-sm font-bold mb-6 hover:opacity-70 transition-opacity" style={{ color: GOLD }}>
+        <ArrowLeft size={14} /> Back to Inbox
+      </button>
+
+      <div className="flex gap-6">
+        {/* Thread */}
+        <div className="flex-1 flex flex-col bg-white/5 border border-white/10 rounded-2xl overflow-hidden" style={{ minHeight: 480 }}>
+          <div className="p-5 border-b border-white/10">
+            <h2 className="text-white font-bold text-lg">{ticket.subject}</h2>
+            <p className="text-white/40 text-xs mt-1">From: {ticket.user_name} · {ticket.user_email}</p>
+          </div>
+
+          <div className="flex-1 overflow-y-auto p-6 space-y-4">
+            {/* Original message */}
+            <div className="flex justify-start">
+              <div className="max-w-[80%] bg-white/5 border border-white/10 rounded-2xl rounded-tl-none p-4">
+                <p className="text-[10px] font-bold uppercase tracking-widest text-white/30 mb-2">Client · Original</p>
+                <p className="text-white/80 text-sm leading-relaxed">{ticket.message}</p>
+              </div>
+            </div>
+
+            {/* Replies */}
+            {history.map((msg) => (
+              <div key={msg.id} className={`flex ${msg.sender_is_admin ? 'justify-end' : 'justify-start'}`}>
+                <div className={`max-w-[80%] p-4 rounded-2xl text-sm leading-relaxed ${
+                  msg.sender_is_admin
+                    ? 'rounded-tr-none text-white border border-[rgba(34,200,229,0.25)]'
+                    : 'rounded-tl-none bg-white/5 border border-white/10 text-white/80'
+                }`} style={msg.sender_is_admin ? { background: 'rgba(34,200,229,0.1)' } : {}}>
+                  <p className="text-[10px] font-bold uppercase tracking-widest mb-2 opacity-50">
+                    {msg.sender_is_admin ? 'You (Admin)' : ticket.user_name || 'Client'}
+                  </p>
+                  {msg.message}
+                </div>
+              </div>
+            ))}
+            <div ref={bottomRef} />
+          </div>
+
+          <form onSubmit={sendReply} className="p-4 border-t border-white/10 flex gap-3">
+            <input
+              value={replyText}
+              onChange={(e) => setReplyText(e.target.value)}
+              placeholder="Reply to client..."
+              className="flex-1 bg-white/5 border border-white/10 text-white rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-[#22c8e5] transition-colors"
+            />
+            <button
+              type="submit"
+              disabled={sending || !replyText.trim()}
+              className="px-5 py-3 rounded-xl font-bold text-sm flex items-center gap-2 disabled:opacity-40 transition-colors"
+              style={{ background: GOLD, color: NAVY }}
+            >
+              {sending ? <Loader2 size={14} className="animate-spin" /> : <Send size={14} />}
+              Send
+            </button>
+          </form>
+        </div>
+
+        {/* Controls */}
+        <div className="w-72 space-y-5 flex-shrink-0">
+
+          {/* Status & Priority */}
+          <div className="bg-white/5 border border-white/10 rounded-2xl p-5 space-y-4">
+            <h3 className="text-xs font-bold uppercase tracking-widest text-white/40">Ticket Settings</h3>
+            <div>
+              <label className="text-[10px] font-bold uppercase tracking-widest text-white/30 block mb-1.5">Status</label>
+              <select
+                defaultValue={ticket.status}
+                onChange={(e) => update({ status: e.target.value })}
+                className="w-full bg-[#04080f] border border-white/10 text-white text-sm p-2.5 rounded-lg focus:outline-none focus:border-[#22c8e5]"
+              >
+                {STATUS_OPTS.map(s => <option key={s} value={s}>{s.replace('_', ' ')}</option>)}
+              </select>
+            </div>
+            <div>
+              <label className="text-[10px] font-bold uppercase tracking-widest text-white/30 block mb-1.5">Priority</label>
+              <select
+                defaultValue={ticket.priority}
+                onChange={(e) => update({ priority: e.target.value })}
+                className="w-full bg-[#04080f] border border-white/10 text-white text-sm p-2.5 rounded-lg focus:outline-none focus:border-[#22c8e5]"
+              >
+                {PRIORITY_OPTS.map(p => <option key={p} value={p}>{p}</option>)}
+              </select>
+            </div>
+          </div>
+
+          {/* Quoted Price */}
+          <div className="bg-white/5 border border-[rgba(34,200,229,0.2)] rounded-2xl p-5">
+            <h3 className="text-xs font-bold uppercase tracking-widest mb-3 flex items-center gap-2" style={{ color: GOLD }}>
+              <DollarSign size={12} /> Quoted Price
+            </h3>
+            <div className="flex gap-2 mb-3">
+              <div className="relative flex-1">
+                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-white/40 font-bold text-sm">$</span>
+                <input
+                  type="number"
+                  min="0"
+                  step="0.01"
+                  value={priceInput}
+                  onChange={(e) => setPriceInput(e.target.value)}
+                  className="w-full bg-[#04080f] border border-[rgba(34,200,229,0.3)] text-white font-bold pl-7 pr-3 py-2.5 rounded-lg text-sm focus:outline-none focus:border-[#22c8e5]"
+                  placeholder="0.00"
+                />
+              </div>
+              <button
+                onClick={() => update({ quoted_price: parseFloat(priceInput) || 0 })}
+                disabled={saving}
+                className="px-4 py-2.5 rounded-lg text-sm font-bold disabled:opacity-50 transition-colors"
+                style={{ background: 'rgba(34,200,229,0.15)', color: GOLD }}
+              >
+                {saving ? <Loader2 size={13} className="animate-spin" /> : 'Save'}
+              </button>
+            </div>
+            {saveMsg && (
+              <p className={`text-xs font-bold ${saveMsg === 'Saved' ? 'text-green-400' : 'text-red-400'}`}>
+                {saveMsg}
+              </p>
+            )}
+
+            <label className="flex items-center gap-3 cursor-pointer mt-3 pt-3 border-t border-white/10">
+              <input
+                type="checkbox"
+                defaultChecked={ticket.is_paid === 1 || ticket.is_paid === true}
+                onChange={(e) => update({ is_paid: e.target.checked ? 1 : 0 })}
+                className="w-4 h-4 rounded accent-[#22c8e5]"
+              />
+              <span className="text-sm font-bold text-white/70">Mark as Paid</span>
+              {(ticket.is_paid === 1 || ticket.is_paid === true) && (
+                <CheckCircle2 size={14} className="text-green-400 ml-auto" />
+              )}
+            </label>
+          </div>
+
+          {/* Client Info */}
+          <div className="bg-white/5 border border-white/10 rounded-2xl p-5 space-y-3">
+            <h3 className="text-xs font-bold uppercase tracking-widest text-white/40">Client</h3>
+            <div>
+              <p className="text-white font-semibold text-sm">{ticket.user_name || '—'}</p>
+              <p className="text-white/40 text-xs">{ticket.user_email}</p>
+            </div>
+            <div className="text-xs text-white/30">
+              <p>Opened: {new Date(ticket.created_at).toLocaleDateString()}</p>
+              <p>Updated: {new Date(ticket.updated_at).toLocaleDateString()}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
 
 export default function AdminTicketPanel({ user }) {
   const [tickets, setTickets] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [selectedTicket, setSelectedTicket] = useState(null);
-  const [replyText, setReplyText] = useState('');
-  const [priceInput, setPriceInput] = useState('');
-  
+  const [selected, setSelected] = useState(null);
+  const [filter, setFilter] = useState('all');
+
   const isAdmin = user?.is_admin === 1 || user?.is_admin === true;
 
   const fetchTickets = async () => {
     setLoading(true);
     try {
       const token = localStorage.getItem('evobrand_token');
-      const response = await fetch(`${API_URL}/tickets`, {
-        headers: { 'Authorization': `Bearer ${token}` }
+      const res = await fetch(`${API_URL}/tickets`, {
+        headers: { 'Authorization': `Bearer ${token}` },
       });
-      const data = await response.json();
-      if (response.ok) {
-        setTickets(data.tickets);
-      }
+      const data = await res.json();
+      if (res.ok) setTickets(data.tickets || []);
     } catch (err) {
-      console.error('Error fetching admin tickets:', err);
+      console.error(err);
     } finally {
       setLoading(false);
     }
   };
 
-  useEffect(() => {
-    if (isAdmin) {
-      fetchTickets();
-    }
-  }, [isAdmin]);
-
-  const handleSelectTicket = async (ticket) => {
-    setLoading(true);
+  const openTicket = async (t) => {
     try {
       const token = localStorage.getItem('evobrand_token');
-      const response = await fetch(`${API_URL}/tickets/${ticket.id}`, {
-        headers: { 'Authorization': `Bearer ${token}` }
+      const res = await fetch(`${API_URL}/tickets/${t.id}`, {
+        headers: { 'Authorization': `Bearer ${token}` },
       });
-      const data = await response.json();
-      if (response.ok) {
-        setSelectedTicket({ ...data.ticket, history: data.replies });
-        setPriceInput(data.ticket.quoted_price || '');
-      }
+      const data = await res.json();
+      if (res.ok) setSelected({ ...data.ticket, history: data.replies });
     } catch (err) {
-      console.error('Error fetching ticket details:', err);
-    } finally {
-      setLoading(false);
+      console.error(err);
     }
   };
 
-  const handleReply = async (e) => {
-    e.preventDefault();
-    if (!replyText.trim()) return;
-    
-    try {
-      const token = localStorage.getItem('evobrand_token');
-      const response = await fetch(`${API_URL}/tickets/${selectedTicket.id}/reply`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify({ message: replyText })
-      });
-      
-      if (response.ok) {
-        setReplyText('');
-        handleSelectTicket(selectedTicket);
-        fetchTickets();
-      }
-    } catch (err) {
-      console.error('Error replying:', err);
-    }
-  };
-
-  const handleUpdateTicket = async (updates) => {
-    try {
-      const token = localStorage.getItem('evobrand_token');
-      const response = await fetch(`${API_URL}/tickets/${selectedTicket.id}`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify(updates)
-      });
-      
-      if (response.ok) {
-        handleSelectTicket(selectedTicket);
-        fetchTickets();
-      } else {
-        const data = await response.json().catch(() => ({}));
-        alert(`Failed to save: ${data.error || response.statusText}`);
-      }
-    } catch (err) {
-      console.error('Error updating ticket:', err);
-    }
-  };
+  useEffect(() => { if (isAdmin) fetchTickets(); }, [isAdmin]);
 
   if (!isAdmin) {
     return (
@@ -116,157 +327,87 @@ export default function AdminTicketPanel({ user }) {
     );
   }
 
-  if (selectedTicket) {
+  if (selected) {
     return (
-      <div>
-        <button onClick={() => setSelectedTicket(null)} className="mb-6 text-[#22c8e5] font-bold text-sm hover:underline">
-          &larr; Back to Tickets
-        </button>
-        <div className="flex gap-6">
-          {/* Thread View */}
-          <div className="flex-1 bg-white/5 border border-white/10 p-6 rounded-2xl">
-            <h2 className="text-2xl font-bold text-white mb-4">{selectedTicket.subject}</h2>
-            <div className="mb-6">
-              <p className="text-white/40 text-sm">From: {selectedTicket.user_name} ({selectedTicket.user_email})</p>
-              <p className="text-white/80 mt-2 p-4 bg-white/5 rounded-lg">{selectedTicket.message}</p>
-            </div>
-            
-            <div className="space-y-4 mb-6">
-              {selectedTicket.history?.map((msg) => (
-                <div key={msg.id} className={`flex ${msg.sender_is_admin ? 'justify-end' : 'justify-start'}`}>
-                  <div className={`p-4 rounded-xl max-w-[80%] ${msg.sender_is_admin ? 'bg-[#22c8e5]/20 text-white' : 'bg-white/10 text-white'}`}>
-                    <p className="text-xs font-bold mb-1 opacity-50">{msg.sender_is_admin ? 'EVO Admin' : 'Client'}</p>
-                    {msg.message}
-                  </div>
-                </div>
-              ))}
-            </div>
-
-            <form onSubmit={handleReply} className="flex gap-2">
-              <input
-                type="text"
-                value={replyText}
-                onChange={(e) => setReplyText(e.target.value)}
-                placeholder="Type your reply..."
-                className="flex-1 bg-white/5 border border-white/10 text-white rounded-xl px-4 py-3 focus:outline-none focus:border-[#22c8e5]"
-              />
-              <button type="submit" className="px-6 bg-[#22c8e5] text-[#003258] font-bold rounded-xl hover:bg-[#1ba3c0]">
-                Reply
-              </button>
-            </form>
-          </div>
-
-          {/* Controls Panel */}
-          <div className="w-80 bg-white/5 border border-white/10 p-6 rounded-2xl space-y-6">
-            <h3 className="font-bold text-white uppercase tracking-widest text-sm">Ticket Settings</h3>
-            
-            <div>
-              <label className="text-xs text-white/40 font-bold mb-2 block">Status</label>
-              <select
-                value={selectedTicket.status}
-                onChange={(e) => handleUpdateTicket({ status: e.target.value })}
-                className="w-full bg-[#04080f] border border-white/10 text-white p-2 rounded-lg"
-              >
-                <option value="open">Open</option>
-                <option value="in_progress">In Progress</option>
-                <option value="resolved">Resolved</option>
-                <option value="closed">Closed</option>
-              </select>
-            </div>
-
-            <div>
-              <label className="text-xs text-white/40 font-bold mb-2 block">Priority</label>
-              <select
-                value={selectedTicket.priority}
-                onChange={(e) => handleUpdateTicket({ priority: e.target.value })}
-                className="w-full bg-[#04080f] border border-white/10 text-white p-2 rounded-lg"
-              >
-                <option value="low">Low</option>
-                <option value="normal">Normal</option>
-                <option value="high">High</option>
-                <option value="urgent">Urgent</option>
-              </select>
-            </div>
-
-            <div className="pt-6 border-t border-white/10">
-              <label className="text-xs text-[#22c8e5] font-bold mb-2 block">Quoted Price ($)</label>
-              <div className="flex gap-2">
-                <input
-                  type="number"
-                  value={priceInput}
-                  onChange={(e) => setPriceInput(e.target.value)}
-                  className="w-full bg-[#04080f] border border-[#22c8e5]/30 text-[#22c8e5] font-bold p-2 rounded-lg"
-                  placeholder="0.00"
-                />
-                <button
-                  onClick={() => handleUpdateTicket({ quoted_price: priceInput })}
-                  className="px-3 bg-[#22c8e5]/20 text-[#22c8e5] rounded-lg hover:bg-[#22c8e5]/30"
-                >
-                  Save
-                </button>
-              </div>
-            </div>
-
-            <div>
-              <label className="flex items-center gap-2 cursor-pointer">
-                <input
-                  type="checkbox"
-                  checked={selectedTicket.is_paid === 1 || selectedTicket.is_paid === true}
-                  onChange={(e) => handleUpdateTicket({ is_paid: e.target.checked })}
-                  className="w-4 h-4 rounded text-[#22c8e5]"
-                />
-                <span className="text-sm font-bold text-white/80">Mark as Paid</span>
-              </label>
-            </div>
-
-          </div>
-        </div>
-      </div>
+      <TicketDetail
+        ticket={selected}
+        onBack={() => { setSelected(null); fetchTickets(); }}
+        onRefresh={fetchTickets}
+      />
     );
   }
+
+  const FILTERS = ['all', 'open', 'in_progress', 'resolved'];
+  const filtered = filter === 'all' ? tickets : tickets.filter(t => t.status === filter);
+
+  const counts = {
+    open: tickets.filter(t => t.status === 'open').length,
+    in_progress: tickets.filter(t => t.status === 'in_progress').length,
+    resolved: tickets.filter(t => t.status === 'resolved').length,
+  };
 
   return (
     <div>
       <div className="mb-8">
-        <h1 className="text-3xl font-bold text-white mb-1">Global Support Inbox</h1>
-        <p className="text-white/40">Manage all client tickets, quote prices, and resolve issues.</p>
+        <h1 className="text-3xl font-bold text-white mb-1">Support Inbox</h1>
+        <p className="text-white/40 text-sm">Manage tickets, reply to clients, and set quoted prices.</p>
+      </div>
+
+      {/* Stats */}
+      <div className="grid grid-cols-3 gap-4 mb-8">
+        {[
+          { label: 'Open', value: counts.open, icon: AlertCircle, color: '#4ade80' },
+          { label: 'In Progress', value: counts.in_progress, icon: Clock, color: '#facc15' },
+          { label: 'Resolved', value: counts.resolved, icon: CheckCircle2, color: GOLD },
+        ].map(({ label, value, icon: Icon, color }) => (
+          <div key={label} className="p-5 rounded-2xl border flex items-center gap-4" style={{ background: 'rgba(255,255,255,0.03)', borderColor: 'rgba(255,255,255,0.07)' }}>
+            <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: `${color}15` }}>
+              <Icon size={18} style={{ color }} />
+            </div>
+            <div>
+              <p className="text-2xl font-bold text-white">{value}</p>
+              <p className="text-xs text-white/40 font-bold uppercase tracking-widest">{label}</p>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* Filters */}
+      <div className="flex gap-2 mb-5">
+        {FILTERS.map(f => (
+          <button
+            key={f}
+            onClick={() => setFilter(f)}
+            className="px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-widest transition-all"
+            style={filter === f
+              ? { background: GOLD, color: NAVY }
+              : { background: 'rgba(255,255,255,0.05)', color: 'rgba(255,255,255,0.4)' }}
+          >
+            {f.replace('_', ' ')}
+          </button>
+        ))}
       </div>
 
       {loading ? (
-        <div className="flex justify-center py-10"><Loader2 className="animate-spin text-[#22c8e5]" /></div>
+        <div className="flex justify-center py-16"><Loader2 className="animate-spin" style={{ color: GOLD }} /></div>
+      ) : filtered.length === 0 ? (
+        <div className="text-center py-16 text-white/30">No tickets in this category.</div>
       ) : (
         <div className="bg-white/5 border border-white/10 rounded-2xl overflow-hidden">
           <table className="w-full text-left">
-            <thead className="bg-white/5 text-white/40 text-xs font-bold uppercase tracking-widest border-b border-white/10">
+            <thead className="border-b border-white/10 text-[10px] font-bold uppercase tracking-widest text-white/30">
               <tr>
-                <th className="p-4">Ticket</th>
-                <th className="p-4">Client</th>
-                <th className="p-4">Status</th>
-                <th className="p-4">Quote</th>
-                <th className="p-4 text-right">Action</th>
+                <th className="px-5 py-3">Subject</th>
+                <th className="px-5 py-3">Client</th>
+                <th className="px-5 py-3">Status</th>
+                <th className="px-5 py-3">Priority</th>
+                <th className="px-5 py-3">Quote</th>
+                <th className="px-5 py-3">Updated</th>
               </tr>
             </thead>
-            <tbody className="text-sm text-white">
-              {tickets.map(t => (
-                <tr key={t.id} className="border-b border-white/5 hover:bg-white/5">
-                  <td className="p-4 font-bold">{t.subject}</td>
-                  <td className="p-4 text-white/60">{t.user_name}</td>
-                  <td className="p-4">
-                    <span className={`px-2 py-1 rounded text-xs uppercase font-bold ${
-                      t.status === 'open' ? 'bg-green-500/20 text-green-400' : 'bg-white/10'
-                    }`}>
-                      {t.status}
-                    </span>
-                  </td>
-                  <td className="p-4 font-bold text-[#22c8e5]">
-                    {t.quoted_price > 0 ? `$${t.quoted_price}` : '-'}
-                  </td>
-                  <td className="p-4 text-right">
-                    <button onClick={() => handleSelectTicket(t)} className="text-[#22c8e5] hover:underline font-bold text-xs">
-                      Manage &rarr;
-                    </button>
-                  </td>
-                </tr>
+            <tbody>
+              {filtered.map(t => (
+                <TicketRow key={t.id} t={t} onOpen={openTicket} />
               ))}
             </tbody>
           </table>
