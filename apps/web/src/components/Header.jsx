@@ -16,7 +16,6 @@ const Header = () => {
     { to: '/how-it-works', label: 'How It Works' },
     { to: '/auditor', label: 'Brand Auditor' },
     { to: '/contact', label: 'Contact' },
-    { to: '/contract-builder', label: 'Contract Builder' },
   ];
 
   return (

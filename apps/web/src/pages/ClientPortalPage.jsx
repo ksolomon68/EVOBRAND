@@ -60,8 +60,7 @@ function Sidebar({ user, view, setView, setSelectedTicket, openTicketCount, hand
     { key: 'meetings', icon: Calendar, label: 'My Meetings' },
     ...(isAdmin ? [
       { key: 'admin', icon: ShieldCheck, label: 'Admin Controls' },
-      { key: 'crm', icon: Users, label: 'CRM & Campaigns' },
-      { key: 'wp-maintenance', icon: Server, label: 'WP Maintenance' }
+      { key: 'crm', icon: Users, label: 'CRM & Campaigns' }
     ] : []),
   ];
 
@@ -277,7 +276,6 @@ const ClientPortalPage = () => {
     meetings: 'My Meetings',
     admin: 'Admin Controls',
     crm: 'CRM & Campaigns',
-    'wp-maintenance': 'WP Maintenance CMS',
   }[view] ?? 'Dashboard';
 
   if (authLoading || loading) {
@@ -479,23 +477,6 @@ const ClientPortalPage = () => {
                   </motion.div>
                 )}
 
-                {/* ── WP Maintenance CMS ── */}
-                {view === 'wp-maintenance' && (
-                  <motion.div
-                    key="wp-maintenance"
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: -10 }}
-                    transition={{ duration: 0.25 }}
-                    className="h-[calc(100vh-140px)] w-full rounded-2xl overflow-hidden border"
-                    style={{ borderColor: 'rgba(34,200,229,0.15)', background: 'rgba(10,22,40,0.5)' }}
-                  >
-                    <iframe 
-                      src="http://localhost:3500" 
-                      title="WP Maintenance CMS"
-                      className="w-full h-full border-0"
-                    />
-                  </motion.div>
                 )}
               </AnimatePresence>
             </div>
