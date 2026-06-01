@@ -210,7 +210,13 @@ const HowItWorksPage = () => {
           <div className="container mx-auto px-4 text-center">
             <h2 className="text-3xl font-bold text-white mb-16">Visual Process Flow</h2>
             <div className="grid lg:grid-cols-2 gap-16 items-center max-w-6xl mx-auto text-left">
-              <div className="space-y-8">
+              <motion.div 
+                className="space-y-8"
+                initial={{ opacity: 0, x: -50 }}
+                whileInView={{ opacity: 1, x: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.5 }}
+              >
                 <div className="bg-[#1a2332] p-8 rounded-2xl border border-gray-800 hover:border-[#22c8e5]/50 transition-all">
                   <h3 className="text-2xl font-bold text-white mb-4 flex items-center">
                     <span className="w-8 h-8 bg-[#22c8e5] rounded-lg flex items-center justify-center text-[#1a2332] text-sm mr-3">∞</span>
@@ -234,15 +240,21 @@ const HowItWorksPage = () => {
                 <p className="text-gray-500 italic text-sm px-4">
                   * Scroll to see the node connection protocol in action.
                 </p>
-              </div>
+              </motion.div>
 
-              <div className="relative">
+              <motion.div 
+                className="relative"
+                initial={{ opacity: 0, x: 50 }}
+                whileInView={{ opacity: 1, x: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.5, delay: 0.2 }}
+              >
                 <ProcessVisualizer />
                 {/* Decorative overlay text for the visualizer */}
                 <div className="absolute top-4 left-4 font-mono text-[10px] text-[#22c8e5]/40 uppercase tracking-widest">
                   System.Protocol.Active
                 </div>
-              </div>
+              </motion.div>
             </div>
           </div>
         </section>

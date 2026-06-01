@@ -74,13 +74,16 @@ const ContractCustomizerPage = () => {
       
       <style>{`
         @media print {
+          html, body {
+            background-color: white !important;
+            color: black !important;
+          }
           body * {
             visibility: hidden;
           }
           .print-contract-preview, .print-contract-preview * {
             visibility: visible;
             color: black !important;
-            background: white !important;
           }
           .print-contract-preview {
             position: absolute;
@@ -99,7 +102,7 @@ const ContractCustomizerPage = () => {
         }
       `}</style>
 
-      <div className="min-h-screen bg-[#0d0d18] flex flex-col pt-24 no-print">
+      <div className="min-h-screen bg-[#0d0d18] flex flex-col pt-24">
         
         <main className="flex-1 py-12">
           <div className="container mx-auto px-4 lg:max-w-[1400px]">

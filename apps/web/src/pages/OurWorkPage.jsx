@@ -20,7 +20,7 @@ const OurWorkPage = () => {
     },
     {
       id: 102,
-      title: 'ChamberOS',
+      title: 'Chamber Core',
       category: 'SaaS Platform',
       industry: 'Business Solutions',
       image: '/projects/chamberos.png',

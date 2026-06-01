@@ -10,11 +10,11 @@ const Header = () => {
 
   const navLinks = [
     { to: '/', label: 'Home' },
-    { to: '/services', label: 'Services' },
-    { to: '/how-it-works', label: 'How It Works' },
-    { to: '/our-work', label: 'Our Work' },
-    { to: '/auditor', label: 'Brand Auditor' },
     { to: '/about', label: 'About' },
+    { to: '/services', label: 'Services' },
+    { to: '/our-work', label: 'Our Work' },
+    { to: '/how-it-works', label: 'How It Works' },
+    { to: '/auditor', label: 'Brand Auditor' },
     { to: '/contact', label: 'Contact' },
     { to: '/contract-builder', label: 'Contract Builder' },
   ];

@@ -101,16 +101,16 @@ const AboutPage = () => {
                 <h2 className="text-3xl font-bold text-white mb-6">Our Story</h2>
                 <div className="space-y-4 text-gray-300">
                   <p>
-                    Founded in 1999, EVOBRAND emerged from a simple observation: businesses were struggling to harness the power of AI. Complex implementations, high costs, and unclear ROI were holding companies back from transformation.
+                    Founded in 1999, EVOBRAND began as a traditional creative agency, helping hundreds of businesses build their brands and digital presence over two decades of rapid technological change.
                   </p>
                   <p>
-                    We set out to change that. Our team of AI experts, designers, and business strategists came together with a shared vision: make AI accessible, practical, and profitable for businesses of all sizes.
+                    In 2024, we experienced our own evolution. We recognized that AI was no longer just a buzzword—it was a fundamental shift. However, we saw our clients struggling to harness its power due to complex implementations, high costs, and unclear ROI.
                   </p>
                   <p>
-                    Today, we've helped over 600 businesses transform their operations with AI, delivering an average ROI of 300% and saving our clients over $2.5 million in operational costs.
+                    We decided to change that. Bringing together our deep branding expertise with cutting-edge AI specialists, we completely transformed our own process. Now, we help businesses navigate this exact same transformation, making AI accessible, practical, and highly profitable.
                   </p>
                   <p className="text-[#22c8e5] font-semibold">
-                    But we're just getting started. The AI revolution is here, and we're committed to ensuring your business doesn't just survive—it thrives.
+                    Our legacy is built on decades of experience, but our future is driven by artificial intelligence. The AI revolution is here, and we're committed to ensuring your business doesn't just survive—it thrives.
                   </p>
                 </div>
               </motion.div>
