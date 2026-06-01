@@ -97,6 +97,52 @@ async function initializeDatabase() {
       )
     `);
 
+    // Create CRM Lists table
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS crm_lists (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        name VARCHAR(255) NOT NULL,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      )
+    `);
+
+    // Insert default lists if not exist
+    await pool.query(`
+      INSERT IGNORE INTO crm_lists (id, name) VALUES 
+      (1, 'Newsletter'), 
+      (2, 'Clients'), 
+      (3, 'Leads')
+    `);
+
+    // Create CRM Contacts table
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS crm_contacts (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        email VARCHAR(255) NOT NULL,
+        first_name VARCHAR(100),
+        last_name VARCHAR(100),
+        list_id INT NOT NULL,
+        status ENUM('subscribed', 'unsubscribed') DEFAULT 'subscribed',
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        UNIQUE KEY unique_email_list (email, list_id),
+        FOREIGN KEY (list_id) REFERENCES crm_lists(id) ON DELETE CASCADE
+      )
+    `);
+
+    // Create CRM Campaigns table
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS crm_campaigns (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        subject VARCHAR(255) NOT NULL,
+        html_content LONGTEXT,
+        list_id INT NOT NULL,
+        status ENUM('draft', 'sent') DEFAULT 'draft',
+        sent_at TIMESTAMP NULL,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (list_id) REFERENCES crm_lists(id) ON DELETE CASCADE
+      )
+    `);
+
     console.log('Database initialization complete.');
     process.exit(0);
   } catch (error) {

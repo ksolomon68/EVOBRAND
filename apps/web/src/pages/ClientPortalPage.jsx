@@ -3,13 +3,14 @@ import { AnimatePresence, motion } from 'framer-motion';
 import SEO from '@/components/SEO.jsx';
 import {
   LayoutDashboard, Plus, LogOut, Ticket, Bell,
-  Loader2, Calendar, ShieldCheck, Server
+  Loader2, Calendar, ShieldCheck, Server, Users
 } from 'lucide-react';
 import TicketList from '../components/portal/TicketList';
 import NewTicketForm from '../components/portal/NewTicketForm';
 import TicketDetail from '../components/portal/TicketDetail';
 import MyMeetings from '../components/portal/MyMeetings';
 import AdminTicketPanel from '../components/admin/AdminTicketPanel';
+import AdminCRMPanel from '../components/admin/AdminCRMPanel';
 import { useAuth } from '../hooks/useAuth.jsx';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
@@ -59,6 +60,7 @@ function Sidebar({ user, view, setView, setSelectedTicket, openTicketCount, hand
     { key: 'meetings', icon: Calendar, label: 'My Meetings' },
     ...(isAdmin ? [
       { key: 'admin', icon: ShieldCheck, label: 'Admin Controls' },
+      { key: 'crm', icon: Users, label: 'CRM & Campaigns' },
       { key: 'wp-maintenance', icon: Server, label: 'WP Maintenance' }
     ] : []),
   ];
@@ -269,9 +271,10 @@ const ClientPortalPage = () => {
   // ── Resolve page title & breadcrumb ─────────────────────────────────────────
   const pageTitle = {
     dashboard: 'Operational Dashboard',
-    detail: `Ticket · ${selectedTicket?.id?.slice(0, 8) ?? ''}`,
+    detail: 'Ticket Details',
     meetings: 'My Meetings',
     admin: 'Admin Controls',
+    crm: 'CRM & Campaigns',
     'wp-maintenance': 'WP Maintenance CMS',
   }[view] ?? 'Dashboard';
 
@@ -455,9 +458,22 @@ const ClientPortalPage = () => {
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, y: -10 }}
-                    transition={{ duration: 0.25 }}
+                    transition={{ duration: 0.2 }}
                   >
                     <AdminTicketPanel user={user} />
+                  </motion.div>
+                )}
+
+                {/* ── CRM Panel ── */}
+                {view === 'crm' && (
+                  <motion.div
+                    key="crm"
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -10 }}
+                    transition={{ duration: 0.2 }}
+                  >
+                    <AdminCRMPanel user={user} />
                   </motion.div>
                 )}
 

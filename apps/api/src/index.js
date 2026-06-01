@@ -36,18 +36,20 @@ const newsletterRoutes = require('./routes/newsletter');
 const schedulerRoutes = require('./routes/scheduler');
 const auditorRoutes = require('./routes/auditor');
 const authRoutes = require('./routes/auth');
+const crmRoutes = require('./routes/crm');
+
+// TEMPORARY ADMIN ROUTE - trigger database initialization
+app.get('/api/admin/init-db', (req, res) => {
+  res.send('Initializing database... The server will automatically restart if successful.');
+  require('./db/init.js'); 
+});
 
 app.use('/api/support', supportRoutes);
 app.use('/api/newsletter', newsletterRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/api/scheduler', schedulerRoutes);
 app.use('/api/auditor', auditorRoutes);
-
-// TEMPORARY ADMIN ROUTE - trigger database initialization
-app.get('/api/admin/init-db', (req, res) => {
-  res.send('Initializing database... The server will automatically restart.');
-  require('./db/init.js');
-});
+app.use('/api/crm', crmRoutes);
 
 // cPanel Passenger often strips the Application URL prefix from requests.
 // We mount them at the root as well so they work on the live server.
@@ -56,6 +58,7 @@ app.use('/newsletter', newsletterRoutes);
 app.use('/auth', authRoutes);
 app.use('/scheduler', schedulerRoutes);
 app.use('/auditor', auditorRoutes);
+app.use('/crm', crmRoutes);
 
 // Start server
 app.listen(PORT, () => {
