@@ -275,6 +275,30 @@ const ClientPortalPage = () => {
     }
   };
 
+  const handleCloseTicket = async (ticketId) => {
+    if (!window.confirm('Are you sure you want to close this ticket?')) return;
+    try {
+      const token = localStorage.getItem('evobrand_token');
+      const response = await fetch(`${API_URL}/tickets/${ticketId}/close`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+      
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.error);
+
+      await fetchTickets();
+      if (selectedTicket && selectedTicket.id === ticketId) {
+        setSelectedTicket(prev => ({ ...prev, status: 'closed' }));
+      }
+    } catch (err) {
+      console.error('Error closing ticket:', err);
+      alert('Failed to close ticket.');
+    }
+  };
+
   const handleSignOut = async () => {
     await signOut();
     navigate('/login');
@@ -506,6 +530,7 @@ const ClientPortalPage = () => {
                       ticket={selectedTicket}
                       onBack={() => setView('dashboard')}
                       onReply={handleClientReply}
+                      onCloseTicket={handleCloseTicket}
                     />
                   </motion.div>
                 )}

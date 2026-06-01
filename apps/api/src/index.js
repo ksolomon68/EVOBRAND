@@ -63,6 +63,25 @@ app.use('/auditor', auditorRoutes);
 app.use('/crm', crmRoutes);
 app.use('/contracts', contractRoutes);
 
+// Scheduled Tasks
+// Run every 6 hours to auto-close inactive tickets
+setInterval(async () => {
+  try {
+    const pool = require('./db/connection');
+    const [result] = await pool.query(`
+      UPDATE support_tickets 
+      SET status = 'closed' 
+      WHERE status NOT IN ('closed', 'resolved') 
+      AND updated_at < DATE_SUB(NOW(), INTERVAL 5 DAY)
+    `);
+    if (result.affectedRows > 0) {
+      console.log(`Auto-closed ${result.affectedRows} inactive ticket(s).`);
+    }
+  } catch (err) {
+    console.error('Error auto-closing tickets:', err);
+  }
+}, 6 * 60 * 60 * 1000);
+
 // Start server
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);

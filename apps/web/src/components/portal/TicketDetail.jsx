@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { ArrowLeft, Clock, Send, CheckCircle2, AlertCircle, Shield, MessageSquare } from 'lucide-react';
 
-const TicketDetail = ({ ticket, onBack, onReply }) => {
+const TicketDetail = ({ ticket, onBack, onReply, onCloseTicket }) => {
     const [replyText, setReplyText] = useState('');
     const messagesEndRef = useRef(null);
 
@@ -157,11 +157,16 @@ const TicketDetail = ({ ticket, onBack, onReply }) => {
                             )}
                         </div>
                         
-                        <div className="mt-8 pt-8 border-t border-white/5">
-                            <button className="w-full py-4 rounded-2xl bg-red-400/5 border border-red-400/20 text-red-400 text-xs font-bold uppercase tracking-widest hover:bg-red-400/10 transition-all">
-                                Request Resolution
-                            </button>
-                        </div>
+                        {ticket.status !== 'resolved' && ticket.status !== 'closed' && onCloseTicket && (
+                            <div className="mt-8 pt-8 border-t border-white/5">
+                                <button 
+                                    onClick={() => onCloseTicket(ticket.id)}
+                                    className="w-full py-4 rounded-2xl bg-red-400/5 border border-red-400/20 text-red-400 text-xs font-bold uppercase tracking-widest hover:bg-red-400/10 transition-all"
+                                >
+                                    Close Ticket
+                                </button>
+                            </div>
+                        )}
                     </div>
                 </div>
             </div>
