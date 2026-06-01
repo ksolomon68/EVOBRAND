@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { ArrowLeft, Clock, Send, CheckCircle2, AlertCircle, Shield, MessageSquare } from 'lucide-react';
 
-const TicketDetail = ({ ticket, onBack, onReply, onCloseTicket }) => {
+const TicketDetail = ({ ticket, onBack, onReply, onClose }) => {
     const [replyText, setReplyText] = useState('');
     const messagesEndRef = useRef(null);
 
@@ -157,16 +157,25 @@ const TicketDetail = ({ ticket, onBack, onReply, onCloseTicket }) => {
                             )}
                         </div>
                         
-                        {ticket.status !== 'resolved' && ticket.status !== 'closed' && onCloseTicket && (
-                            <div className="mt-8 pt-8 border-t border-white/5">
-                                <button 
-                                    onClick={() => onCloseTicket(ticket.id)}
+                        <div className="mt-8 pt-8 border-t border-white/5">
+                            {ticket.status !== 'closed' && ticket.status !== 'resolved' && (
+                                <button
+                                    onClick={() => {
+                                        if (window.confirm('Mark this ticket as resolved? This will close the support request.')) {
+                                            onClose(ticket.id);
+                                        }
+                                    }}
                                     className="w-full py-4 rounded-2xl bg-red-400/5 border border-red-400/20 text-red-400 text-xs font-bold uppercase tracking-widest hover:bg-red-400/10 transition-all"
                                 >
-                                    Close Ticket
+                                    Request Resolution
                                 </button>
-                            </div>
-                        )}
+                            )}
+                            {(ticket.status === 'closed' || ticket.status === 'resolved') && (
+                                <div className="w-full py-4 rounded-2xl bg-white/5 border border-white/10 text-white/30 text-xs font-bold uppercase tracking-widest text-center">
+                                    Ticket Closed
+                                </div>
+                            )}
+                        </div>
                     </div>
                 </div>
             </div>

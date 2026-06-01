@@ -206,6 +206,27 @@ router.post('/tickets/:id/reply', authenticateToken, async (req, res) => {
   }
 });
 
+// @route POST /api/support/tickets/:id/close
+// @desc  Allow ticket owner (or admin) to close/resolve their ticket
+router.post('/tickets/:id/close', authenticateToken, async (req, res) => {
+  const ticketId = req.params.id;
+  try {
+    const [tickets] = await pool.query('SELECT user_id FROM support_tickets WHERE id = ?', [ticketId]);
+    if (tickets.length === 0) return res.status(404).json({ error: 'Ticket not found' });
+
+    const admin = await isAdminUser(req.user.id);
+    if (!admin && tickets[0].user_id !== req.user.id) {
+      return res.status(403).json({ error: 'Access denied' });
+    }
+
+    await pool.query('UPDATE support_tickets SET status = "resolved", updated_at = NOW() WHERE id = ?', [ticketId]);
+    res.status(200).json({ message: 'Ticket closed successfully' });
+  } catch (error) {
+    console.error('Close ticket error:', error);
+    res.status(500).json({ error: 'Server error closing ticket' });
+  }
+});
+
 // @route PUT /api/support/tickets/:id
 // @desc  Admin update ticket status, priority, price
 router.put('/tickets/:id', authenticateToken, requireAdmin, async (req, res) => {

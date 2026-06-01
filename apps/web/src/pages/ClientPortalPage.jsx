@@ -54,7 +54,7 @@ function NavItem({ icon: Icon, label, active, onClick, badge }) {
 
 // ─── Sidebar ──────────────────────────────────────────────────────────────────
 
-function Sidebar({ user, view, setView, setSelectedTicket, openTicketCount, handleSignOut }) {
+function Sidebar({ user, view, setView, setSelectedTicket, openTicketCount, handleSignOut, mobileOpen, setMobileOpen }) {
   const isAdmin = user?.is_admin === 1 || user?.is_admin === true;
 
   const navItems = [
@@ -74,86 +74,79 @@ function Sidebar({ user, view, setView, setSelectedTicket, openTicketCount, hand
       .map((n) => n[0])
       .join('') ?? 'U';
 
+  const navContent = (
+    <div className="flex flex-col h-full">
+        <div className="p-8">
+          <div className="flex flex-col items-start gap-4 mb-12">
+            <img src="/logo.png" alt="EVOBRAND" className="h-10 object-contain" />
+            <div className="h-px w-8" style={{ background: `${GOLD}30` }} aria-hidden="true" />
+            <span className="font-bold tracking-[0.3em] text-xs uppercase" style={{ color: `${GOLD}60` }}>Client Portal</span>
+          </div>
+          <nav className="space-y-1" aria-label="Main portal navigation">
+            {navItems.map(({ key, icon, label, badge }) => (
+              <NavItem key={key} icon={icon} label={label}
+                active={view === key || (view === 'detail' && key === 'dashboard')}
+                badge={badge}
+                onClick={() => { setView(key); setSelectedTicket(null); setMobileOpen(false); }}
+              />
+            ))}
+            <div className="pl-4 pt-1">
+              <NavItem icon={Ticket} label="My Tickets" active={false}
+                onClick={() => { setView('dashboard'); setSelectedTicket(null); setMobileOpen(false); }}
+              />
+            </div>
+          </nav>
+        </div>
+        <div className="mt-auto p-8 border-t" style={{ borderColor: 'rgba(255,255,255,0.05)' }}>
+          <div className="flex items-center gap-4 mb-5">
+            <div className="w-11 h-11 rounded-2xl flex items-center justify-center font-bold shadow-lg text-sm"
+              style={{ background: `linear-gradient(135deg, ${GOLD}, #1ba3c0)`, color: NAVY, boxShadow: `0 4px 16px ${GOLD}25` }}
+              aria-hidden="true"
+            >
+              {user?.name?.split(' ').map(n => n[0]).join('') ?? 'U'}
+            </div>
+            <div className="overflow-hidden">
+              <p className="text-white text-sm font-bold truncate">{user?.name || 'Project Lead'}</p>
+              <p className="text-white/40 text-xs truncate">{user?.email}</p>
+            </div>
+          </div>
+          <button onClick={handleSignOut}
+            className="w-full flex items-center justify-center gap-2 p-3.5 rounded-2xl transition-all duration-300 text-xs font-bold uppercase tracking-widest"
+            style={{ background: 'rgba(255,255,255,0.04)', color: 'rgba(255,255,255,0.5)' }}
+            onMouseEnter={(e) => { e.currentTarget.style.color = '#f87171'; e.currentTarget.style.background = 'rgba(248,113,113,0.08)'; }}
+            onMouseLeave={(e) => { e.currentTarget.style.color = 'rgba(255,255,255,0.5)'; e.currentTarget.style.background = 'rgba(255,255,255,0.04)'; }}
+          >
+            <LogOut size={13} aria-hidden="true" /><span>Sign Out</span>
+          </button>
+        </div>
+    </div>
+  );
+
   return (
-    <aside
-      className="w-72 border-r hidden md:flex flex-col"
-      style={{ background: '#04080f', borderColor: 'rgba(255,255,255,0.05)' }}
-      aria-label="Portal navigation"
-    >
-      <div className="p-8">
-        {/* Logo */}
-        <div className="flex flex-col items-start gap-4 mb-12">
-          <img src="/logo.png" alt="EVOBRAND" className="h-10 object-contain" />
-          <div className="h-px w-8" style={{ background: `${GOLD}30` }} aria-hidden="true" />
-          <span
-            className="font-bold tracking-[0.3em] text-xs uppercase"
-            style={{ color: `${GOLD}60` }}
-          >
-            Client Portal
-          </span>
-        </div>
-
-        {/* Nav */}
-        <nav className="space-y-1" aria-label="Main portal navigation">
-          {navItems.map(({ key, icon, label, badge }) => (
-            <NavItem
-              key={key}
-              icon={icon}
-              label={label}
-              active={view === key || (view === 'detail' && key === 'dashboard')}
-              badge={badge}
-              onClick={() => {
-                setView(key);
-                setSelectedTicket(null);
-              }}
-            />
-          ))}
-
-          {/* Ticket sub-item when active */}
-          <div className="pl-4 pt-1">
-            <NavItem
-              icon={Ticket}
-              label="My Tickets"
-              active={false}
-              onClick={() => { setView('dashboard'); setSelectedTicket(null); }}
-            />
-          </div>
-        </nav>
-      </div>
-
-      {/* User info + sign out */}
-      <div className="mt-auto p-8 border-t" style={{ borderColor: 'rgba(255,255,255,0.05)' }}>
-        <div className="flex items-center gap-4 mb-5">
-          <div
-            className="w-11 h-11 rounded-2xl flex items-center justify-center font-bold shadow-lg text-sm"
-            style={{
-              background: `linear-gradient(135deg, ${GOLD}, #1ba3c0)`,
-              color: NAVY,
-              boxShadow: `0 4px 16px ${GOLD}25`,
-            }}
-            aria-hidden="true"
-          >
-            {initials}
-          </div>
-          <div className="overflow-hidden">
-            <p className="text-white text-sm font-bold truncate">
-              {user?.name || 'Project Lead'}
-            </p>
-            <p className="text-white/40 text-xs truncate">{user?.email}</p>
-          </div>
-        </div>
-        <button
-          onClick={handleSignOut}
-          className="w-full flex items-center justify-center gap-2 p-3.5 rounded-2xl transition-all duration-300 text-xs font-bold uppercase tracking-widest focus-visible:outline focus-visible:outline-2 focus-visible:outline-red-400"
-          style={{ background: 'rgba(255,255,255,0.04)', color: 'rgba(255,255,255,0.5)' }}
-          onMouseEnter={(e) => { e.currentTarget.style.color = '#f87171'; e.currentTarget.style.background = 'rgba(248,113,113,0.08)'; }}
-          onMouseLeave={(e) => { e.currentTarget.style.color = 'rgba(255,255,255,0.5)'; e.currentTarget.style.background = 'rgba(255,255,255,0.04)'; }}
-        >
-          <LogOut size={13} aria-hidden="true" />
-          <span>Sign Out</span>
+    <>
+      {/* Mobile overlay */}
+      {mobileOpen && (
+        <div className="fixed inset-0 z-40 md:hidden" onClick={() => setMobileOpen(false)}
+          style={{ background: 'rgba(0,0,0,0.7)' }} />
+      )}
+      {/* Mobile drawer */}
+      <div className={`fixed inset-y-0 left-0 z-50 w-72 flex flex-col transition-transform duration-300 md:hidden ${mobileOpen ? 'translate-x-0' : '-translate-x-full'}`}
+        style={{ background: '#04080f', borderRight: '1px solid rgba(255,255,255,0.05)' }}>
+        <button onClick={() => setMobileOpen(false)}
+          className="absolute top-4 right-4 p-2 rounded-lg text-white/40 hover:text-white hover:bg-white/10 transition-colors">
+          <X size={18} />
         </button>
+        {navContent}
       </div>
-    </aside>
+      {/* Desktop sidebar */}
+      <aside
+        className="w-72 border-r hidden md:flex flex-col"
+        style={{ background: '#04080f', borderColor: 'rgba(255,255,255,0.05)' }}
+        aria-label="Portal navigation"
+      >
+        {navContent}
+      </aside>
+    </>
   );
 }
 
@@ -167,7 +160,7 @@ const ClientPortalPage = () => {
   const [loading, setLoading] = useState(true);
   const [selectedTicket, setSelectedTicket] = useState(null);
   const [showNewTicketModal, setShowNewTicketModal] = useState(false);
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [mobileNavOpen, setMobileNavOpen] = useState(false);
 
   useEffect(() => {
     if (!authLoading && !user) navigate('/login');
@@ -205,7 +198,7 @@ const ClientPortalPage = () => {
           ...t,
           status: t.status?.toLowerCase() || 'open',
           lastUpdated: t.updated_at,
-          service: 'Support', // Fallback or could map to category if added
+          service: 'Support',
         }))
       );
     } catch (err) {
@@ -340,8 +333,7 @@ const ClientPortalPage = () => {
         noindex={true}
       />
 
-      <div className="min-h-screen flex" style={{ background: '#04080f' }}>
-        {/* Desktop Sidebar */}
+      <div className="min-h-screen flex overflow-x-hidden" style={{ background: '#04080f' }}>
         <Sidebar
           user={user}
           view={view}
@@ -349,6 +341,8 @@ const ClientPortalPage = () => {
           setSelectedTicket={setSelectedTicket}
           openTicketCount={openTicketCount}
           handleSignOut={handleSignOut}
+          mobileOpen={mobileNavOpen}
+          setMobileOpen={setMobileNavOpen}
         />
 
         {/* Mobile Sidebar Overlay */}
@@ -390,29 +384,26 @@ const ClientPortalPage = () => {
         </AnimatePresence>
 
         {/* Main content */}
-        <main className="flex-1 flex flex-col h-screen overflow-hidden" style={{ background: '#04080f' }}>
+        <main className="flex-1 flex flex-col h-screen overflow-hidden min-w-0" style={{ background: '#04080f' }}>
           {/* Top bar */}
           <header
-            className="h-20 border-b flex items-center justify-between px-8"
+            className="h-16 border-b flex items-center justify-between px-4 md:px-8 flex-shrink-0"
             style={{ borderColor: 'rgba(255,255,255,0.05)', background: '#04080f' }}
           >
-            <div className="hidden md:block">
-              <h2 className="text-white/50 font-bold uppercase tracking-[0.2em] text-xs">
-                {pageTitle}
-              </h2>
-            </div>
-            <div className="flex items-center gap-4 md:hidden">
-              <button 
-                onClick={() => setMobileMenuOpen(true)}
-                className="p-2 -ml-2 text-white/50 hover:text-white transition-colors"
-                aria-label="Open menu"
-              >
-                <Menu size={24} />
+            <div className="flex items-center gap-3">
+              <button onClick={() => setMobileNavOpen(true)}
+                className="md:hidden p-2.5 rounded-xl transition-colors"
+                style={{ background: 'rgba(255,255,255,0.06)', color: 'rgba(255,255,255,0.6)' }}
+                aria-label="Open navigation">
+                <Menu size={20} />
               </button>
-              <img src="/logo.png" alt="EVOBRAND" className="h-6 hidden sm:block" />
+              <div className="hidden md:block">
+                <h2 className="text-white/50 font-bold uppercase tracking-[0.2em] text-xs">{pageTitle}</h2>
+              </div>
+              <img src="/logo.png" alt="EVOBRAND" className="h-6 md:hidden" />
             </div>
             <div className="flex items-center gap-4">
-              <NotificationDropdown onNavigate={(v) => { setView(v); setMobileMenuOpen(false); }} />
+              <NotificationDropdown onNavigate={(v) => { setView(v); setMobileNavOpen(false); }} />
               <button
                 onClick={handleSignOut}
                 className="md:hidden p-3 rounded-xl transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-red-400"
@@ -523,7 +514,7 @@ const ClientPortalPage = () => {
                       ticket={selectedTicket}
                       onBack={() => setView('dashboard')}
                       onReply={handleClientReply}
-                      onCloseTicket={handleCloseTicket}
+                      onClose={handleCloseTicket}
                     />
                   </motion.div>
                 )}
