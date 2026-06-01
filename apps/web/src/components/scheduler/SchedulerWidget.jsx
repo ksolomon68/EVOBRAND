@@ -295,22 +295,34 @@ function ConfirmForm({ selectedDate, selectedSlot, onBack, onSuccess }) {
     setError('');
 
     try {
-      const res = await fetch(`${API_BASE}/scheduler/book`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          clientName: form.name.trim(),
-          clientEmail: form.email.trim(),
-          service: form.service,
-          date: selectedDate,
-          time: selectedSlot,
-          type: 'discovery',
-          notes: form.notes.trim() || '',
-        }),
-      });
+      const controller = new AbortController();
+      const timer = setTimeout(() => controller.abort(), 10000);
+      let res;
+      try {
+        res = await fetch(`${API_BASE}/scheduler/book`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          signal: controller.signal,
+          body: JSON.stringify({
+            clientName: form.name.trim(),
+            clientEmail: form.email.trim(),
+            service: form.service,
+            date: selectedDate,
+            time: selectedSlot,
+            type: 'discovery',
+            notes: form.notes.trim() || '',
+          }),
+        });
+      } catch (fetchErr) {
+        throw new Error(fetchErr.name === 'AbortError'
+          ? 'Request timed out — please try again.'
+          : 'Unable to reach the server. Please try again.');
+      } finally {
+        clearTimeout(timer);
+      }
 
       const data = await res.json();
-      
+
       if (!res.ok || data.error) {
         throw new Error(data.error || 'Booking failed');
       }

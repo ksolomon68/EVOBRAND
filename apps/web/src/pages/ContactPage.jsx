@@ -69,22 +69,34 @@ function ContactForm() {
 
     setStatus('loading');
     try {
-      const API_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' 
-        ? 'http://localhost:5000/api/support/ticket' 
+      const API_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+        ? 'http://localhost:5000/api/support/ticket'
         : 'https://evobrandconcepts.com/api/support/ticket';
-      const response = await fetch(API_URL, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          name: form.name.trim(),
-          email: form.email.trim(),
-          subject: form.service || 'General Inquiry',
-          message: form.message.trim(),
-        }),
-      });
+      const controller = new AbortController();
+      const timer = setTimeout(() => controller.abort(), 10000);
+      let response;
+      try {
+        response = await fetch(API_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          signal: controller.signal,
+          body: JSON.stringify({
+            name: form.name.trim(),
+            email: form.email.trim(),
+            subject: form.service || 'General Inquiry',
+            message: form.message.trim(),
+          }),
+        });
+      } catch (fetchErr) {
+        throw new Error(fetchErr.name === 'AbortError'
+          ? 'Request timed out — please try again or email us directly.'
+          : 'Unable to reach the server. Please email us directly.');
+      } finally {
+        clearTimeout(timer);
+      }
 
       if (!response.ok) {
-        const errorData = await response.json();
+        const errorData = await response.json().catch(() => ({}));
         throw new Error(errorData.error || 'Send failed');
       }
 

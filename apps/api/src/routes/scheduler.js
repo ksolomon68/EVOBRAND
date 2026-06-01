@@ -68,21 +68,40 @@ router.get('/booked-slots', async (req, res) => {
   }
 });
 
-// Book a new appointment
+// Book a new appointment (supports guest bookings with clientName/clientEmail)
 router.post('/book', async (req, res) => {
-  const { user_id, date, time, type, duration, notes } = req.body;
-  
-  if (!user_id || !date || !time || !type) {
-    return res.status(400).json({ error: 'Missing required booking fields' });
+  const { clientName, clientEmail, service, date, time, type, duration, notes, user_id } = req.body;
+
+  if (!date || !time) {
+    return res.status(400).json({ error: 'Date and time are required' });
+  }
+  if (!user_id && (!clientName || !clientEmail)) {
+    return res.status(400).json({ error: 'Name and email are required for guest bookings' });
   }
 
   try {
-    // Generate a placeholder meet link for now (would integrate with Zoom/Google Meet API here)
+    let resolvedUserId = user_id || null;
+
+    // For guest bookings, find or create a user record
+    if (!resolvedUserId && clientEmail) {
+      const [existing] = await pool.query('SELECT id FROM users WHERE email = ?', [clientEmail]);
+      if (existing.length > 0) {
+        resolvedUserId = existing[0].id;
+      } else {
+        const [inserted] = await pool.query(
+          'INSERT INTO users (email, name) VALUES (?, ?)',
+          [clientEmail, clientName || '']
+        );
+        resolvedUserId = inserted.insertId;
+      }
+    }
+
     const meet_link = `https://meet.google.com/evobrand-${Math.random().toString(36).substring(7)}`;
+    const bookingType = type || (service ? 'discovery' : 'other');
 
     const [result] = await pool.query(
       'INSERT INTO meetings (user_id, date, time, type, duration, notes, meet_link, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
-      [user_id, date, time, type, duration || 30, notes || '', meet_link, 'scheduled']
+      [resolvedUserId, date, time, bookingType, duration || 30, notes || '', meet_link, 'scheduled']
     );
 
     res.json({ success: true, meeting_id: result.insertId, meet_link });
