@@ -208,11 +208,13 @@ router.post('/tickets/:id/reply', authenticateToken, async (req, res) => {
 
 // @route PUT /api/support/tickets/:id
 // @desc  Admin update ticket status, priority, price
-router.put('/tickets/:id', authenticateToken, requireAdmin, async (req, res) => {
+router.put('/tickets/:id', authenticateToken, async (req, res) => {
   const { status, priority, quoted_price, is_paid } = req.body;
   const ticketId = req.params.id;
 
   try {
+    const admin = await isAdminUser(req.user.id);
+    if (!admin) return res.status(403).json({ error: 'Admin access required' });
     const [result] = await pool.query(
       'UPDATE support_tickets SET status = COALESCE(?, status), priority = COALESCE(?, priority), quoted_price = COALESCE(?, quoted_price), is_paid = COALESCE(?, is_paid) WHERE id = ?',
       [status, priority, quoted_price, is_paid, ticketId]
