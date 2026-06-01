@@ -278,7 +278,7 @@ const ClientPortalPage = () => {
     navigate('/login');
   };
 
-  const openTicketCount = tickets.filter((t) => t.status === 'Open' || t.status === 'In Progress').length;
+  const openTicketCount = tickets.filter((t) => t.status === 'open' || t.status === 'in_progress').length;
 
   // ── Resolve page title & breadcrumb ─────────────────────────────────────────
   const pageTitle = {
@@ -395,17 +395,17 @@ const ClientPortalPage = () => {
                       {[
                         {
                           label: 'Active Tickets',
-                          value: tickets.filter((t) => t.status === 'Open' || t.status === 'In Progress').length,
+                          value: tickets.filter((t) => t.status === 'open' || t.status === 'in_progress').length,
                           color: GOLD,
                         },
                         {
                           label: 'Awaiting Action',
-                          value: tickets.filter((t) => t.status === 'Pending').length,
+                          value: tickets.filter((t) => t.status === 'pending').length,
                           color: '#facc15',
                         },
                         {
                           label: 'Resolved',
-                          value: tickets.filter((t) => t.status === 'Resolved').length,
+                          value: tickets.filter((t) => t.status === 'resolved').length,
                           color: '#34d399',
                         },
                       ].map(({ label, value, color }) => (

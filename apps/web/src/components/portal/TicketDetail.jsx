@@ -51,7 +51,7 @@ const TicketDetail = ({ ticket, onBack, onReply }) => {
                         <div className="flex items-center gap-4 text-xs font-bold uppercase tracking-widest">
                             <span className={`px-2 py-0.5 rounded border ${getPriorityColor(ticket.priority)}`}>{ticket.priority}</span>
                             <span className="text-white/40 flex items-center gap-2">
-                                <div className={`w-1.5 h-1.5 rounded-full ${ticket.status === 'Open' ? 'bg-green-400 animate-pulse' : 'bg-white/20'}`} />
+                                <div className={`w-1.5 h-1.5 rounded-full ${ticket.status === 'open' ? 'bg-green-400 animate-pulse' : ticket.status === 'in_progress' ? 'bg-yellow-400 animate-pulse' : 'bg-white/20'}`} />
                                 {ticket.status}
                             </span>
                             <span className="text-white/20">{ticket.service}</span>

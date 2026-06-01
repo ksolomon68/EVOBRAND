@@ -14,9 +14,11 @@ const TicketList = ({ tickets, onViewTicket }) => {
 
     const getStatusColor = (status) => {
         switch (status) {
-            case 'Open': return 'text-green-400 bg-green-400/10 border-green-400/20';
-            case 'Pending': return 'text-yellow-400 bg-yellow-400/10 border-yellow-400/20';
-            case 'Resolved': return 'text-white/20 bg-white/5 border-white/10';
+            case 'open': return 'text-green-400 bg-green-400/10 border-green-400/20';
+            case 'in_progress': return 'text-yellow-400 bg-yellow-400/10 border-yellow-400/20';
+            case 'pending': return 'text-yellow-400 bg-yellow-400/10 border-yellow-400/20';
+            case 'resolved': return 'text-white/20 bg-white/5 border-white/10';
+            case 'closed': return 'text-white/20 bg-white/5 border-white/10';
             default: return 'text-white/40 bg-white/5 border-white/10';
         }
     };
@@ -59,8 +61,9 @@ const TicketList = ({ tickets, onViewTicket }) => {
                             </span>
                             <span className={`px-3 py-1 rounded-lg text-[10px] font-bold uppercase tracking-widest border flex items-center gap-2 ${getStatusColor(ticket.status)}`}>
                                 <div className={`w-1.5 h-1.5 rounded-full ${
-                                    ticket.status === 'Open' ? 'bg-green-400 animate-pulse' : 
-                                    ticket.status === 'Pending' ? 'bg-yellow-400' : 'bg-white/20'
+                                    ticket.status === 'open' ? 'bg-green-400 animate-pulse' :
+                                    ticket.status === 'in_progress' ? 'bg-yellow-400 animate-pulse' :
+                                    ticket.status === 'pending' ? 'bg-yellow-400' : 'bg-white/20'
                                 }`} />
                                 {ticket.status}
                             </span>
