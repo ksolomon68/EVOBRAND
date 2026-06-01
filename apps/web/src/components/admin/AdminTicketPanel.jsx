@@ -67,7 +67,7 @@ function TicketDetail({ ticket, onBack, onRefresh }) {
   const bottomRef = useRef(null);
 
   useEffect(() => {
-    bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
+    bottomRef.current?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
   }, [history]);
 
   const authHeader = () => ({
