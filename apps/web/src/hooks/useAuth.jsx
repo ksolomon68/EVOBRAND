@@ -47,6 +47,11 @@ export const AuthProvider = ({ children }) => {
       body: JSON.stringify({ email, password, name })
     });
 
+    const contentType = response.headers.get('content-type') || '';
+    if (!contentType.includes('application/json')) {
+      throw new Error('Server is unavailable. Please try again shortly.');
+    }
+
     const data = await response.json();
     if (!response.ok) throw new Error(data.error || 'Registration failed');
 
@@ -61,6 +66,11 @@ export const AuthProvider = ({ children }) => {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ email, password })
     });
+
+    const contentType = response.headers.get('content-type') || '';
+    if (!contentType.includes('application/json')) {
+      throw new Error('Server is unavailable. Please try again shortly.');
+    }
 
     const data = await response.json();
     if (!response.ok) throw new Error(data.error || 'Login failed');
