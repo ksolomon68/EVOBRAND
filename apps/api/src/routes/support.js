@@ -14,10 +14,17 @@ const transporter = nodemailer.createTransport({
   }
 });
 
+// Helper: check if requester is admin from DB (not token, which may be stale)
+async function isAdminUser(userId) {
+  const [rows] = await pool.query('SELECT is_admin FROM users WHERE id = ?', [userId]);
+  return rows[0]?.is_admin === 1 || rows[0]?.is_admin === true;
+}
+
 // @route GET /api/support/tickets
 // @desc  Get all tickets (Admins see all, users see their own)
 router.get('/tickets', authenticateToken, async (req, res) => {
   try {
+    const admin = await isAdminUser(req.user.id);
     let query = `
       SELECT t.*, u.name as user_name, u.email as user_email
       FROM support_tickets t
@@ -25,7 +32,7 @@ router.get('/tickets', authenticateToken, async (req, res) => {
     `;
     const params = [];
 
-    if (!req.user.is_admin) {
+    if (!admin) {
       query += ' WHERE t.user_id = ?';
       params.push(req.user.id);
     }
@@ -59,7 +66,8 @@ router.get('/tickets/:id', authenticateToken, async (req, res) => {
     const ticket = tickets[0];
 
     // Check permission
-    if (!req.user.is_admin && ticket.user_id !== req.user.id) {
+    const admin = await isAdminUser(req.user.id);
+    if (!admin && ticket.user_id !== req.user.id) {
       return res.status(403).json({ error: 'Access denied' });
     }
 
@@ -161,7 +169,8 @@ router.post('/tickets/:id/reply', authenticateToken, async (req, res) => {
     const [tickets] = await pool.query('SELECT user_id FROM support_tickets WHERE id = ?', [ticketId]);
     if (tickets.length === 0) return res.status(404).json({ error: 'Ticket not found' });
     
-    if (!req.user.is_admin && tickets[0].user_id !== req.user.id) {
+    const admin = await isAdminUser(req.user.id);
+    if (!admin && tickets[0].user_id !== req.user.id) {
       return res.status(403).json({ error: 'Access denied' });
     }
 
@@ -172,7 +181,7 @@ router.post('/tickets/:id/reply', authenticateToken, async (req, res) => {
     );
 
     // Update ticket updated_at and status if replied by user
-    if (!req.user.is_admin) {
+    if (!admin) {
       await pool.query('UPDATE support_tickets SET status = "open", updated_at = NOW() WHERE id = ?', [ticketId]);
     } else {
       await pool.query('UPDATE support_tickets SET status = "in_progress", updated_at = NOW() WHERE id = ?', [ticketId]);
