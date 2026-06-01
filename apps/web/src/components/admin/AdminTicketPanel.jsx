@@ -131,7 +131,7 @@ function TicketDetail({ ticket, onBack, onRefresh }) {
         <ArrowLeft size={14} /> Back to Inbox
       </button>
 
-      <div className="flex gap-6">
+      <div className="flex flex-col lg:flex-row gap-6">
         {/* Thread */}
         <div className="flex-1 flex flex-col bg-white/5 border border-white/10 rounded-2xl overflow-hidden" style={{ minHeight: 480 }}>
           <div className="p-5 border-b border-white/10">
@@ -186,7 +186,7 @@ function TicketDetail({ ticket, onBack, onRefresh }) {
         </div>
 
         {/* Controls */}
-        <div className="w-72 space-y-5 flex-shrink-0">
+        <div className="w-full lg:w-72 space-y-5 lg:flex-shrink-0">
 
           {/* Status & Priority */}
           <div className="bg-white/5 border border-white/10 rounded-2xl p-5 space-y-4">
@@ -367,7 +367,7 @@ export default function AdminTicketPanel({ user }) {
       </div>
 
       {/* Stats */}
-      <div className="grid grid-cols-3 gap-4 mb-8">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
         {[
           { label: 'Open', value: counts.open, icon: AlertCircle, color: '#4ade80' },
           { label: 'In Progress', value: counts.in_progress, icon: Clock, color: '#facc15' },
@@ -406,7 +406,7 @@ export default function AdminTicketPanel({ user }) {
       ) : filtered.length === 0 ? (
         <div className="text-center py-16 text-white/30">No tickets in this category.</div>
       ) : (
-        <div className="bg-white/5 border border-white/10 rounded-2xl overflow-hidden">
+        <div className="bg-white/5 border border-white/10 rounded-2xl overflow-x-auto">
           <table className="w-full text-left">
             <thead className="border-b border-white/10 text-[10px] font-bold uppercase tracking-widest text-white/30">
               <tr>

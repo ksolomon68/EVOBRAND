@@ -93,7 +93,7 @@ function ContractModal({ contract, onClose }) {
 
             <p className="mb-10">IN WITNESS WHEREOF, the Parties have executed this Agreement as of the Effective Date.</p>
 
-            <div className="grid grid-cols-2 gap-12">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-8 sm:gap-12">
               <div>
                 <div className="border-b border-black mb-2 pb-1 text-xl" style={{ fontFamily: "'Brush Script MT', cursive" }}>Keisha Solomon</div>
                 <p className="text-sm font-bold uppercase">Agency — EVOBRAND Concepts LLC</p>

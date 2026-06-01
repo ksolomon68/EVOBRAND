@@ -3,7 +3,7 @@ import { AnimatePresence, motion } from 'framer-motion';
 import SEO from '@/components/SEO.jsx';
 import {
   LayoutDashboard, Plus, LogOut, Ticket, Bell,
-  Loader2, Calendar, ShieldCheck, Users, FileText
+  Loader2, Calendar, ShieldCheck, Users, FileText, Menu, X
 } from 'lucide-react';
 import TicketList from '../components/portal/TicketList';
 import NewTicketForm from '../components/portal/NewTicketForm';
@@ -166,6 +166,7 @@ const ClientPortalPage = () => {
   const [loading, setLoading] = useState(true);
   const [selectedTicket, setSelectedTicket] = useState(null);
   const [showNewTicketModal, setShowNewTicketModal] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   useEffect(() => {
     if (!authLoading && !user) navigate('/login');
@@ -315,6 +316,7 @@ const ClientPortalPage = () => {
       />
 
       <div className="min-h-screen flex" style={{ background: '#04080f' }}>
+        {/* Desktop Sidebar */}
         <Sidebar
           user={user}
           view={view}
@@ -323,6 +325,44 @@ const ClientPortalPage = () => {
           openTicketCount={openTicketCount}
           handleSignOut={handleSignOut}
         />
+
+        {/* Mobile Sidebar Overlay */}
+        <AnimatePresence>
+          {mobileMenuOpen && (
+            <>
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                onClick={() => setMobileMenuOpen(false)}
+                className="fixed inset-0 bg-[#04080f]/80 backdrop-blur-sm z-40 md:hidden"
+              />
+              <motion.div
+                initial={{ x: '-100%' }}
+                animate={{ x: 0 }}
+                exit={{ x: '-100%' }}
+                transition={{ type: 'spring', damping: 25, stiffness: 200 }}
+                className="fixed inset-y-0 left-0 w-72 bg-[#04080f] z-50 md:hidden border-r border-white/10 flex flex-col"
+              >
+                <div className="flex justify-end p-4">
+                  <button onClick={() => setMobileMenuOpen(false)} className="text-white/40 hover:text-white p-2">
+                    <X size={20} />
+                  </button>
+                </div>
+                <div className="flex-1 overflow-y-auto">
+                  <Sidebar
+                    user={user}
+                    view={view}
+                    setView={(v) => { setView(v); setMobileMenuOpen(false); }}
+                    setSelectedTicket={setSelectedTicket}
+                    openTicketCount={openTicketCount}
+                    handleSignOut={handleSignOut}
+                  />
+                </div>
+              </motion.div>
+            </>
+          )}
+        </AnimatePresence>
 
         {/* Main content */}
         <main className="flex-1 flex flex-col h-screen overflow-hidden" style={{ background: '#04080f' }}>
@@ -337,7 +377,14 @@ const ClientPortalPage = () => {
               </h2>
             </div>
             <div className="flex items-center gap-4 md:hidden">
-              <img src="/logo.png" alt="EVOBRAND" className="h-6" />
+              <button 
+                onClick={() => setMobileMenuOpen(true)}
+                className="p-2 -ml-2 text-white/50 hover:text-white transition-colors"
+                aria-label="Open menu"
+              >
+                <Menu size={24} />
+              </button>
+              <img src="/logo.png" alt="EVOBRAND" className="h-6 hidden sm:block" />
             </div>
             <div className="flex items-center gap-4">
               <button
