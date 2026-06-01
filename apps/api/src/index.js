@@ -38,6 +38,7 @@ const auditorRoutes = require('./routes/auditor');
 const authRoutes = require('./routes/auth');
 const crmRoutes = require('./routes/crm');
 const contractRoutes = require('./routes/contracts');
+const notificationRoutes = require('./routes/notifications');
 
 // TEMPORARY ADMIN ROUTE - trigger database initialization
 app.get('/api/admin/init-db', (req, res) => {
@@ -52,6 +53,7 @@ app.use('/api/scheduler', schedulerRoutes);
 app.use('/api/auditor', auditorRoutes);
 app.use('/api/crm', crmRoutes);
 app.use('/api/contracts', contractRoutes);
+app.use('/api/notifications', notificationRoutes);
 
 // cPanel Passenger often strips the Application URL prefix from requests.
 // We mount them at the root as well so they work on the live server.
@@ -62,6 +64,7 @@ app.use('/scheduler', schedulerRoutes);
 app.use('/auditor', auditorRoutes);
 app.use('/crm', crmRoutes);
 app.use('/contracts', contractRoutes);
+app.use('/notifications', notificationRoutes);
 
 // Scheduled Tasks
 // Run every 6 hours to auto-close inactive tickets

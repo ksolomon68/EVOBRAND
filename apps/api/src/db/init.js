@@ -20,6 +20,40 @@ async function initializeDatabase() {
     await pool.query(`ALTER TABLE users ADD COLUMN IF NOT EXISTS password_hash VARCHAR(255)`).catch(() => {});
     await pool.query(`ALTER TABLE users ADD COLUMN IF NOT EXISTS is_admin BOOLEAN DEFAULT FALSE`).catch(() => {});
 
+    // Create Contracts table
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS contracts (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        user_id INT,
+        title VARCHAR(255) NOT NULL,
+        content TEXT NOT NULL,
+        status ENUM('draft', 'sent', 'signed', 'canceled') DEFAULT 'draft',
+        amount DECIMAL(10,2) DEFAULT NULL,
+        client_signature VARCHAR(255) DEFAULT NULL,
+        client_signed_at TIMESTAMP NULL DEFAULT NULL,
+        agency_signature VARCHAR(255) DEFAULT NULL,
+        agency_signed_at TIMESTAMP NULL DEFAULT NULL,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+        FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+      )
+    `);
+
+    // Create Notifications table
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS notifications (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        user_id INT NOT NULL,
+        title VARCHAR(255) NOT NULL,
+        message TEXT NOT NULL,
+        type VARCHAR(50) DEFAULT 'system',
+        is_read BOOLEAN DEFAULT FALSE,
+        link VARCHAR(255) NULL,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+      )
+    `);
+
     // Create SupportTickets table with all required columns
     await pool.query(`
       CREATE TABLE IF NOT EXISTS support_tickets (

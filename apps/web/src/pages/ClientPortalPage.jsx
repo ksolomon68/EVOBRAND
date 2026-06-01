@@ -8,6 +8,7 @@ import {
 import TicketList from '../components/portal/TicketList';
 import NewTicketForm from '../components/portal/NewTicketForm';
 import TicketDetail from '../components/portal/TicketDetail';
+import NotificationDropdown from '../components/portal/NotificationDropdown';
 import MyMeetings from '../components/portal/MyMeetings';
 import AdminTicketPanel from '../components/admin/AdminTicketPanel';
 import AdminCRMPanel from '../components/admin/AdminCRMPanel';
@@ -411,15 +412,7 @@ const ClientPortalPage = () => {
               <img src="/logo.png" alt="EVOBRAND" className="h-6 hidden sm:block" />
             </div>
             <div className="flex items-center gap-4">
-              <button
-                className="p-3 rounded-xl transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#22c8e5]"
-                style={{ background: 'rgba(255,255,255,0.04)', color: 'rgba(255,255,255,0.35)' }}
-                aria-label="Notifications"
-                onMouseEnter={(e) => (e.currentTarget.style.color = GOLD)}
-                onMouseLeave={(e) => (e.currentTarget.style.color = 'rgba(255,255,255,0.35)')}
-              >
-                <Bell size={17} aria-hidden="true" />
-              </button>
+              <NotificationDropdown onNavigate={(v) => { setView(v); setMobileMenuOpen(false); }} />
               <button
                 onClick={handleSignOut}
                 className="md:hidden p-3 rounded-xl transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-red-400"

@@ -3,6 +3,7 @@ const router = express.Router();
 const pool = require('../db/connection');
 const nodemailer = require('nodemailer');
 const { authenticateToken, requireAdmin } = require('../middleware/auth');
+const { createNotification, notifyAdmins } = require('../utils/notifications');
 
 const transporter = nodemailer.createTransport({
   host: process.env.SMTP_HOST || 'mail.evobrandconcepts.com',
@@ -143,6 +144,15 @@ router.post('/ticket', async (req, res) => {
       } catch (emailErr) {
         console.error('Email notification failed:', emailErr);
       }
+      
+      // Notify admins via in-app notifications
+      await notifyAdmins(
+        'New Support Ticket', 
+        `${name || email} has opened a new ticket: ${subject}`, 
+        '/client-portal', 
+        'ticket'
+      );
+
       res.status(201).json({ message: 'Support ticket created successfully', ticketId });
     } catch (err) {
       await connection.rollback();
@@ -183,8 +193,10 @@ router.post('/tickets/:id/reply', authenticateToken, async (req, res) => {
     // Update ticket updated_at and status if replied by user
     if (!admin) {
       await pool.query('UPDATE support_tickets SET status = "open", updated_at = NOW() WHERE id = ?', [ticketId]);
+      await notifyAdmins('New Ticket Reply', `Client replied to ticket #${ticketId}`, '/client-portal', 'ticket');
     } else {
       await pool.query('UPDATE support_tickets SET status = "in_progress", updated_at = NOW() WHERE id = ?', [ticketId]);
+      await createNotification(tickets[0].user_id, 'New Reply', `You received a reply on your ticket`, '/client-portal', 'ticket');
     }
 
     res.status(201).json({ message: 'Reply added successfully' });
@@ -207,6 +219,21 @@ router.put('/tickets/:id', authenticateToken, requireAdmin, async (req, res) => 
     );
 
     if (result.affectedRows === 0) return res.status(404).json({ error: 'Ticket not found' });
+    
+    // If a quoted_price or is_paid was updated, notify the client
+    if (quoted_price !== undefined || is_paid !== undefined) {
+      const [tickets] = await pool.query('SELECT user_id FROM support_tickets WHERE id = ?', [ticketId]);
+      if (tickets.length > 0 && tickets[0].user_id) {
+        await createNotification(
+          tickets[0].user_id, 
+          'Ticket Invoice Updated', 
+          `The pricing or invoice status for your ticket #${ticketId} has been updated.`, 
+          '/client-portal', 
+          'invoice'
+        );
+      }
+    }
+
     res.status(200).json({ message: 'Ticket updated successfully' });
   } catch (error) {
     console.error('Update ticket error:', error);
