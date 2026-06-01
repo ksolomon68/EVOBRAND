@@ -97,6 +97,9 @@ export default function AdminTicketPanel({ user }) {
       if (response.ok) {
         handleSelectTicket(selectedTicket);
         fetchTickets();
+      } else {
+        const data = await response.json().catch(() => ({}));
+        alert(`Failed to save: ${data.error || response.statusText}`);
       }
     } catch (err) {
       console.error('Error updating ticket:', err);

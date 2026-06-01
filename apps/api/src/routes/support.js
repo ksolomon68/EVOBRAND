@@ -187,7 +187,7 @@ router.post('/tickets/:id/reply', authenticateToken, async (req, res) => {
 
 // @route PUT /api/support/tickets/:id
 // @desc  Admin update ticket status, priority, price
-router.put('/tickets/:id', requireAdmin, async (req, res) => {
+router.put('/tickets/:id', authenticateToken, requireAdmin, async (req, res) => {
   const { status, priority, quoted_price, is_paid } = req.body;
   const ticketId = req.params.id;
 
