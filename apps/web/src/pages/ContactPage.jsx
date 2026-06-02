@@ -251,6 +251,8 @@ export default function ContactPage() {
     gsap.fromTo(
       heroRef.current?.children,
       { opacity: 0, y: 30 },
+      { opacity: 1, y: 0, duration: 0.7, stagger: 0.12, ease: 'power2.out' }
+    );
     if (methodsRef.current) {
       gsap.fromTo(
         methodsRef.current.children,
