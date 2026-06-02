@@ -1,11 +1,12 @@
 const express = require('express');
 const router = express.Router();
 const pool = require('../db/connection');
-const { Resend } = require('resend');
+const { getEmailTemplate } = require('../utils/emailTemplate');
+// const { Resend } = require('resend');
 const { authenticateToken, requireAdmin } = require('../middleware/auth');
 const { createNotification, notifyAdmins } = require('../utils/notifications');
 
-const resend = new Resend(process.env.RESEND_API_KEY);
+// const resend = new Resend(process.env.RESEND_API_KEY);
 
 // Helper: check if requester is admin from DB (not token, which may be stale)
 async function isAdminUser(userId) {
@@ -129,17 +130,17 @@ router.post('/ticket', async (req, res) => {
           from: `"EVOBRAND Support" <${process.env.RESEND_FROM_EMAIL || 'info@evobrand.net'}>`,
           to: 'info@evobrand.net',
           subject: `New Ticket: ${subject}`,
-          html: `<p><strong>New Support Ticket from ${name || email}</strong></p>
+            html: getEmailTemplate(`New Ticket: ${subject}`, `<p><strong>New Support Ticket from ${name || email}</strong></p>
                  <p><strong>Priority:</strong> ${priority || 'normal'}</p>
-                 <p><strong>Message:</strong><br/>${message}</p>`
+                 <p><strong>Message:</strong><br/>${message}</p>`)
         });
         await require('resend').Resend(process.env.RESEND_API_KEY).emails.send({
           from: `"EVOBRAND Support" <${process.env.RESEND_FROM_EMAIL || 'info@evobrand.net'}>`,
           to: email,
           subject: `Ticket Received: ${subject}`,
-          html: `<p>Hi ${name || ''},</p>
+            html: getEmailTemplate(`Ticket Received: ${subject}`, `<p>Hi ${name || ''},</p>
                  <p>We have successfully received your support ticket. Our team will review it and get back to you shortly.</p>
-                 <p><strong>Your Message:</strong><br/>${message}</p>`
+                 <p><strong>Your Message:</strong><br/>${message}</p>`)
         });
       } catch (emailErr) {
         console.error('Email notification failed:', emailErr);
@@ -201,8 +202,8 @@ router.post('/tickets/:id/reply', authenticateToken, async (req, res) => {
         from: `"EVOBRAND Support" <${process.env.RESEND_FROM_EMAIL || 'info@evobrand.net'}>`,
         to: 'info@evobrand.net',
         subject: `New Reply: Ticket #${ticketId}`,
-        html: `<p>The client has replied to ticket #${ticketId} ("${currentTicket.subject}"). The status is now <strong>OPEN</strong>.</p>
-               <p><strong>Message:</strong><br/>${message}</p>`
+            html: getEmailTemplate(`New Reply: Ticket #${ticketId}`, `<p>The client has replied to ticket #${ticketId} ("${currentTicket.subject}"). The status is now <strong>OPEN</strong>.</p>
+               <p><strong>Message:</strong><br/>${message}</p>`)
       }).catch(err => console.error('Admin email fail:', err));
 
     } else {
@@ -215,9 +216,9 @@ router.post('/tickets/:id/reply', authenticateToken, async (req, res) => {
           from: `"EVOBRAND Support" <${process.env.RESEND_FROM_EMAIL || 'info@evobrand.net'}>`,
           to: currentTicket.user_email,
           subject: `New Reply on Ticket: ${currentTicket.subject}`,
-          html: `<p>Hi ${currentTicket.user_name || ''},</p>
+            html: getEmailTemplate(`New Reply on Ticket: ${currentTicket.subject}`, `<p>Hi ${currentTicket.user_name || ''},</p>
                  <p>An admin has replied to your ticket "<strong>${currentTicket.subject}</strong>". The status is now <strong>IN PROGRESS</strong>.</p>
-                 <p><strong>Reply:</strong><br/>${message}</p>`
+                 <p><strong>Reply:</strong><br/>${message}</p>`)
         }).catch(err => console.error('Status email fail:', err));
       }
     }
@@ -271,9 +272,9 @@ router.put('/tickets/:id', authenticateToken, async (req, res) => {
           from: `"EVOBRAND Support" <${process.env.RESEND_FROM_EMAIL || 'info@evobrand.net'}>`,
           to: currentTicket.user_email,
           subject: `Ticket Status Updated: ${currentTicket.subject}`,
-          html: `<p>Hi ${currentTicket.user_name || ''},</p>
+            html: getEmailTemplate(`Ticket Status Updated: ${currentTicket.subject}`, `<p>Hi ${currentTicket.user_name || ''},</p>
                  <p>The status of your ticket "<strong>${currentTicket.subject}</strong>" has been updated to <strong>${formattedStatus}</strong>.</p>
-                 <p>Log in to your Client Portal for more details.</p>`
+                 <p>Log in to your Client Portal for more details.</p>`)
         }).catch(err => console.error('Status email fail:', err));
       }
       
@@ -282,7 +283,7 @@ router.put('/tickets/:id', authenticateToken, async (req, res) => {
         from: `"EVOBRAND Support" <${process.env.RESEND_FROM_EMAIL || 'info@evobrand.net'}>`,
         to: 'info@evobrand.net',
         subject: `Ticket Status Changed: #${ticketId}`,
-        html: `<p>Ticket #${ticketId} ("${currentTicket.subject}") status changed to <strong>${formattedStatus}</strong> by an admin.</p>`
+            html: getEmailTemplate(`Ticket Status Changed: #${ticketId}`, `<p>Ticket #${ticketId} ("${currentTicket.subject}") status changed to <strong>${formattedStatus}</strong> by an admin.</p>`)
       }).catch(err => console.error('Admin email fail:', err));
     }
 
@@ -318,8 +319,8 @@ router.post('/tickets/:id/close', authenticateToken, async (req, res) => {
           from: `"EVOBRAND Support" <${process.env.RESEND_FROM_EMAIL || 'info@evobrand.net'}>`,
           to: currentTicket.user_email,
           subject: `Ticket Closed: ${currentTicket.subject}`,
-          html: `<p>Hi ${currentTicket.user_name || ''},</p>
-                 <p>Your ticket "<strong>${currentTicket.subject}</strong>" has been closed.</p>`
+            html: getEmailTemplate(`Ticket Closed: ${currentTicket.subject}`, `<p>Hi ${currentTicket.user_name || ''},</p>
+                 <p>Your ticket "<strong>${currentTicket.subject}</strong>" has been closed.</p>`)
         }).catch(err => console.error('Status email fail:', err));
       }
       
@@ -328,7 +329,7 @@ router.post('/tickets/:id/close', authenticateToken, async (req, res) => {
         from: `"EVOBRAND Support" <${process.env.RESEND_FROM_EMAIL || 'info@evobrand.net'}>`,
         to: 'info@evobrand.net',
         subject: `Ticket Closed by Client: #${ticketId}`,
-        html: `<p>Ticket #${ticketId} ("${currentTicket.subject}") was closed by the client.</p>`
+            html: getEmailTemplate(`Ticket Closed by Client: #${ticketId}`, `<p>Ticket #${ticketId} ("${currentTicket.subject}") was closed by the client.</p>`)
       }).catch(err => console.error('Admin email fail:', err));
     }
 

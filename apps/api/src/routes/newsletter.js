@@ -1,9 +1,9 @@
 const express = require('express');
 const router = express.Router();
 const pool = require('../db/connection');
-const { Resend } = require('resend');
-
-const resend = new Resend(process.env.EMAIL_API_KEY);
+// lazy load resend
+// const resend = new Resend(process.env.EMAIL_API_KEY);
+const { getEmailTemplate } = require('../utils/emailTemplate');
 
 // @route POST /api/newsletter/subscribe
 // @desc  Subscribe to newsletter
@@ -22,21 +22,18 @@ router.post('/subscribe', async (req, res) => {
     );
 
     // Send Welcome Email via Resend
-    await resend.emails.send({
-      from: process.env.EMAIL_FROM || 'support@evobrand.net',
+    await require('resend').Resend(process.env.RESEND_API_KEY || process.env.EMAIL_API_KEY).emails.send({
+      from: `"EVOBRAND Insider" <${process.env.EMAIL_FROM || 'support@evobrand.net'}>`,
       to: email,
       subject: 'Welcome to EVOBRAND Insider!',
-      html: `
-        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
-          <h1 style="color: #22c8e5;">Welcome to EVOBRAND!</h1>
+      html: getEmailTemplate('Welcome to EVOBRAND Insider!', `
           <p>Hi there,</p>
           <p>Thank you for subscribing to our newsletter! You'll be the first to know about our latest insights on Enterprise AI, Accessibility, and elite Web Development.</p>
           <p>Stay tuned for our upcoming updates.</p>
           <br/>
           <p>Best regards,</p>
           <p><strong>Keisha Solomon & The EVOBRAND Team</strong></p>
-        </div>
-      `
+      `)
     });
 
     res.status(200).json({ message: 'Successfully subscribed to the newsletter' });

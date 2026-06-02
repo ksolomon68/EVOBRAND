@@ -1,11 +1,12 @@
 const express = require('express');
 const router = express.Router();
 const pool = require('../db/connection');
-const { Resend } = require('resend');
+const { getEmailTemplate } = require('../utils/emailTemplate');
+// const { Resend } = require('resend');
 const { createNotification, notifyAdmins } = require('../utils/notifications');
 const { authenticateToken } = require('../middleware/auth');
 
-const resend = new Resend(process.env.RESEND_API_KEY);
+// const resend = new Resend(process.env.RESEND_API_KEY);
 
 // Get all blackout dates
 router.get('/blackout-dates', async (req, res) => {
@@ -142,12 +143,12 @@ router.post('/book', async (req, res) => {
           from: `"EVOBRAND Scheduling" <${process.env.RESEND_FROM_EMAIL || 'info@evobrand.net'}>`,
           to: finalEmail,
           subject: 'Appointment Confirmed',
-          html: `
+            html: getEmailTemplate('Appointment Confirmed', `
             <p>Hi ${finalName || 'there'},</p>
             <p>Your ${bookingType} session is scheduled for <strong>${date}</strong> at <strong>${time}</strong>.</p>
             <p><strong>Meeting Link:</strong> <a href="${meet_link}">${meet_link}</a></p>
             <p>Thank you for choosing EVOBRAND.</p>
-          `
+          `)
         });
       }
 
@@ -155,7 +156,7 @@ router.post('/book', async (req, res) => {
         from: `"EVOBRAND Scheduling" <${process.env.RESEND_FROM_EMAIL || 'info@evobrand.net'}>`,
         to: 'info@evobrand.net',
         subject: `New Booking: ${finalName || finalEmail}`,
-        html: `
+            html: getEmailTemplate(`New Booking: ${finalName || finalEmail}`, `
           <p><strong>New Booking Details:</strong></p>
           <ul>
             <li>Name: ${finalName || 'N/A'}</li>
@@ -165,7 +166,7 @@ router.post('/book', async (req, res) => {
             <li>Type: ${bookingType}</li>
             <li>Notes: ${notes || 'None'}</li>
           </ul>
-        `
+        `)
       });
     } catch (emailErr) {
       console.error('Failed to send booking emails:', emailErr);
@@ -216,17 +217,17 @@ router.post('/meetings/:id/cancel', async (req, res) => {
             from: `"EVOBRAND Scheduling" <${process.env.RESEND_FROM_EMAIL || 'info@evobrand.net'}>`,
             to: meeting.user_email,
             subject: 'Appointment Cancelled',
-            html: `
+            html: getEmailTemplate('Appointment Cancelled', `
               <p>Hi ${meeting.user_name || 'there'},</p>
               <p>Your appointment on <strong>${meeting.date}</strong> at <strong>${meeting.time}</strong> has been cancelled.</p>
-            `
+            `)
           });
         }
         await require('resend').Resend(process.env.RESEND_API_KEY).emails.send({
           from: `"EVOBRAND Scheduling" <${process.env.RESEND_FROM_EMAIL || 'info@evobrand.net'}>`,
           to: 'info@evobrand.net',
           subject: `Booking Cancelled: ${meeting.date} at ${meeting.time}`,
-          html: `<p>The appointment for ${meeting.user_name || meeting.user_email || 'a client'} on ${meeting.date} at ${meeting.time} has been cancelled.</p>`
+            html: getEmailTemplate(`Booking Cancelled: ${meeting.date} at ${meeting.time}`, `<p>The appointment for ${meeting.user_name || meeting.user_email || 'a client'} on ${meeting.date} at ${meeting.time} has been cancelled.</p>`)
         });
       } catch (err) {
         console.error('Failed to send cancellation emails:', err);
