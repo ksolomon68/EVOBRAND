@@ -693,8 +693,8 @@ function SuccessView({ booking, onReset }) {
         const formatDT = (d) => `${d.getFullYear()}${pad(d.getMonth()+1)}${pad(d.getDate())}T${pad(d.getHours())}${pad(d.getMinutes())}00`;
         
         const title = encodeURIComponent(`EVOBRAND Consultation - ${booking.service}`);
-        const details = encodeURIComponent(`Meeting Link: https://meet.google.com/jmv-cytq-fmw\n\nConsultation with EVOBRAND.`);
-        const location = encodeURIComponent('https://meet.google.com/jmv-cytq-fmw');
+        const details = encodeURIComponent(`Meeting Link: https://meet.google.com/pdh-sjeq-bja\n\nConsultation with EVOBRAND.`);
+        const location = encodeURIComponent('https://meet.google.com/pdh-sjeq-bja');
         const calLink = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${title}&dates=${formatDT(startDt)}/${formatDT(endDt)}&ctz=America/Chicago&details=${details}&location=${location}`;
 
         return (

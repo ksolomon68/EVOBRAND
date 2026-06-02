@@ -152,7 +152,7 @@ router.post('/book', async (req, res) => {
       }
     }
 
-    const meet_link = `https://meet.google.com/jmv-cytq-fmw`;
+    const meet_link = `https://meet.google.com/pdh-sjeq-bja`;
     const bookingType = type || (service ? 'discovery' : 'other');
 
     const [result] = await pool.query(

@@ -141,6 +141,24 @@ router.post('/:id/sign', authenticateToken, async (req, res) => {
       [signature.trim(), req.params.id]
     );
 
+    try {
+      await require('resend').Resend(process.env.RESEND_API_KEY).emails.send({
+        from: `"EVOBRAND Contracts" <${process.env.RESEND_FROM_EMAIL || 'info@evobrand.net'}>`,
+        to: ['info@evobrand.net', 'ksolomon68@gmail.com'],
+        subject: `Contract Signed: ${contract.title}`,
+        html: `
+          <div style="font-family: sans-serif; color: #333;">
+            <h2>Contract Signed</h2>
+            <p><strong>${req.user.name || req.user.email || 'A client'}</strong> has successfully signed the contract: <strong>${contract.title}</strong>.</p>
+            <p><strong>Signature string:</strong> ${signature.trim()}</p>
+            <p>Log in to your admin dashboard to view the signed contract.</p>
+          </div>
+        `
+      });
+    } catch (emailErr) {
+      console.error('Failed to send contract signed email:', emailErr);
+    }
+
     res.json({ success: true, message: 'Contract signed successfully' });
   } catch (error) {
     console.error('Sign contract error:', error);
