@@ -233,9 +233,10 @@ function CalendarPicker({ selectedDate, onSelect, blackoutDates }) {
               className="w-full aspect-square flex items-center justify-center rounded-lg text-sm font-medium transition-all duration-200 focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#22c8e5] focus-visible:outline-offset-1"
               style={{
                 background: selected ? GOLD : isToday ? 'rgba(34,200,229,0.12)' : 'transparent',
-                color: disabled ? 'rgba(255,255,255,0.18)' : selected ? NAVY : isToday ? GOLD : BEIGE,
+                color: disabled ? 'rgba(255,255,255,0.3)' : selected ? NAVY : isToday ? GOLD : BEIGE,
                 cursor: disabled ? 'not-allowed' : 'pointer',
-                textDecoration: isBlackedOut(dateStr) && !disabled ? 'line-through' : 'none',
+                textDecoration: disabled ? 'line-through' : 'none',
+                opacity: disabled ? 0.5 : 1,
                 fontWeight: selected ? 700 : 500,
               }}
             >
