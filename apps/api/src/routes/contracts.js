@@ -15,10 +15,18 @@ const ensureTable = async () => {
       created_by INT,
       created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
       updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+      client_signature VARCHAR(255),
+      client_signed_at TIMESTAMP NULL,
       FOREIGN KEY (client_user_id) REFERENCES users(id) ON DELETE SET NULL,
       FOREIGN KEY (created_by) REFERENCES users(id) ON DELETE SET NULL
     )
   `);
+  try {
+    await pool.query('ALTER TABLE contracts ADD COLUMN client_signature VARCHAR(255)');
+  } catch (e) {} // Ignore if column already exists
+  try {
+    await pool.query('ALTER TABLE contracts ADD COLUMN client_signed_at TIMESTAMP NULL');
+  } catch (e) {} // Ignore if column already exists
 };
 
 // @route POST /api/contracts — admin saves a contract and associates it with a client
@@ -105,6 +113,38 @@ router.put('/:id/status', authenticateToken, requireAdmin, async (req, res) => {
     res.json({ message: 'Status updated' });
   } catch (error) {
     res.status(500).json({ error: 'Server error updating status' });
+  }
+});
+
+// @route POST /api/contracts/:id/sign — client signs contract
+router.post('/:id/sign', authenticateToken, async (req, res) => {
+  const { signature } = req.body;
+  if (!signature || signature.trim().length === 0) {
+    return res.status(400).json({ error: 'Signature is required' });
+  }
+
+  try {
+    const [rows] = await pool.query('SELECT * FROM contracts WHERE id = ?', [req.params.id]);
+    if (rows.length === 0) return res.status(404).json({ error: 'Contract not found' });
+    
+    const contract = rows[0];
+    if (contract.client_user_id !== req.user.id && contract.client_email !== req.user.email) {
+      return res.status(403).json({ error: 'Access denied' });
+    }
+
+    if (contract.status === 'signed') {
+      return res.status(400).json({ error: 'Contract is already signed' });
+    }
+
+    await pool.query(
+      'UPDATE contracts SET status = "signed", client_signature = ?, client_signed_at = NOW() WHERE id = ?',
+      [signature.trim(), req.params.id]
+    );
+
+    res.json({ success: true, message: 'Contract signed successfully' });
+  } catch (error) {
+    console.error('Sign contract error:', error);
+    res.status(500).json({ error: 'Server error signing contract' });
   }
 });
 

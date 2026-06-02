@@ -19,7 +19,17 @@ const formatDate = (str) => {
   return new Date(str).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
 };
 
-function ContractModal({ contract, onClose }) {
+function ContractModal({ contract, onClose, onSign }) {
+  const [signature, setSignature] = useState('');
+  const [signing, setSigning] = useState(false);
+
+  const handleSign = async () => {
+    if (!signature.trim()) return;
+    setSigning(true);
+    await onSign(signature);
+    setSigning(false);
+  };
+
   if (!contract) return null;
   const data = typeof contract.contract_data === 'string'
     ? JSON.parse(contract.contract_data)
@@ -110,8 +120,34 @@ function ContractModal({ contract, onClose }) {
                 )}
               </div>
             </div>
+            </div>
           </div>
         </div>
+
+        {/* E-Signature Form */}
+        {contract.status !== 'signed' && contract.status !== 'draft' && (
+          <div className="mt-6 bg-[rgba(10,22,40,0.9)] rounded-xl p-6 border border-[rgba(34,200,229,0.2)] shadow-xl no-print">
+            <h3 className="text-lg font-bold text-white mb-2">Electronic Signature</h3>
+            <p className="text-sm text-white/60 mb-4">By typing your name below, you agree to the terms of this Master Services Agreement.</p>
+            <div className="flex flex-col sm:flex-row gap-4">
+              <input
+                type="text"
+                placeholder="Type your full legal name"
+                value={signature}
+                onChange={(e) => setSignature(e.target.value)}
+                className="flex-1 px-4 py-3 rounded-lg text-sm bg-white/5 border border-white/10 text-white focus:outline-none focus:border-[#22c8e5]/50"
+              />
+              <button
+                onClick={handleSign}
+                disabled={signing || !signature.trim()}
+                className="px-8 py-3 rounded-lg font-bold text-sm transition-all disabled:opacity-50 uppercase tracking-widest whitespace-nowrap"
+                style={{ background: GOLD, color: '#003258' }}
+              >
+                {signing ? 'Signing...' : 'Sign Agreement'}
+              </button>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
@@ -150,6 +186,31 @@ export default function MyContractsPanel({ user }) {
       if (res.ok) setSelected(data.contract);
     } catch (err) {
       console.error('Failed to fetch contract:', err);
+    }
+  };
+
+  const handleSignContract = async (signature) => {
+    try {
+      const token = localStorage.getItem('evobrand_token');
+      const res = await fetch(`${API_BASE}/contracts/${selected.id}/sign`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ signature })
+      });
+      if (res.ok) {
+        // Refresh the selected contract and the list
+        await openContract(selected.id);
+        const res2 = await fetch(`${API_BASE}/contracts`, {
+          headers: { 'Authorization': `Bearer ${token}` },
+        });
+        const data2 = await res2.json();
+        if (res2.ok) setContracts(data2.contracts || []);
+      }
+    } catch (err) {
+      console.error('Failed to sign contract:', err);
     }
   };
 
@@ -207,7 +268,7 @@ export default function MyContractsPanel({ user }) {
       <AnimatePresence>
         {selected && (
           <motion.div key="modal" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
-            <ContractModal contract={selected} onClose={() => setSelected(null)} />
+            <ContractModal contract={selected} onClose={() => setSelected(null)} onSign={handleSignContract} />
           </motion.div>
         )}
       </AnimatePresence>

@@ -675,6 +675,41 @@ function SuccessView({ booking, onReset }) {
         <p className="text-sm font-semibold mb-1" style={{ color: BEIGE }}>{formattedDate}</p>
         <p className="text-sm" style={{ color: 'rgba(255,255,255,0.7)' }}>{booking.slot} CST · {booking.service}</p>
       </div>
+      
+      {(() => {
+        const match = booking.slot.match(/(\d+):(\d+)\s*(AM|PM)/i);
+        if (!match) return null;
+        let hours = parseInt(match[1], 10);
+        const minutes = parseInt(match[2], 10);
+        const isPM = match[3].toUpperCase() === 'PM';
+        if (isPM && hours < 12) hours += 12;
+        if (!isPM && hours === 12) hours = 0;
+        
+        const [year, month, day] = booking.date.split('-');
+        const startDt = new Date(year, month - 1, day, hours, minutes);
+        const endDt = new Date(startDt.getTime() + (30 * 60000));
+        
+        const pad = (n) => n.toString().padStart(2, '0');
+        const formatDT = (d) => `${d.getFullYear()}${pad(d.getMonth()+1)}${pad(d.getDate())}T${pad(d.getHours())}${pad(d.getMinutes())}00`;
+        
+        const title = encodeURIComponent(`EVOBRAND Consultation - ${booking.service}`);
+        const details = encodeURIComponent(`Meeting Link: https://meet.google.com/jmv-cytq-fmw\n\nConsultation with EVOBRAND.`);
+        const location = encodeURIComponent('https://meet.google.com/jmv-cytq-fmw');
+        const calLink = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${title}&dates=${formatDT(startDt)}/${formatDT(endDt)}&ctz=America/Chicago&details=${details}&location=${location}`;
+
+        return (
+          <a
+            href={calLink}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-block w-full py-3 mb-4 rounded-xl text-sm font-bold uppercase tracking-widest transition-all text-center"
+            style={{ background: 'rgba(34,200,229,0.15)', color: GOLD, border: `1px solid rgba(34,200,229,0.3)` }}
+          >
+            + Add to Google Calendar
+          </a>
+        );
+      })()}
+
       <button
         onClick={onReset}
         className="text-xs font-bold uppercase tracking-widest transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#22c8e5] rounded"
