@@ -73,9 +73,11 @@ const ResourcesPage = () => {
 
   return (
     <>
-      <SEO 
-        title="Resources & Blog"
-        description="Explore AI trends, case studies, how-to guides, and industry insights. Stay updated with the latest in AI transformation."
+      <SEO
+        title="AI Resources, Blog & Industry Guides | EVOBRAND"
+        description="Free AI resources and expert articles from EVOBRAND. Explore enterprise AI, agentic AI, creative AI, ethics, and industry trends. Stay ahead of the AI revolution."
+        keywords="AI resources, AI blog, AI guides, enterprise AI, agentic AI, creative AI, AI trends, AI industry news, EVOBRAND blog"
+        canonical="https://evobrand.net/resources"
       />
 
       <div className="min-h-screen bg-[#0f1419]">

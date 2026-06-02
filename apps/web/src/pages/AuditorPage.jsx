@@ -68,9 +68,25 @@ const AuditorPage = () => {
 
   return (
     <>
-      <SEO 
-        title="Free Brand Audit"
-        description="Get an AI-powered brand audit in 4 minutes. Free. No fluff. Instant score, 5-category breakdown, and a personalized action plan from EVOBRAND."
+      <SEO
+        title="Free AI Brand Audit Tool | Instant Score & Action Plan | EVOBRAND"
+        description="Get a free AI-powered brand audit in under 4 minutes. Score your brand across SEO, design, accessibility, social, and digital presence. Instant report + personalized action plan. No sign-up required."
+        keywords="free brand audit, AI brand audit, brand score, brand analysis tool, SEO audit, digital presence audit, EVOBRAND audit"
+        canonical="https://evobrand.net/auditor"
+        structuredData={{
+          "@context": "https://schema.org",
+          "@type": "SoftwareApplication",
+          "name": "EVOBRAND AI Brand Auditor",
+          "applicationCategory": "BusinessApplication",
+          "operatingSystem": "Web",
+          "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+          "description": "AI-powered brand audit tool that scores your brand across SEO, design, accessibility, and social presence in under 4 minutes.",
+          "provider": {
+            "@type": "Organization",
+            "name": "EVOBRAND Concepts LLC",
+            "url": "https://evobrand.net"
+          }
+        }}
       />
 
       {phase === 'loading' && <AuditResults isLoading={true} report={null} hasWebsite={hasWebsite} />}

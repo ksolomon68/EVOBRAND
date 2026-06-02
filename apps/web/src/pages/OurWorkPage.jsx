@@ -210,9 +210,11 @@ const OurWorkPage = () => {
 
   return (
     <>
-      <SEO 
-        title="Our Work"
-        description="Explore our portfolio of successful AI projects. See real results, case studies, and client testimonials from businesses we've transformed."
+      <SEO
+        title="AI Portfolio & Case Studies | Client Work | EVOBRAND"
+        description="Browse EVOBRAND's portfolio: 500+ projects across web development, SaaS platforms, government contracting, healthcare, e-commerce, and AI-powered solutions. Real clients, real results."
+        keywords="EVOBRAND portfolio, AI case studies, web development portfolio, Dallas web design, SaaS development, government contracting platform"
+        canonical="https://evobrand.net/our-work"
       />
 
       <div className="min-h-screen bg-[#0f1419]">

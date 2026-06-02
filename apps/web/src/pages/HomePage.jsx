@@ -71,9 +71,33 @@ const HomePage = () => {
 
   return (
     <>
-      <SEO 
-        title="Home"
-        description="Transform your business with AI-powered solutions. Custom AI applications, visual content creation, intelligent document generation, and video production by EVOBRAND."
+      <SEO
+        title="AI Solutions for Business Growth | Dallas, TX"
+        description="EVOBRAND transforms businesses with custom AI applications, visual content creation, intelligent document generation, and AI video production. Dallas-based agency serving clients nationwide."
+        keywords="AI solutions, custom AI applications, AI transformation, Dallas AI agency, AI automation, business AI, machine learning, intelligent automation"
+        canonical="https://evobrand.net/"
+        structuredData={{
+          "@context": "https://schema.org",
+          "@type": "LocalBusiness",
+          "name": "EVOBRAND Concepts LLC",
+          "description": "Dallas-based AI transformation agency delivering custom AI applications, visual content, and intelligent automation.",
+          "url": "https://evobrand.net",
+          "logo": "https://evobrand.net/logo.png",
+          "image": "https://evobrand.net/og-image.png",
+          "telephone": "",
+          "email": "info@evobrand.net",
+          "address": {
+            "@type": "PostalAddress",
+            "addressLocality": "Dallas",
+            "addressRegion": "TX",
+            "addressCountry": "US"
+          },
+          "areaServed": "United States",
+          "serviceType": ["Custom AI Applications", "AI Visual Content", "AI Video Production", "Web Development", "Intelligent Document Generation"],
+          "sameAs": ["https://evobrandconcepts.com"],
+          "priceRange": "$$",
+          "openingHours": "Mo-Fr 10:00-18:00"
+        }}
       />
 
       <div className="min-h-screen bg-[#0f1419]">

@@ -251,8 +251,6 @@ export default function ContactPage() {
     gsap.fromTo(
       heroRef.current?.children,
       { opacity: 0, y: 30 },
-      { opacity: 1, y: 0, duration: 0.7, stagger: 0.12, ease: 'power2.out' }
-    );
     if (methodsRef.current) {
       gsap.fromTo(
         methodsRef.current.children,
@@ -271,9 +269,30 @@ export default function ContactPage() {
 
   return (
     <>
-      <SEO 
-        title="Contact Us"
-        description="Schedule a free AI consultation with EVOBRAND. Learn how our custom AI solutions can transform your business. Dallas based experts."
+      <SEO
+        title="Book a Free AI Consultation | Contact EVOBRAND — Dallas, TX"
+        description="Ready to transform your business with AI? Contact EVOBRAND for a free 30-minute strategy call. Serving clients nationwide from Dallas, TX. Call +1 214-531-4427 or email info@evobrand.net."
+        keywords="contact EVOBRAND, AI consultation, book strategy call, Dallas AI agency contact, free AI consultation"
+        canonical="https://evobrand.net/contact"
+        structuredData={{
+          "@context": "https://schema.org",
+          "@type": "ContactPage",
+          "name": "Contact EVOBRAND",
+          "url": "https://evobrand.net/contact",
+          "description": "Book a free AI strategy consultation with EVOBRAND.",
+          "mainEntity": {
+            "@type": "Organization",
+            "name": "EVOBRAND Concepts LLC",
+            "telephone": "+12145314427",
+            "email": "info@evobrand.net",
+            "address": {
+              "@type": "PostalAddress",
+              "addressLocality": "Dallas",
+              "addressRegion": "TX",
+              "addressCountry": "US"
+            }
+          }
+        }}
       />
 
       <div className="min-h-screen" style={{ background: NAVY }}>

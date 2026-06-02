@@ -64,9 +64,33 @@ const AboutPage = () => {
 
   return (
     <>
-      <SEO 
-        title="About Us"
-        description="Learn about EVOBRAND's mission to transform businesses with AI. Meet our team, explore our values, and discover why we're different."
+      <SEO
+        title="About EVOBRAND | AI Agency Founded in Dallas, TX"
+        description="Since 1999, EVOBRAND has evolved from a creative agency to a leading AI transformation partner. Led by Keisha Solomon, we deliver custom AI solutions, visual content, and intelligent automation to businesses nationwide."
+        keywords="about EVOBRAND, AI agency Dallas, Keisha Solomon, AI transformation, AI company Texas, custom AI solutions company"
+        canonical="https://evobrand.net/about"
+        structuredData={{
+          "@context": "https://schema.org",
+          "@type": "Organization",
+          "name": "EVOBRAND Concepts LLC",
+          "url": "https://evobrand.net",
+          "logo": "https://evobrand.net/logo.png",
+          "foundingDate": "1999",
+          "description": "Dallas-based AI transformation agency delivering custom AI applications, visual content, and intelligent automation.",
+          "email": "info@evobrand.net",
+          "address": {
+            "@type": "PostalAddress",
+            "addressLocality": "Dallas",
+            "addressRegion": "TX",
+            "addressCountry": "US"
+          },
+          "founder": {
+            "@type": "Person",
+            "name": "Keisha Solomon",
+            "jobTitle": "CEO & Founder"
+          },
+          "sameAs": ["https://evobrandconcepts.com"]
+        }}
       />
 
       <div className="min-h-screen bg-[#0f1419]">

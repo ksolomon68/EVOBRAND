@@ -102,9 +102,23 @@ const HowItWorksPage = () => {
 
   return (
     <>
-      <SEO 
-        title="How It Works"
-        description="Discover our proven process for delivering AI solutions. From discovery to launch and ongoing optimization, we ensure your project success."
+      <SEO
+        title="How Our AI Process Works | Discovery to Launch | EVOBRAND"
+        description="EVOBRAND's 4-phase AI delivery process: Discovery & Strategy, Development, Testing & Launch, and ongoing Optimization. Timelines from 2–12 weeks. Proven results for businesses nationwide."
+        keywords="AI implementation process, AI project timeline, how AI works, AI development agency, AI strategy, EVOBRAND process"
+        canonical="https://evobrand.net/how-it-works"
+        structuredData={{
+          "@context": "https://schema.org",
+          "@type": "HowTo",
+          "name": "How EVOBRAND Delivers AI Solutions",
+          "description": "EVOBRAND's proven 4-step process for AI transformation.",
+          "step": [
+            { "@type": "HowToStep", "name": "Discovery & Strategy", "text": "Deep dive into your business needs, goals, and technology stack." },
+            { "@type": "HowToStep", "name": "Development & Creation", "text": "Build your custom AI solution with weekly progress updates." },
+            { "@type": "HowToStep", "name": "Testing & Launch", "text": "Rigorous QA and deployment to production." },
+            { "@type": "HowToStep", "name": "Support & Optimization", "text": "Continuous monitoring, updates, and quarterly strategy reviews." }
+          ]
+        }}
       />
 
       <div className="min-h-screen bg-[#0f1419]">
