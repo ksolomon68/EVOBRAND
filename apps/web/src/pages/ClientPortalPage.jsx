@@ -425,7 +425,7 @@ const ClientPortalPage = () => {
                         },
                         {
                           label: 'Resolved',
-                          value: tickets.filter((t) => t.status === 'resolved').length,
+                          value: tickets.filter((t) => t.status === 'resolved' || t.status === 'closed').length,
                           color: '#34d399',
                         },
                       ].map(({ label, value, color }) => (
