@@ -50,7 +50,13 @@ try {
   notificationRoutes = require('./routes/notifications');
 } catch (err) {
   console.error('Error loading routes:', err.message);
-  fs.writeFileSync(__dirname + '/crash.log', err.stack);
+  const diagnostics = `Node Version: ${process.version}\n` +
+                      `Current Dir: ${__dirname}\n` +
+                      `CWD: ${process.cwd()}\n` +
+                      `NODE_PATH: ${process.env.NODE_PATH}\n` +
+                      `Search Paths: ${JSON.stringify(module.paths, null, 2)}\n\n` +
+                      `Error Stack:\n${err.stack}`;
+  fs.writeFileSync(__dirname + '/crash.log', diagnostics);
 }
 
 app.get('/api/install-log', (req, res) => {
