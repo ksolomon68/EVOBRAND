@@ -131,13 +131,52 @@ function CalendarPicker({ selectedDate, onSelect, blackoutDates }) {
     });
   };
 
+  const isHoliday = useCallback((dateStr) => {
+    const parts = dateStr.split('-');
+    const year = parseInt(parts[0], 10);
+    const month = parseInt(parts[1], 10);
+    const day = parseInt(parts[2], 10);
+    const d = new Date(year, month - 1, day);
+    const dayOfWeek = d.getDay();
+    
+    // Fixed dates
+    if (month === 1 && day === 1) return true; // New Year's
+    if (month === 6 && day === 19) return true; // Juneteenth
+    if (month === 7 && day === 4) return true; // Independence Day
+    if (month === 11 && day === 11) return true; // Veterans Day
+    if (month === 12 && day === 25) return true; // Christmas
+    
+    // Floating dates
+    // MLK Day (3rd Mon in Jan)
+    if (month === 1 && dayOfWeek === 1 && day > 14 && day <= 21) return true;
+    // Presidents Day (3rd Mon in Feb)
+    if (month === 2 && dayOfWeek === 1 && day > 14 && day <= 21) return true;
+    // Memorial Day (Last Mon in May)
+    if (month === 5 && dayOfWeek === 1 && day > 24) return true;
+    // Labor Day (1st Mon in Sep)
+    if (month === 9 && dayOfWeek === 1 && day <= 7) return true;
+    // Columbus Day (2nd Mon in Oct)
+    if (month === 10 && dayOfWeek === 1 && day > 7 && day <= 14) return true;
+    // Thanksgiving (4th Thu in Nov)
+    if (month === 11 && dayOfWeek === 4 && day > 21 && day <= 28) return true;
+
+    return false;
+  }, []);
+
+  const isWeekend = useCallback((dateStr) => {
+    const parts = dateStr.split('-');
+    const d = new Date(parseInt(parts[0]), parseInt(parts[1]) - 1, parseInt(parts[2]));
+    const day = d.getDay();
+    return day === 0 || day === 6;
+  }, []);
+
   const isBlackedOut = useCallback((dateStr) => {
     return blackoutDates.some((b) => b.blackout_date === dateStr && b.time_slot === null);
   }, [blackoutDates]);
 
   const isDisabled = useCallback((dateStr) => {
-    return dateStr < todayStr || isBlackedOut(dateStr);
-  }, [todayStr, isBlackedOut]);
+    return dateStr < todayStr || isWeekend(dateStr) || isHoliday(dateStr) || isBlackedOut(dateStr);
+  }, [todayStr, isWeekend, isHoliday, isBlackedOut]);
 
   const cells = [];
   for (let i = 0; i < firstDow; i++) cells.push(null);
