@@ -274,7 +274,7 @@ const ClientPortalPage = () => {
   };
 
   const handleCloseTicket = async (ticketId) => {
-    try {
+    const attemptClose = async () => {
       const token = localStorage.getItem('evobrand_token');
       const response = await fetch(`${API_URL}/tickets/${ticketId}/close`, {
         method: 'POST',
@@ -283,9 +283,20 @@ const ClientPortalPage = () => {
           'Authorization': `Bearer ${token}`
         }
       });
-      
-      const data = await response.json();
-      if (!response.ok) throw new Error(data.error);
+      const data = await response.json().catch(() => ({}));
+      if (!response.ok) throw new Error(data.error || `Server error (${response.status})`);
+      return true;
+    };
+
+    try {
+      try {
+        await attemptClose();
+      } catch (firstErr) {
+        // Auto-retry once after 1.5s (handles transient Passenger/node hiccups)
+        console.warn('Close ticket first attempt failed, retrying...', firstErr.message);
+        await new Promise(r => setTimeout(r, 1500));
+        await attemptClose();
+      }
 
       await fetchTickets();
       if (selectedTicket && selectedTicket.id === ticketId) {
@@ -293,9 +304,10 @@ const ClientPortalPage = () => {
       }
     } catch (err) {
       console.error('Error closing ticket:', err);
-      alert('Failed to close ticket.');
+      alert('Failed to close ticket. Please try again.');
     }
   };
+
 
   const handleSignOut = async () => {
     await signOut();
