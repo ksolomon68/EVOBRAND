@@ -1,10 +1,39 @@
 const express = require('express');
 const router = express.Router();
 const pool = require('../db/connection');
+const path = require('path');
+const fs = require('fs');
+const multer = require('multer');
 const { getEmailTemplate } = require('../utils/emailTemplate');
 // const { Resend } = require('resend');
 const { authenticateToken, requireAdmin } = require('../middleware/auth');
 const { createNotification, notifyAdmins } = require('../utils/notifications');
+
+// ── File upload setup ─────────────────────────────────────────────────────────
+const UPLOADS_DIR = path.join(__dirname, '../../uploads');
+if (!fs.existsSync(UPLOADS_DIR)) fs.mkdirSync(UPLOADS_DIR, { recursive: true });
+
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => cb(null, UPLOADS_DIR),
+  filename: (req, file, cb) => {
+    const safe = file.originalname.replace(/[^a-zA-Z0-9._-]/g, '_');
+    cb(null, `${Date.now()}-${safe}`);
+  },
+});
+const upload = multer({
+  storage,
+  limits: { fileSize: 10 * 1024 * 1024 }, // 10 MB
+  fileFilter: (req, file, cb) => {
+    const allowed = /jpeg|jpg|png|gif|pdf|doc|docx|txt|zip|mp4|mov|webm/;
+    const ext = path.extname(file.originalname).toLowerCase().replace('.', '');
+    allowed.test(ext) ? cb(null, true) : cb(new Error('File type not allowed'));
+  },
+});
+
+// Auto-migrate: add attachment_url column if missing
+pool.query(
+  "ALTER TABLE support_tickets ADD COLUMN attachment_url VARCHAR(500)"
+).catch(() => {}); // ignore if already exists
 
 // const resend = new Resend(process.env.RESEND_API_KEY);
 
@@ -90,9 +119,9 @@ router.get('/tickets/:id', authenticateToken, async (req, res) => {
 });
 
 // @route POST /api/support/ticket
-// @desc  Create a new support ticket (Public or authenticated)
-router.post('/ticket', async (req, res) => {
-  const { email, name, subject, message, priority } = req.body;
+// @desc  Create a new support ticket — accepts multipart/form-data for file uploads
+router.post('/ticket', upload.single('file'), async (req, res) => {
+  const { email, name, subject, message, priority, service } = req.body;
 
   if (!email || !subject || !message) {
     return res.status(400).json({ error: 'Email, subject, and message are required' });
@@ -116,9 +145,15 @@ router.post('/ticket', async (req, res) => {
         userId = users[0].id;
       }
 
+      // Build attachment URL if a file was uploaded
+      let attachmentUrl = null;
+      if (req.file) {
+        attachmentUrl = `/uploads/${req.file.filename}`;
+      }
+
       const [ticketResult] = await connection.query(
-        'INSERT INTO support_tickets (user_id, subject, message, priority) VALUES (?, ?, ?, ?)',
-        [userId, subject, message, priority || 'normal']
+        'INSERT INTO support_tickets (user_id, subject, message, priority, service, attachment_url) VALUES (?, ?, ?, ?, ?, ?)',
+        [userId, subject, message, priority || 'normal', service || 'General', attachmentUrl]
       );
 
       await connection.commit();
@@ -126,13 +161,17 @@ router.post('/ticket', async (req, res) => {
 
       // Send Email Notifications
       try {
+        const attachmentNote = attachmentUrl
+          ? `<p><strong>Attachment:</strong> <a href="https://evobrandconcepts.com${attachmentUrl}">${req.file.originalname}</a></p>`
+          : '';
         await require('resend').Resend(process.env.RESEND_API_KEY).emails.send({
           from: `"EVOBRAND Support" <${process.env.RESEND_FROM_EMAIL || 'info@evobrand.net'}>`,
           to: 'info@evobrand.net',
           subject: `New Ticket: ${subject}`,
             html: getEmailTemplate(`New Ticket: ${subject}`, `<p><strong>New Support Ticket from ${name || email}</strong></p>
                  <p><strong>Priority:</strong> ${priority || 'normal'}</p>
-                 <p><strong>Message:</strong><br/>${message}</p>`)
+                 <p><strong>Service:</strong> ${service || 'General'}</p>
+                 <p><strong>Message:</strong><br/>${message}</p>${attachmentNote}`)
         });
         await require('resend').Resend(process.env.RESEND_API_KEY).emails.send({
           from: `"EVOBRAND Support" <${process.env.RESEND_FROM_EMAIL || 'info@evobrand.net'}>`,

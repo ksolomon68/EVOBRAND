@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { FileText, X, Download, Clock, CheckCircle2, Send } from 'lucide-react';
+import { FileText, X, Download, Clock, CheckCircle2, Send, CreditCard } from 'lucide-react';
+import PaymentModal from './PaymentModal';
 
 const API_BASE = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
   ? 'http://localhost:5000/api'
@@ -12,6 +13,11 @@ const statusConfig = {
   sent: { label: 'Awaiting Signature', color: '#facc15', icon: Clock },
   signed: { label: 'Signed', color: '#34d399', icon: CheckCircle2 },
   draft: { label: 'Draft', color: '#8892a4', icon: Send },
+};
+
+const paymentStatusConfig = {
+  paid:   { label: 'Paid', color: '#34d399' },
+  unpaid: { label: 'Unpaid', color: '#facc15' },
 };
 
 const formatDate = (str) => {
@@ -179,6 +185,7 @@ export default function MyContractsPanel({ user }) {
   const [contracts, setContracts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [selected, setSelected] = useState(null);
+  const [paymentModal, setPaymentModal] = useState(null); // { type, id, amount, description }
 
   useEffect(() => {
     const fetchContracts = async () => {
@@ -230,6 +237,22 @@ export default function MyContractsPanel({ user }) {
         });
         const data2 = await res2.json();
         if (res2.ok) setContracts(data2.contracts || []);
+
+        // Auto-open payment modal if there is a fee
+        try {
+          const contractData = typeof selected.contract_data === 'string'
+            ? JSON.parse(selected.contract_data)
+            : selected.contract_data;
+          const fee = Number(contractData?.project?.fee);
+          if (!isNaN(fee) && fee > 0) {
+            setPaymentModal({
+              type: 'contract',
+              id: selected.id,
+              amount: fee,
+              description: selected.title,
+            });
+          }
+        } catch (e) { /* no fee, skip */ }
       }
     } catch (err) {
       console.error('Failed to sign contract:', err);
@@ -260,24 +283,57 @@ export default function MyContractsPanel({ user }) {
           {contracts.map(c => {
             const cfg = statusConfig[c.status] || statusConfig.sent;
             const StatusIcon = cfg.icon;
+            const isSignedUnpaid = c.status === 'signed' && c.payment_status !== 'paid';
             return (
               <motion.div
                 key={c.id}
                 initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }}
-                className="flex items-center gap-5 p-6 rounded-2xl border transition-all cursor-pointer"
+                className="flex items-center gap-5 p-6 rounded-2xl border transition-all"
                 style={{ background: 'rgba(255,255,255,0.03)', borderColor: 'rgba(255,255,255,0.07)' }}
                 onMouseEnter={e => e.currentTarget.style.borderColor = `${GOLD}30`}
                 onMouseLeave={e => e.currentTarget.style.borderColor = 'rgba(255,255,255,0.07)'}
-                onClick={() => openContract(c.id)}
               >
-                <div className="w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0" style={{ background: 'rgba(34,200,229,0.08)' }}>
+                <div
+                  className="w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0 cursor-pointer"
+                  style={{ background: 'rgba(34,200,229,0.08)' }}
+                  onClick={() => openContract(c.id)}
+                >
                   <FileText size={22} style={{ color: GOLD }} />
                 </div>
-                <div className="flex-1 min-w-0">
+                <div className="flex-1 min-w-0 cursor-pointer" onClick={() => openContract(c.id)}>
                   <p className="text-white font-bold truncate">{c.title}</p>
                   <p className="text-white/40 text-xs mt-0.5">{formatDate(c.created_at)}</p>
                 </div>
-                <div className="flex items-center gap-2 flex-shrink-0">
+                <div className="flex items-center gap-3 flex-shrink-0">
+                  {isSignedUnpaid && (
+                    <button
+                      onClick={async () => {
+                        const full = await fetch(`${API_BASE}/contracts/${c.id}`, {
+                          headers: { 'Authorization': `Bearer ${localStorage.getItem('evobrand_token')}` },
+                        }).then(r => r.json()).catch(() => null);
+                        const fee = Number(full?.contract?.contract_data
+                          ? (typeof full.contract.contract_data === 'string'
+                              ? JSON.parse(full.contract.contract_data)
+                              : full.contract.contract_data)?.project?.fee
+                          : 0);
+                        setPaymentModal({
+                          type: 'contract',
+                          id: c.id,
+                          amount: fee || 0,
+                          description: c.title,
+                        });
+                      }}
+                      className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold uppercase tracking-wider transition-all"
+                      style={{ background: 'rgba(34,200,229,0.12)', color: GOLD, border: '1px solid rgba(34,200,229,0.25)' }}
+                      onMouseEnter={e => e.currentTarget.style.background = 'rgba(34,200,229,0.22)'}
+                      onMouseLeave={e => e.currentTarget.style.background = 'rgba(34,200,229,0.12)'}
+                    >
+                      <CreditCard size={13} /> Pay Now
+                    </button>
+                  )}
+                  {c.status === 'signed' && c.payment_status === 'paid' && (
+                    <span className="text-[10px] font-bold px-2.5 py-1 rounded-full uppercase tracking-wider" style={{ background: 'rgba(52,211,153,0.12)', color: '#34d399' }}>Paid</span>
+                  )}
                   <StatusIcon size={14} style={{ color: cfg.color }} />
                   <span className="text-xs font-bold" style={{ color: cfg.color }}>{cfg.label}</span>
                 </div>
@@ -294,6 +350,16 @@ export default function MyContractsPanel({ user }) {
           </motion.div>
         )}
       </AnimatePresence>
+
+      {paymentModal && (
+        <PaymentModal
+          type={paymentModal.type}
+          id={paymentModal.id}
+          amount={paymentModal.amount}
+          description={paymentModal.description}
+          onClose={() => setPaymentModal(null)}
+        />
+      )}
     </>
   );
 }

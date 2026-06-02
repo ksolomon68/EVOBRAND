@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { ArrowLeft, Clock, Send, CheckCircle2, AlertCircle, Shield, MessageSquare, Loader2, DollarSign } from 'lucide-react';
+import { ArrowLeft, Clock, Send, CheckCircle2, AlertCircle, Shield, MessageSquare, Loader2, DollarSign, CreditCard } from 'lucide-react';
+import PaymentModal from './PaymentModal';
 
 const API_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
     ? 'http://localhost:5000/api/support'
@@ -15,6 +16,7 @@ const TicketDetail = ({ ticket, onBack, onReply, onClose, user, onRefresh }) => 
     const [priceMsg, setPriceMsg] = useState('');
     const [showConfirmClose, setShowConfirmClose] = useState(false);
     const [isClosing, setIsClosing] = useState(false);
+    const [paymentModal, setPaymentModal] = useState(false);
     const messagesEndRef = useRef(null);
     const isAdmin = user?.is_admin === 1 || user?.is_admin === true;
 
@@ -128,6 +130,27 @@ const TicketDetail = ({ ticket, onBack, onReply, onClose, user, onRefresh }) => 
                                     </div>
                                     <div className="p-5 rounded-2xl text-sm leading-relaxed bg-[#22c8e5]/10 border border-[#22c8e5]/20 text-white rounded-tr-none">
                                         {ticket.message}
+                                        {ticket.attachment_url && (() => {
+                                            const base = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' ? 'http://localhost:5000' : '';
+                                            const url = ticket.attachment_url.startsWith('http') ? ticket.attachment_url : `${base}${ticket.attachment_url}`;
+                                            const isImage = /\.(jpg|jpeg|png|gif|webp)$/i.test(ticket.attachment_url);
+                                            return (
+                                                <div className="mt-3 pt-3 border-t border-[#22c8e5]/20">
+                                                    <p className="text-[10px] font-bold uppercase tracking-widest text-white/40 mb-2">📎 Attachment</p>
+                                                    {isImage ? (
+                                                        <a href={url} target="_blank" rel="noreferrer">
+                                                            <img src={url} alt="attachment" className="max-w-full max-h-52 rounded-xl object-cover border border-white/10 hover:opacity-80 transition-opacity cursor-pointer" />
+                                                        </a>
+                                                    ) : (
+                                                        <a href={url} target="_blank" rel="noreferrer" download
+                                                            className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-bold"
+                                                            style={{ background: 'rgba(34,200,229,0.15)', color: '#22c8e5' }}>
+                                                            📎 {ticket.attachment_url.split('/').pop()}
+                                                        </a>
+                                                    )}
+                                                </div>
+                                            );
+                                        })()}
                                     </div>
                                 </div>
                             </motion.div>
@@ -256,7 +279,24 @@ const TicketDetail = ({ ticket, onBack, onReply, onClose, user, onRefresh }) => 
                                     {ticket.is_paid ? (
                                         <span className="inline-block mt-2 px-2 py-1 bg-green-500/20 text-green-400 text-[10px] font-bold uppercase rounded border border-green-500/30">Paid</span>
                                     ) : (
-                                        <span className="inline-block mt-2 px-2 py-1 bg-yellow-500/20 text-yellow-400 text-[10px] font-bold uppercase rounded border border-yellow-500/30">Unpaid Invoice</span>
+                                        <div className="mt-3 space-y-2">
+                                            <span className="inline-block px-2 py-1 bg-yellow-500/20 text-yellow-400 text-[10px] font-bold uppercase rounded border border-yellow-500/30">Unpaid Invoice</span>
+                                            <button
+                                                onClick={() => setPaymentModal(true)}
+                                                id={`ticket-pay-btn-${ticket.id}`}
+                                                className="w-full flex items-center justify-center gap-2 py-3 rounded-xl font-bold text-xs uppercase tracking-widest transition-all"
+                                                style={{
+                                                    background: 'linear-gradient(135deg, #22c8e5, #1ba3c0)',
+                                                    color: '#003258',
+                                                    boxShadow: '0 4px 20px rgba(34,200,229,0.2)',
+                                                }}
+                                                onMouseEnter={e => e.currentTarget.style.opacity = '0.85'}
+                                                onMouseLeave={e => e.currentTarget.style.opacity = '1'}
+                                            >
+                                                <CreditCard size={14} />
+                                                Pay Now
+                                            </button>
+                                        </div>
                                     )}
                                 </div>
                             ) : null}
@@ -313,6 +353,16 @@ const TicketDetail = ({ ticket, onBack, onReply, onClose, user, onRefresh }) => 
                 </div>
             </div>
         </div>
+
+        {paymentModal && (
+            <PaymentModal
+                type="ticket"
+                id={ticket.id}
+                amount={ticket.quoted_price}
+                description={`Support Ticket: ${ticket.subject}`}
+                onClose={() => setPaymentModal(false)}
+            />
+        )}
     );
 };
 

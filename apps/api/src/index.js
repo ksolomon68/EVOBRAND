@@ -16,12 +16,19 @@ require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 
+const fs = require('fs');
 const app = express();
 const PORT = process.env.PORT || 5000;
 
 // Middleware
 app.use(cors());
 app.use(express.json());
+
+// Serve uploaded ticket attachments as static files
+const path = require('path');
+const uploadsDir = path.join(__dirname, '../uploads');
+if (!require('fs').existsSync(uploadsDir)) require('fs').mkdirSync(uploadsDir, { recursive: true });
+app.use('/uploads', express.static(uploadsDir));
 
 // Basic health check endpoint
 app.get('/api/health', (req, res) => {
@@ -38,7 +45,7 @@ app.get('/api/crash', (req, res) => {
 });
 
 // Import Routes
-let supportRoutes, newsletterRoutes, schedulerRoutes, auditorRoutes, authRoutes, crmRoutes, contractRoutes, notificationRoutes, contactsRoutes;
+let supportRoutes, newsletterRoutes, schedulerRoutes, auditorRoutes, authRoutes, crmRoutes, contractRoutes, notificationRoutes, contactsRoutes, paymentsRoutes;
 
 const loadRoute = (name, path) => {
   try {
@@ -63,6 +70,7 @@ crmRoutes = loadRoute('crm', './routes/crm');
 contractRoutes = loadRoute('contracts', './routes/contracts');
 notificationRoutes = loadRoute('notifications', './routes/notifications');
 contactsRoutes = loadRoute('contacts', './routes/contacts');
+paymentsRoutes = loadRoute('payments', './routes/payments');
 
 app.get('/api/install', (req, res) => {
   try {
@@ -103,6 +111,7 @@ if (auditorRoutes) app.use('/api/auditor', auditorRoutes);
 if (crmRoutes) app.use('/api/crm', crmRoutes);
 if (contractRoutes) app.use('/api/contracts', contractRoutes);
 if (notificationRoutes) app.use('/api/notifications', notificationRoutes);
+if (paymentsRoutes) app.use('/api/payments', paymentsRoutes);
 
 // cPanel Passenger often strips the Application URL prefix from requests.
 // We mount them at the root as well so they work on the live server.
@@ -115,6 +124,7 @@ if (crmRoutes) app.use('/crm', crmRoutes);
 if (contactsRoutes) app.use('/contacts', contactsRoutes);
 if (contractRoutes) app.use('/contracts', contractRoutes);
 if (notificationRoutes) app.use('/notifications', notificationRoutes);
+if (paymentsRoutes) app.use('/payments', paymentsRoutes);
 
 // Scheduled Tasks
 // Run every 6 hours to auto-close inactive tickets

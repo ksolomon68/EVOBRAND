@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import {
   Loader2, ShieldAlert, ArrowLeft, Send, DollarSign,
-  CheckCircle2, Clock, AlertCircle, Users, Tag
+  CheckCircle2, Clock, AlertCircle, Users, Tag, Paperclip
 } from 'lucide-react';
 
 const API_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
@@ -145,6 +145,44 @@ function TicketDetail({ ticket, onBack, onRefresh }) {
               <div className="max-w-[80%] bg-white/5 border border-white/10 rounded-2xl rounded-tl-none p-4">
                 <p className="text-[10px] font-bold uppercase tracking-widest text-white/30 mb-2">Client · Original</p>
                 <p className="text-white/80 text-sm leading-relaxed">{ticket.message}</p>
+
+                {/* Attachment */}
+                {ticket.attachment_url && (() => {
+                  const url = ticket.attachment_url.startsWith('http')
+                    ? ticket.attachment_url
+                    : `${window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' ? 'http://localhost:5000' : ''}${ticket.attachment_url}`;
+                  const isImage = /\.(jpg|jpeg|png|gif|webp)$/i.test(ticket.attachment_url);
+                  return (
+                    <div className="mt-3 pt-3 border-t border-white/10">
+                      <p className="text-[10px] font-bold uppercase tracking-widest text-white/30 mb-2 flex items-center gap-1">
+                        <Paperclip size={10} /> Attachment
+                      </p>
+                      {isImage ? (
+                        <a href={url} target="_blank" rel="noreferrer">
+                          <img
+                            src={url}
+                            alt="Ticket attachment"
+                            className="max-w-full max-h-64 rounded-xl object-cover border border-white/10 hover:opacity-80 transition-opacity cursor-pointer"
+                          />
+                        </a>
+                      ) : (
+                        <a
+                          href={url}
+                          target="_blank"
+                          rel="noreferrer"
+                          download
+                          className="inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-bold transition-colors"
+                          style={{ background: 'rgba(34,200,229,0.1)', color: '#22c8e5', border: '1px solid rgba(34,200,229,0.2)' }}
+                          onMouseEnter={e => e.currentTarget.style.background = 'rgba(34,200,229,0.2)'}
+                          onMouseLeave={e => e.currentTarget.style.background = 'rgba(34,200,229,0.1)'}
+                        >
+                          <Paperclip size={14} />
+                          {ticket.attachment_url.split('/').pop()}
+                        </a>
+                      )}
+                    </div>
+                  );
+                })()}
               </div>
             </div>
 

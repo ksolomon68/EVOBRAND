@@ -3,7 +3,7 @@ import { AnimatePresence, motion } from 'framer-motion';
 import SEO from '@/components/SEO.jsx';
 import {
   LayoutDashboard, Plus, LogOut, Ticket, Bell,
-  Loader2, Calendar, ShieldCheck, Users, FileText, Menu, X
+  Loader2, Calendar, ShieldCheck, Users, FileText, Menu, X, CheckCircle2, AlertCircle
 } from 'lucide-react';
 import TicketList from '../components/portal/TicketList';
 import NewTicketForm from '../components/portal/NewTicketForm';
@@ -17,7 +17,7 @@ import AdminBlackoutPanel from '../components/admin/AdminBlackoutPanel';
 import AdminContactFormsPanel from '../components/admin/AdminContactFormsPanel';
 import MyContractsPanel from '../components/portal/MyContractsPanel';
 import { useAuth } from '../hooks/useAuth.jsx';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 
 const GOLD = '#22c8e5';
 const NAVY = '#003258';
@@ -159,16 +159,52 @@ function Sidebar({ user, view, setView, setSelectedTicket, openTicketCount, hand
 const ClientPortalPage = () => {
   const { user, signOut, loading: authLoading } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
   const [view, setView] = useState('dashboard');
   const [tickets, setTickets] = useState([]);
   const [loading, setLoading] = useState(true);
   const [selectedTicket, setSelectedTicket] = useState(null);
   const [showNewTicketModal, setShowNewTicketModal] = useState(false);
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
+  const [paymentBanner, setPaymentBanner] = useState(null); // { type: 'success'|'cancelled', message }
 
   useEffect(() => {
     if (!authLoading && !user) navigate('/login');
   }, [user, authLoading, navigate]);
+
+  // ── Handle Stripe payment redirect ───────────────────────────────────────────
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    const payment = params.get('payment');
+    const type    = params.get('type');
+    const id      = params.get('id');
+
+    if (payment === 'success' && type && id) {
+      // Remove query params from URL cleanly
+      navigate('/client-portal', { replace: true });
+
+      // Verify with backend & mark as paid
+      const sessionId = params.get('sessionId') ||
+        sessionStorage.getItem(`stripe_session_${type}_${id}`);
+
+      if (sessionId) {
+        const token = localStorage.getItem('evobrand_token');
+        const apiBase = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+          ? 'http://localhost:5000/api'
+          : (window.location.origin + '/api');
+        fetch(`${apiBase}/payments/verify-session?sessionId=${sessionId}&type=${type}&id=${id}`, {
+          headers: { 'Authorization': `Bearer ${token}` },
+        }).catch(() => {});
+      }
+
+      setPaymentBanner({ type: 'success', message: 'Payment successful! Your invoice has been marked as paid.' });
+      setTimeout(() => setPaymentBanner(null), 7000);
+    } else if (payment === 'cancelled') {
+      navigate('/client-portal', { replace: true });
+      setPaymentBanner({ type: 'cancelled', message: 'Payment cancelled. You can complete it any time from your portal.' });
+      setTimeout(() => setPaymentBanner(null), 6000);
+    }
+  }, [location.search]);
 
   useEffect(() => {
     if (user) fetchTickets(true);
@@ -215,19 +251,26 @@ const ClientPortalPage = () => {
   const handleCreateTicket = async (formData) => {
     try {
       const token = localStorage.getItem('evobrand_token');
+
+      // Use FormData so the file attachment is transmitted as multipart
+      const body = new FormData();
+      body.append('email', user.email);
+      body.append('name', user.name || '');
+      body.append('subject', formData.subject);
+      body.append('message', formData.description);
+      body.append('priority', formData.priority?.toLowerCase() || 'normal');
+      body.append('service', formData.service || 'General');
+      if (formData.file) {
+        body.append('file', formData.file);
+      }
+
       const response = await fetch(`${API_URL}/ticket`, {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
+          // Do NOT set Content-Type — browser sets it automatically with the correct multipart boundary
+          'Authorization': `Bearer ${token}`,
         },
-        body: JSON.stringify({
-          email: user.email,
-          name: user.name,
-          subject: formData.subject,
-          message: formData.description,
-          priority: formData.priority?.toLowerCase() || 'normal'
-        })
+        body,
       });
       
       const data = await response.json();
@@ -350,6 +393,41 @@ const ClientPortalPage = () => {
         description="EVOBRAND Client Portal - Secure access to your projects and meetings."
         noindex={true}
       />
+
+      {/* Payment result banner */}
+      <AnimatePresence>
+        {paymentBanner && (
+          <motion.div
+            key="payment-banner"
+            initial={{ opacity: 0, y: -60 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -60 }}
+            transition={{ type: 'spring', stiffness: 300, damping: 28 }}
+            className="fixed top-4 left-1/2 z-[9999] flex items-center gap-3 px-6 py-4 rounded-2xl shadow-2xl"
+            style={{
+              transform: 'translateX(-50%)',
+              background: paymentBanner.type === 'success'
+                ? 'linear-gradient(135deg, rgba(52,211,153,0.15), rgba(16,185,129,0.1))'
+                : 'linear-gradient(135deg, rgba(250,204,21,0.15), rgba(234,179,8,0.1))',
+              border: `1px solid ${paymentBanner.type === 'success' ? 'rgba(52,211,153,0.3)' : 'rgba(250,204,21,0.3)'}`,
+              backdropFilter: 'blur(16px)',
+              maxWidth: '90vw',
+            }}
+          >
+            {paymentBanner.type === 'success'
+              ? <CheckCircle2 size={18} className="text-green-400 flex-shrink-0" />
+              : <AlertCircle size={18} className="text-yellow-400 flex-shrink-0" />
+            }
+            <p className="text-white text-sm font-bold">{paymentBanner.message}</p>
+            <button
+              onClick={() => setPaymentBanner(null)}
+              className="ml-2 text-white/40 hover:text-white transition-colors"
+            >
+              <X size={15} />
+            </button>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       <div className="min-h-screen flex overflow-x-hidden" style={{ background: '#04080f' }}>
         <Sidebar
