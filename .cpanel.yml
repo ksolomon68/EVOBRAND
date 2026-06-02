@@ -4,6 +4,7 @@ deployment:
     # Deploy frontend
     - export DEPLOYPATH=/home/evobrandconcepts/public_html
     - /bin/cp -R dist/apps/web/* $DEPLOYPATH || true
+    - /bin/cp dist/apps/web/.htaccess $DEPLOYPATH/ || true
 
     # Deploy API source files (try both common cPanel Node.js app paths)
     - mkdir -p /home/evobrandconcepts/EVOBRAND/apps/api/src && /bin/cp -R apps/api/src/* /home/evobrandconcepts/EVOBRAND/apps/api/src/ || true
