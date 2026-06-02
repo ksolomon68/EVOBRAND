@@ -1,18 +1,8 @@
 const express = require('express');
 const router = express.Router();
 const pool = require('../db/connection');
-const nodemailer = require('nodemailer');
-
-// Set up Nodemailer transporter using cPanel SMTP
-const transporter = nodemailer.createTransport({
-  host: process.env.SMTP_HOST || 'mail.evobrandconcepts.com', // typically mail.domain.com for cPanel
-  port: process.env.SMTP_PORT || 465,
-  secure: true, // true for 465, false for other ports
-  auth: {
-    user: process.env.SMTP_USER || 'no-reply@evobrandconcepts.com',
-    pass: process.env.SMTP_PASS || '_rW+*ze&E%qw.AJ]'
-  }
-});
+const { Resend } = require('resend');
+const resend = new Resend(process.env.RESEND_API_KEY);
 
 // --- LISTS ---
 // Get all lists
@@ -144,15 +134,13 @@ router.post('/campaigns/:id/send', async (req, res) => {
     const emails = contacts.map(c => c.email);
     
     // 3. Send emails
-    const mailOptions = {
-      from: '"EVOBRAND" <no-reply@evobrandconcepts.com>', // sender address
-      to: [], // Don't expose list
+    await resend.emails.send({
+      from: `"EVOBRAND" <${process.env.RESEND_FROM_EMAIL || 'info@evobrand.net'}>`,
+      to: ['info@evobrand.net'], // Resend requires at least one 'to' address
       bcc: emails, // Send as BCC so recipients don't see each other
       subject: campaign.subject, // Subject line
       html: campaign.html_content, // html body
-    };
-    
-    await transporter.sendMail(mailOptions);
+    });
     
     // 4. Mark campaign as sent
     await pool.query('UPDATE crm_campaigns SET status = "sent", sent_at = CURRENT_TIMESTAMP WHERE id = ?', [id]);

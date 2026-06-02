@@ -1,19 +1,11 @@
 const express = require('express');
 const router = express.Router();
 const pool = require('../db/connection');
-const nodemailer = require('nodemailer');
+const { Resend } = require('resend');
 const { createNotification, notifyAdmins } = require('../utils/notifications');
 const { authenticateToken } = require('../middleware/auth');
 
-const transporter = nodemailer.createTransport({
-  host: process.env.SMTP_HOST || 'mail.evobrandconcepts.com',
-  port: process.env.SMTP_PORT || 465,
-  secure: true,
-  auth: {
-    user: process.env.SMTP_USER || 'no-reply@evobrandconcepts.com',
-    pass: process.env.SMTP_PASS || '_rW+*ze&E%qw.AJ]'
-  }
-});
+const resend = new Resend(process.env.RESEND_API_KEY);
 
 // Get all blackout dates
 router.get('/blackout-dates', async (req, res) => {
@@ -146,8 +138,8 @@ router.post('/book', async (req, res) => {
 
     try {
       if (finalEmail) {
-        await transporter.sendMail({
-          from: `"EVOBRAND Scheduling" <${process.env.SMTP_USER || 'no-reply@evobrandconcepts.com'}>`,
+        await resend.emails.send({
+          from: `"EVOBRAND Scheduling" <${process.env.RESEND_FROM_EMAIL || 'info@evobrand.net'}>`,
           to: finalEmail,
           subject: 'Appointment Confirmed',
           html: `
@@ -159,8 +151,8 @@ router.post('/book', async (req, res) => {
         });
       }
 
-      await transporter.sendMail({
-        from: `"EVOBRAND Scheduling" <${process.env.SMTP_USER || 'no-reply@evobrandconcepts.com'}>`,
+      await resend.emails.send({
+        from: `"EVOBRAND Scheduling" <${process.env.RESEND_FROM_EMAIL || 'info@evobrand.net'}>`,
         to: 'info@evobrand.net',
         subject: `New Booking: ${finalName || finalEmail}`,
         html: `
@@ -220,8 +212,8 @@ router.post('/meetings/:id/cancel', async (req, res) => {
       const meeting = meetings[0];
       try {
         if (meeting.user_email) {
-          await transporter.sendMail({
-            from: `"EVOBRAND Scheduling" <${process.env.SMTP_USER || 'no-reply@evobrandconcepts.com'}>`,
+          await resend.emails.send({
+            from: `"EVOBRAND Scheduling" <${process.env.RESEND_FROM_EMAIL || 'info@evobrand.net'}>`,
             to: meeting.user_email,
             subject: 'Appointment Cancelled',
             html: `
@@ -230,8 +222,8 @@ router.post('/meetings/:id/cancel', async (req, res) => {
             `
           });
         }
-        await transporter.sendMail({
-          from: `"EVOBRAND Scheduling" <${process.env.SMTP_USER || 'no-reply@evobrandconcepts.com'}>`,
+        await resend.emails.send({
+          from: `"EVOBRAND Scheduling" <${process.env.RESEND_FROM_EMAIL || 'info@evobrand.net'}>`,
           to: 'info@evobrand.net',
           subject: `Booking Cancelled: ${meeting.date} at ${meeting.time}`,
           html: `<p>The appointment for ${meeting.user_name || meeting.user_email || 'a client'} on ${meeting.date} at ${meeting.time} has been cancelled.</p>`
