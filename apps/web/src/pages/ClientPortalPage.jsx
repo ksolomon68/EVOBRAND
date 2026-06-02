@@ -14,7 +14,6 @@ import AdminTicketPanel from '../components/admin/AdminTicketPanel';
 import AdminCRMPanel from '../components/admin/AdminCRMPanel';
 import ContractBuilderPanel from '../components/admin/ContractBuilderPanel';
 import AdminBlackoutPanel from '../components/admin/AdminBlackoutPanel';
-import AdminBookingsPanel from '../components/admin/AdminBookingsPanel';
 import MyContractsPanel from '../components/portal/MyContractsPanel';
 import { useAuth } from '../hooks/useAuth.jsx';
 import { useNavigate } from 'react-router-dom';
@@ -65,7 +64,6 @@ function Sidebar({ user, view, setView, setSelectedTicket, openTicketCount, hand
     { key: 'my-contracts', icon: FileText, label: 'My Contracts' },
     ...(isAdmin ? [
       { key: 'admin', icon: ShieldCheck, label: 'Support & Contact Forms' },
-      { key: 'admin-bookings', icon: Calendar, label: 'Bookings Overview' },
       { key: 'scheduler-admin', icon: Calendar, label: 'Availability Controls' },
       { key: 'crm', icon: Users, label: 'CRM & Campaigns' },
       { key: 'contract-builder', icon: FileText, label: 'Contract Builder' },
@@ -311,7 +309,6 @@ const ClientPortalPage = () => {
     meetings: 'My Meetings',
     'my-contracts': 'My Contracts',
     admin: 'Support & Contact Forms',
-    'admin-bookings': 'Bookings Overview',
     'scheduler-admin': 'Availability Controls',
     crm: 'CRM & Campaigns',
     'contract-builder': 'Contract Builder',
@@ -511,19 +508,6 @@ const ClientPortalPage = () => {
                     transition={{ duration: 0.2 }}
                   >
                     <AdminTicketPanel user={user} />
-                  </motion.div>
-                )}
-
-                {/* ── Admin Bookings Panel ── */}
-                {view === 'admin-bookings' && (
-                  <motion.div
-                    key="admin-bookings"
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: -10 }}
-                    transition={{ duration: 0.2 }}
-                  >
-                    <AdminBookingsPanel user={user} />
                   </motion.div>
                 )}
 
