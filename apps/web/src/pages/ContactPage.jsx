@@ -48,14 +48,14 @@ const CONTACT_METHODS = [
 // ─── Contact Form ─────────────────────────────────────────────────────────────
 
 function ContactForm() {
-  const [form, setForm] = useState({ service: '', name: '', email: '', message: '' });
+  const [form, setForm] = useState({ service: '', name: '', email: '', message: '', subscribeNewsletter: true });
   const [status, setStatus] = useState('idle'); // idle | loading | success | error
   const [errorMsg, setErrorMsg] = useState('');
   const formRef = useRef(null);
 
   const handleChange = (e) => {
-    const { name, value } = e.target;
-    setForm((p) => ({ ...p, [name]: value }));
+    const { name, value, type, checked } = e.target;
+    setForm((p) => ({ ...p, [name]: type === 'checkbox' ? checked : value }));
     if (status === 'error') setStatus('idle');
   };
 
@@ -85,6 +85,7 @@ function ContactForm() {
             email: form.email.trim(),
             subject: form.service || 'General Inquiry',
             message: form.message.trim(),
+            subscribeNewsletter: form.subscribeNewsletter,
           }),
         });
       } catch (fetchErr) {
@@ -101,7 +102,7 @@ function ContactForm() {
       }
 
       setStatus('success');
-      setForm({ service: '', name: '', email: '', message: '' });
+      setForm({ service: '', name: '', email: '', message: '', subscribeNewsletter: true });
     } catch (err) {
       setStatus('error');
       setErrorMsg(err.message || 'Failed to send your message. Please try again or email us directly.');
@@ -206,6 +207,23 @@ function ContactForm() {
           style={inputStyle}
           placeholder="Tell us about your project or goals..."
         />
+      </div>
+
+      <div className="flex items-start gap-3 mt-4">
+        <div className="flex items-center h-5">
+          <input
+            id="cf-newsletter"
+            name="subscribeNewsletter"
+            type="checkbox"
+            checked={form.subscribeNewsletter}
+            onChange={handleChange}
+            className="w-4 h-4 rounded border-gray-600 focus:ring-[#22c8e5] text-[#22c8e5]"
+            style={{ background: 'rgba(10,22,40,0.7)', borderColor: 'rgba(34,200,229,0.3)' }}
+          />
+        </div>
+        <label htmlFor="cf-newsletter" className="text-sm cursor-pointer" style={{ color: 'rgba(255,255,255,0.7)' }}>
+          Subscribe to EVOBRAND newsletter for AI insights and updates.
+        </label>
       </div>
 
       {status === 'error' && (
