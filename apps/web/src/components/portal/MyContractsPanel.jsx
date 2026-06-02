@@ -60,61 +60,84 @@ function ContractModal({ contract, onClose, onSign }) {
           </div>
         </div>
 
-        {/* Contract document */}
+        {/* Contract document — renders identically to ContractBuilderPanel preview */}
         <div className="bg-white rounded p-10 shadow-2xl print-contract-preview" style={{ fontFamily: 'Times New Roman, serif' }}>
           <div className="text-black text-[0.9rem] leading-[1.8]">
             <h4 className="text-xl font-bold mb-2 text-center uppercase tracking-widest border-b-2 border-black pb-4">Master Services Agreement</h4>
-            <p className="mt-6 mb-6">This Master Services Agreement is entered into as of <strong>{fmtDate(project.startDate)}</strong>, by and between:</p>
+            <p className="mt-6 mb-6">This Master Services Agreement (the &ldquo;Agreement&rdquo;) is entered into as of <strong>{fmtDate(project.startDate)}</strong> (the &ldquo;Effective Date&rdquo;), by and between:</p>
+
             <div className="mb-6">
-              <p className="mb-2"><strong>{agency.name}</strong> (the "Agency"), located at {agency.address}; and</p>
-              <p><strong>{clientInfo.companyName || '[CLIENT]'}</strong> (the "Client"), represented by {clientInfo.repName || '[REP]'}{clientInfo.title ? `, ${clientInfo.title}` : ''}, email {clientInfo.email || '[EMAIL]'}.</p>
+              <p className="mb-2"><strong>{agency.name}</strong> (the &ldquo;Agency&rdquo;), located at {agency.address}, email {agency.email}; and</p>
+              <p><strong>{clientInfo.companyName || '[CLIENT COMPANY NAME]'}</strong> (the &ldquo;Client&rdquo;), located at {clientInfo.address || '[CLIENT ADDRESS]'}, represented by {clientInfo.repName || '[REPRESENTATIVE NAME]'}{clientInfo.title ? `, ${clientInfo.title}` : ''}, email {clientInfo.email || '[CLIENT EMAIL]'}{clientInfo.phone ? `, phone ${clientInfo.phone}` : ''}.</p>
+              <p className="mt-2">The Agency and the Client are each a &ldquo;Party&rdquo; and collectively the &ldquo;Parties.&rdquo;</p>
             </div>
 
-            <h5 className="font-bold mt-6 mb-2 uppercase">1. Scope of Services</h5>
-            <ul className="list-disc pl-8 mb-4">
-              {selectedServices.map(id => <li key={id}><strong>{serviceLabels[id] || id}</strong></li>)}
+            <h5 className="font-bold mt-6 mb-2 uppercase">1. Definitions</h5>
+            <p className="mb-4">For purposes of this Agreement: &ldquo;Services&rdquo; means the work described in Section 2; &ldquo;Deliverables&rdquo; means the tangible and intangible work product furnished to the Client; &ldquo;Confidential Information&rdquo; means non-public information disclosed by either Party; and &ldquo;Fees&rdquo; means the amounts payable under Section 3.</p>
+
+            <h5 className="font-bold mt-6 mb-2 uppercase">2. Scope of Services</h5>
+            <p className="mb-2">The Agency shall provide the following Services:</p>
+            <ul className="list-disc pl-8 mb-3">
+              {selectedServices.length === 0 && <li><em>No services selected.</em></li>}
+              {selectedServices.map(id => { const s = serviceLabels[id] || id; return <li key={id}><strong>{s}</strong></li>; })}
             </ul>
-            {project.description && <p className="mb-4"><strong>Project Description:</strong> {project.description}</p>}
+            <p className="mb-4"><strong>Project Description:</strong> {project.description || '[Project description to be provided by the Client.]'}</p>
 
-            <h5 className="font-bold mt-6 mb-2 uppercase">2. Fees &amp; Payment</h5>
-            <p className="mb-4">Total fee: <strong>{fmtCurrency(project.fee)}</strong>. Payment structure: <strong>{project.payment}</strong>. Late amounts accrue interest at 1.5%/month.</p>
+            <h5 className="font-bold mt-6 mb-2 uppercase">3. Fees &amp; Payment Terms</h5>
+            <p className="mb-4">The total fee for the Services is <strong>{fmtCurrency(project.fee)}</strong>, payable on the following basis: <strong>{project.payment}</strong>. All invoices are due upon receipt. Any amount not paid when due shall accrue interest at 1.5% per month, and the Agency reserves the right to suspend Services upon written notice until all past-due amounts are paid in full.</p>
 
-            <h5 className="font-bold mt-6 mb-2 uppercase">3. Timeline</h5>
-            <p className="mb-4">Start: <strong>{fmtDate(project.startDate)}</strong>. Estimated completion: <strong>{project.completion}</strong>. Includes <strong>{project.revisions}</strong> revision round{project.revisions === '1' ? '' : 's'}.</p>
+            <h5 className="font-bold mt-6 mb-2 uppercase">4. Project Timeline &amp; Deliverables</h5>
+            <p className="mb-4">The engagement shall commence on <strong>{fmtDate(project.startDate)}</strong>, with an estimated completion of <strong>{project.completion}</strong>. Timeline estimates are contingent upon the Client's timely provision of materials, approvals, and feedback.</p>
 
-            {clauses.ip && <><h5 className="font-bold mt-6 mb-2 uppercase">4. Intellectual Property</h5><p className="mb-4">Upon receipt of all Fees, the Agency assigns to the Client all right, title, and interest in the final Deliverables. The Agency retains ownership of pre-existing frameworks and grants a perpetual, royalty-free license for their use within the Deliverables.</p></>}
+            <h5 className="font-bold mt-6 mb-2 uppercase">5. Revisions &amp; Change Orders</h5>
+            <p className="mb-4">This Agreement includes <strong>{project.revisions === 'Unlimited' ? 'unlimited' : project.revisions}</strong> round{project.revisions === '1' ? '' : 's'} of revisions per Deliverable. Revisions beyond the included allotment require a written change order signed by both Parties and may incur additional fees.</p>
 
-            {clauses.nda && <><h5 className="font-bold mt-6 mb-2 uppercase">5. Confidentiality</h5><p className="mb-4">Each Party shall hold the other's Confidential Information in strict confidence with SOC 2-aligned safeguards. These obligations survive termination for five (5) years.</p></>}
+            {clauses.ip && (<><h5 className="font-bold mt-6 mb-2 uppercase">6. Intellectual Property</h5><p className="mb-4">Upon the Agency&apos;s receipt of all Fees due, the Agency assigns to the Client all right, title, and interest in the final Deliverables, including source code, custom models, and assets. The Agency retains ownership of pre-existing tools and frameworks and grants the Client a perpetual, royalty-free license to use them solely as incorporated in the Deliverables.</p></>)}
 
-            <h5 className="font-bold mt-6 mb-2 uppercase">6. Warranties &amp; Disclaimers</h5>
-            <p className="mb-4">Services are performed in a professional and workmanlike manner. ALL OTHER WARRANTIES ARE DISCLAIMED.</p>
+            {clauses.nda && (<><h5 className="font-bold mt-6 mb-2 uppercase">7. Confidentiality &amp; NDA</h5><p className="mb-4">Each Party shall hold the other Party&apos;s Confidential Information in strict confidence, use it solely to perform this Agreement, and protect it with SOC 2-aligned safeguards. Upon termination or written request, the receiving Party shall promptly return or securely destroy all Confidential Information. These obligations survive termination for five (5) years.</p></>)}
 
-            {clauses.liability && <><h5 className="font-bold mt-6 mb-2 uppercase">7. Limitation of Liability</h5><p className="mb-4">AGENCY'S TOTAL LIABILITY SHALL NOT EXCEED FEES PAID IN THE PRIOR THREE (3) MONTHS. NEITHER PARTY SHALL BE LIABLE FOR INDIRECT, CONSEQUENTIAL, OR PUNITIVE DAMAGES.</p></>}
+            <h5 className="font-bold mt-6 mb-2 uppercase">8. Warranties &amp; Disclaimers</h5>
+            <p className="mb-4">The Agency warrants that the Services will be performed in a professional and workmanlike manner consistent with generally accepted industry standards. EXCEPT FOR THE EXPRESS WARRANTY ABOVE, THE SERVICES AND DELIVERABLES ARE PROVIDED &quot;AS IS,&quot; AND THE AGENCY DISCLAIMS ALL OTHER WARRANTIES, WHETHER EXPRESS, IMPLIED, OR STATUTORY.</p>
 
-            {clauses.indemnification && <><h5 className="font-bold mt-6 mb-2 uppercase">8. Indemnification</h5><p className="mb-4">Each Party shall indemnify the other against third-party claims arising from their own breach, negligence, or willful misconduct. The Agency indemnifies the Client against third-party IP infringement claims related to the Deliverables.</p></>}
+            {clauses.sla && (<><h5 className="font-bold mt-6 mb-2 uppercase">9. Service Level Agreement</h5><p className="mb-4">The Agency shall use commercially reasonable efforts to maintain 99.9% uptime for deployed infrastructure, measured monthly and excluding scheduled maintenance. The Agency shall provide 24/7 priority support with a one-hour target response time for critical incidents.</p></>)}
 
-            {clauses.termination && <><h5 className="font-bold mt-6 mb-2 uppercase">9. Termination</h5><p className="mb-4">Either Party may terminate for cause upon 14-day written cure notice, or for convenience upon 30-day written notice. The Client shall pay for all Services performed through the termination date.</p></>}
+            {clauses.wcag_clause && (<><h5 className="font-bold mt-6 mb-2 uppercase">10. WCAG Accessibility Compliance</h5><p className="mb-4">The Agency guarantees that all delivered digital properties will conform to WCAG 2.1 Level AA at the time of delivery. The Agency shall remediate, at no additional cost, any nonconformity identified within thirty (30) days of delivery, provided the Client has not modified the Deliverables.</p></>)}
 
-            <h5 className="font-bold mt-6 mb-2 uppercase">10. Governing Law &amp; Dispute Resolution</h5>
-            <p className="mb-4">Governed by the laws of <strong>{project.state}</strong>. Disputes resolved by: <strong>{project.dispute}</strong>.</p>
+            {clauses.ai_ethics && (<><h5 className="font-bold mt-6 mb-2 uppercase">11. Responsible AI &amp; Ethics</h5><p className="mb-4">The Agency shall develop and deploy all AI systems in accordance with responsible AI principles, including bias mitigation, data privacy, transparency, and explainability. The Agency shall not use the Client&apos;s Confidential Information to train models for third parties without written consent.</p></>)}
 
-            <h5 className="font-bold mt-6 mb-2 uppercase">11. General Provisions</h5>
-            <p className="mb-8">This is the entire agreement between the Parties. Amendments must be in writing. Electronic signatures are valid.</p>
+            {clauses.liability && (<><h5 className="font-bold mt-6 mb-2 uppercase">12. Limitation of Liability</h5><p className="mb-4">TO THE MAXIMUM EXTENT PERMITTED BY LAW, THE AGENCY&apos;S TOTAL CUMULATIVE LIABILITY SHALL NOT EXCEED THE TOTAL FEES ACTUALLY PAID BY THE CLIENT DURING THE THREE (3) MONTHS IMMEDIATELY PRECEDING THE EVENT GIVING RISE TO THE CLAIM. IN NO EVENT SHALL EITHER PARTY BE LIABLE FOR ANY INDIRECT, INCIDENTAL, SPECIAL, CONSEQUENTIAL, OR PUNITIVE DAMAGES, OR FOR LOST PROFITS OR DATA.</p></>)}
 
-            <p className="mb-10">IN WITNESS WHEREOF, the Parties have executed this Agreement as of the Effective Date.</p>
+            {clauses.indemnification && (<><h5 className="font-bold mt-6 mb-2 uppercase">13. Indemnification</h5><p className="mb-4">Each Party (the &ldquo;Indemnifying Party&rdquo;) shall defend, indemnify, and hold harmless the other Party from third-party claims arising out of the Indemnifying Party&apos;s breach of this Agreement, negligence, or willful misconduct. The Agency shall additionally indemnify the Client against third-party claims alleging that the Deliverables infringe such third party&apos;s intellectual property rights, excluding claims arising from Client-supplied materials.</p></>)}
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-8 sm:gap-12">
+            {clauses.termination && (<><h5 className="font-bold mt-6 mb-2 uppercase">14. Termination</h5><p className="mb-4">Either Party may terminate for cause if the other Party materially breaches this Agreement and fails to cure such breach within fourteen (14) days after written notice. Either Party may terminate for convenience upon thirty (30) days&apos; prior written notice. Upon termination, the Client shall pay for all Services performed through the effective date of termination.</p></>)}
+
+            {clauses.force_majeure && (<><h5 className="font-bold mt-6 mb-2 uppercase">15. Force Majeure</h5><p className="mb-4">Neither Party shall be liable for delays caused by events beyond its reasonable control, including acts of God, natural disasters, war, terrorism, governmental action, labor disputes, epidemics, or failures of third-party service providers. If a force majeure event continues for more than sixty (60) days, either Party may terminate upon written notice.</p></>)}
+
+            <h5 className="font-bold mt-6 mb-2 uppercase">16. Dispute Resolution</h5>
+            <p className="mb-4">{project.dispute === 'Binding Arbitration (AAA)' ? `Any dispute shall be resolved by final and binding arbitration administered by the AAA under its Commercial Arbitration Rules in ${project.state}. Each Party waives any right to a jury trial and to participate in a class action.` : project.dispute === 'Mediation then Litigation' ? `The Parties shall first attempt to resolve disputes through non-binding mediation. If unresolved within thirty (30) days, either Party may pursue litigation in the courts of ${project.state}.` : `Disputes shall be resolved exclusively through litigation in the courts of ${project.state}, and each Party consents to the personal jurisdiction of such courts.`}</p>
+
+            <h5 className="font-bold mt-6 mb-2 uppercase">17. Governing Law</h5>
+            <p className="mb-4">This Agreement shall be governed by and construed in accordance with the laws of the State of <strong>{project.state}</strong>, without regard to its conflict-of-laws principles.</p>
+
+            <h5 className="font-bold mt-6 mb-2 uppercase">18. General Provisions</h5>
+            <p className="mb-4"><strong>Entire Agreement.</strong> This Agreement constitutes the entire agreement between the Parties. <strong>Amendments</strong> must be in writing signed by both Parties. <strong>Severability:</strong> if any provision is unenforceable, the remainder stays in effect. <strong>No Waiver.</strong> Failure to enforce any provision is not a waiver. <strong>Electronic Signatures</strong> have the same legal effect as original signatures.</p>
+
+            <p className="mb-12 mt-6">IN WITNESS WHEREOF, the Parties have executed this Agreement as of the Effective Date.</p>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-8 sm:gap-12 mt-8">
               <div>
                 <div className="border-b border-black mb-2 pb-1 text-xl" style={{ fontFamily: "'Brush Script MT', cursive" }}>Keisha Solomon</div>
-                <p className="text-sm font-bold uppercase">Agency — EVOBRAND Concepts LLC</p>
-                <p className="text-sm">Keisha Solomon, CEO</p>
+                <p className="text-sm font-bold uppercase">Agency — {agency.name}</p>
+                <p className="text-sm">Name: Keisha Solomon</p>
+                <p className="text-sm">Title: CEO, {agency.name}</p>
+                <p className="text-sm">Date: {fmtDate(project.startDate)}</p>
               </div>
               <div>
                 <div className="border-b border-black mb-2 pb-1 text-xl" style={{ fontFamily: "'Brush Script MT', cursive", minHeight: '2rem' }}>
                   {contract.client_signature || ''}
                 </div>
                 <p className="text-sm font-bold uppercase">Client — {clientInfo.companyName || '[COMPANY]'}</p>
-                <p className="text-sm">{contract.client_signature || clientInfo.repName || '[REPRESENTATIVE]'}{clientInfo.title ? `, ${clientInfo.title}` : ''}</p>
+                <p className="text-sm">Name: {contract.client_signature || clientInfo.repName || '[REPRESENTATIVE]'}{clientInfo.title ? `, ${clientInfo.title}` : ''}</p>
                 {contract.client_signed_at && (
                   <p className="text-sm">Date: {new Date(contract.client_signed_at).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}</p>
                 )}
