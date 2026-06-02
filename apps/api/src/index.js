@@ -1,9 +1,16 @@
 const fs = require('fs');
 process.on('uncaughtException', (err) => {
-  fs.writeFileSync(__dirname + '/crash.log', err.stack);
+  const diagnostics = `Node Version: ${process.version}\n` +
+                      `Current Dir: ${__dirname}\n` +
+                      `CWD: ${process.cwd()}\n` +
+                      `NODE_PATH: ${process.env.NODE_PATH}\n` +
+                      `Search Paths: ${JSON.stringify(module.paths, null, 2)}\n\n` +
+                      `Error Stack:\n${err.stack}`;
+  fs.writeFileSync(__dirname + '/crash.log', diagnostics);
 });
 process.on('unhandledRejection', (err) => {
-  fs.writeFileSync(__dirname + '/crash.log', err.stack);
+  const diagnostics = `Unhandled Rejection: ${err instanceof Error ? err.stack : err}`;
+  fs.writeFileSync(__dirname + '/crash.log', diagnostics);
 });
 require('dotenv').config();
 const express = require('express');
