@@ -22,7 +22,7 @@ const ensureTable = async () => {
 };
 
 // @route POST /api/contracts — admin saves a contract and associates it with a client
-router.post('/', requireAdmin, async (req, res) => {
+router.post('/', authenticateToken, requireAdmin, async (req, res) => {
   const { title, clientEmail, contractData } = req.body;
   if (!title || !contractData) {
     return res.status(400).json({ error: 'Title and contract data are required' });
@@ -95,7 +95,7 @@ router.get('/:id', authenticateToken, async (req, res) => {
 });
 
 // @route PUT /api/contracts/:id/status — admin updates status
-router.put('/:id/status', requireAdmin, async (req, res) => {
+router.put('/:id/status', authenticateToken, requireAdmin, async (req, res) => {
   const { status } = req.body;
   if (!['draft', 'sent', 'signed'].includes(status)) {
     return res.status(400).json({ error: 'Invalid status' });

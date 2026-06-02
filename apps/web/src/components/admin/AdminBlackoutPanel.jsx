@@ -267,7 +267,8 @@ function BlackoutList({ blackouts, onDelete }) {
   return (
     <ul className="space-y-2" aria-label="Blackout dates list">
       {sorted.map((b) => {
-        const formattedDate = new Date(b.date + 'T12:00:00').toLocaleDateString('en-US', {
+        const dateStr = b.date.includes('T') ? b.date.split('T')[0] : b.date;
+        const formattedDate = new Date(dateStr + 'T12:00:00').toLocaleDateString('en-US', {
           weekday: 'short',
           month: 'short',
           day: 'numeric',

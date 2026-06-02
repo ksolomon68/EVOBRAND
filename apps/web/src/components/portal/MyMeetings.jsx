@@ -44,7 +44,8 @@ const STATUS_CONFIG = {
 
 function formatBookingDate(dateStr) {
   if (!dateStr) return '';
-  return new Date(dateStr + 'T12:00:00').toLocaleDateString('en-US', {
+  const dateObj = dateStr.includes('T') ? new Date(dateStr) : new Date(dateStr + 'T12:00:00');
+  return dateObj.toLocaleDateString('en-US', {
     weekday: 'long',
     month: 'long',
     day: 'numeric',
@@ -54,7 +55,11 @@ function formatBookingDate(dateStr) {
 
 function isUpcoming(booking) {
   if (booking.status !== 'scheduled' && booking.status !== 'confirmed') return false;
-  const bookingDate = new Date(`${booking.date}T23:59:59`);
+  let d = booking.date;
+  if (d && d.includes('T')) {
+    d = d.split('T')[0];
+  }
+  const bookingDate = new Date(`${d}T23:59:59`);
   return bookingDate >= new Date();
 }
 
