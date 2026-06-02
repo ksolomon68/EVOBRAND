@@ -13,6 +13,7 @@ import MyMeetings from '../components/portal/MyMeetings';
 import AdminTicketPanel from '../components/admin/AdminTicketPanel';
 import AdminCRMPanel from '../components/admin/AdminCRMPanel';
 import ContractBuilderPanel from '../components/admin/ContractBuilderPanel';
+import AdminBlackoutPanel from '../components/admin/AdminBlackoutPanel';
 import MyContractsPanel from '../components/portal/MyContractsPanel';
 import { useAuth } from '../hooks/useAuth.jsx';
 import { useNavigate } from 'react-router-dom';
@@ -63,6 +64,7 @@ function Sidebar({ user, view, setView, setSelectedTicket, openTicketCount, hand
     { key: 'my-contracts', icon: FileText, label: 'My Contracts' },
     ...(isAdmin ? [
       { key: 'admin', icon: ShieldCheck, label: 'Admin Controls' },
+      { key: 'scheduler-admin', icon: Calendar, label: 'Availability Controls' },
       { key: 'crm', icon: Users, label: 'CRM & Campaigns' },
       { key: 'contract-builder', icon: FileText, label: 'Contract Builder' },
     ] : []),
@@ -307,6 +309,7 @@ const ClientPortalPage = () => {
     meetings: 'My Meetings',
     'my-contracts': 'My Contracts',
     admin: 'Admin Controls',
+    'scheduler-admin': 'Availability Controls',
     crm: 'CRM & Campaigns',
     'contract-builder': 'Contract Builder',
   }[view] ?? 'Dashboard';
@@ -506,6 +509,19 @@ const ClientPortalPage = () => {
                     transition={{ duration: 0.2 }}
                   >
                     <AdminTicketPanel user={user} />
+                  </motion.div>
+                )}
+
+                {/* ── Scheduler Controls Panel ── */}
+                {view === 'scheduler-admin' && (
+                  <motion.div
+                    key="scheduler-admin"
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -10 }}
+                    transition={{ duration: 0.2 }}
+                  >
+                    <AdminBlackoutPanel user={user} />
                   </motion.div>
                 )}
 

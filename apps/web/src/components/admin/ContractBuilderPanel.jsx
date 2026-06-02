@@ -119,25 +119,16 @@ export default function ContractBuilderPanel() {
 
   return (
     <>
-      <style>{`
-        @media print {
-          body * { visibility: hidden; }
-          .print-contract-preview, .print-contract-preview * { visibility: visible; color: black !important; background: white !important; }
-          .print-contract-preview { position: absolute; left: 0; top: 0; width: 100%; border: none !important; box-shadow: none !important; padding: 40px !important; max-height: none !important; overflow: visible !important; }
-          .no-print { display: none !important; }
-        }
-      `}</style>
-
       <div className="no-print mb-8">
         <h1 className="text-3xl font-bold text-white mb-1">Contract Builder</h1>
         <p className="text-white/40">Build an MSA and send it to a client account.</p>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-[1.2fr_1fr] gap-8 items-start no-print">
+      <div className="grid grid-cols-1 lg:grid-cols-[1.2fr_1fr] gap-8 items-start">
         {/* ── Sidebar ── */}
         <motion.div
           initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }}
-          className="bg-[rgba(255,255,255,0.04)] border border-[rgba(255,255,255,0.08)] rounded-[20px] p-8 h-fit max-h-[78vh] overflow-y-auto"
+          className="no-print bg-[rgba(255,255,255,0.04)] border border-[rgba(255,255,255,0.08)] rounded-[20px] p-8 h-fit max-h-[78vh] overflow-y-auto"
         >
           <div className="flex items-center justify-between mb-8">
             <h3 className="text-xl font-bold text-white flex items-center gap-3">

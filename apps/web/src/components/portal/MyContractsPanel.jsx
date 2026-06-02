@@ -38,7 +38,7 @@ function ContractModal({ contract, onClose }) {
   return (
     <div className="fixed inset-0 z-50 flex items-start justify-center p-4 pt-12 overflow-y-auto" style={{ background: 'rgba(0,0,0,0.85)' }}>
       <div className="relative w-full max-w-3xl">
-        <div className="flex items-center justify-between mb-4">
+        <div className="flex items-center justify-between mb-4 no-print">
           <h2 className="text-white font-bold text-lg">{contract.title}</h2>
           <div className="flex items-center gap-3">
             <button onClick={() => window.print()} className="flex items-center gap-2 px-4 py-2 rounded-lg font-bold text-sm transition-colors" style={{ background: GOLD, color: '#003258' }}>

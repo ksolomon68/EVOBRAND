@@ -96,6 +96,11 @@ function MeetingCard({ booking, index }) {
         <div>
           <h3 className="font-bold text-base mb-1" style={{ color: BEIGE }}>
             {booking.type || 'Consultation'}
+            {(booking.client_name || booking.client_email) && (
+              <span className="opacity-70 font-normal text-sm block md:inline md:ml-2">
+                with {booking.client_name || booking.client_email}
+              </span>
+            )}
           </h3>
           {upcoming && (
             <span
@@ -216,7 +221,10 @@ export default function MyMeetings({ userId }) {
   useEffect(() => {
     if (!userId) return;
     setLoading(true);
-    fetch(`${API_BASE}/scheduler/meetings/${userId}`)
+    const token = localStorage.getItem('evobrand_token');
+    fetch(`${API_BASE}/scheduler/meetings/${userId}`, {
+      headers: { 'Authorization': `Bearer ${token}` }
+    })
       .then((res) => res.json())
       .then((data) => {
         if (Array.isArray(data)) setBookings(data);

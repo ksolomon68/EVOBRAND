@@ -322,7 +322,7 @@ export default function AdminBlackoutPanel({ user }) {
   const [blackouts, setBlackouts] = useState([]);
   const [loading, setLoading] = useState(true);
   const panelRef = useRef(null);
-  const isAdmin = user?.user_metadata?.role === 'admin';
+  const isAdmin = user?.is_admin === 1 || user?.is_admin === true || user?.user_metadata?.role === 'admin';
 
   useGSAP(() => {
     gsap.fromTo(panelRef.current, { opacity: 0, y: 16 }, { opacity: 1, y: 0, duration: 0.45, ease: 'power2.out' });
