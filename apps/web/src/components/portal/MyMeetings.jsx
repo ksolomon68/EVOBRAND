@@ -150,20 +150,71 @@ function MeetingCard({ booking, index }) {
       )}
 
       {/* Meeting link if scheduled and has link */}
-      {upcoming && booking.meet_link && (
-        <a
-          href={booking.meet_link}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-widest px-4 py-2 rounded-xl transition-all duration-200 focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#22c8e5]"
-          style={{ background: 'rgba(34,200,229,0.1)', color: GOLD, border: `1px solid rgba(34,200,229,0.25)` }}
-          onMouseEnter={(e) => (e.currentTarget.style.background = 'rgba(34,200,229,0.18)')}
-          onMouseLeave={(e) => (e.currentTarget.style.background = 'rgba(34,200,229,0.1)')}
-        >
-          <Video size={13} aria-hidden="true" />
-          <span>View in Calendar</span>
-          <ExternalLink size={11} aria-hidden="true" />
-        </a>
+      {upcoming && (
+        <div className="flex flex-wrap gap-3">
+          {booking.meet_link && (
+            <a
+              href={booking.meet_link}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-widest px-4 py-2 rounded-xl transition-all duration-200 focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#22c8e5]"
+              style={{ background: 'rgba(34,200,229,0.1)', color: GOLD, border: `1px solid rgba(34,200,229,0.25)` }}
+              onMouseEnter={(e) => (e.currentTarget.style.background = 'rgba(34,200,229,0.18)')}
+              onMouseLeave={(e) => (e.currentTarget.style.background = 'rgba(34,200,229,0.1)')}
+            >
+              <Video size={13} aria-hidden="true" />
+              <span>Join Meeting</span>
+              <ExternalLink size={11} aria-hidden="true" />
+            </a>
+          )}
+          {(() => {
+            const dateStr = booking.date;
+            const timeStr = booking.time;
+            if (!dateStr || !timeStr) return null;
+            
+            const match = timeStr.match(/(\d+):(\d+)\s*(AM|PM)/i);
+            if (!match) return null;
+            let hours = parseInt(match[1], 10);
+            const minutes = parseInt(match[2], 10);
+            const isPM = match[3].toUpperCase() === 'PM';
+            if (isPM && hours < 12) hours += 12;
+            if (!isPM && hours === 12) hours = 0;
+            
+            let d = dateStr.includes('T') ? dateStr.split('T')[0] : dateStr;
+            const [year, month, day] = d.split('-');
+            const startDt = new Date(year, month - 1, day, hours, minutes);
+            const endDt = new Date(startDt.getTime() + ((booking.duration || 30) * 60000));
+            
+            const pad = (n) => n.toString().padStart(2, '0');
+            const formatDT = (d) => `${d.getFullYear()}${pad(d.getMonth()+1)}${pad(d.getDate())}T${pad(d.getHours())}${pad(d.getMinutes())}00`;
+            
+            const title = encodeURIComponent(`EVOBRAND ${booking.type || 'Consultation'} Session`);
+            const details = encodeURIComponent(`Meeting Link: ${booking.meet_link || 'TBD'}\n\nConsultation with EVOBRAND.`);
+            const location = encodeURIComponent(booking.meet_link || '');
+            const calLink = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${title}&dates=${formatDT(startDt)}/${formatDT(endDt)}&ctz=America/Chicago&details=${details}&location=${location}`;
+
+            return (
+              <a
+                href={calLink}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-widest px-4 py-2 rounded-xl transition-all duration-200 focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#22c8e5]"
+                style={{ background: 'transparent', color: 'rgba(255,255,255,0.7)', border: `1px solid rgba(255,255,255,0.15)` }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.color = BEIGE;
+                  e.currentTarget.style.borderColor = 'rgba(255,255,255,0.3)';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.color = 'rgba(255,255,255,0.7)';
+                  e.currentTarget.style.borderColor = 'rgba(255,255,255,0.15)';
+                }}
+              >
+                <Calendar size={13} aria-hidden="true" />
+                <span>Add to Calendar</span>
+              </a>
+            );
+          })()}
+        </div>
       )}
     </article>
   );
