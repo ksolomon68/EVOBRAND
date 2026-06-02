@@ -11,6 +11,8 @@ const GOLD = '#22c8e5';
 const NAVY = '#003258';
 const BEIGE = '#ffffff';
 
+const STATIC_MEET_LINK = 'https://meet.google.com/pdh-sjeq-bja';
+
 const STATUS_CONFIG = {
   confirmed: {
     label: 'Confirmed',
@@ -152,21 +154,19 @@ function MeetingCard({ booking, index }) {
       {/* Meeting link if scheduled and has link */}
       {upcoming && (
         <div className="flex flex-wrap gap-3">
-          {booking.meet_link && (
-            <a
-              href={booking.meet_link}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-widest px-4 py-2 rounded-xl transition-all duration-200 focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#22c8e5]"
-              style={{ background: 'rgba(34,200,229,0.1)', color: GOLD, border: `1px solid rgba(34,200,229,0.25)` }}
-              onMouseEnter={(e) => (e.currentTarget.style.background = 'rgba(34,200,229,0.18)')}
-              onMouseLeave={(e) => (e.currentTarget.style.background = 'rgba(34,200,229,0.1)')}
-            >
-              <Video size={13} aria-hidden="true" />
-              <span>Join Meeting</span>
-              <ExternalLink size={11} aria-hidden="true" />
-            </a>
-          )}
+          <a
+            href={STATIC_MEET_LINK}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-widest px-4 py-2 rounded-xl transition-all duration-200 focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#22c8e5]"
+            style={{ background: 'rgba(34,200,229,0.1)', color: GOLD, border: `1px solid rgba(34,200,229,0.25)` }}
+            onMouseEnter={(e) => (e.currentTarget.style.background = 'rgba(34,200,229,0.18)')}
+            onMouseLeave={(e) => (e.currentTarget.style.background = 'rgba(34,200,229,0.1)')}
+          >
+            <Video size={13} aria-hidden="true" />
+            <span>Join Meeting</span>
+            <ExternalLink size={11} aria-hidden="true" />
+          </a>
           {(() => {
             const dateStr = booking.date;
             const timeStr = booking.time;
@@ -189,8 +189,8 @@ function MeetingCard({ booking, index }) {
             const formatDT = (d) => `${d.getFullYear()}${pad(d.getMonth()+1)}${pad(d.getDate())}T${pad(d.getHours())}${pad(d.getMinutes())}00`;
             
             const title = encodeURIComponent(`EVOBRAND ${booking.type || 'Consultation'} Session`);
-            const details = encodeURIComponent(`Meeting Link: ${booking.meet_link || 'TBD'}\n\nConsultation with EVOBRAND.`);
-            const location = encodeURIComponent(booking.meet_link || '');
+            const details = encodeURIComponent(`Meeting Link: ${STATIC_MEET_LINK}\n\nConsultation with EVOBRAND.`);
+            const location = encodeURIComponent(STATIC_MEET_LINK);
             const calLink = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${title}&dates=${formatDT(startDt)}/${formatDT(endDt)}&ctz=America/Chicago&details=${details}&location=${location}`;
 
             return (
