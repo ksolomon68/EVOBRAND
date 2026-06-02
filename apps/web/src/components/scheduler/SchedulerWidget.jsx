@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useGSAP } from '@gsap/react';
 import gsap from 'gsap';
-import { ChevronLeft, ChevronRight, Calendar, Clock, CheckCircle2, Loader2, AlertCircle } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Calendar, Clock, CheckCircle2, Loader2, AlertCircle, UserPlus } from 'lucide-react';
 
 const API_BASE = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' 
   ? 'http://localhost:5000/api' 
@@ -34,6 +34,18 @@ const NAVY = '#003258';
 const BEIGE = '#ffffff';
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
+
+// Decode JWT and extract user id (if logged in)
+function getLoggedInUserId() {
+  try {
+    const token = localStorage.getItem('evobrand_token');
+    if (!token) return null;
+    const payload = JSON.parse(atob(token.split('.')[1]));
+    return payload?.id || null;
+  } catch (_) {
+    return null;
+  }
+}
 
 function toISO(date) {
   const y = date.getFullYear();
@@ -294,6 +306,9 @@ function ConfirmForm({ selectedDate, selectedSlot, onBack, onSuccess }) {
     setLoading(true);
     setError('');
 
+    // Attach user_id if the visitor is already logged in
+    const loggedInUserId = getLoggedInUserId();
+
     try {
       const controller = new AbortController();
       const timer = setTimeout(() => controller.abort(), 10000);
@@ -311,6 +326,7 @@ function ConfirmForm({ selectedDate, selectedSlot, onBack, onSuccess }) {
             time: selectedSlot,
             type: 'discovery',
             notes: form.notes.trim() || '',
+            ...(loggedInUserId ? { user_id: loggedInUserId } : {}),
           }),
         });
       } catch (fetchErr) {
@@ -327,7 +343,7 @@ function ConfirmForm({ selectedDate, selectedSlot, onBack, onSuccess }) {
         throw new Error(data.error || 'Booking failed');
       }
 
-      onSuccess({ ...form, date: selectedDate, slot: selectedSlot });
+      onSuccess({ ...form, date: selectedDate, slot: selectedSlot, isGuest: !getLoggedInUserId() });
     } catch (err) {
       setError(err.message || 'Something went wrong. Please try again.');
     } finally {
@@ -462,6 +478,129 @@ function ConfirmForm({ selectedDate, selectedSlot, onBack, onSuccess }) {
   );
 }
 
+// ─── Create Account Prompt (Step 5 for guests) ───────────────────────────────
+
+function CreateAccountPrompt({ booking, onSkip, onReset }) {
+  const [password, setPassword] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+  const [done, setDone] = useState(false);
+  const ref = useRef(null);
+
+  useGSAP(() => {
+    gsap.fromTo(ref.current, { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.5, ease: 'power2.out' });
+  }, []);
+
+  const handleCreate = async (e) => {
+    e.preventDefault();
+    if (!password || password.length < 6) {
+      setError('Password must be at least 6 characters.');
+      return;
+    }
+    setLoading(true);
+    setError('');
+    try {
+      const res = await fetch(`${API_BASE}/auth/register`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: booking.email, name: booking.name, password }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Registration failed');
+      // Save token and redirect to portal
+      localStorage.setItem('evobrand_token', data.token);
+      localStorage.setItem('evobrand_user', JSON.stringify(data.user));
+      setDone(true);
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  if (done) {
+    return (
+      <div ref={ref} className="text-center py-4">
+        <div
+          className="w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-5"
+          style={{ background: 'rgba(34,200,229,0.12)', border: `2px solid ${GOLD}` }}
+        >
+          <CheckCircle2 size={28} style={{ color: GOLD }} />
+        </div>
+        <h3 className="text-xl font-bold mb-2" style={{ color: BEIGE }}>Account Created!</h3>
+        <p className="text-sm mb-6" style={{ color: 'rgba(255,255,255,0.6)' }}>
+          Your meeting is now saved in your portal.
+        </p>
+        <a
+          href="/client-portal"
+          className="inline-block py-3 px-8 rounded-xl text-sm font-bold uppercase tracking-widest transition-all"
+          style={{ background: GOLD, color: NAVY }}
+        >
+          Go to My Meetings →
+        </a>
+      </div>
+    );
+  }
+
+  return (
+    <div ref={ref} className="py-2">
+      <div className="flex items-center gap-3 mb-5">
+        <div className="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0" style={{ background: 'rgba(34,200,229,0.12)' }}>
+          <UserPlus size={18} style={{ color: GOLD }} />
+        </div>
+        <div>
+          <h3 className="font-bold text-base" style={{ color: BEIGE }}>Save Your Meeting</h3>
+          <p className="text-xs" style={{ color: 'rgba(255,255,255,0.5)' }}>Create a free account to view and manage it in the portal.</p>
+        </div>
+      </div>
+
+      <div className="rounded-xl p-4 mb-5 border" style={{ background: 'rgba(34,200,229,0.07)', borderColor: 'rgba(34,200,229,0.2)' }}>
+        <p className="text-xs font-bold tracking-widest uppercase mb-1" style={{ color: GOLD }}>Booking Confirmed ✓</p>
+        <p className="text-sm font-semibold" style={{ color: BEIGE }}>{booking.name}</p>
+        <p className="text-xs" style={{ color: 'rgba(255,255,255,0.55)' }}>{booking.email}</p>
+        <p className="text-xs mt-1" style={{ color: 'rgba(255,255,255,0.55)' }}>{new Date(booking.date + 'T12:00:00').toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })} · {booking.slot}</p>
+      </div>
+
+      <form onSubmit={handleCreate} noValidate>
+        <label className="block text-xs font-bold tracking-widest uppercase mb-1.5" style={{ color: GOLD }}>
+          Choose a Password
+        </label>
+        <input
+          type="password"
+          value={password}
+          onChange={e => { setPassword(e.target.value); if (error) setError(''); }}
+          placeholder="Min. 6 characters"
+          className="w-full px-4 py-3 rounded-xl text-sm outline-none transition-all border mb-4"
+          style={{ background: 'rgba(10,22,40,0.8)', color: BEIGE, borderColor: 'rgba(34,200,229,0.2)' }}
+          minLength={6}
+        />
+        {error && (
+          <div className="mb-3 flex items-center gap-2 p-2.5 rounded-lg" style={{ background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.3)' }}>
+            <AlertCircle size={13} className="text-red-400 flex-shrink-0" />
+            <p className="text-red-300 text-xs">{error}</p>
+          </div>
+        )}
+        <button
+          type="submit"
+          disabled={loading}
+          className="w-full py-3 rounded-xl text-sm font-bold uppercase tracking-widest transition-all flex items-center justify-center gap-2 mb-3"
+          style={{ background: loading ? 'rgba(34,200,229,0.5)' : GOLD, color: NAVY }}
+        >
+          {loading ? <><Loader2 size={14} className="animate-spin" />Creating...</> : 'Create Account & View Meeting'}
+        </button>
+        <button
+          type="button"
+          onClick={onSkip}
+          className="w-full text-xs py-2 transition-colors"
+          style={{ color: 'rgba(255,255,255,0.35)' }}
+        >
+          No thanks, I'll check my email
+        </button>
+      </form>
+    </div>
+  );
+}
+
 // ─── Success State ────────────────────────────────────────────────────────────
 
 function SuccessView({ booking, onReset }) {
@@ -516,6 +655,7 @@ export default function SchedulerWidget() {
   const [blackoutDates, setBlackoutDates] = useState([]);
   const [bookedSlots, setBookedSlots] = useState([]);
   const [booking, setBooking] = useState(null);
+  // step 4 = success, step 5 = create account (guests only)
   const panelRef = useRef(null);
 
   // Fetch blackout dates
@@ -560,7 +700,9 @@ export default function SchedulerWidget() {
 
   const handleSuccess = (completedBooking) => {
     setBooking(completedBooking);
-    setStep(4);
+    // If the user is a guest (not logged in), offer account creation (step 5)
+    // If already logged in, go straight to success (step 4)
+    setStep(completedBooking.isGuest ? 5 : 4);
     animateStep(1);
   };
 
@@ -657,10 +799,18 @@ export default function SchedulerWidget() {
         {step === 4 && booking && (
           <SuccessView booking={booking} onReset={handleReset} />
         )}
+
+        {step === 5 && booking && (
+          <CreateAccountPrompt
+            booking={booking}
+            onSkip={() => setStep(4)}
+            onReset={handleReset}
+          />
+        )}
       </div>
 
       {/* Office hours note */}
-      {step < 4 && (
+      {step < 4 && step !== 5 && (
         <div className="mt-6 pt-5 border-t flex items-center gap-2" style={{ borderColor: 'rgba(34,200,229,0.1)' }}>
           <Clock size={12} style={{ color: 'rgba(255,255,255,0.3)', flexShrink: 0 }} aria-hidden="true" />
           <p className="text-[11px]" style={{ color: 'rgba(255,255,255,0.3)' }}>

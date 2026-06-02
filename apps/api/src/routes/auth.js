@@ -39,6 +39,16 @@ router.post('/register', async (req, res) => {
     // 4. Generate JWT
     const token = jwt.sign(user, JWT_SECRET, { expiresIn: '7d' });
 
+    // 5. Backfill: link any contracts/meetings created for this email before registration
+    pool.query(
+      'UPDATE contracts SET client_user_id = ? WHERE client_email = ? AND client_user_id IS NULL',
+      [insertResult.insertId, email]
+    ).catch(() => {});
+    pool.query(
+      'UPDATE meetings m JOIN users u ON u.email = ? SET m.user_id = ? WHERE m.user_id = u.id AND u.id != ?',
+      [email, insertResult.insertId, insertResult.insertId]
+    ).catch(() => {});
+
     res.status(201).json({ 
       message: 'User registered successfully',
       token,
@@ -90,6 +100,16 @@ router.post('/login', async (req, res) => {
 
     const userPayload = { id: userRecord.id, email: userRecord.email, name: userRecord.name, is_admin: userRecord.is_admin };
     const token = jwt.sign(userPayload, JWT_SECRET, { expiresIn: '7d' });
+
+    // Backfill: link any contracts/meetings created for this email before user registered
+    pool.query(
+      'UPDATE contracts SET client_user_id = ? WHERE client_email = ? AND client_user_id IS NULL',
+      [userRecord.id, userRecord.email]
+    ).catch(() => {});
+    pool.query(
+      'UPDATE meetings SET user_id = ? WHERE user_id IN (SELECT id FROM users WHERE email = ? AND id != ?) OR user_id IS NULL',
+      [userRecord.id, userRecord.email, userRecord.id]
+    ).catch(() => {});
 
     res.status(200).json({ 
       message: 'Logged in successfully',
