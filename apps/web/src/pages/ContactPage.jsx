@@ -70,8 +70,8 @@ function ContactForm() {
     setStatus('loading');
     try {
       const API_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
-        ? 'http://localhost:5000/api/support/ticket'
-        : 'https://evobrandconcepts.com/api/support/ticket';
+        ? 'http://localhost:5000/api/contacts/submit'
+        : 'https://evobrandconcepts.com/api/contacts/submit';
       const controller = new AbortController();
       const timer = setTimeout(() => controller.abort(), 10000);
       let response;

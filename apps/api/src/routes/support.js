@@ -92,7 +92,7 @@ router.get('/tickets/:id', authenticateToken, async (req, res) => {
 // @route POST /api/support/ticket
 // @desc  Create a new support ticket (Public or authenticated)
 router.post('/ticket', async (req, res) => {
-  const { email, name, subject, message, priority, subscribeNewsletter } = req.body;
+  const { email, name, subject, message, priority } = req.body;
 
   if (!email || !subject || !message) {
     return res.status(400).json({ error: 'Email, subject, and message are required' });
@@ -123,21 +123,6 @@ router.post('/ticket', async (req, res) => {
 
       await connection.commit();
       const ticketId = ticketResult.insertId;
-
-      // Handle Newsletter Opt-in
-      if (subscribeNewsletter) {
-        try {
-          const nameParts = (name || '').split(' ');
-          const first_name = nameParts[0] || '';
-          const last_name = nameParts.slice(1).join(' ') || '';
-          await pool.query(
-            'INSERT INTO crm_contacts (email, first_name, last_name, list_id, status) VALUES (?, ?, ?, ?, "subscribed") ON DUPLICATE KEY UPDATE status = "subscribed"',
-            [email, first_name, last_name, 1]
-          );
-        } catch (crmErr) {
-          console.error('Failed to add to CRM:', crmErr);
-        }
-      }
 
       // Send Email Notifications
       try {

@@ -25,7 +25,7 @@ app.use(express.json());
 
 // Basic health check endpoint
 app.get('/api/health', (req, res) => {
-  res.status(200).json({ status: 'ok', message: 'EVOBRAND API is running' });
+  res.status(200).json({ status: 'ok', message: 'EVOBRAND API is running v2' });
 });
 
 app.get('/api/crash', (req, res) => {
@@ -38,7 +38,7 @@ app.get('/api/crash', (req, res) => {
 });
 
 // Import Routes
-let supportRoutes, newsletterRoutes, schedulerRoutes, auditorRoutes, authRoutes, crmRoutes, contractRoutes, notificationRoutes;
+let supportRoutes, newsletterRoutes, schedulerRoutes, auditorRoutes, authRoutes, crmRoutes, contractRoutes, notificationRoutes, contactsRoutes;
 
 const loadRoute = (name, path) => {
   try {
@@ -62,6 +62,7 @@ auditorRoutes = loadRoute('auditor', './routes/auditor');
 crmRoutes = loadRoute('crm', './routes/crm');
 contractRoutes = loadRoute('contracts', './routes/contracts');
 notificationRoutes = loadRoute('notifications', './routes/notifications');
+contactsRoutes = loadRoute('contacts', './routes/contacts');
 
 app.get('/api/install', (req, res) => {
   try {
@@ -94,6 +95,8 @@ app.get('/install-log', (req, res) => {
 // Mount routes if loaded
 if (supportRoutes) app.use('/api/support', supportRoutes);
 if (newsletterRoutes) app.use('/api/newsletter', newsletterRoutes);
+if (crmRoutes) app.use('/api/crm', crmRoutes);
+if (contactsRoutes) app.use('/api/contacts', contactsRoutes);
 if (authRoutes) app.use('/api/auth', authRoutes);
 if (schedulerRoutes) app.use('/api/scheduler', schedulerRoutes);
 if (auditorRoutes) app.use('/api/auditor', auditorRoutes);
@@ -109,6 +112,7 @@ if (authRoutes) app.use('/auth', authRoutes);
 if (schedulerRoutes) app.use('/scheduler', schedulerRoutes);
 if (auditorRoutes) app.use('/auditor', auditorRoutes);
 if (crmRoutes) app.use('/crm', crmRoutes);
+if (contactsRoutes) app.use('/contacts', contactsRoutes);
 if (contractRoutes) app.use('/contracts', contractRoutes);
 if (notificationRoutes) app.use('/notifications', notificationRoutes);
 

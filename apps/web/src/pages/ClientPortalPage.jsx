@@ -14,6 +14,7 @@ import AdminTicketPanel from '../components/admin/AdminTicketPanel';
 import AdminCRMPanel from '../components/admin/AdminCRMPanel';
 import ContractBuilderPanel from '../components/admin/ContractBuilderPanel';
 import AdminBlackoutPanel from '../components/admin/AdminBlackoutPanel';
+import AdminContactFormsPanel from '../components/admin/AdminContactFormsPanel';
 import MyContractsPanel from '../components/portal/MyContractsPanel';
 import { useAuth } from '../hooks/useAuth.jsx';
 import { useNavigate } from 'react-router-dom';
@@ -63,7 +64,8 @@ function Sidebar({ user, view, setView, setSelectedTicket, openTicketCount, hand
     { key: 'meetings', icon: Calendar, label: 'My Meetings' },
     { key: 'my-contracts', icon: FileText, label: 'My Contracts' },
     ...(isAdmin ? [
-      { key: 'admin', icon: ShieldCheck, label: 'Support & Contact Forms' },
+      { key: 'admin', icon: ShieldCheck, label: 'Support Tickets' },
+      { key: 'contact-forms', icon: ShieldCheck, label: 'Contact Forms' },
       { key: 'scheduler-admin', icon: Calendar, label: 'Availability Controls' },
       { key: 'crm', icon: Users, label: 'CRM & Campaigns' },
       { key: 'contract-builder', icon: FileText, label: 'Contract Builder' },
@@ -308,7 +310,8 @@ const ClientPortalPage = () => {
     detail: 'Ticket Details',
     meetings: 'My Meetings',
     'my-contracts': 'My Contracts',
-    admin: 'Support & Contact Forms',
+    admin: 'Support Tickets',
+    'contact-forms': 'Contact Forms',
     'scheduler-admin': 'Availability Controls',
     crm: 'CRM & Campaigns',
     'contract-builder': 'Contract Builder',
@@ -498,7 +501,7 @@ const ClientPortalPage = () => {
                   </motion.div>
                 )}
 
-                {/* ── Support & Contact Forms Panel ── */}
+                {/* ── Support Tickets Panel ── */}
                 {view === 'admin' && (
                   <motion.div
                     key="admin"
@@ -508,6 +511,19 @@ const ClientPortalPage = () => {
                     transition={{ duration: 0.2 }}
                   >
                     <AdminTicketPanel user={user} />
+                  </motion.div>
+                )}
+
+                {/* ── Contact Forms Panel ── */}
+                {view === 'contact-forms' && (
+                  <motion.div
+                    key="contact-forms"
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -10 }}
+                    transition={{ duration: 0.2 }}
+                  >
+                    <AdminContactFormsPanel user={user} />
                   </motion.div>
                 )}
 
