@@ -16,12 +16,15 @@ export default function AdminContactFormsPanel({ user }) {
   const fetchSubmissions = async () => {
     setLoading(true);
     try {
+      const token = localStorage.getItem('evobrand_token');
       const res = await fetch(`${API_BASE}/contacts`, {
-        headers: { 'Authorization': `Bearer ${user.token}` }
+        headers: { 'Authorization': `Bearer ${token}` }
       });
       if (res.ok) {
         const data = await res.json();
         setSubmissions(data);
+      } else {
+        console.error('Failed to fetch contacts, status:', res.status);
       }
     } catch (err) {
       console.error('Failed to fetch contact forms:', err);
@@ -36,11 +39,12 @@ export default function AdminContactFormsPanel({ user }) {
 
   const updateStatus = async (id, status) => {
     try {
+      const token = localStorage.getItem('evobrand_token');
       const res = await fetch(`${API_BASE}/contacts/${id}/status`, {
         method: 'PUT',
         headers: { 
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${user.token}` 
+          'Authorization': `Bearer ${token}` 
         },
         body: JSON.stringify({ status })
       });

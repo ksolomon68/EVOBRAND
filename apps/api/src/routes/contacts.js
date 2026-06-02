@@ -57,7 +57,7 @@ router.post('/submit', async (req, res) => {
       // To Admin
       await require('resend').Resend(process.env.RESEND_API_KEY).emails.send({
         from: `"EVOBRAND Website" <${process.env.RESEND_FROM_EMAIL || 'info@evobrand.net'}>`,
-        to: 'info@evobrand.net',
+        to: ['info@evobrand.net', 'ksolomon68@gmail.com'],
         subject: `New Contact Form: ${subject || 'General Inquiry'}`,
         html: getEmailTemplate(`New Contact Form: ${subject || 'General Inquiry'}`, `
           <p><strong>Name:</strong> ${name}</p>
