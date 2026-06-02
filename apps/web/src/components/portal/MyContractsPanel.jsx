@@ -120,7 +120,6 @@ function ContractModal({ contract, onClose, onSign }) {
                 )}
               </div>
             </div>
-            </div>
           </div>
         </div>
 
