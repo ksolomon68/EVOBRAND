@@ -2,11 +2,11 @@ const express = require('express');
 const router = express.Router();
 const pool = require('../db/connection');
 const { getEmailTemplate } = require('../utils/emailTemplate');
-// const { Resend } = require('resend');
+const { Resend } = require('resend');
 const { createNotification, notifyAdmins } = require('../utils/notifications');
 const { authenticateToken } = require('../middleware/auth');
 
-// const resend = new Resend(process.env.RESEND_API_KEY);
+const resend = new Resend(process.env.RESEND_API_KEY);
 
 const generateICS = (dateStr, timeStr, duration, bookingType, clientName, meetLink, notes) => {
   const match = timeStr.match(/(\d+):(\d+)\s*(AM|PM)/i);
@@ -179,7 +179,7 @@ router.post('/book', async (req, res) => {
       const attachments = icsString ? [{ filename: 'invite.ics', content: Buffer.from(icsString).toString('base64'), contentType: 'text/calendar' }] : undefined;
 
       if (finalEmail) {
-        await require('resend').Resend(process.env.RESEND_API_KEY).emails.send({
+        await resend.emails.send({
           from: `"EVOBRAND Scheduling" <${process.env.RESEND_FROM_EMAIL || 'info@evobrand.net'}>`,
           to: finalEmail,
           subject: 'Appointment Confirmed',
@@ -193,7 +193,7 @@ router.post('/book', async (req, res) => {
         });
       }
 
-      await require('resend').Resend(process.env.RESEND_API_KEY).emails.send({
+      await resend.emails.send({
         from: `"EVOBRAND Scheduling" <${process.env.RESEND_FROM_EMAIL || 'info@evobrand.net'}>`,
         to: ['info@evobrand.net', 'ksolomon68@gmail.com'],
         subject: `New Booking: ${finalName || finalEmail}`,
@@ -255,7 +255,7 @@ router.post('/meetings/:id/cancel', async (req, res) => {
       const meeting = meetings[0];
       try {
         if (meeting.user_email) {
-          await require('resend').Resend(process.env.RESEND_API_KEY).emails.send({
+          await resend.emails.send({
             from: `"EVOBRAND Scheduling" <${process.env.RESEND_FROM_EMAIL || 'info@evobrand.net'}>`,
             to: meeting.user_email,
             subject: 'Appointment Cancelled',
@@ -265,7 +265,7 @@ router.post('/meetings/:id/cancel', async (req, res) => {
             `)
           });
         }
-        await require('resend').Resend(process.env.RESEND_API_KEY).emails.send({
+        await resend.emails.send({
           from: `"EVOBRAND Scheduling" <${process.env.RESEND_FROM_EMAIL || 'info@evobrand.net'}>`,
           to: 'info@evobrand.net',
           subject: `Booking Cancelled: ${meeting.date} at ${meeting.time}`,
