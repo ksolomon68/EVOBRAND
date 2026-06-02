@@ -125,7 +125,7 @@ router.post('/ticket', async (req, res) => {
 
       // Send Email Notifications
       try {
-        await resend.emails.send({
+        await require('resend').Resend(process.env.RESEND_API_KEY).emails.send({
           from: `"EVOBRAND Support" <${process.env.RESEND_FROM_EMAIL || 'info@evobrand.net'}>`,
           to: 'info@evobrand.net',
           subject: `New Ticket: ${subject}`,
@@ -133,7 +133,7 @@ router.post('/ticket', async (req, res) => {
                  <p><strong>Priority:</strong> ${priority || 'normal'}</p>
                  <p><strong>Message:</strong><br/>${message}</p>`
         });
-        await resend.emails.send({
+        await require('resend').Resend(process.env.RESEND_API_KEY).emails.send({
           from: `"EVOBRAND Support" <${process.env.RESEND_FROM_EMAIL || 'info@evobrand.net'}>`,
           to: email,
           subject: `Ticket Received: ${subject}`,
@@ -197,7 +197,7 @@ router.post('/tickets/:id/reply', authenticateToken, async (req, res) => {
       await notifyAdmins('New Ticket Reply', `Client replied to ticket #${ticketId}`, '/client-portal', 'ticket');
       
       // Email Admin
-      await resend.emails.send({
+      await require('resend').Resend(process.env.RESEND_API_KEY).emails.send({
         from: `"EVOBRAND Support" <${process.env.RESEND_FROM_EMAIL || 'info@evobrand.net'}>`,
         to: 'info@evobrand.net',
         subject: `New Reply: Ticket #${ticketId}`,
@@ -211,7 +211,7 @@ router.post('/tickets/:id/reply', authenticateToken, async (req, res) => {
       
       // Email User
       if (currentTicket.user_email) {
-        await resend.emails.send({
+        await require('resend').Resend(process.env.RESEND_API_KEY).emails.send({
           from: `"EVOBRAND Support" <${process.env.RESEND_FROM_EMAIL || 'info@evobrand.net'}>`,
           to: currentTicket.user_email,
           subject: `New Reply on Ticket: ${currentTicket.subject}`,
@@ -267,7 +267,7 @@ router.put('/tickets/:id', authenticateToken, async (req, res) => {
       
       // Email User
       if (currentTicket.user_email) {
-        await resend.emails.send({
+        await require('resend').Resend(process.env.RESEND_API_KEY).emails.send({
           from: `"EVOBRAND Support" <${process.env.RESEND_FROM_EMAIL || 'info@evobrand.net'}>`,
           to: currentTicket.user_email,
           subject: `Ticket Status Updated: ${currentTicket.subject}`,
@@ -278,7 +278,7 @@ router.put('/tickets/:id', authenticateToken, async (req, res) => {
       }
       
       // Email Admin
-      await resend.emails.send({
+      await require('resend').Resend(process.env.RESEND_API_KEY).emails.send({
         from: `"EVOBRAND Support" <${process.env.RESEND_FROM_EMAIL || 'info@evobrand.net'}>`,
         to: 'info@evobrand.net',
         subject: `Ticket Status Changed: #${ticketId}`,
@@ -314,7 +314,7 @@ router.post('/tickets/:id/close', authenticateToken, async (req, res) => {
     if (currentTicket.status !== 'closed') {
       // Email User
       if (currentTicket.user_email) {
-        await resend.emails.send({
+        await require('resend').Resend(process.env.RESEND_API_KEY).emails.send({
           from: `"EVOBRAND Support" <${process.env.RESEND_FROM_EMAIL || 'info@evobrand.net'}>`,
           to: currentTicket.user_email,
           subject: `Ticket Closed: ${currentTicket.subject}`,
@@ -324,7 +324,7 @@ router.post('/tickets/:id/close', authenticateToken, async (req, res) => {
       }
       
       // Email Admin
-      await resend.emails.send({
+      await require('resend').Resend(process.env.RESEND_API_KEY).emails.send({
         from: `"EVOBRAND Support" <${process.env.RESEND_FROM_EMAIL || 'info@evobrand.net'}>`,
         to: 'info@evobrand.net',
         subject: `Ticket Closed by Client: #${ticketId}`,
