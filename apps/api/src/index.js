@@ -39,25 +39,39 @@ app.get('/api/crash', (req, res) => {
 
 // Import Routes
 let supportRoutes, newsletterRoutes, schedulerRoutes, auditorRoutes, authRoutes, crmRoutes, contractRoutes, notificationRoutes;
-try {
-  supportRoutes = require('./routes/support');
-  newsletterRoutes = require('./routes/newsletter');
-  authRoutes = require('./routes/auth');
-  schedulerRoutes = require('./routes/scheduler');
-  auditorRoutes = require('./routes/auditor');
-  crmRoutes = require('./routes/crm');
-  contractRoutes = require('./routes/contracts');
-  notificationRoutes = require('./routes/notifications');
-} catch (err) {
-  console.error('Error loading routes:', err.message);
-  const diagnostics = `Node Version: ${process.version}\n` +
-                      `Current Dir: ${__dirname}\n` +
-                      `CWD: ${process.cwd()}\n` +
-                      `NODE_PATH: ${process.env.NODE_PATH}\n` +
-                      `Search Paths: ${JSON.stringify(module.paths, null, 2)}\n\n` +
-                      `Error Stack:\n${err.stack}`;
-  fs.writeFileSync(__dirname + '/crash.log', diagnostics);
-}
+
+const loadRoute = (name, path) => {
+  try {
+    return require(path);
+  } catch (err) {
+    console.error(`Error loading ${name} route:`, err.message);
+    const diagnostics = `Error loading ${name}:\n${err.stack}`;
+    fs.appendFileSync(__dirname + '/crash.log', diagnostics + '\n\n');
+    return null;
+  }
+};
+
+// Clear old crash log
+try { fs.writeFileSync(__dirname + '/crash.log', ''); } catch (e) {}
+
+supportRoutes = loadRoute('support', './routes/support');
+newsletterRoutes = loadRoute('newsletter', './routes/newsletter');
+authRoutes = loadRoute('auth', './routes/auth');
+schedulerRoutes = loadRoute('scheduler', './routes/scheduler');
+auditorRoutes = loadRoute('auditor', './routes/auditor');
+crmRoutes = loadRoute('crm', './routes/crm');
+contractRoutes = loadRoute('contracts', './routes/contracts');
+notificationRoutes = loadRoute('notifications', './routes/notifications');
+
+app.get('/api/install', (req, res) => {
+  try {
+    const { execSync } = require('child_process');
+    const output = execSync('npm install @google/generative-ai resend --no-audit --no-fund', { encoding: 'utf8', cwd: __dirname + '/..' });
+    res.type('text/plain').send('Installed dependencies:\n' + output);
+  } catch (err) {
+    res.status(500).type('text/plain').send('Install failed:\n' + err.message + '\n' + (err.stdout || ''));
+  }
+});
 
 app.get('/api/install-log', (req, res) => {
   try {
