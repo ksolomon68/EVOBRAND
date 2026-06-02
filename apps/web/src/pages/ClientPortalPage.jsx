@@ -365,30 +365,29 @@ const ClientPortalPage = () => {
               <div className="hidden md:block">
                 <h2 className="text-white/50 font-bold uppercase tracking-[0.2em] text-xs">{pageTitle}</h2>
               </div>
-              <img src="/logo.png" alt="EVOBRAND" className="h-6 md:hidden" />
             </div>
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-2 sm:gap-4">
               <NotificationDropdown onNavigate={(v) => { setView(v); setMobileNavOpen(false); }} />
               <button
                 onClick={handleSignOut}
-                className="md:hidden p-3 rounded-xl transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-red-400"
+                className="md:hidden p-2.5 rounded-xl transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-red-400"
                 style={{ background: 'rgba(255,255,255,0.04)', color: 'rgba(255,255,255,0.35)' }}
                 aria-label="Sign out"
                 onMouseEnter={(e) => { e.currentTarget.style.color = '#f87171'; e.currentTarget.style.background = 'rgba(248,113,113,0.08)'; }}
                 onMouseLeave={(e) => { e.currentTarget.style.color = 'rgba(255,255,255,0.35)'; e.currentTarget.style.background = 'rgba(255,255,255,0.04)'; }}
               >
-                <LogOut size={17} aria-hidden="true" />
+                <LogOut size={16} aria-hidden="true" />
               </button>
               <div className="h-8 w-px" style={{ background: 'rgba(255,255,255,0.05)' }} aria-hidden="true" />
               <button
                 onClick={() => setShowNewTicketModal(true)}
-                className="flex items-center gap-2 px-5 py-2.5 rounded-xl font-bold text-xs uppercase tracking-widest transition-all shadow-lg focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#22c8e5]"
+                className="flex items-center gap-2 px-3 sm:px-5 py-2.5 rounded-xl font-bold text-xs uppercase tracking-widest transition-all shadow-lg focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#22c8e5]"
                 style={{ background: GOLD, color: NAVY, boxShadow: `0 4px 16px ${GOLD}20` }}
                 onMouseEnter={(e) => (e.currentTarget.style.opacity = '0.85')}
                 onMouseLeave={(e) => (e.currentTarget.style.opacity = '1')}
               >
                 <Plus size={14} aria-hidden="true" />
-                <span>New Ticket</span>
+                <span className="hidden sm:inline">New Ticket</span>
               </button>
             </div>
           </header>
