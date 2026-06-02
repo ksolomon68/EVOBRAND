@@ -7,11 +7,8 @@ deployment:
     - /bin/cp dist/apps/web/.htaccess $DEPLOYPATH/ || true
 
     # Deploy API source files (try both common cPanel Node.js app paths)
-    - mkdir -p /home/evobrandconcepts/EVOBRAND/apps/api/src && /bin/cp -R apps/api/src/* /home/evobrandconcepts/EVOBRAND/apps/api/src/ || true
-    - /bin/cp apps/api/package.json /home/evobrandconcepts/EVOBRAND/apps/api/ || true
-    - /bin/cp apps/api/install_nodemailer.js /home/evobrandconcepts/EVOBRAND/apps/api/ || true
-    - mkdir -p /home/evobrandconcepts/nodeapp/src && /bin/cp -R apps/api/src/* /home/evobrandconcepts/nodeapp/src/ || true
-    - /bin/cp apps/api/package.json /home/evobrandconcepts/nodeapp/ || true
+    - mkdir -p /home/evobrandconcepts/EVOBRAND/apps/api && /bin/cp -a apps/api/. /home/evobrandconcepts/EVOBRAND/apps/api/ || true
+    - mkdir -p /home/evobrandconcepts/nodeapp && /bin/cp -a apps/api/. /home/evobrandconcepts/nodeapp/ || true
 
     # Restart Node.js Passenger app
     - mkdir -p /home/evobrandconcepts/EVOBRAND/apps/api/tmp && touch /home/evobrandconcepts/EVOBRAND/apps/api/tmp/restart.txt
