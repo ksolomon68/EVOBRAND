@@ -335,14 +335,14 @@ const ServicesPage = () => {
 
       <div className="min-h-screen bg-[#0f1419]">
         {/* Service Navigation */}
-        <section className="bg-[#1a2332] py-6 sticky top-20 z-40">
+        <section className="bg-[#1a2332] py-4 sticky top-20 z-40">
           <div className="container mx-auto px-4">
-            <div className="flex flex-wrap justify-center gap-4 pb-2">
+            <div className="flex overflow-x-auto gap-2 pb-1 no-scrollbar">
               {services.map((service, index) => (
                 <button
                   key={service.id}
                   onClick={() => setSelectedService(index)}
-                  className={`px-6 py-3 rounded-full font-bold transition-all ${selectedService === index
+                  className={`flex-shrink-0 px-4 py-2 rounded-full font-bold text-sm transition-all ${selectedService === index
                       ? 'bg-[#22c8e5] text-[#003258] shadow-[0_0_15px_rgba(34,200,229,0.3)]'
                       : 'bg-[#0f1419] text-gray-400 hover:text-white border border-white/5'
                     }`}
@@ -355,17 +355,17 @@ const ServicesPage = () => {
         </section>
 
         {/* Service Hero */}
-        <section className="py-20 bg-gradient-to-br from-[#1a2332] to-[#0f1419]">
+        <section className="py-10 md:py-16 bg-gradient-to-br from-[#1a2332] to-[#0f1419]">
           <div className="container mx-auto px-4">
             <motion.div
               key={selectedService}
-              initial={{ opacity: 0, y: 30 }}
+              initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               className="text-center max-w-4xl mx-auto"
             >
-              <div className="text-[#22c8e5] mb-6 flex justify-center">{currentService.icon}</div>
-              <h1 className="text-4xl md:text-5xl font-bold text-white mb-6">{currentService.title}</h1>
-              <p className="text-xl text-gray-400">{currentService.description}</p>
+              <div className="text-[#22c8e5] mb-4 flex justify-center">{currentService.icon}</div>
+              <h1 className="text-3xl md:text-5xl font-bold text-white mb-4">{currentService.title}</h1>
+              <p className="text-base md:text-xl text-gray-400">{currentService.description}</p>
             </motion.div>
           </div>
         </section>

@@ -86,7 +86,7 @@ router.get('/tickets/:id', authenticateToken, async (req, res) => {
 
     // Fetch ticket
     let query = `
-      SELECT t.*, u.name as user_name, u.email as user_email
+      SELECT t.*, u.name as user_name, u.email as user_email, u.id as user_id, u.support_plan as user_support_plan
       FROM support_tickets t
       LEFT JOIN users u ON t.user_id = u.id
       WHERE t.id = ?
@@ -121,7 +121,7 @@ router.get('/tickets/:id', authenticateToken, async (req, res) => {
 // @route POST /api/support/ticket
 // @desc  Create a new support ticket — accepts multipart/form-data for file uploads
 router.post('/ticket', upload.single('file'), async (req, res) => {
-  const { email, name, subject, message, priority, service } = req.body;
+  const { email, name, subject, message, priority, service, ticket_type, has_plan } = req.body;
 
   if (!email || !subject || !message) {
     return res.status(400).json({ error: 'Email, subject, and message are required' });
@@ -152,8 +152,8 @@ router.post('/ticket', upload.single('file'), async (req, res) => {
       }
 
       const [ticketResult] = await connection.query(
-        'INSERT INTO support_tickets (user_id, subject, message, priority, service, attachment_url) VALUES (?, ?, ?, ?, ?, ?)',
-        [userId, subject, message, priority || 'normal', service || 'General', attachmentUrl]
+        'INSERT INTO support_tickets (user_id, subject, message, priority, service, attachment_url, ticket_type, plan_covered) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
+        [userId, subject, message, priority || 'normal', service || 'General', attachmentUrl, ticket_type || 'standard', has_plan === '1' ? 1 : 0]
       );
 
       await connection.commit();
@@ -376,6 +376,43 @@ router.post('/tickets/:id/close', authenticateToken, async (req, res) => {
   } catch (error) {
     console.error('Close ticket error:', error);
     res.status(500).json({ error: 'Server error closing ticket' });
+  }
+});
+
+// @route GET /api/support/users
+// @desc  Admin: list all users with their support plan
+router.get('/users', authenticateToken, async (req, res) => {
+  try {
+    const admin = await isAdminUser(req.user.id);
+    if (!admin) return res.status(403).json({ error: 'Admin access required' });
+    const [users] = await pool.query(
+      'SELECT id, name, email, support_plan, created_at FROM users WHERE is_admin = 0 OR is_admin IS NULL ORDER BY created_at DESC'
+    );
+    res.status(200).json({ users });
+  } catch (error) {
+    console.error('Fetch users error:', error);
+    res.status(500).json({ error: 'Server error' });
+  }
+});
+
+// @route PUT /api/support/users/:id/plan
+// @desc  Admin: set or remove a user's support plan
+router.put('/users/:id/plan', authenticateToken, async (req, res) => {
+  try {
+    const admin = await isAdminUser(req.user.id);
+    if (!admin) return res.status(403).json({ error: 'Admin access required' });
+
+    const { plan } = req.body; // 'basic' | 'pro' | 'elite' | null
+    const allowedPlans = ['basic', 'pro', 'elite', null, ''];
+    if (!allowedPlans.includes(plan)) {
+      return res.status(400).json({ error: 'Invalid plan. Use basic, pro, elite, or null.' });
+    }
+
+    await pool.query('UPDATE users SET support_plan = ? WHERE id = ?', [plan || null, req.params.id]);
+    res.status(200).json({ message: 'Support plan updated' });
+  } catch (error) {
+    console.error('Update plan error:', error);
+    res.status(500).json({ error: 'Server error updating plan' });
   }
 });
 

@@ -12,6 +12,7 @@ import NotificationDropdown from '../components/portal/NotificationDropdown';
 import MyMeetings from '../components/portal/MyMeetings';
 import AdminTicketPanel from '../components/admin/AdminTicketPanel';
 import AdminCRMPanel from '../components/admin/AdminCRMPanel';
+import AdminClientPlansPanel from '../components/admin/AdminClientPlansPanel';
 import ContractBuilderPanel from '../components/admin/ContractBuilderPanel';
 import AdminBlackoutPanel from '../components/admin/AdminBlackoutPanel';
 import AdminContactFormsPanel from '../components/admin/AdminContactFormsPanel';
@@ -65,6 +66,7 @@ function Sidebar({ user, view, setView, setSelectedTicket, openTicketCount, hand
     { key: 'my-contracts', icon: FileText, label: 'My Contracts' },
     ...(isAdmin ? [
       { key: 'admin', icon: ShieldCheck, label: 'Support Tickets' },
+      { key: 'client-plans', icon: Users, label: 'Client Plans' },
       { key: 'contact-forms', icon: ShieldCheck, label: 'Contact Forms' },
       { key: 'scheduler-admin', icon: Calendar, label: 'Availability Controls' },
       { key: 'crm', icon: Users, label: 'CRM & Campaigns' },
@@ -260,6 +262,9 @@ const ClientPortalPage = () => {
       body.append('message', formData.description);
       body.append('priority', formData.priority?.toLowerCase() || 'normal');
       body.append('service', formData.service || 'General');
+      body.append('ticket_type', formData.ticketType || 'standard');
+      body.append('has_plan', formData.hasPlan ? '1' : '0');
+      body.append('support_plan', formData.supportPlan || '');
       if (formData.file) {
         body.append('file', formData.file);
       }
@@ -366,6 +371,7 @@ const ClientPortalPage = () => {
     meetings: 'My Meetings',
     'my-contracts': 'My Contracts',
     admin: 'Support Tickets',
+    'client-plans': 'Client Plans',
     'contact-forms': 'Contact Forms',
     'scheduler-admin': 'Availability Controls',
     crm: 'CRM & Campaigns',
@@ -604,6 +610,19 @@ const ClientPortalPage = () => {
                   </motion.div>
                 )}
 
+                {/* ── Client Plans Panel ── */}
+                {view === 'client-plans' && (
+                  <motion.div
+                    key="client-plans"
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -10 }}
+                    transition={{ duration: 0.2 }}
+                  >
+                    <AdminClientPlansPanel user={user} />
+                  </motion.div>
+                )}
+
                 {/* ── Contact Forms Panel ── */}
                 {view === 'contact-forms' && (
                   <motion.div
@@ -679,6 +698,7 @@ const ClientPortalPage = () => {
           <NewTicketForm
             onClose={() => setShowNewTicketModal(false)}
             onSubmit={handleCreateTicket}
+            user={user}
           />
         )}
       </AnimatePresence>

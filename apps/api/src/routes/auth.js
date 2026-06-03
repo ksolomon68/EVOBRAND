@@ -128,7 +128,7 @@ router.post('/login', async (req, res) => {
 router.get('/me', authenticateToken, async (req, res) => {
   try {
     // req.user has id and email from the token payload
-    const [users] = await pool.query('SELECT id, email, name, is_admin, created_at FROM users WHERE id = ?', [req.user.id]);
+    const [users] = await pool.query('SELECT id, email, name, is_admin, support_plan, created_at FROM users WHERE id = ?', [req.user.id]);
 
     if (users.length === 0) {
       return res.status(404).json({ error: 'User not found' });

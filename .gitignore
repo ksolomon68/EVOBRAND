@@ -9,4 +9,13 @@ yarn-error.log*
 supabase/.temp
 deploy.zip
 apps/web/dist/
+
+# Server-generated files
 apps/api/src/crash.log
+apps/api/crash.log
+*.log
+nohup.out
+apps/api/uploads/
+apps/api/tmp/
+tmp/
+dist/

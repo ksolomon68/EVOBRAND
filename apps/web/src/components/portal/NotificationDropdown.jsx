@@ -119,8 +119,8 @@ export default function NotificationDropdown({ onNavigate }) {
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 10, scale: 0.95 }}
             transition={{ duration: 0.15 }}
-            className="absolute right-0 mt-3 w-80 md:w-96 rounded-2xl shadow-2xl border border-white/10 z-50 overflow-hidden"
-            style={{ background: '#0a101d', backdropFilter: 'blur(20px)' }}
+            className="absolute right-0 mt-3 rounded-2xl shadow-2xl border border-white/10 z-50 overflow-hidden"
+            style={{ background: '#0a101d', backdropFilter: 'blur(20px)', width: 'min(384px, calc(100vw - 24px))', right: 0 }}
           >
             <div className="p-4 border-b border-white/5 flex items-center justify-between bg-white/5">
               <h3 className="text-white font-bold text-sm tracking-wide">Notifications</h3>

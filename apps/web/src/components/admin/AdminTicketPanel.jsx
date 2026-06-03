@@ -1,12 +1,19 @@
 import React, { useState, useEffect, useRef } from 'react';
 import {
   Loader2, ShieldAlert, ArrowLeft, Send, DollarSign,
-  CheckCircle2, Clock, AlertCircle, Users, Tag, Paperclip
+  CheckCircle2, Clock, AlertCircle, Users, Tag, Paperclip, Shield, Zap, Star
 } from 'lucide-react';
 
 const API_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
   ? 'http://localhost:5000/api/support'
   : (window.location.origin + '/api/support');
+
+const PLAN_OPTS = [
+  { value: '', label: 'No Plan' },
+  { value: 'basic', label: 'Basic Plan', icon: Shield },
+  { value: 'pro', label: 'Pro Plan', icon: Zap },
+  { value: 'elite', label: 'Elite Plan', icon: Star },
+];
 
 const GOLD = '#22c8e5';
 const NAVY = '#003258';
@@ -64,6 +71,9 @@ function TicketDetail({ ticket, onBack, onRefresh }) {
   const [saving, setSaving] = useState(false);
   const [saveMsg, setSaveMsg] = useState('');
   const [sending, setSending] = useState(false);
+  const [planValue, setPlanValue] = useState(ticket.user_support_plan || '');
+  const [planSaving, setPlanSaving] = useState(false);
+  const [planMsg, setPlanMsg] = useState('');
   const bottomRef = useRef(null);
 
   useEffect(() => {
@@ -96,6 +106,33 @@ function TicketDetail({ ticket, onBack, onRefresh }) {
       setSaveMsg('Network error');
     } finally {
       setSaving(false);
+    }
+  };
+
+  const savePlan = async (plan) => {
+    if (!ticket.user_id) return;
+    setPlanSaving(true);
+    setPlanMsg('');
+    try {
+      const res = await fetch(`${API_URL}/users/${ticket.user_id}/plan`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${localStorage.getItem('evobrand_token')}`,
+        },
+        body: JSON.stringify({ plan: plan || null }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (res.ok) {
+        setPlanMsg('Saved');
+        setTimeout(() => setPlanMsg(''), 2000);
+      } else {
+        setPlanMsg(data.error || 'Failed');
+      }
+    } catch {
+      setPlanMsg('Network error');
+    } finally {
+      setPlanSaving(false);
     }
   };
 
@@ -308,6 +345,35 @@ function TicketDetail({ ticket, onBack, onRefresh }) {
             <div className="text-xs text-white/30">
               <p>Opened: {new Date(ticket.created_at).toLocaleDateString()}</p>
               <p>Updated: {new Date(ticket.updated_at).toLocaleDateString()}</p>
+            </div>
+
+            {/* Maintenance Plan */}
+            <div className="pt-3 border-t border-white/10">
+              <label className="text-[10px] font-bold uppercase tracking-widest text-white/30 block mb-2">Maintenance Plan</label>
+              <div className="flex gap-2">
+                <select
+                  value={planValue}
+                  onChange={(e) => setPlanValue(e.target.value)}
+                  className="flex-1 bg-[#04080f] border border-white/10 text-white text-sm p-2.5 rounded-lg focus:outline-none focus:border-[#22c8e5]"
+                >
+                  {PLAN_OPTS.map(o => (
+                    <option key={o.value} value={o.value}>{o.label}</option>
+                  ))}
+                </select>
+                <button
+                  onClick={() => savePlan(planValue)}
+                  disabled={planSaving}
+                  className="px-3 py-2 rounded-lg text-sm font-bold disabled:opacity-50 transition-colors"
+                  style={{ background: 'rgba(34,200,229,0.15)', color: GOLD }}
+                >
+                  {planSaving ? <Loader2 size={13} className="animate-spin" /> : 'Save'}
+                </button>
+              </div>
+              {planMsg && (
+                <p className={`text-xs font-bold mt-1.5 ${planMsg === 'Saved' ? 'text-green-400' : 'text-red-400'}`}>
+                  {planMsg}
+                </p>
+              )}
             </div>
           </div>
         </div>
