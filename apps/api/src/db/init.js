@@ -19,6 +19,7 @@ async function initializeDatabase() {
     // Add missing columns to users if upgrading from old schema
     await pool.query(`ALTER TABLE users ADD COLUMN IF NOT EXISTS password_hash VARCHAR(255)`).catch(() => {});
     await pool.query(`ALTER TABLE users ADD COLUMN IF NOT EXISTS is_admin BOOLEAN DEFAULT FALSE`).catch(() => {});
+    await pool.query(`ALTER TABLE users ADD COLUMN IF NOT EXISTS support_plan ENUM('basic','pro','elite') DEFAULT NULL`).catch(() => {});
 
     // Create Contracts table
     await pool.query(`
@@ -75,6 +76,8 @@ async function initializeDatabase() {
     await pool.query(`ALTER TABLE support_tickets ADD COLUMN IF NOT EXISTS priority ENUM('low', 'normal', 'high', 'urgent') DEFAULT 'normal'`).catch(() => {});
     await pool.query(`ALTER TABLE support_tickets ADD COLUMN IF NOT EXISTS quoted_price DECIMAL(10,2) DEFAULT NULL`).catch(() => {});
     await pool.query(`ALTER TABLE support_tickets ADD COLUMN IF NOT EXISTS is_paid BOOLEAN DEFAULT FALSE`).catch(() => {});
+    await pool.query(`ALTER TABLE support_tickets ADD COLUMN IF NOT EXISTS ticket_type VARCHAR(50) DEFAULT 'standard'`).catch(() => {});
+    await pool.query(`ALTER TABLE support_tickets ADD COLUMN IF NOT EXISTS plan_covered BOOLEAN DEFAULT FALSE`).catch(() => {});
     // Add pending status to enum if not already present
     await pool.query(`ALTER TABLE support_tickets MODIFY COLUMN status ENUM('open', 'in_progress', 'pending', 'resolved', 'closed') DEFAULT 'open'`).catch(() => {});
 

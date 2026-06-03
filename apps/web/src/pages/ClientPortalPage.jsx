@@ -260,6 +260,9 @@ const ClientPortalPage = () => {
       body.append('message', formData.description);
       body.append('priority', formData.priority?.toLowerCase() || 'normal');
       body.append('service', formData.service || 'General');
+      body.append('ticket_type', formData.ticketType || 'standard');
+      body.append('has_plan', formData.hasPlan ? '1' : '0');
+      body.append('support_plan', formData.supportPlan || '');
       if (formData.file) {
         body.append('file', formData.file);
       }
@@ -679,6 +682,7 @@ const ClientPortalPage = () => {
           <NewTicketForm
             onClose={() => setShowNewTicketModal(false)}
             onSubmit={handleCreateTicket}
+            user={user}
           />
         )}
       </AnimatePresence>
