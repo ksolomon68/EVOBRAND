@@ -86,7 +86,7 @@ router.get('/tickets/:id', authenticateToken, async (req, res) => {
 
     // Fetch ticket
     let query = `
-      SELECT t.*, u.name as user_name, u.email as user_email
+      SELECT t.*, u.name as user_name, u.email as user_email, u.id as user_id, u.support_plan as user_support_plan
       FROM support_tickets t
       LEFT JOIN users u ON t.user_id = u.id
       WHERE t.id = ?
@@ -376,6 +376,22 @@ router.post('/tickets/:id/close', authenticateToken, async (req, res) => {
   } catch (error) {
     console.error('Close ticket error:', error);
     res.status(500).json({ error: 'Server error closing ticket' });
+  }
+});
+
+// @route GET /api/support/users
+// @desc  Admin: list all users with their support plan
+router.get('/users', authenticateToken, async (req, res) => {
+  try {
+    const admin = await isAdminUser(req.user.id);
+    if (!admin) return res.status(403).json({ error: 'Admin access required' });
+    const [users] = await pool.query(
+      'SELECT id, name, email, support_plan, created_at FROM users WHERE is_admin = 0 OR is_admin IS NULL ORDER BY created_at DESC'
+    );
+    res.status(200).json({ users });
+  } catch (error) {
+    console.error('Fetch users error:', error);
+    res.status(500).json({ error: 'Server error' });
   }
 });
 
