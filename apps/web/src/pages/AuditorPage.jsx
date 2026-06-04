@@ -50,11 +50,7 @@ const AuditorPage = () => {
       const data = await res.json();
       setReport(data);
       setPhase('results');
-
-      // Navigate to results page with audit ID
-      if (data.id) {
-        navigate(`/auditor/results/${data.id}`, { replace: true });
-      }
+      // Intentionally not navigating to /auditor/results/:id because backend doesn't persist audits yet
     } catch (err) {
       console.error('Audit error:', err);
       setError(err.message || 'Something went wrong. Please try again.');
