@@ -6,9 +6,9 @@ deployment:
     - /bin/cp -R dist/apps/web/* $DEPLOYPATH || true
     - /bin/cp dist/apps/web/.htaccess $DEPLOYPATH/ || true
 
-    # Deploy API source files (try both common cPanel Node.js app paths)
-    - mkdir -p /home/evobrandconcepts/EVOBRAND/apps/api && /bin/cp -av apps/api/. /home/evobrandconcepts/EVOBRAND/apps/api/ > /home/evobrandconcepts/public_html/deploy.log 2>&1
-    - mkdir -p /home/evobrandconcepts/nodeapp && /bin/cp -av apps/api/. /home/evobrandconcepts/nodeapp/ >> /home/evobrandconcepts/public_html/deploy.log 2>&1
+    # Deploy API source files (using rsync to exclude node_modules to prevent hanging)
+    - mkdir -p /home/evobrandconcepts/EVOBRAND/apps/api && /usr/bin/rsync -a --exclude 'node_modules' apps/api/ /home/evobrandconcepts/EVOBRAND/apps/api/ > /home/evobrandconcepts/public_html/deploy.log 2>&1
+    - mkdir -p /home/evobrandconcepts/nodeapp && /usr/bin/rsync -a --exclude 'node_modules' apps/api/ /home/evobrandconcepts/nodeapp/ >> /home/evobrandconcepts/public_html/deploy.log 2>&1
 
     # Restart Node.js Passenger app
     - mkdir -p /home/evobrandconcepts/EVOBRAND/apps/api/tmp && touch /home/evobrandconcepts/EVOBRAND/apps/api/tmp/restart.txt
