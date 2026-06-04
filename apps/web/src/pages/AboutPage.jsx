@@ -199,7 +199,7 @@ const AboutPage = () => {
             <p className="text-xl text-white/90 mb-8">Let's transform your business together</p>
             <a
               href="/contact"
-              className="inline-block px-8 py-4 bg-[#22c8e5] text-[#003258] rounded-full font-bold hover:shadow-lg hover:bg-opacity-90 transition-all"
+              className="inline-block px-8 py-4 bg-[#22c8e5] text-[#003258] rounded-2xl font-bold hover:shadow-lg hover:bg-opacity-90 transition-all"
             >
               Get in Touch
             </a>

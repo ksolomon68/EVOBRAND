@@ -146,7 +146,7 @@ function MeetingCard({ booking, index }) {
       </div>
 
       {booking.notes && (
-        <p className="text-xs rounded-lg px-3 py-2 mb-4 italic" style={{ background: 'rgba(255,255,255,0.04)', color: 'rgba(255,255,255,0.5)' }}>
+        <p className="text-xs rounded-2xl px-3 py-2 mb-4 italic" style={{ background: 'rgba(255,255,255,0.04)', color: 'rgba(255,255,255,0.5)' }}>
           "{booking.notes}"
         </p>
       )}
@@ -158,7 +158,7 @@ function MeetingCard({ booking, index }) {
             href={STATIC_MEET_LINK}
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-widest px-4 py-2 rounded-xl transition-all duration-200 focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#22c8e5]"
+            className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-widest px-4 py-2 rounded-2xl transition-all duration-200 focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#22c8e5]"
             style={{ background: 'rgba(34,200,229,0.1)', color: GOLD, border: `1px solid rgba(34,200,229,0.25)` }}
             onMouseEnter={(e) => (e.currentTarget.style.background = 'rgba(34,200,229,0.18)')}
             onMouseLeave={(e) => (e.currentTarget.style.background = 'rgba(34,200,229,0.1)')}
@@ -198,7 +198,7 @@ function MeetingCard({ booking, index }) {
                 href={calLink}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-widest px-4 py-2 rounded-xl transition-all duration-200 focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#22c8e5]"
+                className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-widest px-4 py-2 rounded-2xl transition-all duration-200 focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#22c8e5]"
                 style={{ background: 'transparent', color: 'rgba(255,255,255,0.7)', border: `1px solid rgba(255,255,255,0.15)` }}
                 onMouseEnter={(e) => {
                   e.currentTarget.style.color = BEIGE;
@@ -241,7 +241,7 @@ function EmptyState() {
       </p>
       <a
         href="/contact"
-        className="mt-6 inline-flex items-center gap-2 px-6 py-3 rounded-xl text-sm font-bold uppercase tracking-widest transition-all duration-200 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#22c8e5]"
+        className="mt-6 inline-flex items-center gap-2 px-6 py-3 rounded-2xl text-sm font-bold uppercase tracking-widest transition-all duration-200 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#22c8e5]"
         style={{ background: GOLD, color: NAVY }}
         onMouseEnter={(e) => (e.currentTarget.style.opacity = '0.85')}
         onMouseLeave={(e) => (e.currentTarget.style.opacity = '1')}
@@ -326,7 +326,7 @@ export default function MyMeetings({ userId }) {
               role="tab"
               aria-selected={active}
               onClick={() => setTab(key)}
-              className="px-5 py-2 rounded-lg text-sm font-bold transition-all duration-200 focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#22c8e5]"
+              className="px-5 py-2 rounded-2xl text-sm font-bold transition-all duration-200 focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#22c8e5]"
               style={{
                 background: active ? GOLD : 'transparent',
                 color: active ? NAVY : 'rgba(255,255,255,0.45)',

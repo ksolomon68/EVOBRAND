@@ -76,7 +76,7 @@ const TicketList = ({ tickets, onViewTicket }) => {
             ))}
             
             {tickets.length === 0 && (
-                <div className="py-20 text-center bg-white/5 rounded-3xl border border-dashed border-white/10">
+                <div className="py-20 text-center bg-white/5 rounded-2xl border border-dashed border-white/10">
                     <div className="w-16 h-16 rounded-full bg-white/5 flex items-center justify-center text-white/20 mx-auto mb-6">
                         <AlertCircle size={32} />
                     </div>

@@ -57,7 +57,7 @@ function ContractModal({ contract, onClose, onSign }) {
         <div className="flex items-center justify-between mb-4 no-print">
           <h2 className="text-white font-bold text-lg">{contract.title}</h2>
           <div className="flex items-center gap-3">
-            <button onClick={() => window.print()} className="flex items-center gap-2 px-4 py-2 rounded-lg font-bold text-sm transition-colors" style={{ background: GOLD, color: '#003258' }}>
+            <button onClick={() => window.print()} className="flex items-center gap-2 px-4 py-2 rounded-2xl font-bold text-sm transition-colors" style={{ background: GOLD, color: '#003258' }}>
               <Download size={14} /> Print / Download
             </button>
             <button onClick={onClose} className="p-2 rounded-lg text-white/50 hover:text-white hover:bg-white/10 transition-colors">
@@ -163,12 +163,12 @@ function ContractModal({ contract, onClose, onSign }) {
                 placeholder="Type your full legal name"
                 value={signature}
                 onChange={(e) => setSignature(e.target.value)}
-                className="flex-1 px-4 py-3 rounded-lg text-sm bg-white/5 border border-white/10 text-white focus:outline-none focus:border-[#22c8e5]/50"
+                className="flex-1 px-4 py-3 rounded-2xl text-sm bg-white/5 border border-white/10 text-white focus:outline-none focus:border-[#22c8e5]/50"
               />
               <button
                 onClick={handleSign}
                 disabled={signing || !signature.trim()}
-                className="px-8 py-3 rounded-lg font-bold text-sm transition-all disabled:opacity-50 uppercase tracking-widest whitespace-nowrap"
+                className="px-8 py-3 rounded-2xl font-bold text-sm transition-all disabled:opacity-50 uppercase tracking-widest whitespace-nowrap"
                 style={{ background: GOLD, color: '#003258' }}
               >
                 {signing ? 'Signing...' : 'Sign Agreement'}

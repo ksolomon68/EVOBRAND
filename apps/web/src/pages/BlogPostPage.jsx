@@ -15,7 +15,7 @@ const BlogPostPage = () => {
                 <div className="text-center">
                     <h1 className="text-4xl font-bold mb-4">Post Not Found</h1>
                     <p className="text-gray-400 mb-8">The article you are looking for does not exist.</p>
-                    <Link to="/resources" className="px-6 py-3 bg-[#22c8e5] text-white rounded-lg hover:bg-[#1ba3c0] transition-colors">
+                    <Link to="/resources" className="px-6 py-3 bg-[#22c8e5] text-white rounded-2xl hover:bg-[#1ba3c0] transition-colors">
                         Back to Resources
                     </Link>
                 </div>
@@ -43,7 +43,7 @@ const BlogPostPage = () => {
                     <div className="absolute inset-0 bg-gradient-to-t from-[#0f1419] to-transparent"></div>
 
                     <div className="absolute top-8 left-4 md:left-8 z-10">
-                        <Link to="/resources" className="flex items-center space-x-2 text-white/80 hover:text-white transition-colors bg-black/30 px-4 py-2 rounded-full backdrop-blur-sm">
+                        <Link to="/resources" className="flex items-center space-x-2 text-white/80 hover:text-white transition-colors bg-black/30 px-4 py-2 rounded-2xl backdrop-blur-sm">
                             <ArrowLeft size={20} />
                             <span>Back to Resources</span>
                         </Link>

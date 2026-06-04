@@ -281,7 +281,7 @@ const AuditorSection = () => {
                   ],
                 } : {}}
                 transition={{ duration: 1.8, repeat: Infinity }}
-                className="w-full mt-8 py-4 bg-[#22C8E5] text-[#003258] rounded-xl font-bold uppercase tracking-wider text-base hover:bg-[#1db5d0] transition-colors cursor-pointer"
+                className="w-full mt-8 py-4 bg-[#22C8E5] text-[#003258] rounded-2xl font-bold uppercase tracking-wider text-base hover:bg-[#1db5d0] transition-colors cursor-pointer"
                 id="section-auditor-cta"
               >
                 {step === 1 ? 'Continue →' : 'Get My Free Brand Score →'}

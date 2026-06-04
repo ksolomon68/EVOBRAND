@@ -5,6 +5,9 @@ import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Facebook, Linkedin, Instagram, Youtube, Mail, Phone, MapPin } from 'lucide-react';
 
+const API_BASE = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' 
+  ? 'http://localhost:5000' 
+  : window.location.origin;
 
 const Footer = () => {
   const [email, setEmail] = useState('');
@@ -16,7 +19,7 @@ const Footer = () => {
     if (email) {
       setStatus('loading');
       try {
-        const response = await fetch('https://evobrandconcepts.com/api/newsletter/subscribe', {
+        const response = await fetch(`${API_BASE}/api/newsletter/subscribe`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ email }),
@@ -123,13 +126,13 @@ const Footer = () => {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="Your email"
-                className="w-full px-4 py-2 bg-[#1a2332] text-white border border-gray-700 rounded-md focus:outline-none focus:border-[#22c8e5] text-sm"
+                className="w-full px-4 py-2 bg-[#1a2332] text-white border border-gray-700 rounded-2xl focus:outline-none focus:border-[#22c8e5] text-sm"
                 required
               />
               <button
                 type="submit"
                 disabled={status === 'loading'}
-                className={`w-full px-4 py-2 text-white rounded-md transition-colors text-sm font-medium ${status === 'success' ? 'bg-green-500 hover:bg-green-600' :
+                className={`w-full px-4 py-2 text-white rounded-2xl transition-colors text-sm font-medium ${status === 'success' ? 'bg-green-500 hover:bg-green-600' :
                     status === 'error' ? 'bg-red-500 hover:bg-red-600' :
                       'bg-[#22c8e5] hover:bg-[#1ba3c0]'
                   } disabled:opacity-50`}

@@ -208,7 +208,7 @@ function TicketDetail({ ticket, onBack, onRefresh }) {
                           target="_blank"
                           rel="noreferrer"
                           download
-                          className="inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-bold transition-colors"
+                          className="inline-flex items-center gap-2 px-4 py-2 rounded-2xl text-sm font-bold transition-colors"
                           style={{ background: 'rgba(34,200,229,0.1)', color: '#22c8e5', border: '1px solid rgba(34,200,229,0.2)' }}
                           onMouseEnter={e => e.currentTarget.style.background = 'rgba(34,200,229,0.2)'}
                           onMouseLeave={e => e.currentTarget.style.background = 'rgba(34,200,229,0.1)'}
@@ -246,12 +246,12 @@ function TicketDetail({ ticket, onBack, onRefresh }) {
               value={replyText}
               onChange={(e) => setReplyText(e.target.value)}
               placeholder="Reply to client..."
-              className="flex-1 bg-white/5 border border-white/10 text-white rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-[#22c8e5] transition-colors"
+              className="flex-1 bg-white/5 border border-white/10 text-white rounded-2xl px-4 py-3 text-sm focus:outline-none focus:border-[#22c8e5] transition-colors"
             />
             <button
               type="submit"
               disabled={sending || !replyText.trim()}
-              className="px-5 py-3 rounded-xl font-bold text-sm flex items-center gap-2 disabled:opacity-40 transition-colors"
+              className="px-5 py-3 rounded-2xl font-bold text-sm flex items-center gap-2 disabled:opacity-40 transition-colors"
               style={{ background: GOLD, color: NAVY }}
             >
               {sending ? <Loader2 size={14} className="animate-spin" /> : <Send size={14} />}
@@ -302,14 +302,14 @@ function TicketDetail({ ticket, onBack, onRefresh }) {
                   step="0.01"
                   value={priceInput}
                   onChange={(e) => setPriceInput(e.target.value)}
-                  className="w-full bg-[#04080f] border border-[rgba(34,200,229,0.3)] text-white font-bold pl-7 pr-3 py-2.5 rounded-lg text-sm focus:outline-none focus:border-[#22c8e5]"
+                  className="w-full bg-[#04080f] border border-[rgba(34,200,229,0.3)] text-white font-bold pl-7 pr-3 py-2.5 rounded-2xl text-sm focus:outline-none focus:border-[#22c8e5]"
                   placeholder="0.00"
                 />
               </div>
               <button
                 onClick={() => update({ quoted_price: parseFloat(priceInput) || 0 })}
                 disabled={saving}
-                className="px-4 py-2.5 rounded-lg text-sm font-bold disabled:opacity-50 transition-colors"
+                className="px-4 py-2.5 rounded-2xl text-sm font-bold disabled:opacity-50 transition-colors"
                 style={{ background: 'rgba(34,200,229,0.15)', color: GOLD }}
               >
                 {saving ? <Loader2 size={13} className="animate-spin" /> : 'Save'}
@@ -363,7 +363,7 @@ function TicketDetail({ ticket, onBack, onRefresh }) {
                 <button
                   onClick={() => savePlan(planValue)}
                   disabled={planSaving}
-                  className="px-3 py-2 rounded-lg text-sm font-bold disabled:opacity-50 transition-colors"
+                  className="px-3 py-2 rounded-2xl text-sm font-bold disabled:opacity-50 transition-colors"
                   style={{ background: 'rgba(34,200,229,0.15)', color: GOLD }}
                 >
                   {planSaving ? <Loader2 size={13} className="animate-spin" /> : 'Save'}

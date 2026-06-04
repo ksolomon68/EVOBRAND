@@ -187,7 +187,7 @@ export default function VideoLibrarySection() {
                 key={cat}
                 onClick={() => setSelectedCategory(cat)}
                 aria-pressed={active}
-                className={`px-5 py-2 rounded-full text-sm font-semibold transition-all duration-300 border focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#22c8e5] ${
+                className={`px-5 py-2 rounded-2xl text-sm font-semibold transition-all duration-300 border focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#22c8e5] ${
                   active
                     ? 'text-[#003258] border-transparent scale-105'
                     : 'bg-transparent text-gray-400 border-white/10 hover:border-[#22c8e5]/50 hover:text-[#22c8e5]'

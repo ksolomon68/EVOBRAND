@@ -155,13 +155,13 @@ const ClientPortalLoginPage = () => {
                 <div className="flex gap-4 mb-8">
                   <button
                     onClick={() => { setIsLogin(true); setError(''); }}
-                    className={`flex-1 py-2 rounded-xl text-sm font-bold transition-all ${isLogin ? 'bg-[#22c8e5] text-[#003258]' : 'bg-white/5 text-white/40 hover:bg-white/10'}`}
+                    className={`flex-1 py-2 rounded-2xl text-sm font-bold transition-all ${isLogin ? 'bg-[#22c8e5] text-[#003258]' : 'bg-white/5 text-white/40 hover:bg-white/10'}`}
                   >
                     LOG IN
                   </button>
                   <button
                     onClick={() => { setIsLogin(false); setError(''); }}
-                    className={`flex-1 py-2 rounded-xl text-sm font-bold transition-all ${!isLogin ? 'bg-[#22c8e5] text-[#003258]' : 'bg-white/5 text-white/40 hover:bg-white/10'}`}
+                    className={`flex-1 py-2 rounded-2xl text-sm font-bold transition-all ${!isLogin ? 'bg-[#22c8e5] text-[#003258]' : 'bg-white/5 text-white/40 hover:bg-white/10'}`}
                   >
                     SIGN UP
                   </button>

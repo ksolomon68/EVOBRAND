@@ -160,7 +160,7 @@ export default function MaintenancePlansPage() {
         </div>
         <div className="max-w-5xl mx-auto px-6 text-center relative">
           <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
-            <span className="inline-flex items-center gap-2 px-4 py-2 rounded-full border text-xs font-bold uppercase tracking-widest mb-6" style={{ borderColor: 'rgba(34,200,229,0.3)', color: '#22c8e5', background: 'rgba(34,200,229,0.06)' }}>
+            <span className="inline-flex items-center gap-2 px-4 py-2 rounded-2xl border text-xs font-bold uppercase tracking-widest mb-6" style={{ borderColor: 'rgba(34,200,229,0.3)', color: '#22c8e5', background: 'rgba(34,200,229,0.06)' }}>
               <Shield size={12} /> WordPress Maintenance & Support
             </span>
           </motion.div>
@@ -183,7 +183,7 @@ export default function MaintenancePlansPage() {
               <span className="absolute top-1 w-5 h-5 rounded-full bg-white shadow transition-all" style={{ left: annual ? '30px' : '4px' }} />
             </button>
             <span className="text-sm font-bold" style={{ color: annual ? '#E8DDD0' : 'rgba(232,221,208,0.4)' }}>
-              Annual <span className="px-2 py-0.5 rounded-full text-xs" style={{ background: 'rgba(34,200,229,0.15)', color: '#22c8e5' }}>Save 2 months</span>
+              Annual <span className="px-2 py-0.5 rounded-2xl text-xs" style={{ background: 'rgba(34,200,229,0.15)', color: '#22c8e5' }}>Save 2 months</span>
             </span>
           </motion.div>
         </div>

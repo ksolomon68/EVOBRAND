@@ -103,7 +103,7 @@ const ResourcesPage = () => {
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   placeholder="Search articles..."
-                  className="w-full pl-12 pr-4 py-4 bg-[#1a2332] text-white border border-gray-700 rounded-lg focus:outline-none focus:border-[#22c8e5]"
+                  className="w-full pl-12 pr-4 py-4 bg-[#1a2332] text-white border border-gray-700 rounded-2xl focus:outline-none focus:border-[#22c8e5]"
                 />
               </div>
             </motion.div>
@@ -121,7 +121,7 @@ const ResourcesPage = () => {
                     setSelectedCategory(category.id);
                     setCurrentPage(1);
                   }}
-                  className={`flex items-center space-x-2 px-6 py-3 rounded-lg font-medium transition-all flex-shrink-0 ${selectedCategory === category.id
+                  className={`flex items-center space-x-2 px-6 py-3 rounded-2xl font-medium transition-all flex-shrink-0 ${selectedCategory === category.id
                     ? 'bg-[#22c8e5] text-white'
                     : 'bg-[#0f1419] text-gray-400 hover:text-white'
                     }`}
@@ -243,7 +243,7 @@ const ResourcesPage = () => {
                   <button
                     key={index}
                     onClick={() => setCurrentPage(index + 1)}
-                    className={`px-4 py-2 rounded-lg font-medium transition-all ${currentPage === index + 1
+                    className={`px-4 py-2 rounded-2xl font-medium transition-all ${currentPage === index + 1
                       ? 'bg-[#22c8e5] text-white'
                       : 'bg-[#1a2332] text-gray-400 hover:text-white'
                       }`}
@@ -270,13 +270,13 @@ const ResourcesPage = () => {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="Enter your email"
-                  className="flex-1 px-6 py-4 bg-[#0f1419] text-white border border-gray-700 rounded-lg focus:outline-none focus:border-[#22c8e5]"
+                  className="flex-1 px-6 py-4 bg-[#0f1419] text-white border border-gray-700 rounded-2xl focus:outline-none focus:border-[#22c8e5]"
                   required
                 />
                 <button
                   type="submit"
                   disabled={status === 'loading'}
-                  className="px-8 py-4 bg-[#22c8e5] text-white rounded-lg font-semibold hover:bg-[#1ba3c0] transition-colors disabled:opacity-50"
+                  className="px-8 py-4 bg-[#22c8e5] text-white rounded-2xl font-semibold hover:bg-[#1ba3c0] transition-colors disabled:opacity-50"
                 >
                   {status === 'loading' ? 'Subscribing...' : subscribed ? 'Subscribed!' : 'Subscribe'}
                 </button>

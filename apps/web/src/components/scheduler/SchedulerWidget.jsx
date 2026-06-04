@@ -293,7 +293,7 @@ function TimeSlotPicker({ selectedDate, selectedSlot, onSelect, blackoutDates, b
               disabled={blocked}
               aria-pressed={active}
               aria-label={`${slot}${blocked ? ' — unavailable' : ''}`}
-              className="py-3 px-4 rounded-xl text-sm font-semibold transition-all duration-200 border focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#22c8e5] focus-visible:outline-offset-2"
+              className="py-3 px-4 rounded-2xl text-sm font-semibold transition-all duration-200 border focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#22c8e5] focus-visible:outline-offset-2"
               style={{
                 background: active ? GOLD : blocked ? 'rgba(255,255,255,0.03)' : 'rgba(34,200,229,0.06)',
                 color: active ? NAVY : blocked ? 'rgba(255,255,255,0.2)' : BEIGE,
@@ -493,7 +493,7 @@ function ConfirmForm({ selectedDate, selectedSlot, onBack, onSuccess }) {
           type="button"
           onClick={onBack}
           disabled={loading}
-          className="flex-1 py-3 rounded-xl text-sm font-bold uppercase tracking-widest border transition-all duration-200 focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#22c8e5]"
+          className="flex-1 py-3 rounded-2xl text-sm font-bold uppercase tracking-widest border transition-all duration-200 focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#22c8e5]"
           style={{ borderColor: 'rgba(34,200,229,0.3)', color: 'rgba(255,255,255,0.6)', background: 'transparent' }}
         >
           Back
@@ -501,7 +501,7 @@ function ConfirmForm({ selectedDate, selectedSlot, onBack, onSuccess }) {
         <button
           type="submit"
           disabled={loading}
-          className="flex-[2] py-3 rounded-xl text-sm font-bold uppercase tracking-widest transition-all duration-200 flex items-center justify-center gap-2 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#22c8e5]"
+          className="flex-[2] py-3 rounded-2xl text-sm font-bold uppercase tracking-widest transition-all duration-200 flex items-center justify-center gap-2 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#22c8e5]"
           style={{ background: loading ? 'rgba(34,200,229,0.5)' : GOLD, color: NAVY }}
         >
           {loading ? (
@@ -573,7 +573,7 @@ function CreateAccountPrompt({ booking, onSkip, onReset }) {
         </p>
         <a
           href="/client-portal"
-          className="inline-block py-3 px-8 rounded-xl text-sm font-bold uppercase tracking-widest transition-all"
+          className="inline-block py-3 px-8 rounded-2xl text-sm font-bold uppercase tracking-widest transition-all"
           style={{ background: GOLD, color: NAVY }}
         >
           Go to My Meetings →
@@ -610,7 +610,7 @@ function CreateAccountPrompt({ booking, onSkip, onReset }) {
           value={password}
           onChange={e => { setPassword(e.target.value); if (error) setError(''); }}
           placeholder="Min. 6 characters"
-          className="w-full px-4 py-3 rounded-xl text-sm outline-none transition-all border mb-4"
+          className="w-full px-4 py-3 rounded-2xl text-sm outline-none transition-all border mb-4"
           style={{ background: 'rgba(10,22,40,0.8)', color: BEIGE, borderColor: 'rgba(34,200,229,0.2)' }}
           minLength={6}
         />
@@ -623,7 +623,7 @@ function CreateAccountPrompt({ booking, onSkip, onReset }) {
         <button
           type="submit"
           disabled={loading}
-          className="w-full py-3 rounded-xl text-sm font-bold uppercase tracking-widest transition-all flex items-center justify-center gap-2 mb-3"
+          className="w-full py-3 rounded-2xl text-sm font-bold uppercase tracking-widest transition-all flex items-center justify-center gap-2 mb-3"
           style={{ background: loading ? 'rgba(34,200,229,0.5)' : GOLD, color: NAVY }}
         >
           {loading ? <><Loader2 size={14} className="animate-spin" />Creating...</> : 'Create Account & View Meeting'}
@@ -702,7 +702,7 @@ function SuccessView({ booking, onReset }) {
             href={calLink}
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-block w-full py-3 mb-4 rounded-xl text-sm font-bold uppercase tracking-widest transition-all text-center"
+            className="inline-block w-full py-3 mb-4 rounded-2xl text-sm font-bold uppercase tracking-widest transition-all text-center"
             style={{ background: 'rgba(34,200,229,0.15)', color: GOLD, border: `1px solid rgba(34,200,229,0.3)` }}
           >
             + Add to Google Calendar
@@ -817,7 +817,7 @@ export default function SchedulerWidget() {
             <button
               onClick={goToStep2}
               disabled={!selectedDate}
-              className="mt-6 w-full py-3.5 rounded-xl text-sm font-bold uppercase tracking-widest transition-all duration-200 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#22c8e5]"
+              className="mt-6 w-full py-3.5 rounded-2xl text-sm font-bold uppercase tracking-widest transition-all duration-200 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#22c8e5]"
               style={{
                 background: selectedDate ? GOLD : 'rgba(34,200,229,0.12)',
                 color: selectedDate ? NAVY : 'rgba(34,200,229,0.35)',
@@ -841,7 +841,7 @@ export default function SchedulerWidget() {
             <div className="flex gap-3 mt-6">
               <button
                 onClick={goBack}
-                className="flex-1 py-3 rounded-xl text-sm font-bold uppercase tracking-widest border transition-all focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#22c8e5]"
+                className="flex-1 py-3 rounded-2xl text-sm font-bold uppercase tracking-widest border transition-all focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#22c8e5]"
                 style={{ borderColor: 'rgba(34,200,229,0.25)', color: 'rgba(255,255,255,0.5)', background: 'transparent' }}
               >
                 Back
@@ -849,7 +849,7 @@ export default function SchedulerWidget() {
               <button
                 onClick={goToStep3}
                 disabled={!selectedSlot}
-                className="flex-[2] py-3 rounded-xl text-sm font-bold uppercase tracking-widest transition-all duration-200 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#22c8e5]"
+                className="flex-[2] py-3 rounded-2xl text-sm font-bold uppercase tracking-widest transition-all duration-200 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#22c8e5]"
                 style={{
                   background: selectedSlot ? GOLD : 'rgba(34,200,229,0.12)',
                   color: selectedSlot ? NAVY : 'rgba(34,200,229,0.35)',

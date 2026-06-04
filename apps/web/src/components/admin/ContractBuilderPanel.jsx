@@ -134,7 +134,7 @@ export default function ContractBuilderPanel() {
             <h3 className="text-xl font-bold text-white flex items-center gap-3">
               <FileText size={20} className="text-[#22c8e5]" /> Configure Agreement
             </h3>
-            <button onClick={handlePrint} className="flex items-center gap-2 bg-[rgba(255,255,255,0.08)] text-white px-4 py-2 rounded-full font-bold hover:bg-[rgba(255,255,255,0.12)] transition-colors text-sm">
+            <button onClick={handlePrint} className="flex items-center gap-2 bg-[rgba(255,255,255,0.08)] text-white px-4 py-2 rounded-2xl font-bold hover:bg-[rgba(255,255,255,0.12)] transition-colors text-sm">
               <Download size={15} /> Print PDF
             </button>
           </div>
@@ -234,7 +234,7 @@ export default function ContractBuilderPanel() {
             <p className="text-[#8892a4] text-sm mb-4">This saves the contract and makes it visible in the client's portal under "My Contracts". The client email above must match their registered account.</p>
             {saveError && <p className="text-red-400 text-sm mb-3">{saveError}</p>}
             <button onClick={handleSave} disabled={saving || saved}
-              className="w-full flex items-center justify-center gap-2 py-3 rounded-xl font-bold text-sm transition-all disabled:opacity-60"
+              className="w-full flex items-center justify-center gap-2 py-3 rounded-2xl font-bold text-sm transition-all disabled:opacity-60"
               style={{ background: saved ? '#34d399' : '#22c8e5', color: '#003258' }}
             >
               {saving ? <Loader2 size={16} className="animate-spin" /> : saved ? <CheckCircle2 size={16} /> : <Send size={16} />}

@@ -186,7 +186,7 @@ function AddBlackoutForm({ onAdded }) {
             type="button"
             onClick={() => setMode(key)}
             aria-pressed={mode === key}
-            className="flex-1 py-2 rounded-lg text-xs font-bold uppercase tracking-widest transition-all duration-200 border focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#22c8e5]"
+            className="flex-1 py-2 rounded-2xl text-xs font-bold uppercase tracking-widest transition-all duration-200 border focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#22c8e5]"
             style={{
               background: mode === key ? GOLD : 'transparent',
               color: mode === key ? NAVY : 'rgba(255,255,255,0.5)',
@@ -237,7 +237,7 @@ function AddBlackoutForm({ onAdded }) {
       <button
         type="submit"
         disabled={loading || !date}
-        className="w-full py-3 rounded-xl text-sm font-bold uppercase tracking-widest flex items-center justify-center gap-2 transition-all duration-200 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#22c8e5]"
+        className="w-full py-3 rounded-2xl text-sm font-bold uppercase tracking-widest flex items-center justify-center gap-2 transition-all duration-200 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#22c8e5]"
         style={{
           background: loading || !date ? 'rgba(34,200,229,0.2)' : GOLD,
           color: loading || !date ? 'rgba(34,200,229,0.4)' : NAVY,
@@ -256,7 +256,7 @@ function AddBlackoutForm({ onAdded }) {
 function BlackoutList({ blackouts, onDelete }) {
   if (blackouts.length === 0) {
     return (
-      <div className="flex flex-col items-center py-12 text-center rounded-xl border" style={{ borderColor: 'rgba(34,200,229,0.08)', background: 'rgba(10,22,40,0.3)' }}>
+      <div className="flex flex-col items-center py-12 text-center rounded-2xl border" style={{ borderColor: 'rgba(34,200,229,0.08)', background: 'rgba(10,22,40,0.3)' }}>
         <p className="text-sm" style={{ color: 'rgba(255,255,255,0.35)' }}>No blackout dates configured.</p>
       </div>
     );
@@ -394,7 +394,7 @@ export default function AdminBlackoutPanel({ user }) {
               Active Blackouts
             </h3>
             <span
-              className="text-xs font-bold px-2 py-0.5 rounded-full"
+              className="text-xs font-bold px-2 py-0.5 rounded-2xl"
               style={{ background: 'rgba(34,200,229,0.12)', color: GOLD }}
               aria-live="polite"
             >

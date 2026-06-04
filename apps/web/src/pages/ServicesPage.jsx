@@ -360,7 +360,7 @@ const ServicesPage = () => {
                 <button
                   key={service.id}
                   onClick={() => setSelectedService(index)}
-                  className={`flex-shrink-0 px-4 py-2 rounded-full font-bold text-sm transition-all ${selectedService === index
+                  className={`flex-shrink-0 px-4 py-2 rounded-2xl font-bold text-sm transition-all ${selectedService === index
                       ? 'bg-[#22c8e5] text-[#003258] shadow-[0_0_15px_rgba(34,200,229,0.3)]'
                       : 'bg-[#0f1419] text-gray-400 hover:text-white border border-white/5'
                     }`}
@@ -431,7 +431,7 @@ const ServicesPage = () => {
                   <p className="text-4xl font-bold text-[#22c8e5] mb-6">
                     {currentService.pricing[0].price}
                   </p>
-                  <a href="#pricing-full" className="w-full py-3 bg-[#22c8e5] text-[#003258] rounded-xl font-bold hover:shadow-lg hover:shadow-[#22c8e5]/20 transition-all text-center block">
+                  <a href="#pricing-full" className="w-full py-3 bg-[#22c8e5] text-[#003258] rounded-2xl font-bold hover:shadow-lg hover:shadow-[#22c8e5]/20 transition-all text-center block">
                     View Full Pricing
                   </a>
                 </motion.div>
@@ -506,7 +506,7 @@ const ServicesPage = () => {
                     ))}
                   </ul>
                   {plan.price === 'Custom' ? (
-                    <a href="/contact" className={`w-full py-3 rounded-full font-bold transition-all text-center block ${plan.highlighted
+                    <a href="/contact" className={`w-full py-3 rounded-2xl font-bold transition-all text-center block ${plan.highlighted
                         ? 'bg-[#22c8e5] text-[#003258] hover:shadow-lg hover:bg-opacity-90'
                         : 'border-2 border-[#22c8e5] text-[#22c8e5] hover:bg-[#22c8e5] hover:text-[#003258]'
                       }`}>
@@ -520,7 +520,7 @@ const ServicesPage = () => {
                         price: plan.price,
                         type: 'one-time'
                       })}
-                      className={`w-full py-3 rounded-full font-bold transition-all text-center block ${plan.highlighted
+                      className={`w-full py-3 rounded-2xl font-bold transition-all text-center block ${plan.highlighted
                         ? 'bg-[#22c8e5] text-[#003258] hover:shadow-lg hover:bg-opacity-90'
                         : 'border-2 border-[#22c8e5] text-[#22c8e5] hover:bg-[#22c8e5] hover:text-[#003258]'
                       }`}
@@ -613,7 +613,7 @@ const ServicesPage = () => {
             <p className="text-xl text-white/90 mb-8">Let's discuss how we can help transform your business</p>
             <a
               href="/contact"
-              className="inline-flex items-center px-8 py-4 bg-[#22c8e5] text-[#003258] rounded-full font-bold hover:shadow-lg hover:bg-opacity-90 transition-all"
+              className="inline-flex items-center px-8 py-4 bg-[#22c8e5] text-[#003258] rounded-2xl font-bold hover:shadow-lg hover:bg-opacity-90 transition-all"
             >
               Contact Us <ArrowRight className="ml-2" size={20} />
             </a>

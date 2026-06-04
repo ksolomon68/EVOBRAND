@@ -246,7 +246,7 @@ const AuditForm = ({ onComplete, prefillData }) => {
                     type="button"
                     onClick={() => toggleChallenge(c)}
                     className={`
-                      px-4 py-2.5 rounded-full border text-sm 
+                      px-4 py-2.5 rounded-2xl border text-sm 
                       transition-all duration-200 cursor-pointer
                       ${form.challenges.includes(c)
                         ? 'bg-[#22C8E5] border-[#22C8E5] text-[#003258] font-semibold shadow-lg shadow-[#22C8E5]/20'
@@ -458,7 +458,7 @@ const AuditForm = ({ onComplete, prefillData }) => {
           onClick={back}
           disabled={step === 1}
           className={`
-            flex items-center justify-center gap-2 px-5 py-3 rounded-xl font-semibold
+            flex items-center justify-center gap-2 px-5 py-3 rounded-2xl font-semibold
             transition-all duration-200
             ${step === 1 ? 'opacity-0 pointer-events-none' : 'text-white/60 hover:text-white'}
           `}
@@ -473,7 +473,7 @@ const AuditForm = ({ onComplete, prefillData }) => {
             type="button"
             onClick={next}
             whileTap={{ scale: 0.97 }}
-            className="flex items-center justify-center gap-2 px-8 py-3.5 bg-[#22C8E5] text-[#003258] rounded-xl font-bold uppercase tracking-wider hover:bg-[#1db5d0] transition-colors cursor-pointer"
+            className="flex items-center justify-center gap-2 px-8 py-3.5 bg-[#22C8E5] text-[#003258] rounded-2xl font-bold uppercase tracking-wider hover:bg-[#1db5d0] transition-colors cursor-pointer"
             id="audit-next-btn"
           >
             Continue
@@ -492,7 +492,7 @@ const AuditForm = ({ onComplete, prefillData }) => {
               ],
             }}
             transition={{ duration: 1.8, repeat: Infinity, ease: 'easeInOut' }}
-            className="flex items-center justify-center gap-3 px-8 py-4 bg-[#22C8E5] text-[#003258] rounded-xl font-bold uppercase tracking-wider text-base sm:text-lg hover:bg-[#1db5d0] transition-colors cursor-pointer w-full sm:w-auto"
+            className="flex items-center justify-center gap-3 px-8 py-4 bg-[#22C8E5] text-[#003258] rounded-2xl font-bold uppercase tracking-wider text-base sm:text-lg hover:bg-[#1db5d0] transition-colors cursor-pointer w-full sm:w-auto"
             id="audit-submit-btn"
           >
             <Zap size={20} />

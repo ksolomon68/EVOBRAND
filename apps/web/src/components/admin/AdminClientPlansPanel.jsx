@@ -20,7 +20,7 @@ function PlanBadge({ plan }) {
   if (!p || !p.value) return <span className="text-xs text-white/25 font-bold">No Plan</span>;
   const Icon = p.icon;
   return (
-    <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold"
+    <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-2xl text-xs font-bold"
       style={{ background: `${p.color}15`, color: p.color, border: `1px solid ${p.color}30` }}>
       {Icon && <Icon size={11} />}
       {p.label}
@@ -65,7 +65,7 @@ function PlanSelector({ userId, currentPlan, onSaved }) {
       <select
         value={value}
         onChange={(e) => setValue(e.target.value)}
-        className="bg-[#04080f] border border-white/10 text-white text-sm px-3 py-2 rounded-lg focus:outline-none focus:border-[#22c8e5] transition-colors"
+        className="bg-[#04080f] border border-white/10 text-white text-sm px-3 py-2 rounded-2xl focus:outline-none focus:border-[#22c8e5] transition-colors"
       >
         {PLANS.map(p => (
           <option key={p.value} value={p.value}>{p.label}</option>
@@ -74,7 +74,7 @@ function PlanSelector({ userId, currentPlan, onSaved }) {
       <button
         onClick={save}
         disabled={saving || value === (currentPlan || '')}
-        className="px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-widest transition-all disabled:opacity-30"
+        className="px-4 py-2 rounded-2xl text-xs font-bold uppercase tracking-widest transition-all disabled:opacity-30"
         style={{ background: 'rgba(34,200,229,0.15)', color: GOLD }}
       >
         {saving ? <Loader2 size={12} className="animate-spin" /> : 'Save'}
@@ -288,7 +288,7 @@ function AddClientModal({ existingClients = [], onClose, onAdded }) {
           <button
             type="submit"
             disabled={loading}
-            className="w-full flex justify-center items-center gap-2 py-3 mt-4 rounded-xl font-bold uppercase tracking-widest text-[#003258] disabled:opacity-50"
+            className="w-full flex justify-center items-center gap-2 py-3 mt-4 rounded-2xl font-bold uppercase tracking-widest text-[#003258] disabled:opacity-50"
             style={{ background: GOLD }}
           >
             {loading ? <Loader2 size={16} className="animate-spin" /> : (selectedUser ? 'Update Plan' : 'Create Client')}
@@ -395,13 +395,13 @@ export default function AdminClientPlansPanel({ user }) {
             placeholder="Search by name or email..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="w-full pl-10 pr-4 py-3 bg-white/5 border border-white/10 text-white text-sm rounded-xl focus:outline-none focus:border-[#22c8e5] transition-colors"
+            className="w-full pl-10 pr-4 py-3 bg-white/5 border border-white/10 text-white text-sm rounded-2xl focus:outline-none focus:border-[#22c8e5] transition-colors"
           />
         </div>
         <div className="flex gap-2 flex-wrap">
           <button
             onClick={() => setShowAddClient(true)}
-            className="px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-widest flex items-center gap-2 hover:opacity-80 transition-opacity"
+            className="px-4 py-2 rounded-2xl text-xs font-bold uppercase tracking-widest flex items-center gap-2 hover:opacity-80 transition-opacity"
             style={{ background: GOLD, color: NAVY }}
           >
             <Plus size={14} /> Add Client
@@ -410,7 +410,7 @@ export default function AdminClientPlansPanel({ user }) {
             <button
               key={f}
               onClick={() => setFilterPlan(f)}
-              className="px-4 py-2 rounded-full text-xs font-bold uppercase tracking-widest transition-all"
+              className="px-4 py-2 rounded-2xl text-xs font-bold uppercase tracking-widest transition-all"
               style={filterPlan === f
                 ? { background: GOLD, color: NAVY }
                 : { background: 'rgba(255,255,255,0.05)', color: 'rgba(255,255,255,0.4)' }}

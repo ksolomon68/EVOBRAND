@@ -168,7 +168,7 @@ export default function AdminContactFormsPanel({ user }) {
                     <p className="text-xs text-white/40 mb-3 uppercase tracking-wider font-bold">Quick Actions</p>
                     <a
                       href={`mailto:${selected.email}?subject=RE: ${selected.service}`}
-                      className="inline-flex items-center gap-2 px-6 py-3 rounded-xl text-sm font-bold uppercase tracking-widest text-[#003258] transition-opacity hover:opacity-90"
+                      className="inline-flex items-center gap-2 px-6 py-3 rounded-2xl text-sm font-bold uppercase tracking-widest text-[#003258] transition-opacity hover:opacity-90"
                       style={{ background: GOLD }}
                     >
                       <Mail size={16} /> Reply via Email

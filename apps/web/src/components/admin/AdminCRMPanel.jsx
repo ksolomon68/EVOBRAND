@@ -206,7 +206,7 @@ export default function AdminCRMPanel({ user }) {
           <div className="flex bg-[#1a2332] p-1 rounded-lg">
             <button
               onClick={() => setActiveTab('audience')}
-              className={`flex items-center gap-2 px-4 py-2 rounded-md text-sm font-bold transition-colors ${
+              className={`flex items-center gap-2 px-4 py-2 rounded-2xl text-sm font-bold transition-colors ${
                 activeTab === 'audience' ? 'bg-[#22c8e5] text-[#003258]' : 'text-white/40 hover:text-white'
               }`}
             >
@@ -214,7 +214,7 @@ export default function AdminCRMPanel({ user }) {
             </button>
             <button
               onClick={() => setActiveTab('campaigns')}
-              className={`flex items-center gap-2 px-4 py-2 rounded-md text-sm font-bold transition-colors ${
+              className={`flex items-center gap-2 px-4 py-2 rounded-2xl text-sm font-bold transition-colors ${
                 activeTab === 'campaigns' ? 'bg-[#22c8e5] text-[#003258]' : 'text-white/40 hover:text-white'
               }`}
             >
@@ -297,7 +297,7 @@ export default function AdminCRMPanel({ user }) {
 
               <button 
                 type="submit"
-                className="w-full bg-[#22c8e5] text-[#003258] py-3 rounded-xl font-bold hover:bg-white transition-colors flex items-center justify-center gap-2 mt-4"
+                className="w-full bg-[#22c8e5] text-[#003258] py-3 rounded-2xl font-bold hover:bg-white transition-colors flex items-center justify-center gap-2 mt-4"
               >
                 <Plus size={16} /> Add to List
               </button>
@@ -310,7 +310,7 @@ export default function AdminCRMPanel({ user }) {
               <h3 className="text-lg font-bold text-white flex items-center gap-2">
                 <Users size={18} className="text-[#22c8e5]" /> 
                 Subscribers
-                {contacts.length > 0 && <span className="text-xs bg-[#22c8e5]/20 text-[#22c8e5] px-2 py-1 rounded-full ml-2">{contacts.length}</span>}
+                {contacts.length > 0 && <span className="text-xs bg-[#22c8e5]/20 text-[#22c8e5] px-2 py-1 rounded-2xl ml-2">{contacts.length}</span>}
               </h3>
               
               <div className="flex items-center gap-2">
@@ -365,7 +365,7 @@ export default function AdminCRMPanel({ user }) {
                           </div>
                         </td>
                         <td className="p-4 text-sm text-white/70">
-                          <span className="bg-white/10 px-2 py-1 rounded-md text-xs">{contact.list_name}</span>
+                          <span className="bg-white/10 px-2 py-1 rounded-2xl text-xs">{contact.list_name}</span>
                         </td>
                         <td className="p-4">
                           <span className={`text-[10px] font-bold uppercase tracking-wider px-2 py-1 rounded-full ${
@@ -447,7 +447,7 @@ export default function AdminCRMPanel({ user }) {
 
               <button 
                 type="submit"
-                className="w-full bg-white text-[#0f1419] py-3 rounded-xl font-bold hover:bg-[#22c8e5] transition-colors flex items-center justify-center gap-2 mt-2"
+                className="w-full bg-white text-[#0f1419] py-3 rounded-2xl font-bold hover:bg-[#22c8e5] transition-colors flex items-center justify-center gap-2 mt-2"
               >
                 Save as Draft
               </button>
@@ -503,7 +503,7 @@ export default function AdminCRMPanel({ user }) {
                         <button
                           onClick={() => handleSendCampaign(campaign.id)}
                           disabled={isSending}
-                          className="bg-[#22c8e5] text-[#003258] px-4 py-2 rounded-lg text-sm font-bold flex items-center gap-2 hover:bg-white transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                          className="bg-[#22c8e5] text-[#003258] px-4 py-2 rounded-2xl text-sm font-bold flex items-center gap-2 hover:bg-white transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                         >
                           {isSending ? <Loader2 size={16} className="animate-spin" /> : <Send size={16} />}
                           Send Now

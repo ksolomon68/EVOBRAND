@@ -187,7 +187,7 @@ const ContractCustomizerPage = () => {
                   </h3>
                   <button
                     onClick={handlePrint}
-                    className="flex items-center gap-2 bg-[#22c8e5] text-[#003258] px-4 py-2 rounded-full font-bold hover:opacity-90 transition-opacity"
+                    className="flex items-center gap-2 bg-[#22c8e5] text-[#003258] px-4 py-2 rounded-2xl font-bold hover:opacity-90 transition-opacity"
                   >
                     <Download size={16} /> Download PDF
                   </button>

@@ -50,7 +50,7 @@ const Header = () => {
             ))}
             <NavLink
               to="/client-portal"
-              className="text-sm font-bold text-[#22c8e5] hover:bg-[#22c8e5] hover:text-[#003258] transition-colors px-6 py-2 border-2 border-[#22c8e5] rounded-full"
+              className="text-sm font-bold text-[#22c8e5] hover:bg-[#22c8e5] hover:text-[#003258] transition-colors px-6 py-2 border-2 border-[#22c8e5] rounded-2xl"
             >
               Client Portal
             </NavLink>
@@ -95,7 +95,7 @@ const Header = () => {
               <NavLink
                 to="/client-portal"
                 onClick={() => setMobileMenuOpen(false)}
-                className="text-lg font-bold text-[#22c8e5] hover:bg-[#22c8e5] hover:text-[#003258] transition-colors px-6 py-3 border-2 border-[#22c8e5] rounded-full text-center mt-4"
+                className="text-lg font-bold text-[#22c8e5] hover:bg-[#22c8e5] hover:text-[#003258] transition-colors px-6 py-3 border-2 border-[#22c8e5] rounded-2xl text-center mt-4"
               >
                 Client Portal
               </NavLink>

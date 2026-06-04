@@ -222,10 +222,10 @@ const RecommendationCard = ({ rec, delay }) => (
         {String(rec.priority).padStart(2, '0')}
       </span>
       <div className="flex gap-2 flex-wrap justify-end">
-        <span className={`text-xs px-2 py-1 rounded-full border font-semibold ${IMPACT_COLORS[rec.impact]}`}>
+        <span className={`text-xs px-2 py-1 rounded-2xl border font-semibold ${IMPACT_COLORS[rec.impact]}`}>
           {rec.impact} Impact
         </span>
-        <span className="text-xs px-2 py-1 rounded-full border border-white/10 text-white/40 ">
+        <span className="text-xs px-2 py-1 rounded-2xl border border-white/10 text-white/40 ">
           {rec.effort} Effort
         </span>
       </div>
@@ -272,7 +272,7 @@ const AuditResults = ({ report, onDownloadPDF, isLoading, hasWebsite }) => {
                 initial={{ opacity: 0, x: 20 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ duration: 0.5, delay: 0.3 + i * 0.08 }}
-                className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-xl px-5 py-4"
+                className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl px-5 py-4"
               >
                 <div className="flex items-center justify-between mb-2">
                   <span className="font-semibold text-white text-base">{cat.label}</span>
@@ -358,7 +358,7 @@ const AuditResults = ({ report, onDownloadPDF, isLoading, hasWebsite }) => {
           <div className="flex flex-col sm:flex-row gap-4 justify-center mb-6">
             <Link
               to="/contact"
-              className="inline-flex items-center justify-center gap-2 px-8 py-4 bg-[#22C8E5] text-[#003258] rounded-xl font-bold uppercase tracking-wider hover:bg-[#1db5d0] transition-colors"
+              className="inline-flex items-center justify-center gap-2 px-8 py-4 bg-[#22C8E5] text-[#003258] rounded-2xl font-bold uppercase tracking-wider hover:bg-[#1db5d0] transition-colors"
               id="audit-book-call-btn"
             >
               <Calendar size={18} />
@@ -366,7 +366,7 @@ const AuditResults = ({ report, onDownloadPDF, isLoading, hasWebsite }) => {
             </Link>
             <button
               onClick={handleDownloadPDF}
-              className="inline-flex items-center justify-center gap-2 px-8 py-4 border border-[#22C8E5]/40 text-[#22C8E5] rounded-xl font-bold uppercase tracking-wider hover:border-[#22C8E5] transition-colors cursor-pointer"
+              className="inline-flex items-center justify-center gap-2 px-8 py-4 border border-[#22C8E5]/40 text-[#22C8E5] rounded-2xl font-bold uppercase tracking-wider hover:border-[#22C8E5] transition-colors cursor-pointer"
               id="audit-download-pdf-btn"
             >
               <Download size={18} />

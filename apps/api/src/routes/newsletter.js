@@ -21,6 +21,28 @@ router.post('/subscribe', async (req, res) => {
       [email]
     );
 
+    // Sync with CRM
+    try {
+      // Find a list named 'Newsletter' or default to first list
+      const [lists] = await pool.query('SELECT id FROM crm_lists WHERE name LIKE "%Newsletter%" LIMIT 1');
+      let listId = 1;
+      if (lists.length > 0) {
+        listId = lists[0].id;
+      } else {
+        const [anyList] = await pool.query('SELECT id FROM crm_lists ORDER BY id ASC LIMIT 1');
+        if (anyList.length > 0) {
+          listId = anyList[0].id;
+        }
+      }
+
+      await pool.query(
+        'INSERT INTO crm_contacts (email, status, list_id) VALUES (?, "subscribed", ?) ON DUPLICATE KEY UPDATE status = "subscribed"',
+        [email, listId]
+      );
+    } catch (crmError) {
+      console.error('Failed to sync newsletter with CRM:', crmError);
+    }
+
     // Send Welcome Email via Resend
     await require('resend').Resend(process.env.RESEND_API_KEY || process.env.EMAIL_API_KEY).emails.send({
       from: `"EVOBRAND Insider" <${process.env.EMAIL_FROM || 'support@evobrand.net'}>`,

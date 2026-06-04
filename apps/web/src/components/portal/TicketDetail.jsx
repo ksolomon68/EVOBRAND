@@ -247,13 +247,13 @@ const TicketDetail = ({ ticket, onBack, onReply, onClose, user, onRefresh }) => 
                                                     value={priceInput}
                                                     onChange={(e) => setPriceInput(e.target.value)}
                                                     placeholder="0.00"
-                                                    className="w-full bg-white/5 border border-[rgba(34,200,229,0.3)] text-white font-bold pl-7 pr-3 py-2 rounded-lg text-sm focus:outline-none focus:border-[#22c8e5]"
+                                                    className="w-full bg-white/5 border border-[rgba(34,200,229,0.3)] text-white font-bold pl-7 pr-3 py-2 rounded-2xl text-sm focus:outline-none focus:border-[#22c8e5]"
                                                 />
                                             </div>
                                             <button
                                                 onClick={() => savePrice({ quoted_price: parseFloat(priceInput) || 0 })}
                                                 disabled={priceSaving}
-                                                className="px-3 py-2 rounded-lg text-sm font-bold disabled:opacity-50 transition-colors"
+                                                className="px-3 py-2 rounded-2xl text-sm font-bold disabled:opacity-50 transition-colors"
                                                 style={{ background: 'rgba(34,200,229,0.15)', color: '#22c8e5' }}
                                             >
                                                 {priceSaving ? '…' : 'Save'}
@@ -285,7 +285,7 @@ const TicketDetail = ({ ticket, onBack, onReply, onClose, user, onRefresh }) => 
                                                 <button
                                                     onClick={() => setPaymentModal(true)}
                                                     id={`ticket-pay-btn-${ticket.id}`}
-                                                    className="w-full flex items-center justify-center gap-2 py-3 rounded-xl font-bold text-xs uppercase tracking-widest transition-all"
+                                                    className="w-full flex items-center justify-center gap-2 py-3 rounded-2xl font-bold text-xs uppercase tracking-widest transition-all"
                                                     style={{
                                                         background: 'linear-gradient(135deg, #22c8e5, #1ba3c0)',
                                                         color: '#003258',
@@ -319,7 +319,7 @@ const TicketDetail = ({ ticket, onBack, onReply, onClose, user, onRefresh }) => 
                                                 <button 
                                                     onClick={() => setShowConfirmClose(false)}
                                                     disabled={isClosing}
-                                                    className="flex-1 py-2.5 rounded-xl bg-white/5 text-white/60 hover:text-white hover:bg-white/10 text-xs font-bold uppercase transition-all"
+                                                    className="flex-1 py-2.5 rounded-2xl bg-white/5 text-white/60 hover:text-white hover:bg-white/10 text-xs font-bold uppercase transition-all"
                                                 >
                                                     Cancel
                                                 </button>

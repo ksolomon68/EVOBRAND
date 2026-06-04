@@ -331,7 +331,7 @@ const OurWorkPage = () => {
             <p className="text-xl text-white/90 mb-8">Join our growing list of successful clients</p>
             <a
               href="/contact"
-              className="inline-block px-8 py-4 bg-white text-[#1a2332] rounded-full font-bold hover:shadow-lg hover:bg-gray-100 transition-all"
+              className="inline-block px-8 py-4 bg-white text-[#1a2332] rounded-2xl font-bold hover:shadow-lg hover:bg-gray-100 transition-all"
             >
               Get Started Today
             </a>
