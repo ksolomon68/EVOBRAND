@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Loader2, ShieldAlert, Shield, Zap, Star, Search, Check } from 'lucide-react';
+import { Loader2, ShieldAlert, Shield, Zap, Star, Search, Check, Plus, X } from 'lucide-react';
 
 const API_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
   ? 'http://localhost:5000/api/support'
@@ -88,11 +88,111 @@ function PlanSelector({ userId, currentPlan, onSaved }) {
   );
 }
 
+function AddClientModal({ onClose, onAdded }) {
+  const [formData, setFormData] = useState({ name: '', email: '', plan: '' });
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    setError('');
+
+    try {
+      const res = await fetch(`${API_URL}/users`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${localStorage.getItem('evobrand_token')}`,
+        },
+        body: JSON.stringify(formData),
+      });
+      const data = await res.json();
+
+      if (res.ok) {
+        onAdded();
+      } else {
+        setError(data.error || 'Failed to add client');
+      }
+    } catch (err) {
+      setError('Network error. Please try again.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm" onClick={onClose}>
+      <div className="bg-[#0f1419] border border-white/10 rounded-2xl p-6 w-full max-w-md shadow-2xl relative" onClick={e => e.stopPropagation()}>
+        <div className="flex justify-between items-center mb-6">
+          <h2 className="text-xl font-bold text-white">Add New Client</h2>
+          <button onClick={onClose} className="text-white/40 hover:text-white transition-colors">
+            <X size={20} />
+          </button>
+        </div>
+
+        {error && (
+          <div className="mb-4 p-3 rounded-lg bg-red-500/10 border border-red-500/20 text-red-400 text-sm">
+            {error}
+          </div>
+        )}
+
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div>
+            <label className="block text-xs font-bold text-white/40 uppercase tracking-widest mb-2">Name</label>
+            <input
+              type="text"
+              required
+              value={formData.name}
+              onChange={e => setFormData({ ...formData, name: e.target.value })}
+              className="w-full bg-[#1a2332] border border-white/10 rounded-xl p-3 text-white text-sm focus:outline-none focus:border-[#22c8e5]"
+              placeholder="Client Name"
+            />
+          </div>
+          <div>
+            <label className="block text-xs font-bold text-white/40 uppercase tracking-widest mb-2">Email Address *</label>
+            <input
+              type="email"
+              required
+              value={formData.email}
+              onChange={e => setFormData({ ...formData, email: e.target.value })}
+              className="w-full bg-[#1a2332] border border-white/10 rounded-xl p-3 text-white text-sm focus:outline-none focus:border-[#22c8e5]"
+              placeholder="client@company.com"
+            />
+          </div>
+          <div>
+            <label className="block text-xs font-bold text-white/40 uppercase tracking-widest mb-2">Initial Plan</label>
+            <select
+              value={formData.plan}
+              onChange={e => setFormData({ ...formData, plan: e.target.value })}
+              className="w-full bg-[#1a2332] border border-white/10 rounded-xl p-3 text-white text-sm focus:outline-none focus:border-[#22c8e5]"
+            >
+              {PLANS.map(p => (
+                <option key={p.value} value={p.value}>{p.label}</option>
+              ))}
+            </select>
+          </div>
+
+          <button
+            type="submit"
+            disabled={loading}
+            className="w-full flex justify-center items-center gap-2 py-3 mt-4 rounded-xl font-bold uppercase tracking-widest text-[#003258] disabled:opacity-50"
+            style={{ background: GOLD }}
+          >
+            {loading ? <Loader2 size={16} className="animate-spin" /> : 'Create Client'}
+          </button>
+        </form>
+      </div>
+    </div>
+  );
+}
+
 export default function AdminClientPlansPanel({ user }) {
   const [clients, setClients] = useState([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
   const [filterPlan, setFilterPlan] = useState('all');
+  const [showAddClient, setShowAddClient] = useState(false);
 
   const isAdmin = user?.is_admin === 1 || user?.is_admin === true;
 
@@ -187,6 +287,13 @@ export default function AdminClientPlansPanel({ user }) {
           />
         </div>
         <div className="flex gap-2 flex-wrap">
+          <button
+            onClick={() => setShowAddClient(true)}
+            className="px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-widest flex items-center gap-2 hover:opacity-80 transition-opacity"
+            style={{ background: GOLD, color: NAVY }}
+          >
+            <Plus size={14} /> Add Client
+          </button>
           {['all', 'basic', 'pro', 'elite', 'none'].map(f => (
             <button
               key={f}
@@ -245,6 +352,16 @@ export default function AdminClientPlansPanel({ user }) {
             </tbody>
           </table>
         </div>
+      )}
+
+      {showAddClient && (
+        <AddClientModal
+          onClose={() => setShowAddClient(false)}
+          onAdded={() => {
+            setShowAddClient(false);
+            fetchClients();
+          }}
+        />
       )}
     </div>
   );

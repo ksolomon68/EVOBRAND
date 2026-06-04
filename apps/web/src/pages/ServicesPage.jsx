@@ -208,8 +208,8 @@ const ServicesPage = () => {
       title: 'WordPress & Web Development',
       description: 'Professional web solutions and WordPress development for modern businesses.',
       features: [
-        'Custom WordPress Themes',
-        'Plugin Development',
+        'Custom WordPress Setup',
+        'Plugin Configuration',
         'E-commerce Solutions',
         'Performance Optimization',
         'Security Hardening',

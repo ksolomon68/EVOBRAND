@@ -114,7 +114,7 @@ const HomePage = () => {
                 transition={{ duration: 0.8, delay: 0.2 }}
                 className="max-w-3xl pointer-events-auto"
               >
-                <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold text-white mb-6">
+                <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold text-white mb-6 break-words">
                   Your Partner in <span className="text-[#22c8e5]">AI Transformation</span>
                 </h1>
                 <p className="text-2xl md:text-3xl text-[#22c8e5] mb-6 h-20">

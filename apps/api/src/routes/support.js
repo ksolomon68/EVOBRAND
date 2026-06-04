@@ -416,4 +416,62 @@ router.put('/users/:id/plan', authenticateToken, async (req, res) => {
   }
 });
 
+// @route POST /api/support/users
+// @desc  Admin: create a new user/client and assign a support plan
+router.post('/users', authenticateToken, async (req, res) => {
+  try {
+    const admin = await isAdminUser(req.user.id);
+    if (!admin) return res.status(403).json({ error: 'Admin access required' });
+
+    const { name, email, plan } = req.body;
+    if (!email) return res.status(400).json({ error: 'Email is required' });
+
+    const allowedPlans = ['basic', 'pro', 'elite', null, ''];
+    if (plan && !allowedPlans.includes(plan)) {
+      return res.status(400).json({ error: 'Invalid plan.' });
+    }
+
+    // Check if user exists
+    const [existing] = await pool.query('SELECT id FROM users WHERE email = ?', [email]);
+    if (existing.length > 0) {
+      return res.status(400).json({ error: 'User with this email already exists.' });
+    }
+
+    // Generate random secure password
+    const crypto = require('crypto');
+    const bcrypt = require('bcryptjs');
+    const randomPassword = crypto.randomBytes(8).toString('hex'); // 16 char string
+    const salt = await bcrypt.genSalt(10);
+    const passwordHash = await bcrypt.hash(randomPassword, salt);
+
+    // Insert user
+    await pool.query(
+      'INSERT INTO users (email, name, password_hash, support_plan, is_admin) VALUES (?, ?, ?, ?, FALSE)',
+      [email, name || '', passwordHash, plan || null]
+    );
+
+    // Send Welcome Email
+    try {
+      await resend.emails.send({
+        from: `"EVOBRAND" <${process.env.RESEND_FROM_EMAIL || 'info@evobrand.net'}>`,
+        to: email,
+        subject: `Welcome to EVOBRAND Client Portal`,
+        html: getEmailTemplate(`Welcome to EVOBRAND Client Portal`, 
+             `<p>Hi ${name || ''},</p>
+             <p>An account has been created for you in the EVOBRAND Client Portal.</p>
+             <p>We have also provisioned your assigned service plan.</p>
+             <p>To access your account and submit tickets, please visit the portal and use the <strong>Forgot Password</strong> link to set your secure password.</p>
+             <p><a href="https://evobrandconcepts.com/login" style="color: #22c8e5;">Go to Client Portal</a></p>`)
+      });
+    } catch (emailErr) {
+      console.error('Welcome email failed:', emailErr);
+    }
+
+    res.status(201).json({ message: 'Client created successfully' });
+  } catch (error) {
+    console.error('Create user error:', error);
+    res.status(500).json({ error: 'Server error creating client' });
+  }
+});
+
 module.exports = router;
