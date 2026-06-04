@@ -6,9 +6,11 @@ import SEO from '@/components/SEO.jsx';
 import AuditResults from '@/components/auditor/AuditResults';
 import { downloadAuditPDF } from '@/components/auditor/AuditPDF';
 
-const SUPABASE_FUNCTION_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' 
-  ? 'http://localhost:5000/api/auditor/audit' 
-  : 'https://evobrandconcepts.com/api/auditor/audit';
+const API_BASE = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' 
+  ? 'http://localhost:5000' 
+  : window.location.origin;
+
+const SUPABASE_FUNCTION_URL = `${API_BASE}/api/auditor/audit`;
 
 const AuditorPage = () => {
   const navigate = useNavigate();

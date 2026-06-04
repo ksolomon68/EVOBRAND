@@ -355,23 +355,28 @@ const AuditResults = ({ report, onDownloadPDF, isLoading, hasWebsite }) => {
           <p className="text-white/80 text-lg mb-6 max-w-2xl mx-auto leading-relaxed">
             {report.cta}
           </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center mb-6">
-            <Link
-              to="/contact"
-              className="inline-flex items-center justify-center gap-2 px-8 py-4 bg-[#22C8E5] text-[#003258] rounded-2xl font-bold uppercase tracking-wider hover:bg-[#1db5d0] transition-colors"
-              id="audit-book-call-btn"
-            >
-              <Calendar size={18} />
-              Book a Free Strategy Call
-            </Link>
-            <button
-              onClick={handleDownloadPDF}
-              className="inline-flex items-center justify-center gap-2 px-8 py-4 border border-[#22C8E5]/40 text-[#22C8E5] rounded-2xl font-bold uppercase tracking-wider hover:border-[#22C8E5] transition-colors cursor-pointer"
-              id="audit-download-pdf-btn"
-            >
-              <Download size={18} />
-              Download PDF Report
-            </button>
+          <div className="flex flex-col sm:flex-row gap-6 sm:gap-4 justify-center mb-6">
+            <div className="flex flex-col items-center">
+              <Link
+                to="/contact"
+                className="inline-flex items-center justify-center w-full sm:w-auto gap-2 px-8 py-4 bg-[#22C8E5] text-[#003258] rounded-2xl font-bold uppercase tracking-wider hover:bg-[#1db5d0] transition-colors"
+                id="audit-book-call-btn"
+              >
+                <Calendar size={18} />
+                Book a Free Strategy Call
+              </Link>
+              <span className="text-[#22C8E5]/80 text-xs mt-3 font-semibold tracking-wide">(No pressure. Completely optional.)</span>
+            </div>
+            <div className="flex flex-col items-center">
+              <button
+                onClick={handleDownloadPDF}
+                className="inline-flex items-center justify-center w-full sm:w-auto gap-2 px-8 py-4 border border-[#22C8E5]/40 text-[#22C8E5] rounded-2xl font-bold uppercase tracking-wider hover:border-[#22C8E5] transition-colors cursor-pointer h-[56px]"
+                id="audit-download-pdf-btn"
+              >
+                <Download size={18} />
+                Download PDF Report
+              </button>
+            </div>
           </div>
           <p className="text-white/30 text-sm ">
             Keisha Solomon · CEO, EVOBRAND Concepts · Dallas, TX
