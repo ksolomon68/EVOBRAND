@@ -1,0 +1,61 @@
+name: Build & Commit Dist
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      # Only run when source files actually change (not when dist/ itself changes)
+      - 'apps/web/src/**'
+      - 'apps/web/public/**'
+      - 'apps/web/index.html'
+      - 'apps/web/vite.config.js'
+      - 'apps/web/tailwind.config.js'
+      - 'apps/web/postcss.config.js'
+      - 'apps/web/package.json'
+      - 'apps/web/tools/**'
+
+jobs:
+  build:
+    name: Build frontend & update dist
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+        with:
+          # Full history needed so we can push back
+          fetch-depth: 0
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20.19.1'
+          cache: 'npm'
+          cache-dependency-path: apps/web/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+        working-directory: apps/web
+
+      - name: Build frontend
+        run: npm run build
+        working-directory: apps/web
+        env:
+          VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
+          VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
+          VITE_YOUTUBE_API_KEY: ${{ secrets.VITE_YOUTUBE_API_KEY }}
+          VITE_SITE_URL: https://evobrand.net
+
+      - name: Commit & push updated dist
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add dist/
+          # Only commit if something actually changed in dist/
+          if git diff --staged --quiet; then
+            echo "No dist changes to commit."
+          else
+            git commit -m "build: auto-rebuild dist [skip ci]"
+            git push
+          fi
