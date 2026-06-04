@@ -8,7 +8,6 @@ yarn-debug.log*
 yarn-error.log*
 supabase/.temp
 deploy.zip
-apps/web/dist/
 
 # Server-generated files
 apps/api/src/crash.log
@@ -18,4 +17,4 @@ nohup.out
 apps/api/uploads/
 apps/api/tmp/
 tmp/
-dist/
+

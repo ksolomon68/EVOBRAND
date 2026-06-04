@@ -12,3 +12,4 @@
 - [Free AI Brand Audit Tool | Instant Score & Action Plan | EVOBRAND](/auditor): Get a free AI-powered brand audit in under 4 minutes. Score your brand across SEO, design, accessibility, social, and digital presence. Instant report + personalized action plan. No sign-up required.
 - [How Our AI Process Works | Discovery to Launch | EVOBRAND](/howitworks): EVOBRAND
 - [Reset Password](/resetpassword): Reset your EVOBRAND client portal password.
+- [WordPress Maintenance & Support Plans — EVOBRAND](/maintenanceplans): Keep your WordPress site secure, fast, and up to date with EVOBRAND
