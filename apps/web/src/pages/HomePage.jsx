@@ -62,7 +62,7 @@ const HomePage = () => {
       icon: <Code size={40} />,
       title: 'WordPress & Web Development',
       description: 'Professional web solutions and WordPress development',
-      features: ['Custom Themes', 'Plugin Development', 'E-commerce', 'Maintenance'],
+      features: ['Custom WordPress Setup', 'Plugin Configuration', 'E-commerce', 'Maintenance'],
       emphasized: false
     }
   ];

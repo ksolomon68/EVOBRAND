@@ -243,6 +243,11 @@ const ServicesPage = () => {
           cta: 'Contact Us'
         }
       ],
+      maintenancePlans: [
+        { tier: 'Basic', price: '$99/mo', features: ['Core & plugin updates', 'Security scans', 'Uptime monitoring', '2 support tickets/mo'] },
+        { tier: 'Pro', price: '$249/mo', features: ['Everything in Basic', 'Unlimited tickets', '24-hr priority response', 'Performance optimization', '2 hrs minor edits/mo'], highlighted: true },
+        { tier: 'Elite', price: '$499/mo', features: ['Everything in Pro', 'Same-day emergency response', '4 hrs dev work/mo', 'Dedicated account manager'] },
+      ],
       caseStudy: {
         client: 'Retail Business',
         challenge: 'Outdated website with poor performance',
@@ -498,6 +503,73 @@ const ServicesPage = () => {
             </div>
           </div>
         </section>
+
+        {/* Maintenance Plans — shown only for WordPress service */}
+        {currentService.maintenancePlans && (
+          <section className="py-20 bg-[#1a2332]">
+            <div className="container mx-auto px-4 max-w-6xl">
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                className="text-center mb-12"
+              >
+                <span className="inline-block mb-4 px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-widest border" style={{ borderColor: 'rgba(34,200,229,0.3)', color: '#22c8e5', background: 'rgba(34,200,229,0.06)' }}>
+                  Ongoing Care
+                </span>
+                <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">WordPress Maintenance Plans</h2>
+                <p className="text-gray-400 max-w-2xl mx-auto">
+                  Keep your site secure, fast, and always up to date. Choose a monthly plan and never worry about updates, hacks, or downtime again.
+                </p>
+              </motion.div>
+
+              <div className="grid md:grid-cols-3 gap-6 mb-10">
+                {currentService.maintenancePlans.map((plan, index) => (
+                  <motion.div
+                    key={index}
+                    initial={{ opacity: 0, y: 30 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true }}
+                    transition={{ delay: index * 0.1 }}
+                    className={`relative rounded-3xl p-8 flex flex-col ${plan.highlighted ? 'border-2 border-[#22c8e5] shadow-xl shadow-[#22c8e5]/10' : 'border border-white/8'}`}
+                    style={{ background: plan.highlighted ? 'linear-gradient(135deg, rgba(34,200,229,0.10), rgba(34,200,229,0.03))' : 'rgba(255,255,255,0.03)' }}
+                  >
+                    {plan.highlighted && (
+                      <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-4 py-1 rounded-full text-xs font-bold uppercase tracking-widest" style={{ background: '#22c8e5', color: '#003258' }}>
+                        Most Popular
+                      </div>
+                    )}
+                    <h3 className="text-xl font-bold text-white mb-1">{plan.tier}</h3>
+                    <p className="text-3xl font-bold mb-6" style={{ color: '#22c8e5' }}>{plan.price}</p>
+                    <ul className="space-y-3 mb-8 flex-1">
+                      {plan.features.map((f, fi) => (
+                        <li key={fi} className="flex items-start gap-2.5 text-gray-300 text-sm">
+                          <Check size={15} className="text-[#22c8e5] flex-shrink-0 mt-0.5" />
+                          {f}
+                        </li>
+                      ))}
+                    </ul>
+                    <a
+                      href="/maintenance-plans"
+                      className={`w-full py-3 rounded-2xl font-bold text-sm text-center transition-all ${plan.highlighted ? 'bg-[#22c8e5] text-[#003258] hover:shadow-lg hover:shadow-[#22c8e5]/30' : 'border border-[#22c8e5] text-[#22c8e5] hover:bg-[#22c8e5] hover:text-[#003258]'}`}
+                    >
+                      Get {plan.tier} Plan
+                    </a>
+                  </motion.div>
+                ))}
+              </div>
+
+              <div className="text-center">
+                <a
+                  href="/maintenance-plans"
+                  className="inline-flex items-center gap-2 px-8 py-4 rounded-2xl font-bold text-sm uppercase tracking-widest transition-all border border-[#22c8e5] text-[#22c8e5] hover:bg-[#22c8e5] hover:text-[#003258]"
+                >
+                  View Full Plan Details <ArrowRight size={16} />
+                </a>
+              </div>
+            </div>
+          </section>
+        )}
 
         {/* CTA */}
         <section className="py-20 bg-gradient-to-br from-[#1a2332] to-[#22c8e5]">
