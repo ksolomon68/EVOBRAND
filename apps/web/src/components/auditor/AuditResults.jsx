@@ -439,7 +439,7 @@ const AuditResults = ({ report, onDownloadPDF, isLoading, hasWebsite }) => {
             </div>
           </div>
           <p className="text-white/30 text-sm ">
-            Keisha Solomon · CEO, EVOBRAND Concepts · Dallas, TX
+            Keisha Solomon · CEO, EVOBRAND Concepts · Ellis County, TX
           </p>
         </motion.div>
       </div>

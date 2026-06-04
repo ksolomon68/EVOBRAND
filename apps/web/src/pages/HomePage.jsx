@@ -72,15 +72,15 @@ const HomePage = () => {
   return (
     <>
       <SEO
-        title="AI Solutions for Business Growth | Dallas, TX"
-        description="EVOBRAND transforms businesses with custom AI applications, visual content creation, intelligent document generation, and AI video production. Dallas-based agency serving clients nationwide."
-        keywords="AI solutions, custom AI applications, AI transformation, Dallas AI agency, AI automation, business AI, machine learning, intelligent automation"
+        title="AI Solutions for Business Growth | Ellis County, TX"
+        description="EVOBRAND transforms businesses with custom AI applications, visual content creation, intelligent document generation, and AI video production. Ellis County-based agency serving clients nationwide."
+        keywords="AI solutions, custom AI applications, AI transformation, Ellis County AI agency, AI automation, business AI, machine learning, intelligent automation"
         canonical="https://evobrand.net/"
         structuredData={{
           "@context": "https://schema.org",
           "@type": "LocalBusiness",
           "name": "EVOBRAND Concepts LLC",
-          "description": "Dallas-based AI transformation agency delivering custom AI applications, visual content, and intelligent automation.",
+          "description": "Ellis County-based AI transformation agency delivering custom AI applications, visual content, and intelligent automation.",
           "url": "https://evobrand.net",
           "logo": "https://evobrand.net/logo.png",
           "image": "https://evobrand.net/og-image.png",
@@ -88,7 +88,7 @@ const HomePage = () => {
           "email": "info@evobrand.net",
           "address": {
             "@type": "PostalAddress",
-            "addressLocality": "Dallas",
+            "addressLocality": "Ellis County",
             "addressRegion": "TX",
             "addressCountry": "US"
           },

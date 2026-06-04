@@ -314,7 +314,7 @@ const AuditForm = ({ onComplete, prefillData }) => {
                   <label className={labelClass}>Primary audience *</label>
                   <input
                     type="text"
-                    placeholder="e.g. Small business owners in Dallas"
+                    placeholder="e.g. Small business owners in Ellis County"
                     value={form.audience}
                     onChange={(e) => set('audience', e.target.value)}
                     className={inputClass}

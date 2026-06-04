@@ -36,7 +36,7 @@ const CONTACT_METHODS = [
   {
     icon: MapPin,
     label: 'Location',
-    lines: [{ text: 'Dallas, Texas' }],
+    lines: [{ text: 'Ellis County, Texas' }],
   },
   {
     icon: Clock,
@@ -290,9 +290,9 @@ export default function ContactPage() {
   return (
     <>
       <SEO
-        title="Book a Free AI Consultation | Contact EVOBRAND — Dallas, TX"
-        description="Ready to transform your business with AI? Contact EVOBRAND for a free 30-minute strategy call. Serving clients nationwide from Dallas, TX. Call +1 214-531-4427 or email info@evobrand.net."
-        keywords="contact EVOBRAND, AI consultation, book strategy call, Dallas AI agency contact, free AI consultation"
+        title="Book a Free AI Consultation | Contact EVOBRAND — Ellis County, TX"
+        description="Ready to transform your business with AI? Contact EVOBRAND for a free 30-minute strategy call. Serving clients nationwide from Ellis County, TX. Call +1 214-531-4427 or email info@evobrand.net."
+        keywords="contact EVOBRAND, AI consultation, book strategy call, Ellis County AI agency contact, free AI consultation"
         canonical="https://evobrand.net/contact"
         structuredData={{
           "@context": "https://schema.org",
@@ -307,7 +307,7 @@ export default function ContactPage() {
             "email": "info@evobrand.net",
             "address": {
               "@type": "PostalAddress",
-              "addressLocality": "Dallas",
+              "addressLocality": "Ellis County",
               "addressRegion": "TX",
               "addressCountry": "US"
             }

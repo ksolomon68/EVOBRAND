@@ -325,7 +325,7 @@ const ServicesPage = () => {
       <SEO
         title="AI Services & Pricing | Custom AI Apps, Video, Docs & More"
         description="Explore EVOBRAND's full suite of AI services: custom AI applications, visual content creation, intelligent document generation, AI video production, web development, and WCAG accessibility. Transparent pricing, proven results."
-        keywords="AI services, custom AI development, AI video production, intelligent document generation, WCAG accessibility, AI visual content, web development Dallas"
+        keywords="AI services, custom AI development, AI video production, intelligent document generation, WCAG accessibility, AI visual content, web development Ellis County"
         canonical={`https://evobrand.net/services`}
         structuredData={{
           "@context": "https://schema.org",

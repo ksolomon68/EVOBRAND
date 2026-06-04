@@ -213,7 +213,7 @@ const OurWorkPage = () => {
       <SEO
         title="AI Portfolio & Case Studies | Client Work | EVOBRAND"
         description="Browse EVOBRAND's portfolio: 500+ projects across web development, SaaS platforms, government contracting, healthcare, e-commerce, and AI-powered solutions. Real clients, real results."
-        keywords="EVOBRAND portfolio, AI case studies, web development portfolio, Dallas web design, SaaS development, government contracting platform"
+        keywords="EVOBRAND portfolio, AI case studies, web development portfolio, Ellis County web design, SaaS development, government contracting platform"
         canonical="https://evobrand.net/our-work"
       />
 
