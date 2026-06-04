@@ -6,6 +6,7 @@ import SEO from '@/components/SEO.jsx';
 import AuditResults from '@/components/auditor/AuditResults';
 import { downloadAuditPDF } from '@/components/auditor/AuditPDF';
 
+// Triggering auto-deploy via GitHub Actions
 // Error boundary to prevent black screen on unhandled render errors
 class AuditErrorBoundary extends Component {
   constructor(props) {
