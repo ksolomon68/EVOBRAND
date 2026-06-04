@@ -88,10 +88,42 @@ function PlanSelector({ userId, currentPlan, onSaved }) {
   );
 }
 
-function AddClientModal({ onClose, onAdded }) {
+function AddClientModal({ existingClients = [], onClose, onAdded }) {
   const [formData, setFormData] = useState({ name: '', email: '', plan: '' });
+  const [selectedUser, setSelectedUser] = useState(null);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [showDropdown, setShowDropdown] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+
+  // Close dropdown on click outside
+  useEffect(() => {
+    const handleOutsideClick = () => setShowDropdown(false);
+    window.addEventListener('click', handleOutsideClick);
+    return () => window.removeEventListener('click', handleOutsideClick);
+  }, []);
+
+  const filteredUsers = searchQuery.trim() === '' ? [] : existingClients.filter(user => {
+    return user.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+           user.email?.toLowerCase().includes(searchQuery.toLowerCase());
+  }).slice(0, 5);
+
+  const handleSelectUser = (user) => {
+    setSelectedUser(user);
+    setFormData({
+      name: user.name || '',
+      email: user.email || '',
+      plan: user.support_plan || ''
+    });
+    setSearchQuery(`${user.name || ''} (${user.email})`);
+    setShowDropdown(false);
+  };
+
+  const handleClearSelection = () => {
+    setSelectedUser(null);
+    setFormData({ name: '', email: '', plan: '' });
+    setSearchQuery('');
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -99,20 +131,38 @@ function AddClientModal({ onClose, onAdded }) {
     setError('');
 
     try {
-      const res = await fetch(`${API_URL}/users`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('evobrand_token')}`,
-        },
-        body: JSON.stringify(formData),
-      });
-      const data = await res.json();
+      if (selectedUser) {
+        const res = await fetch(`${API_URL}/users/${selectedUser.id}/plan`, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${localStorage.getItem('evobrand_token')}`,
+          },
+          body: JSON.stringify({ plan: formData.plan || null }),
+        });
+        const data = await res.json().catch(() => ({}));
 
-      if (res.ok) {
-        onAdded();
+        if (res.ok) {
+          onAdded();
+        } else {
+          setError(data.error || 'Failed to update plan');
+        }
       } else {
-        setError(data.error || 'Failed to add client');
+        const res = await fetch(`${API_URL}/users`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${localStorage.getItem('evobrand_token')}`,
+          },
+          body: JSON.stringify(formData),
+        });
+        const data = await res.json();
+
+        if (res.ok) {
+          onAdded();
+        } else {
+          setError(data.error || 'Failed to add client');
+        }
       }
     } catch (err) {
       setError('Network error. Please try again.');
@@ -125,7 +175,7 @@ function AddClientModal({ onClose, onAdded }) {
     <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm" onClick={onClose}>
       <div className="bg-[#0f1419] border border-white/10 rounded-2xl p-6 w-full max-w-md shadow-2xl relative" onClick={e => e.stopPropagation()}>
         <div className="flex justify-between items-center mb-6">
-          <h2 className="text-xl font-bold text-white">Add New Client</h2>
+          <h2 className="text-xl font-bold text-white">Add/Manage Client Plan</h2>
           <button onClick={onClose} className="text-white/40 hover:text-white transition-colors">
             <X size={20} />
           </button>
@@ -138,14 +188,73 @@ function AddClientModal({ onClose, onAdded }) {
         )}
 
         <form onSubmit={handleSubmit} className="space-y-4">
+          <div className="relative" onClick={e => e.stopPropagation()}>
+            <label className="block text-xs font-bold text-white/40 uppercase tracking-widest mb-2">Search Existing User (Optional)</label>
+            <div className="relative">
+              <input
+                type="text"
+                value={searchQuery}
+                onChange={e => {
+                  setSearchQuery(e.target.value);
+                  setShowDropdown(true);
+                  if (selectedUser) handleClearSelection();
+                }}
+                onFocus={() => setShowDropdown(true)}
+                className="w-full bg-[#1a2332] border border-white/10 rounded-xl p-3 pr-10 text-white text-sm focus:outline-none focus:border-[#22c8e5]"
+                placeholder="Type name or email to search..."
+              />
+              {selectedUser && (
+                <button
+                  type="button"
+                  onClick={handleClearSelection}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-white/40 hover:text-white"
+                >
+                  <X size={16} />
+                </button>
+              )}
+            </div>
+            
+            {showDropdown && filteredUsers.length > 0 && (
+              <div className="absolute z-10 w-full mt-1 bg-[#1a2332] border border-white/10 rounded-xl overflow-hidden shadow-xl max-h-48 overflow-y-auto">
+                {filteredUsers.map(u => (
+                  <button
+                    key={u.id}
+                    type="button"
+                    onClick={() => handleSelectUser(u)}
+                    className="w-full text-left px-4 py-2.5 hover:bg-[#22c8e5]/10 text-white text-xs border-b border-white/5 last:border-b-0 flex items-center justify-between"
+                  >
+                    <div>
+                      <p className="font-bold text-white/95">{u.name || 'No name'}</p>
+                      <p className="text-white/40 mt-0.5">{u.email}</p>
+                    </div>
+                    {u.support_plan ? (
+                      <span className="text-[10px] bg-[#22c8e5]/10 text-[#22c8e5] border border-[#22c8e5]/20 px-2 py-0.5 rounded-full font-bold uppercase tracking-wider">
+                        {u.support_plan}
+                      </span>
+                    ) : (
+                      <span className="text-[10px] text-white/20 font-bold uppercase tracking-wider">
+                        No plan
+                      </span>
+                    )}
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+
+          <div className="border-t border-white/5 my-2" />
+
           <div>
             <label className="block text-xs font-bold text-white/40 uppercase tracking-widest mb-2">Name</label>
             <input
               type="text"
               required
+              disabled={!!selectedUser}
               value={formData.name}
               onChange={e => setFormData({ ...formData, name: e.target.value })}
-              className="w-full bg-[#1a2332] border border-white/10 rounded-xl p-3 text-white text-sm focus:outline-none focus:border-[#22c8e5]"
+              className={`w-full border border-white/10 rounded-xl p-3 text-sm text-white focus:outline-none focus:border-[#22c8e5] transition-all ${
+                selectedUser ? 'bg-white/5 text-white/40' : 'bg-[#1a2332]'
+              }`}
               placeholder="Client Name"
             />
           </div>
@@ -154,14 +263,17 @@ function AddClientModal({ onClose, onAdded }) {
             <input
               type="email"
               required
+              disabled={!!selectedUser}
               value={formData.email}
               onChange={e => setFormData({ ...formData, email: e.target.value })}
-              className="w-full bg-[#1a2332] border border-white/10 rounded-xl p-3 text-white text-sm focus:outline-none focus:border-[#22c8e5]"
+              className={`w-full border border-white/10 rounded-xl p-3 text-sm text-white focus:outline-none focus:border-[#22c8e5] transition-all ${
+                selectedUser ? 'bg-white/5 text-white/40' : 'bg-[#1a2332]'
+              }`}
               placeholder="client@company.com"
             />
           </div>
           <div>
-            <label className="block text-xs font-bold text-white/40 uppercase tracking-widest mb-2">Initial Plan</label>
+            <label className="block text-xs font-bold text-white/40 uppercase tracking-widest mb-2">Support Plan</label>
             <select
               value={formData.plan}
               onChange={e => setFormData({ ...formData, plan: e.target.value })}
@@ -179,7 +291,7 @@ function AddClientModal({ onClose, onAdded }) {
             className="w-full flex justify-center items-center gap-2 py-3 mt-4 rounded-xl font-bold uppercase tracking-widest text-[#003258] disabled:opacity-50"
             style={{ background: GOLD }}
           >
-            {loading ? <Loader2 size={16} className="animate-spin" /> : 'Create Client'}
+            {loading ? <Loader2 size={16} className="animate-spin" /> : (selectedUser ? 'Update Plan' : 'Create Client')}
           </button>
         </form>
       </div>
@@ -356,6 +468,7 @@ export default function AdminClientPlansPanel({ user }) {
 
       {showAddClient && (
         <AddClientModal
+          existingClients={clients}
           onClose={() => setShowAddClient(false)}
           onAdded={() => {
             setShowAddClient(false);
