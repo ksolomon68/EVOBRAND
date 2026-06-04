@@ -183,27 +183,27 @@ const OurWorkPage = () => {
 
   const testimonials = [
     {
-      name: 'Sarah Johnson',
-      company: 'TechCorp Inc.',
-      role: 'CEO',
-      image: 'https://images.unsplash.com/photo-1531497684310-0f15276c39ab',
-      quote: 'EVOBRAND transformed our business with their AI solutions. We saw a 300% ROI in just 6 months.',
+      name: 'Marcus T.',
+      company: 'Civic Initiative',
+      role: 'Project Director',
+      image: 'https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&q=80&w=200',
+      quote: 'Keisha and the EVOBRAND team were exactly what we needed. They took a complex set of requirements for our public portal and built a platform our community actually loves using. The communication was stellar from day one.',
       rating: 5
     },
     {
-      name: 'Michael Chen',
-      company: 'RetailPro',
-      role: 'Marketing Director',
-      image: 'https://images.unsplash.com/photo-1531497684310-0f15276c39ab',
-      quote: 'The visual content creation service saved us thousands in production costs while improving quality.',
+      name: 'Elena Rodriguez',
+      company: 'Growth Partners',
+      role: 'Founder',
+      image: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&q=80&w=200',
+      quote: "We struggled for months trying to piece together a coherent brand identity. EVOBRAND stepped in, mapped out a clear strategy, and completely overhauled our web presence. Our conversion rate has literally doubled since the relaunch.",
       rating: 5
     },
     {
-      name: 'Emily Rodriguez',
-      company: 'HealthFirst',
-      role: 'Operations Manager',
-      image: 'https://images.unsplash.com/photo-1531497684310-0f15276c39ab',
-      quote: 'Their video production capabilities are outstanding. Professional results at a fraction of the cost.',
+      name: 'David S.',
+      company: 'B2B Solutions Group',
+      role: 'Operations Lead',
+      image: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&q=80&w=200',
+      quote: 'Finding an agency that actually understands both complex backend systems and high-end design is rare. EVOBRAND delivered a custom web application that replaced three legacy tools we were using. We couldn\'t be happier with the result.',
       rating: 5
     }
   ];
