@@ -51,6 +51,7 @@ const initialForm = {
   firstName: '',
   contactEmail: '',
   phone: '',
+  notes: '',
   wantsCall: false,
 };
 
@@ -424,6 +425,20 @@ const AuditForm = ({ onComplete, prefillData }) => {
                     id="audit-phone"
                   />
                 </div>
+                <div>
+                  <label className={labelClass}>
+                    Anything else you'd like us to know?{' '}
+                    <span className="text-white/30 font-normal normal-case tracking-normal">(optional)</span>
+                  </label>
+                  <textarea
+                    rows={3}
+                    placeholder="Tell us about your goals, timeline, or anything specific you'd like covered in your audit..."
+                    value={form.notes}
+                    onChange={(e) => set('notes', e.target.value)}
+                    className={inputClass + ' resize-none'}
+                    id="audit-notes"
+                  />
+                </div>
                 <label className="flex items-start gap-3 cursor-pointer group" id="audit-wants-call-label">
                   <div className={`
                     mt-0.5 w-5 h-5 rounded border-2 flex-shrink-0 flex items-center justify-center
@@ -443,6 +458,7 @@ const AuditForm = ({ onComplete, prefillData }) => {
                   </div>
                   <span className="text-white/70 text-sm leading-relaxed">
                     I'd like a free 15-min strategy call with Keisha to review my results
+                    <span className="block text-[#22C8E5]/60 text-xs mt-0.5 font-medium">(No pressure. Completely optional.)</span>
                   </span>
                 </label>
               </div>
