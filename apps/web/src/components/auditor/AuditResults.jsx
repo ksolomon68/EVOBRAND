@@ -235,7 +235,27 @@ const RecommendationCard = ({ rec, delay }) => (
   </motion.div>
 );
 
+const normalizeRecs = (raw) => {
+  let arr = raw;
+  if (!arr) return [];
+  // Handle object-shaped recommendations: { "1": {...}, "2": {...} }
+  if (!Array.isArray(arr) && typeof arr === 'object') {
+    arr = Object.values(arr);
+  }
+  if (!Array.isArray(arr)) return [];
+  return arr
+    .filter((r) => r && typeof r === 'object')
+    .map((r, i) => ({
+      priority: r.priority ?? (i + 1),
+      impact: r.impact || r.impact_level || r.impactLevel || 'Medium',
+      effort: r.effort || r.effort_level || r.effortLevel || 'Medium',
+      title: r.title || r.name || r.recommendation || r.action || r.summary || `Recommendation ${i + 1}`,
+      detail: r.detail || r.description || r.details || r.body || '',
+    }));
+};
+
 const normalizeReport = (report) => {
+  console.log('[AuditResults] raw report:', JSON.stringify(report).slice(0, 400));
   const rawScore = report.overall_score ?? report.overallScore ?? report.score;
   return {
     ...report,
@@ -244,17 +264,7 @@ const normalizeReport = (report) => {
     headline: report.headline || report.summary || '',
     strengths: Array.isArray(report.strengths) ? report.strengths : [],
     gaps: Array.isArray(report.gaps) ? report.gaps : [],
-    recommendations: Array.isArray(report.recommendations)
-      ? report.recommendations
-          .filter((r) => r && typeof r === 'object')
-          .map((r, i) => ({
-            priority: r.priority ?? (i + 1),
-            impact: r.impact || 'Medium',
-            effort: r.effort || 'Medium',
-            title: r.title || r.name || r.recommendation || r.action || `Recommendation ${i + 1}`,
-            detail: r.detail || r.description || r.details || '',
-          }))
-      : [],
+    recommendations: normalizeRecs(report.recommendations),
     categories: report.categories && !Array.isArray(report.categories)
       ? report.categories
       : Array.isArray(report.categories)

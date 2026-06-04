@@ -78,19 +78,23 @@ Respond ONLY with a valid JSON object matching this schema:
           })(),
           strengths: raw.strengths || raw.positives || [],
           gaps: raw.gaps || raw.weaknesses || raw.areas_for_improvement || [],
-          // Normalize each recommendation's field names
-          recommendations: Array.isArray(raw.recommendations)
-            ? raw.recommendations.map((r, i) => {
-                if (!r || typeof r !== 'object') return null;
-                return {
-                  priority: r.priority ?? (i + 1),
-                  impact: r.impact || r.impact_level || r.impactLevel || 'Medium',
-                  effort: r.effort || r.effort_level || r.effortLevel || 'Medium',
-                  title: r.title || r.name || r.recommendation || r.action || r.summary || `Recommendation ${i + 1}`,
-                  detail: r.detail || r.description || r.details || r.body || '',
-                };
-              }).filter(Boolean)
-            : [],
+          // Normalize recommendations — handle array or object shape from AI
+          recommendations: (() => {
+            let recs = raw.recommendations;
+            if (!recs) return [];
+            if (!Array.isArray(recs) && typeof recs === 'object') recs = Object.values(recs);
+            if (!Array.isArray(recs)) return [];
+            return recs.map((r, i) => {
+              if (!r || typeof r !== 'object') return null;
+              return {
+                priority: r.priority ?? (i + 1),
+                impact: r.impact || r.impact_level || r.impactLevel || 'Medium',
+                effort: r.effort || r.effort_level || r.effortLevel || 'Medium',
+                title: r.title || r.name || r.recommendation || r.action || r.summary || `Recommendation ${i + 1}`,
+                detail: r.detail || r.description || r.details || r.body || '',
+              };
+            }).filter(Boolean);
+          })(),
           cta: raw.cta || raw.call_to_action || '',
         };
         
@@ -135,7 +139,9 @@ Respond ONLY with a valid JSON object matching this schema:
         digital: { label: 'Digital Presence', score: overall_score, insight: 'Website performance is average.' }
       },
       strengths: ["Industry experience", "Clear understanding of challenges"],
-      gaps: data.challenges || ["Inconsistent visual identity"],
+      gaps: (Array.isArray(data.challenges) && data.challenges.length > 0)
+        ? data.challenges
+        : ["Inconsistent visual identity", "Limited digital presence", "Undefined target audience"],
       recommendations: [
         { priority: 1, impact: 'High', effort: 'Medium', title: 'Develop Brand Guidelines', detail: 'Create a unified document to ensure visual consistency across all platforms.' },
         { priority: 2, impact: 'Medium', effort: 'Low', title: 'Refresh Website Messaging', detail: 'Update your copy to target your specific audience more directly.' },
