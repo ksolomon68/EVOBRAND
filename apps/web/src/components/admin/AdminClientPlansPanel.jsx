@@ -105,8 +105,8 @@ function AddClientModal({ existingClients = [], onClose, onAdded }) {
 
   const filteredUsers = searchQuery.trim() === '' ? [] : existingClients.filter(user => {
     const sq = searchQuery.toLowerCase();
-    return (user.name && user.name.toLowerCase().includes(sq)) ||
-           (user.email && user.email.toLowerCase().includes(sq));
+    return (user.name || '').toLowerCase().includes(sq) ||
+           (user.email || '').toLowerCase().includes(sq);
   }).slice(0, 5);
 
   const handleSelectUser = (user) => {
@@ -354,8 +354,8 @@ export default function AdminClientPlansPanel({ user }) {
   const filtered = clients.filter(c => {
     const s = search.toLowerCase();
     const matchSearch = !search ||
-      (c.name && c.name.toLowerCase().includes(s)) ||
-      (c.email && c.email.toLowerCase().includes(s));
+      (c.name || '').toLowerCase().includes(s) ||
+      (c.email || '').toLowerCase().includes(s);
     const matchPlan = filterPlan === 'all' ? true
       : filterPlan === 'none' ? !c.support_plan
       : c.support_plan === filterPlan;
