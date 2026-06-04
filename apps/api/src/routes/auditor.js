@@ -24,24 +24,29 @@ Brand Consistency: ${data.consistency}
 Digital Presence Ratings (1-5): ${JSON.stringify(data.digital)}
 Biggest Challenges: ${JSON.stringify(data.challenges || [])}
 
-Calculate an honest "overallScore" out of 100 based on these metrics.
-Provide a "breakdown" of scores (out of 100) for "visual", "messaging", and "positioning".
-Write a punchy, 2-3 sentence "summary" of their brand's current state.
-Provide 3 actionable "recommendations".
-List 2 "strengths" and 2 "weaknesses" based on their inputs.
+Calculate an honest "overall_score" out of 100.
+Assign a "grade" (A, B, C, D, or F).
+Write a punchy "headline" summarizing their brand state.
+Provide a "categories" object with 3-5 categories (e.g. "visual", "digital", "messaging"). Each category should have a "label", "score" (0-100), and "insight".
+Provide 2 "strengths" (array of strings) and 2 "gaps" (array of strings).
+List 3 "recommendations" as objects containing "priority" (1,2,3), "impact" (High, Medium, Low), "effort" (High, Medium, Low), "title", and "detail".
+Provide a 1-sentence "cta".
 
-Respond ONLY with a valid JSON object matching this exact schema:
+Respond ONLY with a valid JSON object matching this schema:
 {
-  "overallScore": number,
-  "breakdown": {
-    "visual": number,
-    "messaging": number,
-    "positioning": number
+  "overall_score": number,
+  "grade": "A|B|C|D|F",
+  "headline": "string",
+  "categories": {
+    "cat1": { "label": "Visual Identity", "score": number, "insight": "string" },
+    ...
   },
-  "summary": "string",
-  "recommendations": ["string", "string", "string"],
   "strengths": ["string", "string"],
-  "weaknesses": ["string", "string"]
+  "gaps": ["string", "string"],
+  "recommendations": [
+    { "priority": 1, "impact": "High", "effort": "Medium", "title": "string", "detail": "string" }
+  ],
+  "cta": "string"
 }`;
 
       const result = await model.generateContent(prompt);
@@ -65,28 +70,37 @@ Respond ONLY with a valid JSON object matching this exact schema:
       ? digitalValues.reduce((a,b) => a+b, 0) / digitalValues.length 
       : 3;
     
-    let overallScore = Math.round((digitalAvg / 5) * 100);
-    if (data.consistency === 'none') overallScore -= 15;
-    if (data.consistency === 'some') overallScore -= 5;
-    if (data.consistency === 'dialed') overallScore += 10;
-    overallScore = Math.max(20, Math.min(98, overallScore));
+    let overall_score = Math.round((digitalAvg / 5) * 100);
+    if (data.consistency === 'none') overall_score -= 15;
+    if (data.consistency === 'some') overall_score -= 5;
+    if (data.consistency === 'dialed') overall_score += 10;
+    overall_score = Math.max(20, Math.min(98, overall_score));
+
+    let grade = 'C';
+    if (overall_score >= 90) grade = 'A';
+    else if (overall_score >= 80) grade = 'B';
+    else if (overall_score >= 70) grade = 'C';
+    else if (overall_score >= 60) grade = 'D';
+    else grade = 'F';
 
     const mockReport = {
       id: `audit-${Date.now()}`,
-      overallScore,
-      breakdown: {
-        visual: Math.min(100, overallScore + 5),
-        messaging: Math.min(100, overallScore - 5),
-        positioning: overallScore,
+      overall_score,
+      grade,
+      headline: `Solid foundation in ${data.industry}, but consistency needs work.`,
+      categories: {
+        visual: { label: 'Visual Identity', score: Math.min(100, overall_score + 5), insight: 'Needs a unified style guide.' },
+        messaging: { label: 'Messaging', score: Math.max(0, overall_score - 5), insight: 'Target audience needs more clarity.' },
+        digital: { label: 'Digital Presence', score: overall_score, insight: 'Website performance is average.' }
       },
-      summary: `Based on your responses, ${data.businessName} has a solid foundation in the ${data.industry} space, but your brand consistency and digital presence are holding you back.`,
-      recommendations: [
-        "Develop a unified Brand Guidelines document to ensure visual consistency.",
-        "Refresh your website messaging to target your specific audience more directly.",
-        "Implement a consistent content strategy across your social channels."
-      ],
       strengths: ["Industry experience", "Clear understanding of challenges"],
-      weaknesses: data.challenges || ["Inconsistent visual identity"]
+      gaps: data.challenges || ["Inconsistent visual identity"],
+      recommendations: [
+        { priority: 1, impact: 'High', effort: 'Medium', title: 'Develop Brand Guidelines', detail: 'Create a unified document to ensure visual consistency across all platforms.' },
+        { priority: 2, impact: 'Medium', effort: 'Low', title: 'Refresh Website Messaging', detail: 'Update your copy to target your specific audience more directly.' },
+        { priority: 3, impact: 'Medium', effort: 'High', title: 'Consistent Content Strategy', detail: 'Implement a cohesive content calendar for your social channels.' }
+      ],
+      cta: 'Ready to elevate your brand to the next level?'
     };
 
     if (data.wantsCall) {
