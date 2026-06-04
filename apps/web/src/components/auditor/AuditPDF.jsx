@@ -45,7 +45,18 @@ function normalizePDFReport(report) {
   ];
 
   let recs = report.recommendations;
-  if (!recs || !Array.isArray(recs) || recs.length === 0) recs = DEFAULT_RECS;
+  if (!recs || !Array.isArray(recs) || recs.length === 0) {
+    recs = DEFAULT_RECS;
+  } else {
+    recs = recs.map((r, i) => ({
+      priority: r.priority ?? (i + 1),
+      impact: r.impact || 'Medium',
+      effort: r.effort || 'Medium',
+      title: r.title || r.name || r.recommendation || DEFAULT_RECS[i]?.title || `Recommendation ${i + 1}`,
+      detail: r.detail || r.description || r.details || DEFAULT_RECS[i]?.detail || '',
+    }));
+    if (recs.every((r) => !r.title || r.title.startsWith('Recommendation'))) recs = DEFAULT_RECS;
+  }
 
   return {
     ...report,
@@ -249,7 +260,7 @@ function buildPrintHTML(rawReport, businessName, date) {
         </div>
         <div class="cover-headline">"${report.headline}"</div>
       </div>
-      <div class="cover-footer">Confidential · EVOBRAND Concepts · evobrand.net · Dallas, TX</div>
+      <div class="cover-footer">Confidential · EVOBRAND Concepts · evobrand.net</div>
     </div>
   </div>
 
@@ -301,7 +312,7 @@ function buildPrintHTML(rawReport, businessName, date) {
     <div class="cta-pill">evobrand.net</div>
     <div class="cta-contact">
       Keisha Solomon · CEO, EVOBRAND Concepts<br/>
-      info@evobrand.net · Dallas, TX
+      info@evobrand.net
     </div>
   </div>
 
