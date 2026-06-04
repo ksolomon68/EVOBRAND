@@ -54,8 +54,37 @@ Respond ONLY with a valid JSON object matching this schema:
       
       // Clean up markdown code blocks if present
       const cleanedText = text.replace(/```json/g, '').replace(/```/g, '').trim();
-      const aiReport = JSON.parse(cleanedText);
-      aiReport.id = `audit-${Date.now()}`;
+      const raw = JSON.parse(cleanedText);
+
+      // Normalize AI response — handle field name variations
+      const aiReport = {
+        id: `audit-${Date.now()}`,
+        overall_score: raw.overall_score ?? raw.overallScore ?? raw.score ?? 0,
+        grade: raw.grade || 'C',
+        headline: raw.headline || raw.summary || '',
+        // categories can be object or array — normalize to object
+        categories: (() => {
+          const cats = raw.categories;
+          if (!cats) return {};
+          if (Array.isArray(cats)) {
+            const obj = {};
+            cats.forEach((c, i) => { obj[`cat${i}`] = c; });
+            return obj;
+          }
+          return cats;
+        })(),
+        strengths: raw.strengths || raw.positives || [],
+        gaps: raw.gaps || raw.weaknesses || raw.areas_for_improvement || [],
+        // Normalize each recommendation's field names
+        recommendations: (raw.recommendations || []).map((r, i) => ({
+          priority: r.priority ?? (i + 1),
+          impact: r.impact || r.impact_level || r.impactLevel || 'Medium',
+          effort: r.effort || r.effort_level || r.effortLevel || 'Medium',
+          title: r.title || r.recommendation || r.action || '',
+          detail: r.detail || r.description || r.details || '',
+        })),
+        cta: raw.cta || raw.call_to_action || '',
+      };
       
       if (data.wantsCall) {
         console.log(`[Audit] ${data.contactEmail} requested a strategy call!`);
