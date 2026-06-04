@@ -6,7 +6,7 @@ const { getEmailTemplate } = require('../utils/emailTemplate');
 const { authenticateToken, requireAdmin } = require('../middleware/auth');
 const { notifyAdmins } = require('../utils/notifications');
 
-const resend = new Resend(process.env.RESEND_API_KEY);
+const getResend = () => new Resend(process.env.RESEND_API_KEY || 're_placeholder');
 
 const ensureTable = async () => {
   await pool.query(`
@@ -58,7 +58,7 @@ router.post('/submit', async (req, res) => {
     // 3. Send Email Notifications
     try {
       // To Admin
-      await resend.emails.send({
+      await getResend().emails.send({
         from: `"EVOBRAND Website" <${process.env.RESEND_FROM_EMAIL || 'info@evobrand.net'}>`,
         to: ['info@evobrand.net', 'ksolomon68@gmail.com'],
         subject: `New Contact Form: ${subject || 'General Inquiry'}`,
@@ -69,7 +69,7 @@ router.post('/submit', async (req, res) => {
         `)
       });
       // To User
-      await resend.emails.send({
+      await getResend().emails.send({
         from: `"EVOBRAND" <${process.env.RESEND_FROM_EMAIL || 'info@evobrand.net'}>`,
         to: email,
         subject: `We received your message`,

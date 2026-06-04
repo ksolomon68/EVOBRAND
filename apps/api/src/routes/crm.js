@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const pool = require('../db/connection');
 const { Resend } = require('resend');
-const resend = new Resend(process.env.RESEND_API_KEY);
+const getResend = () => new Resend(process.env.RESEND_API_KEY || 're_placeholder');
 const { getEmailTemplate } = require('../utils/emailTemplate');
 
 // --- LISTS ---
@@ -135,7 +135,7 @@ router.post('/campaigns/:id/send', async (req, res) => {
     const emails = contacts.map(c => c.email);
     
     // 3. Send emails
-    await resend.emails.send({
+    await getResend().emails.send({
       from: `"EVOBRAND" <${process.env.RESEND_FROM_EMAIL || 'info@evobrand.net'}>`,
       to: ['info@evobrand.net'], // Resend requires at least one 'to' address
       bcc: emails, // Send as BCC so recipients don't see each other

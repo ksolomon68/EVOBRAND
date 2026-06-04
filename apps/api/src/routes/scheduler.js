@@ -6,7 +6,7 @@ const { Resend } = require('resend');
 const { createNotification, notifyAdmins } = require('../utils/notifications');
 const { authenticateToken } = require('../middleware/auth');
 
-const resend = new Resend(process.env.RESEND_API_KEY);
+const getResend = () => new Resend(process.env.RESEND_API_KEY || 're_placeholder');
 
 const generateICS = (dateStr, timeStr, duration, bookingType, clientName, meetLink, notes) => {
   const match = timeStr.match(/(\d+):(\d+)\s*(AM|PM)/i);
@@ -179,7 +179,7 @@ router.post('/book', async (req, res) => {
       const attachments = icsString ? [{ filename: 'invite.ics', content: Buffer.from(icsString).toString('base64'), contentType: 'text/calendar' }] : undefined;
 
       if (finalEmail) {
-        await resend.emails.send({
+        await getResend().emails.send({
           from: `"EVOBRAND Scheduling" <${process.env.RESEND_FROM_EMAIL || 'info@evobrand.net'}>`,
           to: finalEmail,
           subject: 'Appointment Confirmed',
@@ -193,7 +193,7 @@ router.post('/book', async (req, res) => {
         });
       }
 
-      await resend.emails.send({
+      await getResend().emails.send({
         from: `"EVOBRAND Scheduling" <${process.env.RESEND_FROM_EMAIL || 'info@evobrand.net'}>`,
         to: ['info@evobrand.net', 'ksolomon68@gmail.com'],
         subject: `New Booking: ${finalName || finalEmail}`,
@@ -255,7 +255,7 @@ router.post('/meetings/:id/cancel', async (req, res) => {
       const meeting = meetings[0];
       try {
         if (meeting.user_email) {
-          await resend.emails.send({
+          await getResend().emails.send({
             from: `"EVOBRAND Scheduling" <${process.env.RESEND_FROM_EMAIL || 'info@evobrand.net'}>`,
             to: meeting.user_email,
             subject: 'Appointment Cancelled',
@@ -265,7 +265,7 @@ router.post('/meetings/:id/cancel', async (req, res) => {
             `)
           });
         }
-        await resend.emails.send({
+        await getResend().emails.send({
           from: `"EVOBRAND Scheduling" <${process.env.RESEND_FROM_EMAIL || 'info@evobrand.net'}>`,
           to: 'info@evobrand.net',
           subject: `Booking Cancelled: ${meeting.date} at ${meeting.time}`,

@@ -35,7 +35,7 @@ pool.query(
   "ALTER TABLE support_tickets ADD COLUMN attachment_url VARCHAR(500)"
 ).catch(() => {}); // ignore if already exists
 
-const resend = new Resend(process.env.RESEND_API_KEY);
+const getResend = () => new Resend(process.env.RESEND_API_KEY || 're_placeholder');
 
 // Helper: check if requester is admin from DB (not token, which may be stale)
 async function isAdminUser(userId) {
@@ -164,7 +164,7 @@ router.post('/ticket', upload.single('file'), async (req, res) => {
         const attachmentNote = attachmentUrl
           ? `<p><strong>Attachment:</strong> <a href="https://evobrandconcepts.com${attachmentUrl}">${req.file.originalname}</a></p>`
           : '';
-        await resend.emails.send({
+        await getResend().emails.send({
           from: `"EVOBRAND Support" <${process.env.RESEND_FROM_EMAIL || 'info@evobrand.net'}>`,
           to: 'info@evobrand.net',
           subject: `New Ticket: ${subject}`,
@@ -173,7 +173,7 @@ router.post('/ticket', upload.single('file'), async (req, res) => {
                  <p><strong>Service:</strong> ${service || 'General'}</p>
                  <p><strong>Message:</strong><br/>${message}</p>${attachmentNote}`)
         });
-        await resend.emails.send({
+        await getResend().emails.send({
           from: `"EVOBRAND Support" <${process.env.RESEND_FROM_EMAIL || 'info@evobrand.net'}>`,
           to: email,
           subject: `Ticket Received: ${subject}`,
@@ -237,7 +237,7 @@ router.post('/tickets/:id/reply', authenticateToken, async (req, res) => {
       await notifyAdmins('New Ticket Reply', `Client replied to ticket #${ticketId}`, '/client-portal', 'ticket');
       
       // Email Admin
-      await resend.emails.send({
+      await getResend().emails.send({
         from: `"EVOBRAND Support" <${process.env.RESEND_FROM_EMAIL || 'info@evobrand.net'}>`,
         to: 'info@evobrand.net',
         subject: `New Reply: Ticket #${ticketId}`,
@@ -251,7 +251,7 @@ router.post('/tickets/:id/reply', authenticateToken, async (req, res) => {
       
       // Email User
       if (currentTicket.user_email) {
-        await resend.emails.send({
+        await getResend().emails.send({
           from: `"EVOBRAND Support" <${process.env.RESEND_FROM_EMAIL || 'info@evobrand.net'}>`,
           to: currentTicket.user_email,
           subject: `New Reply on Ticket: ${currentTicket.subject}`,
@@ -307,7 +307,7 @@ router.put('/tickets/:id', authenticateToken, async (req, res) => {
       
       // Email User
       if (currentTicket.user_email) {
-        await resend.emails.send({
+        await getResend().emails.send({
           from: `"EVOBRAND Support" <${process.env.RESEND_FROM_EMAIL || 'info@evobrand.net'}>`,
           to: currentTicket.user_email,
           subject: `Ticket Status Updated: ${currentTicket.subject}`,
@@ -318,7 +318,7 @@ router.put('/tickets/:id', authenticateToken, async (req, res) => {
       }
       
       // Email Admin
-      await resend.emails.send({
+      await getResend().emails.send({
         from: `"EVOBRAND Support" <${process.env.RESEND_FROM_EMAIL || 'info@evobrand.net'}>`,
         to: 'info@evobrand.net',
         subject: `Ticket Status Changed: #${ticketId}`,
@@ -354,7 +354,7 @@ router.post('/tickets/:id/close', authenticateToken, async (req, res) => {
     if (currentTicket.status !== 'closed') {
       // Email User
       if (currentTicket.user_email) {
-        await resend.emails.send({
+        await getResend().emails.send({
           from: `"EVOBRAND Support" <${process.env.RESEND_FROM_EMAIL || 'info@evobrand.net'}>`,
           to: currentTicket.user_email,
           subject: `Ticket Closed: ${currentTicket.subject}`,
@@ -364,7 +364,7 @@ router.post('/tickets/:id/close', authenticateToken, async (req, res) => {
       }
       
       // Email Admin
-      await resend.emails.send({
+      await getResend().emails.send({
         from: `"EVOBRAND Support" <${process.env.RESEND_FROM_EMAIL || 'info@evobrand.net'}>`,
         to: 'info@evobrand.net',
         subject: `Ticket Closed by Client: #${ticketId}`,
@@ -452,7 +452,7 @@ router.post('/users', authenticateToken, async (req, res) => {
 
     // Send Welcome Email
     try {
-      await resend.emails.send({
+      await getResend().emails.send({
         from: `"EVOBRAND" <${process.env.RESEND_FROM_EMAIL || 'info@evobrand.net'}>`,
         to: email,
         subject: `Welcome to EVOBRAND Client Portal`,
