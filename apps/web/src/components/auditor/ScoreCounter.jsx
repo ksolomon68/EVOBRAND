@@ -1,7 +1,7 @@
 import React, { useEffect, useRef } from 'react';
 import { motion, useMotionValue, useTransform, animate } from 'framer-motion';
 
-const ScoreCounter = ({ target, duration = 2.5,  }) => {
+const ScoreCounter = ({ target, duration = 2.5, className = '' }) => {
   const count = useMotionValue(0);
   const rounded = useTransform(count, (v) => Math.round(v));
   const ref = useRef(null);
