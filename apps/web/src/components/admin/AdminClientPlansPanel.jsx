@@ -104,8 +104,9 @@ function AddClientModal({ existingClients = [], onClose, onAdded }) {
   }, []);
 
   const filteredUsers = searchQuery.trim() === '' ? [] : existingClients.filter(user => {
-    return user.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-           user.email?.toLowerCase().includes(searchQuery.toLowerCase());
+    const sq = searchQuery.toLowerCase();
+    return (user.name && user.name.toLowerCase().includes(sq)) ||
+           (user.email && user.email.toLowerCase().includes(sq));
   }).slice(0, 5);
 
   const handleSelectUser = (user) => {
@@ -197,7 +198,10 @@ function AddClientModal({ existingClients = [], onClose, onAdded }) {
                 onChange={e => {
                   setSearchQuery(e.target.value);
                   setShowDropdown(true);
-                  if (selectedUser) handleClearSelection();
+                  if (selectedUser) {
+                    setSelectedUser(null);
+                    setFormData({ name: '', email: '', plan: '' });
+                  }
                 }}
                 onFocus={() => setShowDropdown(true)}
                 className="w-full bg-[#1a2332] border border-white/10 rounded-xl p-3 pr-10 text-white text-sm focus:outline-none focus:border-[#22c8e5]"
@@ -348,9 +352,10 @@ export default function AdminClientPlansPanel({ user }) {
   };
 
   const filtered = clients.filter(c => {
+    const s = search.toLowerCase();
     const matchSearch = !search ||
-      c.name?.toLowerCase().includes(search.toLowerCase()) ||
-      c.email?.toLowerCase().includes(search.toLowerCase());
+      (c.name && c.name.toLowerCase().includes(s)) ||
+      (c.email && c.email.toLowerCase().includes(s));
     const matchPlan = filterPlan === 'all' ? true
       : filterPlan === 'none' ? !c.support_plan
       : c.support_plan === filterPlan;
