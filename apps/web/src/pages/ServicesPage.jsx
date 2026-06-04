@@ -5,9 +5,22 @@ import { motion } from 'framer-motion';
 import { Sparkles, Zap, FileText, Video, Code, Check, ArrowRight } from 'lucide-react';
 
 import SEO from '@/components/SEO.jsx';
+import PublicCheckoutModal from '@/components/PublicCheckoutModal.jsx';
 
 const ServicesPage = () => {
   const [selectedService, setSelectedService] = useState(0);
+  const [checkoutPlan, setCheckoutPlan] = useState(null);
+
+  const getPlanId = (serviceId, tier) => {
+    const t = tier.toLowerCase().replace(' only', '');
+    if (serviceId === 0) return `ai-${t}`;
+    if (serviceId === 1) return `visual-${t}`;
+    if (serviceId === 2) return `document-${t}`;
+    if (serviceId === 3) return `video-${t}`;
+    if (serviceId === 4) return `wordpress-${t}`;
+    if (serviceId === 5) return `accessibility-${t}`;
+    return '';
+  };
 
   const services = [
     {
@@ -492,12 +505,29 @@ const ServicesPage = () => {
                       </li>
                     ))}
                   </ul>
-                  <a href="/contact" className={`w-full py-3 rounded-full font-bold transition-all text-center block ${plan.highlighted
-                      ? 'bg-[#22c8e5] text-[#003258] hover:shadow-lg hover:bg-opacity-90'
-                      : 'border-2 border-[#22c8e5] text-[#22c8e5] hover:bg-[#22c8e5] hover:text-[#003258]'
-                    }`}>
-                    {plan.cta}
-                  </a>
+                  {plan.price === 'Custom' ? (
+                    <a href="/contact" className={`w-full py-3 rounded-full font-bold transition-all text-center block ${plan.highlighted
+                        ? 'bg-[#22c8e5] text-[#003258] hover:shadow-lg hover:bg-opacity-90'
+                        : 'border-2 border-[#22c8e5] text-[#22c8e5] hover:bg-[#22c8e5] hover:text-[#003258]'
+                      }`}>
+                      {plan.cta}
+                    </a>
+                  ) : (
+                    <button
+                      onClick={() => setCheckoutPlan({
+                        planId: getPlanId(currentService.id, plan.tier),
+                        planName: `${currentService.title} - ${plan.tier} Plan`,
+                        price: plan.price,
+                        type: 'one-time'
+                      })}
+                      className={`w-full py-3 rounded-full font-bold transition-all text-center block ${plan.highlighted
+                        ? 'bg-[#22c8e5] text-[#003258] hover:shadow-lg hover:bg-opacity-90'
+                        : 'border-2 border-[#22c8e5] text-[#22c8e5] hover:bg-[#22c8e5] hover:text-[#003258]'
+                      }`}
+                    >
+                      {plan.cta}
+                    </button>
+                  )}
                 </motion.div>
               ))}
             </div>
@@ -549,12 +579,17 @@ const ServicesPage = () => {
                         </li>
                       ))}
                     </ul>
-                    <a
-                      href="/maintenance-plans"
+                    <button
+                      onClick={() => setCheckoutPlan({
+                        planId: `maintenance-${plan.tier.toLowerCase()}`,
+                        planName: `WordPress Maintenance - ${plan.tier} Plan`,
+                        price: plan.price.split('/')[0],
+                        type: 'recurring'
+                      })}
                       className={`w-full py-3 rounded-2xl font-bold text-sm text-center transition-all ${plan.highlighted ? 'bg-[#22c8e5] text-[#003258] hover:shadow-lg hover:shadow-[#22c8e5]/30' : 'border border-[#22c8e5] text-[#22c8e5] hover:bg-[#22c8e5] hover:text-[#003258]'}`}
                     >
                       Get {plan.tier} Plan
-                    </a>
+                    </button>
                   </motion.div>
                 ))}
               </div>
@@ -584,6 +619,16 @@ const ServicesPage = () => {
             </a>
           </div>
         </section>
+        {/* Public Checkout Modal */}
+        {checkoutPlan && (
+          <PublicCheckoutModal
+            planId={checkoutPlan.planId}
+            planName={checkoutPlan.planName}
+            price={checkoutPlan.price}
+            type={checkoutPlan.type}
+            onClose={() => setCheckoutPlan(null)}
+          />
+        )}
       </div>
     </>
   );

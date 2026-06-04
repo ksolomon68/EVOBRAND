@@ -3,6 +3,7 @@ import { motion } from 'framer-motion';
 import { Check, Zap, Shield, Star, ArrowRight, Clock, Wrench, Code, FileText, AlertCircle } from 'lucide-react';
 import SEO from '@/components/SEO.jsx';
 import { useNavigate } from 'react-router-dom';
+import PublicCheckoutModal from '@/components/PublicCheckoutModal.jsx';
 
 const PLANS = [
   {
@@ -136,6 +137,7 @@ const fadeUp = { hidden: { opacity: 0, y: 30 }, visible: (i) => ({ opacity: 1, y
 
 export default function MaintenancePlansPage() {
   const [annual, setAnnual] = useState(false);
+  const [checkoutPlan, setCheckoutPlan] = useState(null);
   const navigate = useNavigate();
 
   const discountedPrice = (price) => {
@@ -239,16 +241,21 @@ export default function MaintenancePlansPage() {
                     ))}
                   </ul>
 
-                  <a
-                    href="/contact"
-                    className="block text-center py-4 rounded-2xl font-bold text-sm uppercase tracking-widest transition-all"
+                  <button
+                    onClick={() => setCheckoutPlan({
+                      planId: `maintenance-${plan.slug}`,
+                      planName: plan.name,
+                      price: annual ? discountedPrice(plan.price) : plan.price,
+                      type: 'recurring'
+                    })}
+                    className="w-full text-center py-4 rounded-2xl font-bold text-sm uppercase tracking-widest transition-all"
                     style={plan.highlighted
                       ? { background: '#22c8e5', color: '#0A1628' }
                       : { background: 'rgba(34,200,229,0.1)', color: '#22c8e5', border: '1px solid rgba(34,200,229,0.3)' }
                     }
                   >
                     {plan.cta}
-                  </a>
+                  </button>
                 </div>
               </motion.div>
             ))}
@@ -343,6 +350,16 @@ export default function MaintenancePlansPage() {
           </motion.div>
         </div>
       </section>
+      {/* Public Checkout Modal */}
+      {checkoutPlan && (
+        <PublicCheckoutModal
+          planId={checkoutPlan.planId}
+          planName={checkoutPlan.planName}
+          price={checkoutPlan.price}
+          type={checkoutPlan.type}
+          onClose={() => setCheckoutPlan(null)}
+        />
+      )}
     </>
   );
 }

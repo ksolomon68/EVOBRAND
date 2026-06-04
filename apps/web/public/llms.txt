@@ -11,5 +11,6 @@
 - [Contract Customizer](/contractcustomizer): Build and customize your enterprise Master Services Agreement in real-time.
 - [Free AI Brand Audit Tool | Instant Score & Action Plan | EVOBRAND](/auditor): Get a free AI-powered brand audit in under 4 minutes. Score your brand across SEO, design, accessibility, social, and digital presence. Instant report + personalized action plan. No sign-up required.
 - [How Our AI Process Works | Discovery to Launch | EVOBRAND](/howitworks): EVOBRAND
+- [Payment Success - EVOBRAND](/paymentsuccess): Thank you for your purchase. Your payment was verified successfully.
 - [Reset Password](/resetpassword): Reset your EVOBRAND client portal password.
 - [WordPress Maintenance & Support Plans — EVOBRAND](/maintenanceplans): Keep your WordPress site secure, fast, and up to date with EVOBRAND
