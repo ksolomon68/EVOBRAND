@@ -131,10 +131,10 @@ const HomePage = () => {
                     Start Your AI Transformation
                   </Link>
                   <Link
-                    to="/how-it-works"
+                    to="/audit"
                     className="px-8 py-4 border-2 border-[#22c8e5] text-[#22c8e5] rounded-2xl font-bold hover:bg-[#22c8e5] hover:text-[#003258] transition-all text-center"
                   >
-                    See How It Works
+                    Free Brand Audit
                   </Link>
                 </div>
               </motion.div>
