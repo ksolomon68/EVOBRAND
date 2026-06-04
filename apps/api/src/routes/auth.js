@@ -11,6 +11,10 @@ const { getEmailTemplate } = require('../utils/emailTemplate');
 const JWT_SECRET = process.env.JWT_SECRET || 'fallback_secret';
 const getResend = () => new Resend(process.env.RESEND_API_KEY || 're_placeholder');
 
+// Auto-migrate: add password reset columns if missing
+pool.query("ALTER TABLE users ADD COLUMN reset_token VARCHAR(255) DEFAULT NULL").catch(() => {});
+pool.query("ALTER TABLE users ADD COLUMN reset_token_expires_at TIMESTAMP NULL DEFAULT NULL").catch(() => {});
+
 // @route POST /api/auth/register
 // @desc  Register new user
 router.post('/register', async (req, res) => {

@@ -30,10 +30,9 @@ const upload = multer({
   },
 });
 
-// Auto-migrate: add attachment_url column if missing
-pool.query(
-  "ALTER TABLE support_tickets ADD COLUMN attachment_url VARCHAR(500)"
-).catch(() => {}); // ignore if already exists
+// Auto-migrate: add missing columns on startup
+pool.query("ALTER TABLE support_tickets ADD COLUMN attachment_url VARCHAR(500)").catch(() => {});
+pool.query("ALTER TABLE users ADD COLUMN support_plan ENUM('basic','pro','elite') DEFAULT NULL").catch(() => {});
 
 const getResend = () => new Resend(process.env.RESEND_API_KEY || 're_placeholder');
 
