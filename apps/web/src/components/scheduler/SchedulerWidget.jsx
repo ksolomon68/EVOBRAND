@@ -175,7 +175,7 @@ function CalendarPicker({ selectedDate, onSelect, blackoutDates }) {
   }, [blackoutDates]);
 
   const isDisabled = useCallback((dateStr) => {
-    return dateStr < todayStr || isWeekend(dateStr) || isHoliday(dateStr) || isBlackedOut(dateStr);
+    return dateStr <= todayStr || isWeekend(dateStr) || isHoliday(dateStr) || isBlackedOut(dateStr);
   }, [todayStr, isWeekend, isHoliday, isBlackedOut]);
 
   const cells = [];
