@@ -74,7 +74,7 @@ function buildPrintHTML(report, businessName, date) {
     
     /* Cover page */
     .cover { background: ${BRAND_BLACK}; color: white; padding: 60px 50px; min-height: 100vh; display: flex; flex-direction: column; justify-content: space-between; page-break-after: always; }
-    .cover-logo { font-family: 'Rajdhani', sans-serif; font-size: 24px; color: ${BRAND_CYAN}; letter-spacing: 4px; text-transform: uppercase; margin-bottom: 40px; }
+    .cover-logo-img { height: 48px; margin-bottom: 40px; display: block; }
     .cover-sub { font-size: 11px; color: rgba(255,255,255,0.4); letter-spacing: 2px; text-transform: uppercase; margin-bottom: 16px; }
     .cover-business { font-family: 'Rajdhani', sans-serif; font-size: 40px; color: white; font-weight: 700; line-height: 1.1; }
     .cover-date { font-size: 13px; color: rgba(255,255,255,0.4); margin-top: 8px; }
@@ -108,7 +108,7 @@ function buildPrintHTML(report, businessName, date) {
   <!-- Cover Page -->
   <div class="cover">
     <div>
-      <div class="cover-logo">EVOBRAND</div>
+      <img class="cover-logo-img" src="${window.location.origin}/logo.png" alt="EVOBRAND" />
       <div class="cover-sub">Brand Audit Report</div>
       <div class="cover-business">${businessName}</div>
       <div class="cover-date">Generated ${date}</div>
@@ -157,7 +157,7 @@ function buildPrintHTML(report, businessName, date) {
   <div class="cta-page">
     <div class="cta-title">Ready to Elevate Your Brand?</div>
     <div class="cta-text">${report.cta}</div>
-    <div class="cta-url">evobrand.net/contact</div>
+    <div class="cta-url">evobrand.net</div>
     <div class="cta-contact">Keisha Solomon · CEO, EVOBRAND Concepts · info@evobrand.net · Dallas, TX</div>
   </div>
 </body>
