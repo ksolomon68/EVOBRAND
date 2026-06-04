@@ -16,13 +16,13 @@ router.post('/audit', async (req, res) => {
       const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
       const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
 
-      const prompt = `You are an expert brand strategist and digital marketing auditor. 
+      const prompt = `You are an expert brand strategist and digital marketing auditor.
 Evaluate the following business based on their self-reported scores and challenges.
 Business Name: ${data.businessName}
 Industry: ${data.industry}
 Brand Consistency: ${data.consistency}
 Digital Presence Ratings (1-5): ${JSON.stringify(data.digital)}
-Biggest Challenges: ${JSON.stringify(data.challenges || [])}
+Biggest Challenges: ${JSON.stringify(data.challenges || [])}${data.competitor ? `\nMain Competitor: ${data.competitor}` : ''}${data.competitorUrl ? `\nCompetitor Website: ${data.competitorUrl} (use this to benchmark competitive positioning)` : ''}
 
 Calculate an honest "overall_score" out of 100.
 Assign a "grade" (A, B, C, D, or F).

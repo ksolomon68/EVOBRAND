@@ -276,11 +276,21 @@ const normalizeReport = (report) => {
       : (Array.isArray(report.positives) && report.positives.length > 0 ? report.positives : ['Industry experience', 'Clear understanding of your challenges']),
     gaps: gaps.length > 0 ? gaps : ['Inconsistent visual identity', 'Limited digital presence', 'Undefined target audience'],
     recommendations: recs.length > 0 ? recs : DEFAULT_RECS,
-    categories: report.categories && !Array.isArray(report.categories)
-      ? report.categories
-      : Array.isArray(report.categories)
-        ? Object.fromEntries(report.categories.map((c, i) => [`cat${i}`, c]))
-        : {},
+    categories: (() => {
+      const score = Number.isFinite(Number(report.overall_score ?? report.score)) ? Number(report.overall_score ?? report.score) : 60;
+      const DEFAULT_CATS = {
+        visual: { label: 'Visual Identity', score: Math.min(100, score + 5), insight: 'Visual consistency needs attention.' },
+        messaging: { label: 'Messaging', score: Math.max(0, score - 5), insight: 'Brand voice could be sharper.' },
+        digital: { label: 'Digital Presence', score: score, insight: 'Online footprint is average.' },
+      };
+      if (!report.categories) return DEFAULT_CATS;
+      if (Array.isArray(report.categories)) {
+        if (report.categories.length === 0) return DEFAULT_CATS;
+        return Object.fromEntries(report.categories.map((c, i) => [`cat${i}`, c]));
+      }
+      if (typeof report.categories === 'object' && Object.keys(report.categories).length > 0) return report.categories;
+      return DEFAULT_CATS;
+    })(),
     cta: report.cta || 'Ready to take your brand to the next level?',
   };
 };
