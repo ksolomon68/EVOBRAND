@@ -59,9 +59,10 @@ Respond ONLY with a valid JSON object matching this schema:
         const raw = JSON.parse(cleanedText);
 
         // Normalize AI response — handle field name variations
+        const rawScore = raw.overall_score ?? raw.overallScore ?? raw.score ?? 0;
         const aiReport = {
           id: `audit-${Date.now()}`,
-          overall_score: raw.overall_score ?? raw.overallScore ?? raw.score ?? 0,
+          overall_score: Number.isFinite(Number(rawScore)) ? Number(rawScore) : 0,
           grade: raw.grade || 'C',
           headline: raw.headline || raw.summary || '',
           // categories can be object or array — normalize to object
@@ -78,13 +79,18 @@ Respond ONLY with a valid JSON object matching this schema:
           strengths: raw.strengths || raw.positives || [],
           gaps: raw.gaps || raw.weaknesses || raw.areas_for_improvement || [],
           // Normalize each recommendation's field names
-          recommendations: (raw.recommendations || []).map((r, i) => ({
-            priority: r.priority ?? (i + 1),
-            impact: r.impact || r.impact_level || r.impactLevel || 'Medium',
-            effort: r.effort || r.effort_level || r.effortLevel || 'Medium',
-            title: r.title || r.recommendation || r.action || '',
-            detail: r.detail || r.description || r.details || '',
-          })),
+          recommendations: Array.isArray(raw.recommendations)
+            ? raw.recommendations.map((r, i) => {
+                if (!r || typeof r !== 'object') return null;
+                return {
+                  priority: r.priority ?? (i + 1),
+                  impact: r.impact || r.impact_level || r.impactLevel || 'Medium',
+                  effort: r.effort || r.effort_level || r.effortLevel || 'Medium',
+                  title: r.title || r.name || r.recommendation || r.action || r.summary || `Recommendation ${i + 1}`,
+                  detail: r.detail || r.description || r.details || r.body || '',
+                };
+              }).filter(Boolean)
+            : [],
           cta: raw.cta || raw.call_to_action || '',
         };
         

@@ -235,11 +235,41 @@ const RecommendationCard = ({ rec, delay }) => (
   </motion.div>
 );
 
+const normalizeReport = (report) => {
+  const rawScore = report.overall_score ?? report.overallScore ?? report.score;
+  return {
+    ...report,
+    overall_score: Number.isFinite(Number(rawScore)) ? Number(rawScore) : 0,
+    grade: report.grade || 'C',
+    headline: report.headline || report.summary || '',
+    strengths: Array.isArray(report.strengths) ? report.strengths : [],
+    gaps: Array.isArray(report.gaps) ? report.gaps : [],
+    recommendations: Array.isArray(report.recommendations)
+      ? report.recommendations
+          .filter((r) => r && typeof r === 'object')
+          .map((r, i) => ({
+            priority: r.priority ?? (i + 1),
+            impact: r.impact || 'Medium',
+            effort: r.effort || 'Medium',
+            title: r.title || r.name || r.recommendation || r.action || `Recommendation ${i + 1}`,
+            detail: r.detail || r.description || r.details || '',
+          }))
+      : [],
+    categories: report.categories && !Array.isArray(report.categories)
+      ? report.categories
+      : Array.isArray(report.categories)
+        ? Object.fromEntries(report.categories.map((c, i) => [`cat${i}`, c]))
+        : {},
+    cta: report.cta || '',
+  };
+};
+
 const AuditResults = ({ report, onDownloadPDF, isLoading, hasWebsite }) => {
   if (isLoading) return <LoadingState hasWebsite={hasWebsite} />;
   if (!report) return null;
 
-  const categories = report.categories ? Object.values(report.categories) : [];
+  const normalized = normalizeReport(report);
+  const categories = normalized.categories ? Object.values(normalized.categories) : [];
 
   const handleDownloadPDF = async () => {
     if (onDownloadPDF) onDownloadPDF();
@@ -249,7 +279,7 @@ const AuditResults = ({ report, onDownloadPDF, isLoading, hasWebsite }) => {
     <div className="min-h-screen bg-[#04080f] pt-8 pb-20">
       <div className="container mx-auto px-4 max-w-5xl">
         {/* Score Hero */}
-        <ScoreHero report={report} />
+        <ScoreHero report={normalized} />
 
         {/* Radar + Categories Grid */}
         <div className="grid md:grid-cols-2 gap-8 mb-16">
@@ -261,7 +291,7 @@ const AuditResults = ({ report, onDownloadPDF, isLoading, hasWebsite }) => {
             className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-6 flex flex-col"
           >
             <h3 className="font-bold text-white text-xl mb-4 text-center">Brand Radar</h3>
-            <ScoreRadar categories={report.categories} />
+            <ScoreRadar categories={normalized.categories} />
           </motion.div>
 
           {/* Category breakdown */}
@@ -304,7 +334,7 @@ const AuditResults = ({ report, onDownloadPDF, isLoading, hasWebsite }) => {
               What's Working
             </h3>
             <ul className="space-y-3">
-              {(report.strengths || []).map((s, i) => (
+              {normalized.strengths.map((s, i) => (
                 <li key={i} className="flex items-start gap-3 text-white/70 text-sm leading-relaxed">
                   <span className="w-1.5 h-1.5 bg-green-400 rounded-full mt-2 flex-shrink-0" />
                   {s}
@@ -318,7 +348,7 @@ const AuditResults = ({ report, onDownloadPDF, isLoading, hasWebsite }) => {
               Where to Grow
             </h3>
             <ul className="space-y-3">
-              {(report.gaps || []).map((g, i) => (
+              {normalized.gaps.map((g, i) => (
                 <li key={i} className="flex items-start gap-3 text-white/70 text-sm leading-relaxed">
                   <ArrowRight size={14} className="text-[#22C8E5] mt-1 flex-shrink-0" />
                   {g}
@@ -339,7 +369,7 @@ const AuditResults = ({ report, onDownloadPDF, isLoading, hasWebsite }) => {
             Your Action Plan
           </h3>
           <div className="grid md:grid-cols-3 gap-5">
-            {(report.recommendations || []).map((rec, i) => (
+            {normalized.recommendations.map((rec, i) => (
               <RecommendationCard key={i} rec={rec} delay={1.2 + i * 0.1} />
             ))}
           </div>
@@ -353,7 +383,7 @@ const AuditResults = ({ report, onDownloadPDF, isLoading, hasWebsite }) => {
           className="bg-gradient-to-br from-[#003258] to-[#022040] border border-[#22C8E5]/20 rounded-2xl p-8 md:p-10 text-center"
         >
           <p className="text-white/80 text-lg mb-6 max-w-2xl mx-auto leading-relaxed">
-            {report.cta}
+            {normalized.cta}
           </p>
           <div className="flex flex-col sm:flex-row gap-6 sm:gap-4 justify-center mb-6">
             <div className="flex flex-col items-center">
