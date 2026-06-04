@@ -19,6 +19,8 @@ jobs:
   build:
     name: Build frontend & update dist
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
 
     steps:
       - name: Checkout repo
