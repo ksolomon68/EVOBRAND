@@ -395,7 +395,6 @@ const AuditResults = ({ report, onDownloadPDF, isLoading, hasWebsite }) => {
                 <Calendar size={18} />
                 Book a Free Strategy Call
               </Link>
-              <span className="text-[#22C8E5]/80 text-xs mt-3 font-semibold tracking-wide">(No pressure. Completely optional.)</span>
             </div>
             <div className="flex flex-col items-center">
               <button
