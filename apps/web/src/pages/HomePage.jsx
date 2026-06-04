@@ -125,10 +125,10 @@ const HomePage = () => {
                 </p>
                 <div className="flex flex-col sm:flex-row gap-4">
                   <Link
-                    to="/contact"
+                    to="/our-work"
                     className="px-8 py-4 bg-[#22c8e5] text-[#003258] rounded-2xl font-bold hover:shadow-lg hover:shadow-[#22c8e5]/50 hover:bg-opacity-90 transition-all text-center"
                   >
-                    Start Your AI Transformation
+                    See Our Work
                   </Link>
                   <Link
                     to="/audit"
