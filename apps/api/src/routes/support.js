@@ -387,10 +387,30 @@ router.get('/users', authenticateToken, async (req, res) => {
   try {
     const admin = await isAdminUser(req.user.id);
     if (!admin) return res.status(403).json({ error: 'Admin access required' });
-    await ensureSupportPlan;
-    const [users] = await pool.query(
-      'SELECT id, name, email, support_plan, created_at FROM users WHERE is_admin = 0 OR is_admin IS NULL ORDER BY created_at DESC'
-    );
+
+    let users;
+    try {
+      // Primary query — requires support_plan column to exist
+      [users] = await pool.query(
+        'SELECT id, name, email, support_plan, created_at FROM users WHERE is_admin = 0 OR is_admin IS NULL ORDER BY created_at DESC'
+      );
+    } catch {
+      // Column missing: try to add it, then retry. If ALTER is blocked (e.g. no DDL
+      // permission on shared hosting), fall back to NULL so the list still loads.
+      await pool.query(
+        "ALTER TABLE users ADD COLUMN support_plan ENUM('basic','pro','elite') DEFAULT NULL"
+      ).catch(() => {});
+      try {
+        [users] = await pool.query(
+          'SELECT id, name, email, support_plan, created_at FROM users WHERE is_admin = 0 OR is_admin IS NULL ORDER BY created_at DESC'
+        );
+      } catch {
+        [users] = await pool.query(
+          'SELECT id, name, email, NULL as support_plan, created_at FROM users WHERE is_admin = 0 OR is_admin IS NULL ORDER BY created_at DESC'
+        );
+      }
+    }
+
     res.status(200).json({ users });
   } catch (error) {
     console.error('Fetch users error:', error);
