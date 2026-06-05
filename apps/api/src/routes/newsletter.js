@@ -45,7 +45,7 @@ router.post('/subscribe', async (req, res) => {
 
     // Send Welcome Email via Resend
     await require('resend').Resend(process.env.RESEND_API_KEY || process.env.EMAIL_API_KEY).emails.send({
-      from: `"EVOBRAND Insider" <${process.env.EMAIL_FROM || 'support@evobrand.net'}>`,
+      from: `"EVOBRAND" <${process.env.RESEND_FROM_EMAIL || process.env.EMAIL_FROM || 'info@evobrand.net'}>`,
       to: email,
       subject: 'Welcome to EVOBRAND Insider!',
       html: getEmailTemplate('Welcome to EVOBRAND Insider!', `

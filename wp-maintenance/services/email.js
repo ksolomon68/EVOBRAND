@@ -177,8 +177,8 @@ export async function sendMaintenanceReport({
   const reportDate = formatDate();
   const pdfFilename = path.basename(pdfPath);
 
-  const fromAddress = `"${process.env.EMAIL_FROM_NAME || 'EVOBRAND Maintenance'}" <${
-    process.env.EMAIL_FROM_ADDRESS || process.env.SMTP_USER
+  const fromAddress = `"${process.env.EMAIL_FROM_NAME || 'EVOBRAND'}" <${
+    process.env.EMAIL_FROM_ADDRESS || process.env.SMTP_USER || 'info@evobrand.net'
   }>`;
 
   log.info(`Sending maintenance report to ${toEmail}...`);

@@ -68,10 +68,10 @@ Edit `.env` with your SMTP credentials:
 ```env
 SMTP_HOST=smtp.gmail.com
 SMTP_PORT=587
-SMTP_USER=your-email@evobrand.com
+SMTP_USER=info@evobrand.net
 SMTP_PASS=your-app-password
-EMAIL_FROM_NAME=EVOBRAND Maintenance Team
-EMAIL_FROM_ADDRESS=maintenance@evobrand.com
+EMAIL_FROM_NAME=EVOBRAND
+EMAIL_FROM_ADDRESS=info@evobrand.net
 ```
 
 **Gmail users:** Generate an [App Password](https://myaccount.google.com/apppasswords) — do not use your main account password.
