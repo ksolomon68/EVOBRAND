@@ -95,10 +95,44 @@ export const AuthProvider = ({ children }) => {
     setUser(null);
   };
 
+  const requestPasswordReset = async ({ email }) => {
+    let response;
+    try {
+      response = await fetchWithTimeout(`${API_URL}/forgot-password`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email })
+      });
+    } catch (err) {
+      throw new Error(err.name === 'AbortError' ? 'Request timed out — please try again.' : 'Unable to reach the server. Check your connection.');
+    }
+    const data = await response.json();
+    if (!response.ok) throw new Error(data.error || 'Request failed');
+    return { data, error: null };
+  };
+
+  const resetPassword = async ({ token, password }) => {
+    let response;
+    try {
+      response = await fetchWithTimeout(`${API_URL}/reset-password`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ token, password })
+      });
+    } catch (err) {
+      throw new Error(err.name === 'AbortError' ? 'Request timed out — please try again.' : 'Unable to reach the server. Check your connection.');
+    }
+    const data = await response.json();
+    if (!response.ok) throw new Error(data.error || 'Password reset failed');
+    return { data, error: null };
+  };
+
   const value = {
     signUp,
     signIn,
     signOut,
+    requestPasswordReset,
+    resetPassword,
     user,
     loading
   };
