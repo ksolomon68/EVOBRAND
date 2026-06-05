@@ -451,9 +451,7 @@ const getEmailTemplate = (subject, content, campaignId = null, siteUrl = 'https:
   <!-- FOOTER -->
   <div class="footer">
     <div class="footer-wordmark">EVOBRAND CONCEPTS</div>
-    <p>Italy, TX (DFW Metro Area) &bull; <a href="https://evobrand.net">evobrand.net</a></p>
     <p>SBE &bull; WBE &bull; MBE Certified</p>
-    <p>214-531-4427 &bull; <a href="mailto:ks@evobrand.net">ks@evobrand.net</a></p>
     <div class="footer-divider">
       &copy; ${year} EVOBRAND Concepts. All rights reserved. &bull;
       You're receiving this because you're part of the EVOBRAND network. &bull;
