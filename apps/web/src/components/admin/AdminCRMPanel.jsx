@@ -45,12 +45,24 @@ export default function AdminCRMPanel({ user }) {
 
   // --- API Calls ---
 
+  const getJSONOrError = async (res) => {
+    const contentType = res.headers.get('content-type');
+    if (contentType && contentType.includes('application/json')) {
+      return await res.json();
+    }
+    const text = await res.text();
+    const cleanText = text.replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim();
+    const snippet = cleanText.substring(0, 150) || 'Empty response';
+    return { error: `HTTP ${res.status}: ${snippet}` };
+  };
+
   const fetchLists = async () => {
     try {
       const res = await fetch(`${API_BASE}/api/crm/lists`);
-      const data = await res.json();
-      setLists(data);
-      if (data.length > 0 && !selectedList) {
+      const data = await getJSONOrError(res);
+      if (!res.ok) throw new Error(data.error || 'Failed to fetch lists');
+      setLists(Array.isArray(data) ? data : []);
+      if (Array.isArray(data) && data.length > 0 && !selectedList) {
         setSelectedList(data[0].id);
       }
     } catch (err) {
@@ -63,8 +75,9 @@ export default function AdminCRMPanel({ user }) {
     try {
       const url = listId ? `${API_BASE}/api/crm/contacts?list_id=${listId}` : `${API_BASE}/api/crm/contacts`;
       const res = await fetch(url);
-      const data = await res.json();
-      setContacts(data);
+      const data = await getJSONOrError(res);
+      if (!res.ok) throw new Error(data.error || 'Failed to fetch contacts');
+      setContacts(Array.isArray(data) ? data : []);
     } catch (err) {
       console.error('Error fetching contacts:', err);
     } finally {
@@ -76,8 +89,9 @@ export default function AdminCRMPanel({ user }) {
     setLoadingCampaigns(true);
     try {
       const res = await fetch(`${API_BASE}/api/crm/campaigns`);
-      const data = await res.json();
-      setCampaigns(data);
+      const data = await getJSONOrError(res);
+      if (!res.ok) throw new Error(data.error || 'Failed to fetch campaigns');
+      setCampaigns(Array.isArray(data) ? data : []);
     } catch (err) {
       console.error('Error fetching campaigns:', err);
     } finally {
@@ -105,7 +119,7 @@ export default function AdminCRMPanel({ user }) {
         })
       });
       
-      const data = await res.json();
+      const data = await getJSONOrError(res);
       if (!res.ok) throw new Error(data.error || 'Failed to add contact');
       
       setMessage('Contact added successfully!');
@@ -122,7 +136,10 @@ export default function AdminCRMPanel({ user }) {
     if (!window.confirm('Are you sure you want to delete this contact?')) return;
     try {
       const res = await fetch(`${API_BASE}/api/crm/contacts/${id}`, { method: 'DELETE' });
-      if (!res.ok) throw new Error('Failed to delete contact');
+      if (!res.ok) {
+        const data = await getJSONOrError(res);
+        throw new Error(data.error || 'Failed to delete contact');
+      }
       fetchContacts(selectedList);
     } catch (err) {
       console.error('Error deleting contact:', err);
@@ -146,7 +163,7 @@ export default function AdminCRMPanel({ user }) {
         body: JSON.stringify(newCampaign)
       });
       
-      const data = await res.json();
+      const data = await getJSONOrError(res);
       if (!res.ok) throw new Error(data.error || 'Failed to create campaign');
       
       setMessage('Campaign saved as draft!');
@@ -168,7 +185,7 @@ export default function AdminCRMPanel({ user }) {
 
     try {
       const res = await fetch(`${API_BASE}/api/crm/campaigns/${id}/send`, { method: 'POST' });
-      const data = await res.json();
+      const data = await getJSONOrError(res);
       
       if (!res.ok) throw new Error(data.error || 'Failed to send campaign');
       
@@ -190,7 +207,7 @@ export default function AdminCRMPanel({ user }) {
 
     try {
       const res = await fetch(`${API_BASE}/api/crm/campaigns/${id}/preview`, { method: 'POST' });
-      const data = await res.json();
+      const data = await getJSONOrError(res);
       
       if (!res.ok) throw new Error(data.error || 'Failed to send preview');
       
