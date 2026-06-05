@@ -6,17 +6,11 @@ deployment:
     - /bin/cp -R dist/apps/web/* $DEPLOYPATH || true
     - /bin/cp dist/apps/web/.htaccess $DEPLOYPATH/ || true
 
-    # Deploy API source files (using rsync to exclude node_modules to prevent hanging)
+    # Deploy API source files
     - mkdir -p /home/evobrandconcepts/EVOBRAND/apps/api && /usr/bin/rsync -a --exclude 'node_modules' apps/api/ /home/evobrandconcepts/EVOBRAND/apps/api/ > /home/evobrandconcepts/public_html/deploy.log 2>&1
-    - mkdir -p /home/evobrandconcepts/nodeapp && /usr/bin/rsync -a --exclude 'node_modules' apps/api/ /home/evobrandconcepts/nodeapp/ >> /home/evobrandconcepts/public_html/deploy.log 2>&1
 
-    # Restart Node.js Passenger app (touch restart.txt for graceful reload)
-    - mkdir -p /home/evobrandconcepts/EVOBRAND/apps/api/tmp && touch /home/evobrandconcepts/EVOBRAND/apps/api/tmp/restart.txt
-    - mkdir -p /home/evobrandconcepts/nodeapp/tmp && touch /home/evobrandconcepts/nodeapp/tmp/restart.txt
-
-    # FORCE-KILL stale LiteSpeed Node (lsnode) processes so the new code is loaded.
-    # LiteSpeed caches the running process and ignores restart.txt, so we kill it
-    # directly — LiteSpeed automatically respawns it from the updated files on the
-    # next request. This is what prevents the "old code keeps running" problem.
+    # Force-kill stale LiteSpeed Node (lsnode) process — LiteSpeed ignores restart.txt
+    # and caches the running process indefinitely. Killing it forces a clean respawn
+    # from the updated files on the next request.
     - pkill -9 -f "lsnode:/home/evobrandconcepts/EVOBRAND/apps/api" || true
-    - pkill -9 -f "lsnode:/home/evobrandconcepts/nodeapp" || true
+    - mkdir -p /home/evobrandconcepts/EVOBRAND/apps/api/tmp && touch /home/evobrandconcepts/EVOBRAND/apps/api/tmp/restart.txt
