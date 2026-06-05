@@ -20,6 +20,7 @@ import ClientPortalLoginPage from '@/pages/ClientPortalLoginPage.jsx';
 import ResetPasswordPage from '@/pages/ResetPasswordPage.jsx';
 import MaintenancePlansPage from '@/pages/MaintenancePlansPage.jsx';
 import PaymentSuccessPage from '@/pages/PaymentSuccessPage.jsx';
+import NotFoundPage from '@/pages/NotFoundPage.jsx';
 
 function App() {
   return (
@@ -51,6 +52,7 @@ function App() {
             <Route path="/maintenance-plans" element={<MaintenancePlansPage />} />
             <Route path="/payment-success" element={<PaymentSuccessPage />} />
             <Route path="/contract-builder" element={<Navigate to="/client-portal" replace />} />
+            <Route path="*" element={<NotFoundPage />} />
           </Routes>
         </main>
         <Footer />
