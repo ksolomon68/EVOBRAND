@@ -167,7 +167,7 @@ router.post('/ticket', upload.single('file'), async (req, res) => {
           ? `<p><strong>Attachment:</strong> <a href="https://evobrandconcepts.com${attachmentUrl}">${req.file.originalname}</a></p>`
           : '';
         await getResend().emails.send({
-          from: `"EVOBRAND Support" <${process.env.RESEND_FROM_EMAIL || 'info@evobrand.net'}>`,
+          from: `"EVOBRAND" <${process.env.RESEND_FROM_EMAIL || 'info@evobrand.net'}>`,
           to: 'info@evobrand.net',
           subject: `New Ticket: ${subject}`,
             html: getEmailTemplate(`New Ticket: ${subject}`, `<p><strong>New Support Ticket from ${name || email}</strong></p>
@@ -176,7 +176,7 @@ router.post('/ticket', upload.single('file'), async (req, res) => {
                  <p><strong>Message:</strong><br/>${message}</p>${attachmentNote}`)
         });
         await getResend().emails.send({
-          from: `"EVOBRAND Support" <${process.env.RESEND_FROM_EMAIL || 'info@evobrand.net'}>`,
+          from: `"EVOBRAND" <${process.env.RESEND_FROM_EMAIL || 'info@evobrand.net'}>`,
           to: email,
           subject: `Ticket Received: ${subject}`,
             html: getEmailTemplate(`Ticket Received: ${subject}`, `<p>Hi ${name || ''},</p>
@@ -240,7 +240,7 @@ router.post('/tickets/:id/reply', authenticateToken, async (req, res) => {
       
       // Email Admin
       await getResend().emails.send({
-        from: `"EVOBRAND Support" <${process.env.RESEND_FROM_EMAIL || 'info@evobrand.net'}>`,
+        from: `"EVOBRAND" <${process.env.RESEND_FROM_EMAIL || 'info@evobrand.net'}>`,
         to: 'info@evobrand.net',
         subject: `New Reply: Ticket #${ticketId}`,
             html: getEmailTemplate(`New Reply: Ticket #${ticketId}`, `<p>The client has replied to ticket #${ticketId} ("${currentTicket.subject}"). The status is now <strong>OPEN</strong>.</p>
@@ -254,7 +254,7 @@ router.post('/tickets/:id/reply', authenticateToken, async (req, res) => {
       // Email User
       if (currentTicket.user_email) {
         await getResend().emails.send({
-          from: `"EVOBRAND Support" <${process.env.RESEND_FROM_EMAIL || 'info@evobrand.net'}>`,
+          from: `"EVOBRAND" <${process.env.RESEND_FROM_EMAIL || 'info@evobrand.net'}>`,
           to: currentTicket.user_email,
           subject: `New Reply on Ticket: ${currentTicket.subject}`,
             html: getEmailTemplate(`New Reply on Ticket: ${currentTicket.subject}`, `<p>Hi ${currentTicket.user_name || ''},</p>
@@ -310,7 +310,7 @@ router.put('/tickets/:id', authenticateToken, async (req, res) => {
       // Email User
       if (currentTicket.user_email) {
         await getResend().emails.send({
-          from: `"EVOBRAND Support" <${process.env.RESEND_FROM_EMAIL || 'info@evobrand.net'}>`,
+          from: `"EVOBRAND" <${process.env.RESEND_FROM_EMAIL || 'info@evobrand.net'}>`,
           to: currentTicket.user_email,
           subject: `Ticket Status Updated: ${currentTicket.subject}`,
             html: getEmailTemplate(`Ticket Status Updated: ${currentTicket.subject}`, `<p>Hi ${currentTicket.user_name || ''},</p>
@@ -321,7 +321,7 @@ router.put('/tickets/:id', authenticateToken, async (req, res) => {
       
       // Email Admin
       await getResend().emails.send({
-        from: `"EVOBRAND Support" <${process.env.RESEND_FROM_EMAIL || 'info@evobrand.net'}>`,
+        from: `"EVOBRAND" <${process.env.RESEND_FROM_EMAIL || 'info@evobrand.net'}>`,
         to: 'info@evobrand.net',
         subject: `Ticket Status Changed: #${ticketId}`,
             html: getEmailTemplate(`Ticket Status Changed: #${ticketId}`, `<p>Ticket #${ticketId} ("${currentTicket.subject}") status changed to <strong>${formattedStatus}</strong> by an admin.</p>`)
@@ -357,7 +357,7 @@ router.post('/tickets/:id/close', authenticateToken, async (req, res) => {
       // Email User
       if (currentTicket.user_email) {
         await getResend().emails.send({
-          from: `"EVOBRAND Support" <${process.env.RESEND_FROM_EMAIL || 'info@evobrand.net'}>`,
+          from: `"EVOBRAND" <${process.env.RESEND_FROM_EMAIL || 'info@evobrand.net'}>`,
           to: currentTicket.user_email,
           subject: `Ticket Closed: ${currentTicket.subject}`,
             html: getEmailTemplate(`Ticket Closed: ${currentTicket.subject}`, `<p>Hi ${currentTicket.user_name || ''},</p>
@@ -367,7 +367,7 @@ router.post('/tickets/:id/close', authenticateToken, async (req, res) => {
       
       // Email Admin
       await getResend().emails.send({
-        from: `"EVOBRAND Support" <${process.env.RESEND_FROM_EMAIL || 'info@evobrand.net'}>`,
+        from: `"EVOBRAND" <${process.env.RESEND_FROM_EMAIL || 'info@evobrand.net'}>`,
         to: 'info@evobrand.net',
         subject: `Ticket Closed by Client: #${ticketId}`,
             html: getEmailTemplate(`Ticket Closed by Client: #${ticketId}`, `<p>Ticket #${ticketId} ("${currentTicket.subject}") was closed by the client.</p>`)

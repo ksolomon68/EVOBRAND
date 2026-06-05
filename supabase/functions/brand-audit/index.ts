@@ -371,7 +371,7 @@ async function sendEmails(
     fetch("https://api.resend.com/emails", {
       method: "POST",
       headers: { "Content-Type": "application/json", Authorization: `Bearer ${RESEND_API_KEY}` },
-      body: JSON.stringify({ from: "EVOBRAND Concepts <info@evobrand.net>", to: [to], subject, html }),
+      body: JSON.stringify({ from: "EVOBRAND <info@evobrand.net>", to: [to], subject, html }),
     });
 
   await Promise.allSettled([

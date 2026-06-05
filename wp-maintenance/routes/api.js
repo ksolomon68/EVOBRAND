@@ -330,7 +330,7 @@ router.get('/settings', (req, res) => {
       host: process.env.SMTP_HOST || '',
       port: process.env.SMTP_PORT || '587',
       user: process.env.SMTP_USER || '',
-      fromName: process.env.EMAIL_FROM_NAME || 'EVOBRAND Maintenance',
+      fromName: process.env.EMAIL_FROM_NAME || 'EVOBRAND',
       fromAddress: process.env.EMAIL_FROM_ADDRESS || '',
     },
     cron: {

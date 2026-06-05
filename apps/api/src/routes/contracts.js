@@ -143,7 +143,7 @@ router.post('/:id/sign', authenticateToken, async (req, res) => {
 
     try {
       await require('resend').Resend(process.env.RESEND_API_KEY).emails.send({
-        from: `"EVOBRAND Contracts" <${process.env.RESEND_FROM_EMAIL || 'info@evobrand.net'}>`,
+        from: `"EVOBRAND" <${process.env.RESEND_FROM_EMAIL || 'info@evobrand.net'}>`,
         to: ['info@evobrand.net', 'ksolomon68@gmail.com'],
         subject: `Contract Signed: ${contract.title}`,
         html: `

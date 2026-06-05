@@ -32,7 +32,7 @@ const generateICS = (dateStr, timeStr, duration, bookingType, clientName, meetLi
     'BEGIN:VEVENT',
     `UID:${Date.now()}@evobrand.net`,
     `DTSTAMP:${formatDT(new Date())}`,
-    `ORGANIZER;CN="EVOBRAND Scheduling":mailto:info@evobrand.net`,
+    `ORGANIZER;CN="EVOBRAND":mailto:info@evobrand.net`,
     `ATTENDEE;CUTYPE=INDIVIDUAL;ROLE=REQ-PARTICIPANT;PARTSTAT=NEEDS-ACTION;RSVP=TRUE:mailto:ksolomon68@gmail.com`,
     `DTSTART;TZID=America/Chicago:${formatDT(startDt)}`,
     `DTEND;TZID=America/Chicago:${formatDT(endDt)}`,
@@ -180,7 +180,7 @@ router.post('/book', async (req, res) => {
 
       if (finalEmail) {
         await getResend().emails.send({
-          from: `"EVOBRAND Scheduling" <${process.env.RESEND_FROM_EMAIL || 'info@evobrand.net'}>`,
+          from: `"EVOBRAND" <${process.env.RESEND_FROM_EMAIL || 'info@evobrand.net'}>`,
           to: finalEmail,
           subject: 'Appointment Confirmed',
           html: getEmailTemplate('Appointment Confirmed', `
@@ -194,7 +194,7 @@ router.post('/book', async (req, res) => {
       }
 
       await getResend().emails.send({
-        from: `"EVOBRAND Scheduling" <${process.env.RESEND_FROM_EMAIL || 'info@evobrand.net'}>`,
+        from: `"EVOBRAND" <${process.env.RESEND_FROM_EMAIL || 'info@evobrand.net'}>`,
         to: ['info@evobrand.net', 'ksolomon68@gmail.com'],
         subject: `New Booking: ${finalName || finalEmail}`,
         html: getEmailTemplate(`New Booking: ${finalName || finalEmail}`, `
@@ -256,7 +256,7 @@ router.post('/meetings/:id/cancel', async (req, res) => {
       try {
         if (meeting.user_email) {
           await getResend().emails.send({
-            from: `"EVOBRAND Scheduling" <${process.env.RESEND_FROM_EMAIL || 'info@evobrand.net'}>`,
+            from: `"EVOBRAND" <${process.env.RESEND_FROM_EMAIL || 'info@evobrand.net'}>`,
             to: meeting.user_email,
             subject: 'Appointment Cancelled',
             html: getEmailTemplate('Appointment Cancelled', `
@@ -266,7 +266,7 @@ router.post('/meetings/:id/cancel', async (req, res) => {
           });
         }
         await getResend().emails.send({
-          from: `"EVOBRAND Scheduling" <${process.env.RESEND_FROM_EMAIL || 'info@evobrand.net'}>`,
+          from: `"EVOBRAND" <${process.env.RESEND_FROM_EMAIL || 'info@evobrand.net'}>`,
           to: 'info@evobrand.net',
           subject: `Booking Cancelled: ${meeting.date} at ${meeting.time}`,
             html: getEmailTemplate(`Booking Cancelled: ${meeting.date} at ${meeting.time}`, `<p>The appointment for ${meeting.user_name || meeting.user_email || 'a client'} on ${meeting.date} at ${meeting.time} has been cancelled.</p>`)
