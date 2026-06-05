@@ -22,6 +22,7 @@ export default function AdminCRMPanel({ user }) {
   const [loadingCampaigns, setLoadingCampaigns] = useState(false);
   const [newCampaign, setNewCampaign] = useState({ subject: '', html_content: '', list_id: '' });
   const [isSending, setIsSending] = useState(false);
+  const [isPreviewing, setIsPreviewing] = useState(false);
   
   // General State
   const [message, setMessage] = useState('');
@@ -179,6 +180,27 @@ export default function AdminCRMPanel({ user }) {
       setError(err.message);
     } finally {
       setIsSending(false);
+    }
+  };
+
+  const handlePreviewCampaign = async (id) => {
+    setIsPreviewing(true);
+    setError('');
+    setMessage('');
+
+    try {
+      const res = await fetch(`${API_BASE}/api/crm/campaigns/${id}/preview`, { method: 'POST' });
+      const data = await res.json();
+      
+      if (!res.ok) throw new Error(data.error || 'Failed to send preview');
+      
+      setMessage(data.message);
+      
+      setTimeout(() => setMessage(''), 5000);
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setIsPreviewing(false);
     }
   };
 
@@ -500,14 +522,24 @@ export default function AdminCRMPanel({ user }) {
                       </div>
                       
                       {campaign.status === 'draft' && (
-                        <button
-                          onClick={() => handleSendCampaign(campaign.id)}
-                          disabled={isSending}
-                          className="bg-[#22c8e5] text-[#003258] px-4 py-2 rounded-2xl text-sm font-bold flex items-center gap-2 hover:bg-white transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                        >
-                          {isSending ? <Loader2 size={16} className="animate-spin" /> : <Send size={16} />}
-                          Send Now
-                        </button>
+                        <div className="flex gap-2">
+                          <button
+                            onClick={() => handlePreviewCampaign(campaign.id)}
+                            disabled={isPreviewing || isSending}
+                            className="bg-transparent border border-[#22c8e5] text-[#22c8e5] px-4 py-2 rounded-2xl text-sm font-bold flex items-center gap-2 hover:bg-[#22c8e5]/10 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                          >
+                            {isPreviewing ? <Loader2 size={16} className="animate-spin" /> : <Mail size={16} />}
+                            Preview
+                          </button>
+                          <button
+                            onClick={() => handleSendCampaign(campaign.id)}
+                            disabled={isSending || isPreviewing}
+                            className="bg-[#22c8e5] text-[#003258] px-4 py-2 rounded-2xl text-sm font-bold flex items-center gap-2 hover:bg-white transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                          >
+                            {isSending ? <Loader2 size={16} className="animate-spin" /> : <Send size={16} />}
+                            Send Now
+                          </button>
+                        </div>
                       )}
                     </div>
                   </div>

@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const pool = require('../db/connection');
 const { Resend } = require('resend');
-const getResend = () => new Resend(process.env.RESEND_API_KEY || 're_placeholder');
+const getResend = () => new Resend(process.env.RESEND_API_KEY || process.env.EMAIL_API_KEY || 're_placeholder');
 const { getEmailTemplate } = require('../utils/emailTemplate');
 
 // --- LISTS ---
@@ -150,6 +150,36 @@ router.post('/campaigns/:id/send', async (req, res) => {
   } catch (error) {
     console.error('Error sending CRM campaign:', error);
     res.status(500).json({ error: 'Failed to send campaign', details: error.message });
+  }
+});
+
+// Preview a campaign
+router.post('/campaigns/:id/preview', async (req, res) => {
+  const { id } = req.params;
+  
+  try {
+    // 1. Get the campaign
+    const [campaignRows] = await pool.query('SELECT * FROM crm_campaigns WHERE id = ?', [id]);
+    if (campaignRows.length === 0) {
+      return res.status(404).json({ error: 'Campaign not found' });
+    }
+    const campaign = campaignRows[0];
+    
+    const adminEmail = process.env.RESEND_FROM_EMAIL || process.env.ADMIN_EMAIL || 'info@evobrand.net';
+
+    // 2. Send email only to the admin
+    await getResend().emails.send({
+      from: `"EVOBRAND" <${process.env.RESEND_FROM_EMAIL || 'info@evobrand.net'}>`,
+      to: [adminEmail],
+      subject: `[PREVIEW] ${campaign.subject}`,
+      html: getEmailTemplate(`[PREVIEW] ${campaign.subject}`, campaign.html_content),
+    });
+    
+    // Status is not updated to 'sent'
+    res.json({ success: true, message: `Preview sent successfully to ${adminEmail}` });
+  } catch (error) {
+    console.error('Error sending CRM campaign preview:', error);
+    res.status(500).json({ error: 'Failed to send preview', details: error.message });
   }
 });
 
