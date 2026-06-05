@@ -78,7 +78,6 @@ export default function VideoSlider({ videos = [], onVideoSelect }) {
     dragStart.current = e.clientX;
     posAtDrag.current = posRef.current;
     gsap.killTweensOf(trackRef.current);
-    containerRef.current.setPointerCapture(e.pointerId);
   }, []);
 
   const onPointerMove = useCallback((e) => {
