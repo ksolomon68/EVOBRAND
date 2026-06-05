@@ -109,14 +109,14 @@ function TerminalOutput() {
         <div className="w-2.5 h-2.5 rounded-full bg-green-500/80" />
         <span className="text-white/30 text-[10px] ml-2 tracking-wider uppercase">evobrand terminal</span>
       </div>
-      {lines.map((line, idx) => (
+      {lines.filter(Boolean).map((line, idx) => (
         <motion.div
           key={idx}
           initial={{ opacity: 0, x: -10 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.3 }}
           className={`${
-            line.includes('404') ? 'text-red-400' : line.includes('READY') ? 'text-emerald-400' : 'text-[#22c8e5]/80'
+            line?.includes('404') ? 'text-red-400' : line?.includes('READY') ? 'text-emerald-400' : 'text-[#22c8e5]/80'
           } leading-relaxed`}
         >
           {line}
