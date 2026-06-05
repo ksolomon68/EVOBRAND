@@ -145,7 +145,8 @@ const OurWorkPage = () => {
       industry: 'Insurance',
       image: '/projects/stiber-insurance.jpg',
       metrics: { roi: 'Quotes', timeSaved: 'Digital', revenue: 'Policy' },
-      description: 'Protecting What Matters Most Since 1985. Homeowners, Flood, Commercial, and Life insurance.'
+      description: 'Protecting What Matters Most Since 1985. Homeowners, Flood, Commercial, and Life insurance.',
+      link: 'https://stiberinsuranceservices.com/'
     }
   ];
 
