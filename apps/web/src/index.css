@@ -6,6 +6,10 @@
 @tailwind utilities;
 
 @layer base {
+  html {
+    scroll-padding-top: 80px; /* offset for sticky header */
+  }
+
   body {
     @apply bg-[#0f1419] text-white;
     font-family: 'Open Sans', sans-serif;
