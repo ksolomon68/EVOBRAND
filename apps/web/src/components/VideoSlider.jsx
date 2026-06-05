@@ -131,7 +131,7 @@ export default function VideoSlider({ videos = [], onVideoSelect }) {
         aria-label="Previous videos"
         className="absolute left-0 top-1/2 -translate-y-1/2 z-20 w-10 h-10 rounded-full bg-[#0A1628] border border-[#22c8e5]/30 flex items-center justify-center text-[#22c8e5] disabled:opacity-20 disabled:cursor-not-allowed hover:bg-[#22c8e5] hover:text-[#003258] transition-all duration-200 shadow-lg shadow-black/60 focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#22c8e5] focus-visible:outline-offset-2"
       >
-        <ChevronLeft size={18} />
+        <ChevronLeft size={18} aria-hidden="true" />
       </button>
 
       {/* Next arrow */}
@@ -141,7 +141,7 @@ export default function VideoSlider({ videos = [], onVideoSelect }) {
         aria-label="Next videos"
         className="absolute right-0 top-1/2 -translate-y-1/2 z-20 w-10 h-10 rounded-full bg-[#0A1628] border border-[#22c8e5]/30 flex items-center justify-center text-[#22c8e5] disabled:opacity-20 disabled:cursor-not-allowed hover:bg-[#22c8e5] hover:text-[#003258] transition-all duration-200 shadow-lg shadow-black/60 focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#22c8e5] focus-visible:outline-offset-2"
       >
-        <ChevronRight size={18} />
+        <ChevronRight size={18} aria-hidden="true" />
       </button>
 
       {/* Track */}
@@ -183,7 +183,7 @@ export default function VideoSlider({ videos = [], onVideoSelect }) {
               />
 
               {/* Persistent dark gradient at bottom */}
-              <div className="absolute inset-0 bg-gradient-to-t from-[#0A1628]/80 via-transparent to-transparent pointer-events-none" />
+              <div className="absolute inset-0 bg-gradient-to-t from-[#0A1628]/80 via-transparent to-transparent pointer-events-none" aria-hidden="true" />
 
               {/* Hover overlay */}
               <div className="vs-overlay absolute inset-0 bg-[#0A1628]/60 opacity-0 flex flex-col items-center justify-center pointer-events-none" aria-hidden="true">

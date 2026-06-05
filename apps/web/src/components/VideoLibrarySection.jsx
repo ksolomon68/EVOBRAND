@@ -178,16 +178,20 @@ export default function VideoLibrarySection() {
         <div
           ref={pillsRef}
           className="flex flex-wrap justify-center gap-3 mb-12"
-          role="group"
+          role="tablist"
           aria-label="Filter videos by category"
         >
           {CATEGORIES.map((cat) => {
             const active = selectedCategory === cat;
+            const tabId = `video-tab-${cat.replace(/\s+/g, '-').toLowerCase()}`;
             return (
               <button
                 key={cat}
+                id={tabId}
+                role="tab"
                 onClick={() => setSelectedCategory(cat)}
-                aria-pressed={active}
+                aria-selected={active}
+                aria-controls="video-tabpanel"
                 className={`px-5 py-2 rounded-2xl text-sm font-semibold transition-all duration-300 border focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#22c8e5] ${
                   active
                     ? 'text-[#003258] border-transparent scale-105'
@@ -202,26 +206,32 @@ export default function VideoLibrarySection() {
         </div>
 
         {/* Content */}
-        {loading ? (
-          <div className="flex flex-col items-center justify-center py-24">
-            <Loader2 className="w-10 h-10 animate-spin mb-4" style={{ color: '#22c8e5' }} aria-hidden="true" />
-            <p className="text-gray-400 text-sm tracking-widest uppercase">Loading library...</p>
-          </div>
-        ) : error ? (
-          <div className="flex flex-col items-center justify-center py-24 text-center">
-            <div className="w-20 h-20 rounded-2xl flex items-center justify-center mb-6" style={{ background: 'rgba(34,200,229,0.08)', border: '1px solid rgba(34,200,229,0.15)' }}>
-              <span className="text-4xl">🎬</span>
+        <div
+          id="video-tabpanel"
+          role="tabpanel"
+          aria-labelledby={`video-tab-${selectedCategory.replace(/\s+/g, '-').toLowerCase()}`}
+        >
+          {loading ? (
+            <div className="flex flex-col items-center justify-center py-24">
+              <Loader2 className="w-10 h-10 animate-spin mb-4" style={{ color: '#22c8e5' }} aria-hidden="true" />
+              <p className="text-gray-400 text-sm tracking-widest uppercase">Loading library...</p>
             </div>
-            <p className="text-white text-xl font-bold mb-2">Coming Soon</p>
-            <p className="text-gray-500 max-w-sm text-sm">Our video library is on its way. Check back soon for AI tutorials and client stories.</p>
-          </div>
-        ) : filteredVideos.length === 0 ? (
-          <div className="flex flex-col items-center justify-center py-24 text-center">
-            <p className="text-gray-400 text-lg">No videos in this category yet.</p>
-          </div>
-        ) : (
-          <VideoSlider videos={filteredVideos} onVideoSelect={setSelectedVideoId} />
-        )}
+          ) : error ? (
+            <div className="flex flex-col items-center justify-center py-24 text-center">
+              <div className="w-20 h-20 rounded-2xl flex items-center justify-center mb-6" style={{ background: 'rgba(34,200,229,0.08)', border: '1px solid rgba(34,200,229,0.15)' }}>
+                <span className="text-4xl" aria-hidden="true">🎬</span>
+              </div>
+              <p className="text-white text-xl font-bold mb-2">Coming Soon</p>
+              <p className="text-gray-500 max-w-sm text-sm">Our video library is on its way. Check back soon for AI tutorials and client stories.</p>
+            </div>
+          ) : filteredVideos.length === 0 ? (
+            <div className="flex flex-col items-center justify-center py-24 text-center">
+              <p className="text-gray-400 text-lg">No videos in this category yet.</p>
+            </div>
+          ) : (
+            <VideoSlider videos={filteredVideos} onVideoSelect={setSelectedVideoId} />
+          )}
+        </div>
       </div>
 
       {selectedVideoId && (
