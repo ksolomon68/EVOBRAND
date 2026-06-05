@@ -9,12 +9,21 @@ yarn-error.log*
 supabase/.temp
 deploy.zip
 
-# Server-generated files
+# Server-generated / runtime files — must not appear as uncommitted changes in cPanel
 apps/api/src/crash.log
 apps/api/crash.log
+apps/api/crash.txt
+apps/api/src/crash.txt
+apps/api/src/install.log
+apps/api/install.log
+install.log
+deploy.log
 *.log
 nohup.out
 apps/api/uploads/
 apps/api/tmp/
+apps/api/src/tmp/
 tmp/
 
+# One-off test / scratch scripts
+test_gemini.js
