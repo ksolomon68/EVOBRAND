@@ -81,7 +81,7 @@ const ProcessVisualizer = () => {
   }, { scope: containerRef });
 
   return (
-    <div ref={containerRef} className="relative w-full aspect-square flex items-center justify-center bg-[#0f1419]/30 rounded-3xl border border-[#22c8e5]/10 overflow-hidden group shadow-2xl shadow-[#22c8e5]/5">
+    <div ref={containerRef} className="relative w-full aspect-square flex items-center justify-center bg-[#0f1419]/30 rounded-3xl border border-[#22c8e5]/10 overflow-hidden group shadow-2xl shadow-[#22c8e5]/5" aria-hidden="true">
       {/* Background Particles */}
       <div className="absolute inset-0 pointer-events-none opacity-40">
         {[...Array(20)].map((_, i) => (

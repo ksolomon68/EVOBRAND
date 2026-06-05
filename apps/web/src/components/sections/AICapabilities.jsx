@@ -5,13 +5,19 @@ import { useInView } from 'react-intersection-observer';
 const StatCounter = ({ target, label, suffix = '' }) => {
   const [count, setCount] = useState(0);
   const { ref, inView } = useInView({ triggerOnce: true, threshold: 0.5 });
+  const prefersReducedMotion = typeof window !== 'undefined'
+    && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
   useEffect(() => {
     if (inView) {
+      if (prefersReducedMotion) {
+        setCount(target);
+        return;
+      }
       let start = 0;
       const duration = 2000;
       const increment = target / (duration / 16);
-      
+
       const timer = setInterval(() => {
         start += increment;
         if (start >= target) {
@@ -24,7 +30,7 @@ const StatCounter = ({ target, label, suffix = '' }) => {
 
       return () => clearInterval(timer);
     }
-  }, [inView, target]);
+  }, [inView, target, prefersReducedMotion]);
 
   return (
     <div ref={ref} className="stat-box bg-[rgba(255,255,255,0.04)] border border-[rgba(255,255,255,0.08)] rounded-xl p-6 text-center">

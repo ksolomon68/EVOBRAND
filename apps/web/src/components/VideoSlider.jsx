@@ -177,7 +177,7 @@ export default function VideoSlider({ videos = [], onVideoSelect }) {
               {/* Thumbnail */}
               <img
                 src={video.thumbnail}
-                alt={video.title}
+                alt=""
                 className="w-full h-full object-cover"
                 draggable={false}
                 loading={i < 4 ? 'eager' : 'lazy'}
