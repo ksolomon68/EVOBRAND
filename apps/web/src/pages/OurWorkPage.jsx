@@ -65,7 +65,8 @@ const OurWorkPage = () => {
       industry: 'Government',
       image: '/projects/pivotal-voice.jpg',
       metrics: { roi: 'Engagement', timeSaved: 'Streamlined', revenue: 'N/A' },
-      description: 'The comprehensive civic engagement platform connecting Ellis County residents with democracy.'
+      description: 'The comprehensive civic engagement platform connecting Ellis County residents with democracy.',
+      link: 'https://pivotalvoice.org/'
     },
     {
       id: 1,
@@ -84,16 +85,8 @@ const OurWorkPage = () => {
       industry: 'Social Media',
       image: '/projects/my-social-grid.jpg',
       metrics: { roi: 'High', timeSaved: 'Real-time', revenue: 'Scalable' },
-      description: 'Free speech social media platform for connecting, buying, selling, and learning.'
-    },
-    {
-      id: 4,
-      title: 'NTBHA',
-      category: 'Web Development',
-      industry: 'Healthcare',
-      image: '/projects/ntbha.jpg',
-      metrics: { roi: 'Impactful', timeSaved: '24/7', revenue: 'Non-profit' },
-      description: 'North Texas Behavioral Health Authority website serving multiple counties with crisis resources.'
+      description: 'Free speech social media platform for connecting, buying, selling, and learning.',
+      link: 'https://mysocialgrid.com/'
     },
     {
       id: 5,
@@ -102,7 +95,8 @@ const OurWorkPage = () => {
       industry: 'Retail',
       image: '/projects/pigment-cosmetics.jpg',
       metrics: { roi: 'Sales', timeSaved: 'Streamlined', revenue: 'Direct' },
-      description: 'Professional cosmetics e-commerce site offering products, kits, and educational support.'
+      description: 'Professional cosmetics e-commerce site offering products, kits, and educational support.',
+      link: 'https://pigmentcosmetics.com/'
     },
     {
       id: 6,
@@ -131,7 +125,8 @@ const OurWorkPage = () => {
       industry: 'Government',
       image: '/projects/caltrans.jpg',
       metrics: { roi: 'Contracting', timeSaved: 'Process', revenue: 'Growth' },
-      description: 'Statewide supportive services to help SBEs strengthen readiness for transportation contracting opportunities.'
+      description: 'Statewide supportive services to help SBEs strengthen readiness for transportation contracting opportunities.',
+      link: 'https://caltransbizconnect.org/'
     },
     {
       id: 9,
@@ -143,15 +138,6 @@ const OurWorkPage = () => {
       description: 'Mid-Cities (TX) Chapter of The Links, Incorporated. Community service, leadership, and youth empowerment.',
       link: 'https://evobrand.net/MidCityLinks'
     },
-    {
-      id: 10,
-      title: 'Stiber Insurance Services',
-      category: 'Web Development',
-      industry: 'Insurance',
-      image: '/projects/stiber-insurance.jpg',
-      metrics: { roi: 'Quotes', timeSaved: 'Digital', revenue: 'Policy' },
-      description: 'Protecting What Matters Most Since 1985. Homeowners, Flood, Commercial, and Life insurance.'
-    }
   ];
 
   const newPortfolioItems = [
@@ -182,7 +168,8 @@ const OurWorkPage = () => {
       industry: 'Entertainment',
       image: '/projects/the-star-list.jpg',
       metrics: { roi: 'Views', timeSaved: 'Curated', revenue: 'Ads' },
-      description: 'The Ultimate Resource for Music-News and Entertainment Around the World!'
+      description: 'The Ultimate Resource for Music-News and Entertainment Around the World!',
+      link: 'https://thestarlist.com/'
     }
   ];
 
