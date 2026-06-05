@@ -5,6 +5,29 @@ const { Resend } = require('resend');
 const getResend = () => new Resend(process.env.RESEND_API_KEY || process.env.EMAIL_API_KEY || 're_placeholder');
 const { getEmailTemplate } = require('../utils/emailTemplate');
 
+const SITE_URL = process.env.SITE_URL || 'https://evobrandconcepts.com';
+
+// Ensure the tracking events table exists on startup
+(async () => {
+  try {
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS crm_campaign_events (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        campaign_id INT NOT NULL,
+        event_type ENUM('open', 'click') NOT NULL,
+        url VARCHAR(2048) NULL,
+        ip VARCHAR(64) NULL,
+        user_agent TEXT NULL,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        INDEX idx_campaign_id (campaign_id),
+        INDEX idx_event_type (event_type)
+      )
+    `);
+  } catch (err) {
+    console.error('Could not create crm_campaign_events table:', err.message);
+  }
+})();
+
 // --- LISTS ---
 // Get all lists
 router.get('/lists', async (req, res) => {
@@ -76,14 +99,66 @@ router.delete('/contacts/:id', async (req, res) => {
   }
 });
 
+// --- TRACKING ---
+
+// 1x1 transparent GIF bytes
+const PIXEL_GIF = Buffer.from(
+  'R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7',
+  'base64'
+);
+
+// Track open: GET /api/crm/track/open?cid=123
+router.get('/track/open', async (req, res) => {
+  const { cid } = req.query;
+  if (cid) {
+    try {
+      await pool.query(
+        'INSERT INTO crm_campaign_events (campaign_id, event_type, ip, user_agent) VALUES (?, "open", ?, ?)',
+        [cid, req.ip || null, (req.headers['user-agent'] || '').substring(0, 500)]
+      );
+    } catch (err) {
+      // Silent fail — never block email rendering
+    }
+  }
+  res.set({
+    'Content-Type': 'image/gif',
+    'Content-Length': PIXEL_GIF.length,
+    'Cache-Control': 'no-store, no-cache, must-revalidate',
+    Pragma: 'no-cache',
+  });
+  res.end(PIXEL_GIF);
+});
+
+// Track click: GET /api/crm/track/click?cid=123&url=https%3A%2F%2F...
+router.get('/track/click', async (req, res) => {
+  const { cid, url } = req.query;
+  if (cid && url) {
+    try {
+      await pool.query(
+        'INSERT INTO crm_campaign_events (campaign_id, event_type, url, ip, user_agent) VALUES (?, "click", ?, ?, ?)',
+        [cid, url.substring(0, 2048), req.ip || null, (req.headers['user-agent'] || '').substring(0, 500)]
+      );
+    } catch (err) {
+      // Silent fail
+    }
+  }
+  const destination = url && url.startsWith('http') ? url : SITE_URL;
+  res.redirect(302, destination);
+});
+
 // --- CAMPAIGNS ---
-// Get all campaigns
+
+// Get all campaigns with open/click stats
 router.get('/campaigns', async (req, res) => {
   try {
     const [rows] = await pool.query(`
-      SELECT c.*, l.name as list_name 
-      FROM crm_campaigns c 
+      SELECT c.*, l.name as list_name,
+        COALESCE(SUM(CASE WHEN e.event_type = 'open'  THEN 1 ELSE 0 END), 0) AS open_count,
+        COALESCE(SUM(CASE WHEN e.event_type = 'click' THEN 1 ELSE 0 END), 0) AS click_count
+      FROM crm_campaigns c
       LEFT JOIN crm_lists l ON c.list_id = l.id
+      LEFT JOIN crm_campaign_events e ON e.campaign_id = c.id
+      GROUP BY c.id
       ORDER BY c.created_at DESC
     `);
     res.json(rows);
@@ -113,6 +188,23 @@ router.post('/campaigns', async (req, res) => {
   }
 });
 
+// Delete a campaign (any status)
+router.delete('/campaigns/:id', async (req, res) => {
+  const { id } = req.params;
+  try {
+    // Also remove tracking events for this campaign
+    await pool.query('DELETE FROM crm_campaign_events WHERE campaign_id = ?', [id]);
+    const [result] = await pool.query('DELETE FROM crm_campaigns WHERE id = ?', [id]);
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ error: 'Campaign not found' });
+    }
+    res.json({ success: true, message: 'Campaign deleted successfully' });
+  } catch (error) {
+    console.error('Error deleting CRM campaign:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
 // Send a campaign
 router.post('/campaigns/:id/send', async (req, res) => {
   const { id } = req.params;
@@ -134,13 +226,13 @@ router.post('/campaigns/:id/send', async (req, res) => {
     
     const emails = contacts.map(c => c.email);
     
-    // 3. Send emails
+    // 3. Send emails with tracking injected
     await getResend().emails.send({
       from: `"EVOBRAND" <${process.env.RESEND_FROM_EMAIL || 'info@evobrand.net'}>`,
       to: ['info@evobrand.net'], // Resend requires at least one 'to' address
       bcc: emails, // Send as BCC so recipients don't see each other
-      subject: campaign.subject, // Subject line
-      html: getEmailTemplate(campaign.subject, campaign.html_content), // html body
+      subject: campaign.subject,
+      html: getEmailTemplate(campaign.subject, campaign.html_content, campaign.id, SITE_URL),
     });
     
     // 4. Mark campaign as sent
@@ -153,7 +245,7 @@ router.post('/campaigns/:id/send', async (req, res) => {
   }
 });
 
-// Preview a campaign
+// Preview a campaign (sends only to admin, no tracking injected)
 router.post('/campaigns/:id/preview', async (req, res) => {
   const { id } = req.params;
   
@@ -167,7 +259,7 @@ router.post('/campaigns/:id/preview', async (req, res) => {
     
     const adminEmail = process.env.RESEND_FROM_EMAIL || process.env.ADMIN_EMAIL || 'info@evobrand.net';
 
-    // 2. Send email only to the admin
+    // 2. Send email only to the admin — no tracking pixel on preview
     await getResend().emails.send({
       from: `"EVOBRAND" <${process.env.RESEND_FROM_EMAIL || 'info@evobrand.net'}>`,
       to: [adminEmail],
@@ -175,7 +267,7 @@ router.post('/campaigns/:id/preview', async (req, res) => {
       html: getEmailTemplate(`[PREVIEW] ${campaign.subject}`, campaign.html_content),
     });
     
-    // Status is not updated to 'sent'
+    // Status is NOT updated to 'sent'
     res.json({ success: true, message: `Preview sent successfully to ${adminEmail}` });
   } catch (error) {
     console.error('Error sending CRM campaign preview:', error);

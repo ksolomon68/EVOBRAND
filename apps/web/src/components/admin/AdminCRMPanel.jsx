@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Users, Mail, Plus, Trash2, Send, CheckCircle2, AlertCircle, Loader2 } from 'lucide-react';
+import { Users, Mail, Plus, Trash2, Send, CheckCircle2, AlertCircle, Loader2, Eye, MousePointerClick } from 'lucide-react';
 
 const API_BASE = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' 
   ? 'http://localhost:5000' 
@@ -23,6 +23,7 @@ export default function AdminCRMPanel({ user }) {
   const [newCampaign, setNewCampaign] = useState({ subject: '', html_content: '', list_id: '' });
   const [isSending, setIsSending] = useState(false);
   const [isPreviewing, setIsPreviewing] = useState(false);
+  const [isDeletingCampaign, setIsDeletingCampaign] = useState(null); // stores the id being deleted
   
   // General State
   const [message, setMessage] = useState('');
@@ -218,6 +219,25 @@ export default function AdminCRMPanel({ user }) {
       setError(err.message);
     } finally {
       setIsPreviewing(false);
+    }
+  };
+
+  const handleDeleteCampaign = async (id, subject) => {
+    if (!window.confirm(`Delete "${subject}"? This cannot be undone.`)) return;
+    setIsDeletingCampaign(id);
+    setError('');
+    setMessage('');
+    try {
+      const res = await fetch(`${API_BASE}/api/crm/campaigns/${id}`, { method: 'DELETE' });
+      const data = await getJSONOrError(res);
+      if (!res.ok) throw new Error(data.error || 'Failed to delete campaign');
+      setMessage('Campaign deleted.');
+      fetchCampaigns();
+      setTimeout(() => setMessage(''), 3000);
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setIsDeletingCampaign(null);
     }
   };
 
@@ -515,45 +535,75 @@ export default function AdminCRMPanel({ user }) {
               ) : (
                 campaigns.map((campaign) => (
                   <div key={campaign.id} className="bg-[#1a2332] border border-white/10 rounded-xl p-5 hover:border-[#22c8e5]/30 transition-colors">
+                    {/* Title row */}
                     <div className="flex justify-between items-start mb-3">
-                      <div>
-                        <h4 className="font-bold text-white text-lg">{campaign.subject}</h4>
+                      <div className="flex-1 min-w-0 pr-3">
+                        <h4 className="font-bold text-white text-base leading-tight">{campaign.subject}</h4>
                         <p className="text-xs text-[#22c8e5] font-bold mt-1">To: {campaign.list_name || 'Unknown List'}</p>
                       </div>
-                      <span className={`text-[10px] font-bold uppercase tracking-wider px-2 py-1 rounded-full ${
-                        campaign.status === 'sent' ? 'bg-emerald-500/20 text-emerald-400' : 'bg-amber-500/20 text-amber-400'
-                      }`}>
-                        {campaign.status}
-                      </span>
+                      <div className="flex items-center gap-2 flex-shrink-0">
+                        <span className={`text-[10px] font-bold uppercase tracking-wider px-2 py-1 rounded-full ${
+                          campaign.status === 'sent' ? 'bg-emerald-500/20 text-emerald-400' : 'bg-amber-500/20 text-amber-400'
+                        }`}>
+                          {campaign.status}
+                        </span>
+                        {/* Delete button — works for any status */}
+                        <button
+                          onClick={() => handleDeleteCampaign(campaign.id, campaign.subject)}
+                          disabled={isDeletingCampaign === campaign.id}
+                          className="p-1.5 text-white/30 hover:text-red-400 hover:bg-red-400/10 rounded-lg transition-colors disabled:opacity-40"
+                          title="Delete campaign"
+                        >
+                          {isDeletingCampaign === campaign.id
+                            ? <Loader2 size={14} className="animate-spin" />
+                            : <Trash2 size={14} />}
+                        </button>
+                      </div>
                     </div>
-                    
-                    <div className="text-sm text-white/50 mb-4 bg-black/20 p-3 rounded-lg line-clamp-2 overflow-hidden text-ellipsis font-mono text-[11px]">
+
+                    {/* Content preview */}
+                    <div className="text-white/40 mb-4 bg-black/20 p-3 rounded-lg line-clamp-2 overflow-hidden text-ellipsis font-mono text-[11px]">
                       {campaign.html_content}
                     </div>
-                    
-                    <div className="flex items-center justify-between mt-4 pt-4 border-t border-white/10">
+
+                    {/* Stats row — only shown after sending */}
+                    {campaign.status === 'sent' && (
+                      <div className="flex gap-3 mb-3">
+                        <div className="flex items-center gap-1.5 bg-sky-500/10 border border-sky-500/20 rounded-lg px-3 py-1.5">
+                          <Eye size={12} className="text-sky-400" />
+                          <span className="text-xs font-bold text-sky-300">{campaign.open_count ?? 0} Opens</span>
+                        </div>
+                        <div className="flex items-center gap-1.5 bg-violet-500/10 border border-violet-500/20 rounded-lg px-3 py-1.5">
+                          <MousePointerClick size={12} className="text-violet-400" />
+                          <span className="text-xs font-bold text-violet-300">{campaign.click_count ?? 0} Clicks</span>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Action row */}
+                    <div className="flex items-center justify-between pt-3 border-t border-white/10">
                       <div className="text-xs text-white/40">
-                        {campaign.status === 'sent' 
-                          ? `Sent: ${new Date(campaign.sent_at).toLocaleString()}` 
+                        {campaign.status === 'sent'
+                          ? `Sent: ${new Date(campaign.sent_at).toLocaleString()}`
                           : `Created: ${new Date(campaign.created_at).toLocaleString()}`}
                       </div>
-                      
+
                       {campaign.status === 'draft' && (
                         <div className="flex gap-2">
                           <button
                             onClick={() => handlePreviewCampaign(campaign.id)}
                             disabled={isPreviewing || isSending}
-                            className="bg-transparent border border-[#22c8e5] text-[#22c8e5] px-4 py-2 rounded-2xl text-sm font-bold flex items-center gap-2 hover:bg-[#22c8e5]/10 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                            className="bg-transparent border border-[#22c8e5] text-[#22c8e5] px-3 py-1.5 rounded-xl text-xs font-bold flex items-center gap-1.5 hover:bg-[#22c8e5]/10 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                           >
-                            {isPreviewing ? <Loader2 size={16} className="animate-spin" /> : <Mail size={16} />}
+                            {isPreviewing ? <Loader2 size={13} className="animate-spin" /> : <Mail size={13} />}
                             Preview
                           </button>
                           <button
                             onClick={() => handleSendCampaign(campaign.id)}
                             disabled={isSending || isPreviewing}
-                            className="bg-[#22c8e5] text-[#003258] px-4 py-2 rounded-2xl text-sm font-bold flex items-center gap-2 hover:bg-white transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                            className="bg-[#22c8e5] text-[#003258] px-3 py-1.5 rounded-xl text-xs font-bold flex items-center gap-1.5 hover:bg-white transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                           >
-                            {isSending ? <Loader2 size={16} className="animate-spin" /> : <Send size={16} />}
+                            {isSending ? <Loader2 size={13} className="animate-spin" /> : <Send size={13} />}
                             Send Now
                           </button>
                         </div>

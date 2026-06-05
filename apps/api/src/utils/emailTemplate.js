@@ -1,14 +1,38 @@
 /**
+ * wrapLinks — replaces href="URL" with a click-tracking redirect URL.
+ * Only applied when a campaignId is provided (real sends, not previews).
+ */
+function wrapLinks(html, campaignId, siteUrl) {
+  if (!campaignId) return html;
+  return html.replace(/href="(https?:[^"]+)"/gi, (match, url) => {
+    // Don't double-wrap tracking URLs or mailto/tel links
+    if (url.includes('/api/crm/track/')) return match;
+    const encoded = encodeURIComponent(url);
+    return `href="${siteUrl}/api/crm/track/click?cid=${campaignId}&url=${encoded}"`;
+  });
+}
+
+/**
  * getEmailTemplate
  * Wraps any campaign content in the EVOBRAND branded email shell.
  * Matches the dark, cyan-accented newsletter design style.
  *
- * @param {string} subject  - The campaign subject / headline shown in the email body
- * @param {string} content  - Raw HTML content written by the admin in the CRM editor
- * @returns {string}        - Full HTML email string
+ * @param {string} subject      - The campaign subject / headline shown in the email body
+ * @param {string} content      - Raw HTML content written by the admin in the CRM editor
+ * @param {number|null} campaignId - When provided, injects open pixel + wraps links for tracking
+ * @param {string} siteUrl      - Base URL for tracking endpoints (e.g. https://evobrandconcepts.com)
+ * @returns {string}            - Full HTML email string
  */
-const getEmailTemplate = (subject, content) => {
+const getEmailTemplate = (subject, content, campaignId = null, siteUrl = 'https://evobrandconcepts.com') => {
   const year = new Date().getFullYear();
+
+  // Wrap links for click tracking (only for real sends)
+  const trackedContent = wrapLinks(content, campaignId, siteUrl);
+
+  // 1×1 transparent tracking pixel — only on real sends
+  const trackingPixel = campaignId
+    ? `<img src="${siteUrl}/api/crm/track/open?cid=${campaignId}" width="1" height="1" alt="" style="display:block;border:0;" />`
+    : '';
 
   return `<!DOCTYPE html>
 <html lang="en">
@@ -407,8 +431,11 @@ const getEmailTemplate = (subject, content) => {
 
   <!-- MAIN CONTENT: Admin-authored HTML from CRM editor -->
   <div class="content-section">
-    ${content}
+    ${trackedContent}
   </div>
+
+  <!-- TRACKING PIXEL: Records email opens (invisible) -->
+  ${trackingPixel}
 
   <!-- SIGNATURE -->
   <div class="signature-section">
