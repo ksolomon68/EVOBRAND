@@ -94,6 +94,12 @@ const TicketDetail = ({ ticket, onBack, onReply, onClose, user, onRefresh }) => 
                                 <h2 className="text-3xl font-bold text-white">{ticket.subject}</h2>
                                 <span className="px-2 py-1 rounded bg-white/5 border border-white/10 text-white/20 font-mono text-xs">#{String(ticket.id).split('-')[0]}</span>
                             </div>
+                            {isAdmin && (ticket.user_name || ticket.user_email) && (
+                                <p className="text-white/40 text-xs mb-1">
+                                    Submitted by <span className="text-white/70 font-semibold">{ticket.user_name || ticket.user_email}</span>
+                                    {ticket.user_name && ticket.user_email && <span> · {ticket.user_email}</span>}
+                                </p>
+                            )}
                             <div className="flex items-center gap-4 text-xs font-bold uppercase tracking-widest">
                                 <span className={`px-2 py-0.5 rounded border ${getPriorityColor(ticket.priority)}`}>{ticket.priority}</span>
                                 <span className="text-white/40 flex items-center gap-2">
@@ -215,21 +221,39 @@ const TicketDetail = ({ ticket, onBack, onReply, onClose, user, onRefresh }) => 
                     {/* Info Panel */}
                     <div className="w-full lg:w-80 space-y-6">
                         <div className="bg-white/5 border border-white/10 rounded-3xl p-8">
-                            <h3 className="text-white font-bold text-sm uppercase tracking-[0.2em] mb-6">Security Context</h3>
+                            <h3 className="text-white font-bold text-sm uppercase tracking-[0.2em] mb-6">Ticket Info</h3>
                             <div className="space-y-6">
+                                {isAdmin && (ticket.user_name || ticket.user_email) && (
+                                    <div>
+                                        <p className="text-white/20 text-[10px] font-bold uppercase tracking-widest mb-1">Client</p>
+                                        <p className="text-white text-sm font-semibold">{ticket.user_name || '—'}</p>
+                                        <p className="text-white/40 text-xs mt-0.5">{ticket.user_email || '—'}</p>
+                                        <div className="mt-2">
+                                            {ticket.user_support_plan ? (
+                                                <span className="inline-block px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-[#22c8e5]/10 text-[#22c8e5] border border-[#22c8e5]/20">
+                                                    {ticket.user_support_plan} plan
+                                                </span>
+                                            ) : (
+                                                <span className="inline-block px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-amber-500/10 text-amber-400 border border-amber-500/20">
+                                                    No Active Plan
+                                                </span>
+                                            )}
+                                        </div>
+                                    </div>
+                                )}
                                 <div>
-                                    <p className="text-white/20 text-[10px] font-bold uppercase tracking-widest mb-1">Initialization</p>
+                                    <p className="text-white/20 text-[10px] font-bold uppercase tracking-widest mb-1">Opened</p>
                                     <p className="text-white text-sm font-medium">{new Date(ticket.created_at).toLocaleDateString()}</p>
                                 </div>
                                 <div>
-                                    <p className="text-white/20 text-[10px] font-bold uppercase tracking-widest mb-1">Target Cluster</p>
+                                    <p className="text-white/20 text-[10px] font-bold uppercase tracking-widest mb-1">Service</p>
                                     <p className="text-white text-sm font-medium">{ticket.service || 'Support'}</p>
                                 </div>
                                 <div>
-                                    <p className="text-white/20 text-[10px] font-bold uppercase tracking-widest mb-1">Assigned Unit</p>
+                                    <p className="text-white/20 text-[10px] font-bold uppercase tracking-widest mb-1">Assigned To</p>
                                     <div className="flex items-center gap-2 mt-1">
                                         <div className="w-2 h-2 rounded-full bg-green-500" />
-                                        <p className="text-white text-sm font-medium">Core AI Team</p>
+                                        <p className="text-white text-sm font-medium">EVOBRAND Team</p>
                                     </div>
                                 </div>
                                 {isAdmin ? (

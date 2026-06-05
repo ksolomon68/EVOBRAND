@@ -3,9 +3,17 @@ const router = express.Router();
 const pool = require('../db/connection');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
+const crypto = require('crypto');
 const { authenticateToken } = require('../middleware/auth');
+const { Resend } = require('resend');
+const { getEmailTemplate } = require('../utils/emailTemplate');
 
 const JWT_SECRET = process.env.JWT_SECRET || 'fallback_secret';
+const getResend = () => new Resend(process.env.RESEND_API_KEY || 're_placeholder');
+
+// Auto-migrate: add password reset columns if missing
+pool.query("ALTER TABLE users ADD COLUMN reset_token VARCHAR(255) DEFAULT NULL").catch(() => {});
+pool.query("ALTER TABLE users ADD COLUMN reset_token_expires_at TIMESTAMP NULL DEFAULT NULL").catch(() => {});
 
 // @route POST /api/auth/register
 // @desc  Register new user
@@ -137,6 +145,92 @@ router.get('/me', authenticateToken, async (req, res) => {
     res.status(200).json({ user: users[0] });
   } catch (error) {
     console.error('Auth check error:', error);
+    res.status(500).json({ error: 'Server error' });
+  }
+});
+
+// @route POST /api/auth/forgot-password
+// @desc  Request a password reset email
+router.post('/forgot-password', async (req, res) => {
+  const { email } = req.body;
+  if (!email) return res.status(400).json({ error: 'Email is required' });
+
+  try {
+    const [users] = await pool.query('SELECT id, name FROM users WHERE email = ?', [email]);
+
+    // Always respond with success to prevent user enumeration
+    if (users.length === 0) {
+      return res.status(200).json({ message: 'If that email exists, a reset link has been sent.' });
+    }
+
+    const user = users[0];
+    const token = crypto.randomBytes(32).toString('hex');
+    const expiresAt = new Date(Date.now() + 60 * 60 * 1000); // 1 hour
+
+    await pool.query(
+      'UPDATE users SET reset_token = ?, reset_token_expires_at = ? WHERE id = ?',
+      [token, expiresAt, user.id]
+    );
+
+    const appUrl = process.env.APP_URL || 'https://evobrandconcepts.com';
+    const resetLink = `${appUrl}/reset-password?token=${token}`;
+
+    try {
+      await getResend().emails.send({
+        from: `"EVOBRAND" <${process.env.RESEND_FROM_EMAIL || 'info@evobrand.net'}>`,
+        to: email,
+        subject: 'Reset Your EVOBRAND Password',
+        html: getEmailTemplate('Reset Your Password',
+          `<p>Hi ${user.name || 'there'},</p>
+          <p>We received a request to reset the password for your EVOBRAND Client Portal account.</p>
+          <p>Click the button below to set a new password. This link expires in <strong>1 hour</strong>.</p>
+          <p style="text-align:center;"><a href="${resetLink}" class="btn">Reset Password</a></p>
+          <p>If you didn't request this, you can safely ignore this email — your password won't change.</p>`)
+      });
+    } catch (emailErr) {
+      console.error('Password reset email failed:', emailErr);
+    }
+
+    res.status(200).json({ message: 'If that email exists, a reset link has been sent.' });
+  } catch (error) {
+    console.error('Forgot password error:', error);
+    res.status(500).json({ error: 'Server error' });
+  }
+});
+
+// @route POST /api/auth/reset-password
+// @desc  Reset password using a valid token
+router.post('/reset-password', async (req, res) => {
+  const { token, password } = req.body;
+
+  if (!token || !password) {
+    return res.status(400).json({ error: 'Token and new password are required' });
+  }
+  if (password.length < 8) {
+    return res.status(400).json({ error: 'Password must be at least 8 characters' });
+  }
+
+  try {
+    const [users] = await pool.query(
+      'SELECT id FROM users WHERE reset_token = ? AND reset_token_expires_at > NOW()',
+      [token]
+    );
+
+    if (users.length === 0) {
+      return res.status(400).json({ error: 'Reset link is invalid or has expired' });
+    }
+
+    const salt = await bcrypt.genSalt(10);
+    const passwordHash = await bcrypt.hash(password, salt);
+
+    await pool.query(
+      'UPDATE users SET password_hash = ?, reset_token = NULL, reset_token_expires_at = NULL WHERE id = ?',
+      [passwordHash, users[0].id]
+    );
+
+    res.status(200).json({ message: 'Password updated successfully' });
+  } catch (error) {
+    console.error('Reset password error:', error);
     res.status(500).json({ error: 'Server error' });
   }
 });

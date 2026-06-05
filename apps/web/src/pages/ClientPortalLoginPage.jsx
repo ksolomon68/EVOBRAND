@@ -12,7 +12,7 @@ const ClientPortalLoginPage = () => {
   const [success, setSuccess] = useState(false);
   const [forgotPassword, setForgotPassword] = useState(false);
   const [resetSent, setResetSent] = useState(false);
-  const { signIn, signUp } = useAuth();
+  const { signIn, signUp, requestPasswordReset } = useAuth();
   const navigate = useNavigate();
 
   const [formData, setFormData] = useState({
@@ -23,8 +23,16 @@ const ClientPortalLoginPage = () => {
 
   const handleForgotPassword = async (e) => {
     e.preventDefault();
-    alert('Password reset is currently disabled while we upgrade our systems. Please contact support.');
-    setForgotPassword(false);
+    setLoading(true);
+    setError('');
+    try {
+      await requestPasswordReset({ email: formData.email });
+      setResetSent(true);
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleAuth = async (e) => {

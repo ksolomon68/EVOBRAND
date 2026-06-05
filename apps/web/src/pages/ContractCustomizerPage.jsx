@@ -46,7 +46,7 @@ const todayISO = () => new Date().toISOString().slice(0, 10);
 const ContractCustomizerPage = () => {
   const agency = {
     name: 'EVOBRAND Concepts LLC',
-    address: 'Dallas, Texas 75001',
+    address: 'Ellis County, Texas 75165',
     email: 'info@evobrand.net'
   };
 

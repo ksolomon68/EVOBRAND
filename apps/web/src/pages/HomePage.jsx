@@ -72,15 +72,15 @@ const HomePage = () => {
   return (
     <>
       <SEO
-        title="AI Solutions for Business Growth | Dallas, TX"
-        description="EVOBRAND transforms businesses with custom AI applications, visual content creation, intelligent document generation, and AI video production. Dallas-based agency serving clients nationwide."
-        keywords="AI solutions, custom AI applications, AI transformation, Dallas AI agency, AI automation, business AI, machine learning, intelligent automation"
+        title="AI Solutions for Business Growth | Ellis County, TX"
+        description="EVOBRAND transforms businesses with custom AI applications, visual content creation, intelligent document generation, and AI video production. Ellis County-based agency serving clients nationwide."
+        keywords="AI solutions, custom AI applications, AI transformation, Ellis County AI agency, AI automation, business AI, machine learning, intelligent automation"
         canonical="https://evobrand.net/"
         structuredData={{
           "@context": "https://schema.org",
           "@type": "LocalBusiness",
           "name": "EVOBRAND Concepts LLC",
-          "description": "Dallas-based AI transformation agency delivering custom AI applications, visual content, and intelligent automation.",
+          "description": "Ellis County-based AI transformation agency delivering custom AI applications, visual content, and intelligent automation.",
           "url": "https://evobrand.net",
           "logo": "https://evobrand.net/logo.png",
           "image": "https://evobrand.net/og-image.png",
@@ -88,7 +88,7 @@ const HomePage = () => {
           "email": "info@evobrand.net",
           "address": {
             "@type": "PostalAddress",
-            "addressLocality": "Dallas",
+            "addressLocality": "Ellis County",
             "addressRegion": "TX",
             "addressCountry": "US"
           },
@@ -125,16 +125,16 @@ const HomePage = () => {
                 </p>
                 <div className="flex flex-col sm:flex-row gap-4">
                   <Link
-                    to="/contact"
+                    to="/our-work"
                     className="px-8 py-4 bg-[#22c8e5] text-[#003258] rounded-2xl font-bold hover:shadow-lg hover:shadow-[#22c8e5]/50 hover:bg-opacity-90 transition-all text-center"
                   >
-                    Start Your AI Transformation
+                    See Our Work
                   </Link>
                   <Link
-                    to="/how-it-works"
+                    to="/audit"
                     className="px-8 py-4 border-2 border-[#22c8e5] text-[#22c8e5] rounded-2xl font-bold hover:bg-[#22c8e5] hover:text-[#003258] transition-all text-center"
                   >
-                    See How It Works
+                    Free Brand Audit
                   </Link>
                 </div>
               </motion.div>

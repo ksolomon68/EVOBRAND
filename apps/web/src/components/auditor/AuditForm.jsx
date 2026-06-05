@@ -47,6 +47,7 @@ const initialForm = {
   audience: '',
   clientValue: '',
   competitor: '',
+  competitorUrl: '',
   consistency: '',
   firstName: '',
   contactEmail: '',
@@ -313,7 +314,7 @@ const AuditForm = ({ onComplete, prefillData }) => {
                   <label className={labelClass}>Primary audience *</label>
                   <input
                     type="text"
-                    placeholder="e.g. Small business owners in Dallas"
+                    placeholder="e.g. Small business owners in Ellis County"
                     value={form.audience}
                     onChange={(e) => set('audience', e.target.value)}
                     className={inputClass}
@@ -344,6 +345,26 @@ const AuditForm = ({ onComplete, prefillData }) => {
                     className={inputClass}
                     id="audit-competitor"
                   />
+                </div>
+                <div>
+                  <label className={labelClass}>
+                    Competitor website URL
+                    <span className="ml-2 inline-flex items-center gap-1 text-[10px] tracking-widest uppercase bg-[#22C8E5]/10 text-[#22C8E5] border border-[#22C8E5]/20 rounded-full px-2 py-0.5">
+                      Improves accuracy
+                    </span>
+                  </label>
+                  <div className="relative">
+                    <span className="absolute left-4 top-1/2 -translate-y-1/2 text-white/30 text-sm pointer-events-none">🔗</span>
+                    <input
+                      type="url"
+                      placeholder="https://competitorsite.com"
+                      value={form.competitorUrl}
+                      onChange={(e) => set('competitorUrl', e.target.value)}
+                      className={inputClass + ' pl-10'}
+                      id="audit-competitor-url"
+                    />
+                  </div>
+                  <p className="text-white/30 text-xs mt-1">Optional — helps us benchmark your brand position against theirs</p>
                 </div>
               </div>
             </div>

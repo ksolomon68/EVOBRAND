@@ -111,7 +111,7 @@ const Footer = () => {
               </li>
               <li className="flex items-start space-x-2 text-gray-400 text-sm">
                 <MapPin size={16} className="text-[#22c8e5] mt-1" />
-                <span>Dallas, Texas</span>
+                <span>Ellis County, Texas</span>
               </li>
             </ul>
           </div>

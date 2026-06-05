@@ -55,6 +55,7 @@ const AuditorPage = () => {
   const [report, setReport] = useState(null);
   const [error, setError] = useState(null);
   const [hasWebsite, setHasWebsite] = useState(false);
+  const [businessName, setBusinessName] = useState('');
 
   const resetAudit = () => {
     setPhase('form');
@@ -76,6 +77,7 @@ const AuditorPage = () => {
     setPhase('loading');
     setError(null);
     setHasWebsite(!!formData.websiteUrl?.trim());
+    setBusinessName(formData.businessName || '');
     sessionStorage.removeItem('evo_audit_prefill');
 
     try {
@@ -103,7 +105,7 @@ const AuditorPage = () => {
 
   const handleDownloadPDF = () => {
     if (report) {
-      downloadAuditPDF(report, report.businessName || 'Your Brand');
+      downloadAuditPDF(report, businessName || report.businessName || 'Your Brand');
     }
   };
 

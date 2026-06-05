@@ -48,7 +48,7 @@ const labelClass = 'block text-[0.8rem] font-semibold text-[#8892a4] mb-2 upperc
 const sectionHeadClass = 'text-[#22c8e5] text-[0.75rem] font-bold uppercase tracking-[0.1em] mb-4 pb-2 border-b border-[rgba(255,255,255,0.08)]';
 
 export default function ContractBuilderPanel() {
-  const agency = { name: 'EVOBRAND Concepts LLC', address: 'Dallas, Texas 75001', email: 'info@evobrand.net' };
+  const agency = { name: 'EVOBRAND Concepts LLC', address: 'Ellis County, Texas 75165', email: 'info@evobrand.net' };
 
   const [clientInfo, setClientInfo] = useState({ companyName: '', repName: '', title: '', email: '', address: '', phone: '' });
   const [project, setProject] = useState({

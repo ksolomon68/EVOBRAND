@@ -4,7 +4,7 @@ import { Helmet } from 'react-helmet';
 const SITE_NAME = 'EVOBRAND';
 const SITE_URL = 'https://evobrand.net';
 const DEFAULT_OG_IMAGE = `${SITE_URL}/og-image.png`;
-const DEFAULT_DESCRIPTION = 'EVOBRAND is your partner in AI transformation — delivering custom AI applications, visual content, intelligent automation, and video production to businesses nationwide from Dallas, TX.';
+const DEFAULT_DESCRIPTION = 'EVOBRAND is your partner in AI transformation — delivering custom AI applications, visual content, intelligent automation, and video production to businesses nationwide from Ellis County, TX.';
 
 const SEO = ({
   title,

@@ -107,7 +107,6 @@ if (contactsRoutes) app.use('/api/contacts', contactsRoutes);
 if (authRoutes) app.use('/api/auth', authRoutes);
 if (schedulerRoutes) app.use('/api/scheduler', schedulerRoutes);
 if (auditorRoutes) app.use('/api/auditor', auditorRoutes);
-if (crmRoutes) app.use('/api/crm', crmRoutes);
 if (contractRoutes) app.use('/api/contracts', contractRoutes);
 if (notificationRoutes) app.use('/api/notifications', notificationRoutes);
 if (paymentsRoutes) app.use('/api/payments', paymentsRoutes);

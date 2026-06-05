@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Loader2, ShieldAlert, Shield, Zap, Star, Search, Check, Plus, X } from 'lucide-react';
+import { Loader2, ShieldAlert, Shield, Zap, Star, Search, Check, Plus, X, AlertCircle } from 'lucide-react';
 
 const API_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
   ? 'http://localhost:5000/api/support'
@@ -105,8 +105,8 @@ function AddClientModal({ existingClients = [], onClose, onAdded }) {
 
   const filteredUsers = searchQuery.trim() === '' ? [] : existingClients.filter(user => {
     const sq = searchQuery.toLowerCase();
-    return (user.name && user.name.toLowerCase().includes(sq)) ||
-           (user.email && user.email.toLowerCase().includes(sq));
+    return (user.name || '').toLowerCase().includes(sq) ||
+           (user.email || '').toLowerCase().includes(sq);
   }).slice(0, 5);
 
   const handleSelectUser = (user) => {
@@ -306,6 +306,7 @@ function AddClientModal({ existingClients = [], onClose, onAdded }) {
 export default function AdminClientPlansPanel({ user }) {
   const [clients, setClients] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [fetchError, setFetchError] = useState('');
   const [search, setSearch] = useState('');
   const [filterPlan, setFilterPlan] = useState('all');
   const [showAddClient, setShowAddClient] = useState(false);
@@ -314,13 +315,19 @@ export default function AdminClientPlansPanel({ user }) {
 
   const fetchClients = async () => {
     setLoading(true);
+    setFetchError('');
     try {
       const res = await fetch(`${API_URL}/users`, {
         headers: { 'Authorization': `Bearer ${localStorage.getItem('evobrand_token')}` },
       });
-      const data = await res.json();
-      if (res.ok) setClients(data.users || []);
+      const data = await res.json().catch(() => ({}));
+      if (res.ok) {
+        setClients(data.users || []);
+      } else {
+        setFetchError(data.error || `Server error (${res.status})`);
+      }
     } catch (err) {
+      setFetchError('Network error — could not reach the server. Please check your connection.');
       console.error('Fetch clients error:', err);
     } finally {
       setLoading(false);
@@ -354,8 +361,8 @@ export default function AdminClientPlansPanel({ user }) {
   const filtered = clients.filter(c => {
     const s = search.toLowerCase();
     const matchSearch = !search ||
-      (c.name && c.name.toLowerCase().includes(s)) ||
-      (c.email && c.email.toLowerCase().includes(s));
+      (c.name || '').toLowerCase().includes(s) ||
+      (c.email || '').toLowerCase().includes(s);
     const matchPlan = filterPlan === 'all' ? true
       : filterPlan === 'none' ? !c.support_plan
       : c.support_plan === filterPlan;
@@ -430,6 +437,20 @@ export default function AdminClientPlansPanel({ user }) {
       {loading ? (
         <div className="flex justify-center py-16">
           <Loader2 className="animate-spin" style={{ color: GOLD }} />
+        </div>
+      ) : fetchError ? (
+        <div className="flex flex-col items-center py-16 gap-4">
+          <div className="p-4 rounded-2xl bg-red-500/10 border border-red-500/20 text-red-400 text-sm text-center max-w-md">
+            <p className="font-bold mb-1">Failed to load clients</p>
+            <p className="text-red-400/70">{fetchError}</p>
+          </div>
+          <button
+            onClick={fetchClients}
+            className="px-5 py-2 rounded-2xl text-xs font-bold uppercase tracking-widest transition-all"
+            style={{ background: 'rgba(34,200,229,0.15)', color: GOLD }}
+          >
+            Retry
+          </button>
         </div>
       ) : filtered.length === 0 ? (
         <div className="text-center py-16 text-white/30">No clients found.</div>

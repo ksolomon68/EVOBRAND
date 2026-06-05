@@ -47,6 +47,9 @@ const TicketList = ({ tickets, onViewTicket }) => {
                                     <h3 className="text-white font-bold group-hover:text-[#22c8e5] transition-colors">{ticket.subject}</h3>
                                     <span className="text-white/20 font-mono text-xs">#{String(ticket.id).split('-')[0]}</span>
                                 </div>
+                                {ticket.user_name && (
+                                    <p className="text-white/30 text-xs mb-1 font-medium">{ticket.user_name}{ticket.user_email ? ` · ${ticket.user_email}` : ''}</p>
+                                )}
                                 <div className="flex items-center gap-4">
                                     <span className="text-white/40 text-xs font-bold uppercase tracking-widest">{ticket.service}</span>
                                     <div className="w-1 h-1 rounded-full bg-white/10" />

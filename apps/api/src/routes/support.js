@@ -30,10 +30,12 @@ const upload = multer({
   },
 });
 
-// Auto-migrate: add attachment_url column if missing
-pool.query(
-  "ALTER TABLE support_tickets ADD COLUMN attachment_url VARCHAR(500)"
-).catch(() => {}); // ignore if already exists
+// Auto-migrate: add missing columns on startup
+pool.query("ALTER TABLE support_tickets ADD COLUMN attachment_url VARCHAR(500)").catch(() => {});
+// Stored as a promise so handlers can await it before querying support_plan
+const ensureSupportPlan = pool.query(
+  "ALTER TABLE users ADD COLUMN support_plan ENUM('basic','pro','elite') DEFAULT NULL"
+).catch(() => {});
 
 const getResend = () => new Resend(process.env.RESEND_API_KEY || 're_placeholder');
 
@@ -385,13 +387,14 @@ router.get('/users', authenticateToken, async (req, res) => {
   try {
     const admin = await isAdminUser(req.user.id);
     if (!admin) return res.status(403).json({ error: 'Admin access required' });
+    await ensureSupportPlan;
     const [users] = await pool.query(
       'SELECT id, name, email, support_plan, created_at FROM users WHERE is_admin = 0 OR is_admin IS NULL ORDER BY created_at DESC'
     );
     res.status(200).json({ users });
   } catch (error) {
     console.error('Fetch users error:', error);
-    res.status(500).json({ error: 'Server error' });
+    res.status(500).json({ error: error.message || 'Server error' });
   }
 });
 
@@ -408,11 +411,12 @@ router.put('/users/:id/plan', authenticateToken, async (req, res) => {
       return res.status(400).json({ error: 'Invalid plan. Use basic, pro, elite, or null.' });
     }
 
+    await ensureSupportPlan;
     await pool.query('UPDATE users SET support_plan = ? WHERE id = ?', [plan || null, req.params.id]);
     res.status(200).json({ message: 'Support plan updated' });
   } catch (error) {
     console.error('Update plan error:', error);
-    res.status(500).json({ error: 'Server error updating plan' });
+    res.status(500).json({ error: error.message || 'Server error updating plan' });
   }
 });
 
@@ -445,6 +449,7 @@ router.post('/users', authenticateToken, async (req, res) => {
     const passwordHash = await bcrypt.hash(randomPassword, salt);
 
     // Insert user
+    await ensureSupportPlan;
     await pool.query(
       'INSERT INTO users (email, name, password_hash, support_plan, is_admin) VALUES (?, ?, ?, ?, FALSE)',
       [email, name || '', passwordHash, plan || null]
@@ -470,7 +475,7 @@ router.post('/users', authenticateToken, async (req, res) => {
     res.status(201).json({ message: 'Client created successfully' });
   } catch (error) {
     console.error('Create user error:', error);
-    res.status(500).json({ error: 'Server error creating client' });
+    res.status(500).json({ error: error.message || 'Server error creating client' });
   }
 });
 
