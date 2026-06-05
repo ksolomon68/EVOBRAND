@@ -411,8 +411,9 @@ const getEmailTemplate = (subject, content, campaignId = null, siteUrl = 'https:
   <!-- HEADER: Logo always stays here -->
   <div class="header">
     <img
-      src="https://evobrandconcepts.com/logo.png"
-      alt="EVOBRAND Concepts"
+      src="https://raw.githubusercontent.com/ksolomon68/EVOBRAND/main/apps/web/public/logo.png"
+      alt="EVOBRAND"
+      width="160"
       class="header-logo-img"
       onerror="this.style.display='none'; this.nextElementSibling.style.display='block';"
     />
