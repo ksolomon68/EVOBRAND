@@ -19,6 +19,11 @@ const cors = require('cors');
 const app = express();
 const PORT = process.env.PORT || 5000;
 
+// Stamped once at process startup so /api/health reflects the actual
+// running build/boot, not the time of each request.
+const API_VERSION = 'v4';
+const BOOTED_AT = new Date().toISOString();
+
 // Middleware
 app.use(cors());
 app.use(express.json());
@@ -31,7 +36,7 @@ app.use('/uploads', express.static(uploadsDir));
 
 // Basic health check endpoint
 app.get('/api/health', (req, res) => {
-  res.status(200).json({ status: 'ok', message: 'EVOBRAND API is running v3', deployed_at: new Date().toISOString() });
+  res.status(200).json({ status: 'ok', message: `EVOBRAND API is running ${API_VERSION}`, booted_at: BOOTED_AT, resend_from: process.env.RESEND_FROM_EMAIL || 'info@evobrand.net' });
 });
 
 app.get('/api/diag', (req, res) => {
