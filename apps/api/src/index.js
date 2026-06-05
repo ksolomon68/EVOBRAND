@@ -31,7 +31,21 @@ app.use('/uploads', express.static(uploadsDir));
 
 // Basic health check endpoint
 app.get('/api/health', (req, res) => {
-  res.status(200).json({ status: 'ok', message: 'EVOBRAND API is running v2' });
+  res.status(200).json({ status: 'ok', message: 'EVOBRAND API is running v3', deployed_at: new Date().toISOString() });
+});
+
+app.get('/api/diag', (req, res) => {
+  const routes = [];
+  app._router.stack.forEach(layer => {
+    if (layer.handle && layer.handle.stack) {
+      layer.handle.stack.forEach(r => {
+        if (r.route) routes.push(`${Object.keys(r.route.methods).join(',').toUpperCase()} ${layer.regexp} ${r.route.path}`);
+      });
+    }
+    if (layer.route) routes.push(`${Object.keys(layer.route.methods).join(',').toUpperCase()} ${layer.route.path}`);
+  });
+  const crmFile = (() => { try { return require('fs').readFileSync(__dirname + '/routes/crm.js', 'utf8').includes("router.delete('/campaigns/:id'") ? 'HAS_DELETE_ROUTE' : 'MISSING_DELETE_ROUTE'; } catch(e) { return e.message; } })();
+  res.json({ crmFile, routeCount: routes.length, crmRoutes: routes.filter(r => r.includes('crm') || r.includes('campaign') || r.includes('track')) });
 });
 
 app.get('/api/crash', (req, res) => {
