@@ -76,7 +76,7 @@ const OurWorkPage = () => {
       image: '/projects/breaking-silences.jpg',
       metrics: { roi: 'N/A', timeSaved: 'High', revenue: 'N/A' },
       description: 'A secure platform featuring live debates, discussion forums, and groups for free speech.',
-      link: 'https://evobrand.net/liberation'
+      link: 'https://breakingsilences.org/'
     },
     {
       id: 3,
