@@ -239,49 +239,58 @@ const OurWorkPage = () => {
         <section className="py-20 bg-[#0f1419]">
           <div className="container mx-auto px-4">
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-              {portfolioItems.map((item, index) => (
-                <motion.a
-                  href={item.link || '#'}
-                  target={item.link ? '_blank' : '_self'}
-                  rel="noopener noreferrer"
-                  key={item.id}
-                  initial={{ opacity: 0, y: 30 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: index * 0.1 }}
-                  whileHover={{ y: -10 }}
-                  className="bg-[#1a2332] rounded-xl overflow-hidden cursor-pointer group block"
-                >
-                  <div className="relative h-48 overflow-hidden">
-                    <img
-                      src={item.image}
-                      alt={item.title}
-                      className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
-                    />
-                    <div className="absolute top-4 right-4 bg-[#22c8e5] text-white px-3 py-1 rounded-full text-xs font-semibold">
-                      {item.category}
-                    </div>
-                  </div>
-                  <div className="p-6">
-                    <h3 className="text-xl font-bold text-white mb-2">{item.title}</h3>
-                    <p className="text-gray-400 text-sm mb-4">{item.description}</p>
-                    <div className="grid grid-cols-3 gap-2 mb-4">
-                      <div className="bg-[#0f1419] p-2 rounded text-center">
-                        <p className="text-xs text-gray-500">ROI</p>
-                        <p className="text-[#22c8e5] font-bold">{item.metrics.roi}</p>
-                      </div>
-                      <div className="bg-[#0f1419] p-2 rounded text-center">
-                        <p className="text-xs text-gray-500">Time Saved</p>
-                        <p className="text-[#22c8e5] font-bold">{item.metrics.timeSaved}</p>
-                      </div>
-                      <div className="bg-[#0f1419] p-2 rounded text-center">
-                        <p className="text-xs text-gray-500">Revenue</p>
-                        <p className="text-[#22c8e5] font-bold">{item.metrics.revenue}</p>
+              {portfolioItems.map((item, index) => {
+                const cardProps = {
+                  key: item.id,
+                  initial: { opacity: 0, y: 30 },
+                  animate: { opacity: 1, y: 0 },
+                  transition: { delay: index * 0.1 },
+                  whileHover: { y: -10 },
+                  className: `bg-[#1a2332] rounded-xl overflow-hidden group block ${item.link ? 'cursor-pointer' : 'cursor-default'}`,
+                };
+                const inner = (
+                  <>
+                    <div className="relative h-48 overflow-hidden">
+                      <img
+                        src={item.image}
+                        alt={item.title}
+                        className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
+                      />
+                      <div className="absolute top-4 right-4 bg-[#22c8e5] text-white px-3 py-1 rounded-full text-xs font-semibold">
+                        {item.category}
                       </div>
                     </div>
-                    <span className="text-xs text-gray-500">{item.industry}</span>
-                  </div>
-                </motion.a>
-              ))}
+                    <div className="p-6">
+                      <h3 className="text-xl font-bold text-white mb-2">{item.title}</h3>
+                      <p className="text-gray-400 text-sm mb-4">{item.description}</p>
+                      <div className="grid grid-cols-3 gap-2 mb-4">
+                        <div className="bg-[#0f1419] p-2 rounded text-center">
+                          <p className="text-xs text-gray-500">ROI</p>
+                          <p className="text-[#22c8e5] font-bold">{item.metrics.roi}</p>
+                        </div>
+                        <div className="bg-[#0f1419] p-2 rounded text-center">
+                          <p className="text-xs text-gray-500">Time Saved</p>
+                          <p className="text-[#22c8e5] font-bold">{item.metrics.timeSaved}</p>
+                        </div>
+                        <div className="bg-[#0f1419] p-2 rounded text-center">
+                          <p className="text-xs text-gray-500">Revenue</p>
+                          <p className="text-[#22c8e5] font-bold">{item.metrics.revenue}</p>
+                        </div>
+                      </div>
+                      <span className="text-xs text-gray-500">{item.industry}</span>
+                    </div>
+                  </>
+                );
+                return item.link ? (
+                  <motion.a {...cardProps} href={item.link} target="_blank" rel="noopener noreferrer">
+                    {inner}
+                  </motion.a>
+                ) : (
+                  <motion.div {...cardProps}>
+                    {inner}
+                  </motion.div>
+                );
+              })}
             </div>
           </div>
         </section>
