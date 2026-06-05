@@ -26,7 +26,7 @@ const OurWorkPage = () => {
       image: '/projects/chamberos.png',
       metrics: { roi: '12+ Hours/Wk', timeSaved: '19 Modules', revenue: '$0 Setup' },
       description: 'Stop running your chamber on spreadsheets. The all-in-one platform built to automate dues, events, governance, advocacy, and member engagement.',
-      link: 'https://evobrand.net/chamberos'
+      link: 'https://evobrand.net/chambercore'
     },
     {
       id: 103,
@@ -55,7 +55,8 @@ const OurWorkPage = () => {
       industry: 'Retail',
       image: '/projects/true-releaf.jpg',
       metrics: { roi: 'Growth', timeSaved: 'Efficient', revenue: 'Sales' },
-      description: 'Serving Only the Best. Premium CBD/Hemp Store with a focus on quality and customer education.'
+      description: 'Serving Only the Best. Premium CBD/Hemp Store with a focus on quality and customer education.',
+      link: 'https://truereleafmonroe.com'
     },
     {
       id: 12,
@@ -73,7 +74,8 @@ const OurWorkPage = () => {
       industry: 'Community',
       image: '/projects/breaking-silences.jpg',
       metrics: { roi: 'N/A', timeSaved: 'High', revenue: 'N/A' },
-      description: 'A secure platform featuring live debates, discussion forums, and groups for free speech.'
+      description: 'A secure platform featuring live debates, discussion forums, and groups for free speech.',
+      link: 'https://evobrand.net/liberation'
     },
     {
       id: 3,
@@ -109,7 +111,8 @@ const OurWorkPage = () => {
       industry: 'Community',
       image: '/projects/esoteric-kings.jpg',
       metrics: { roi: 'Membership', timeSaved: 'Efficient', revenue: 'N/A' },
-      description: 'Championing Honor, Integrity, and Personal Growth through the timeless principles of Freemasonry.'
+      description: 'Championing Honor, Integrity, and Personal Growth through the timeless principles of Freemasonry.',
+      link: 'https://evobrand.net/ekd'
     },
     {
       id: 7,
@@ -118,7 +121,8 @@ const OurWorkPage = () => {
       industry: 'Healthcare',
       image: '/projects/nela-sickle-cell.jpg',
       metrics: { roi: 'Outreach', timeSaved: 'Managed', revenue: 'Donations' },
-      description: 'Northeast Louisiana Sickle Cell Anemia Foundation - Making a Difference Today.'
+      description: 'Northeast Louisiana Sickle Cell Anemia Foundation - Making a Difference Today.',
+      link: 'https://evobrand.net/NELA'
     },
     {
       id: 8,
@@ -136,7 +140,8 @@ const OurWorkPage = () => {
       industry: 'Community',
       image: '/projects/mid-cities-links.jpg',
       metrics: { roi: 'Service', timeSaved: 'Organized', revenue: 'Fundraising' },
-      description: 'Mid-Cities (TX) Chapter of The Links, Incorporated. Community service, leadership, and youth empowerment.'
+      description: 'Mid-Cities (TX) Chapter of The Links, Incorporated. Community service, leadership, and youth empowerment.',
+      link: 'https://evobrand.net/MidCityLinks'
     },
     {
       id: 10,
@@ -157,7 +162,8 @@ const OurWorkPage = () => {
       industry: 'Political',
       image: '/projects/zarate-for-ellis-county.jpg',
       metrics: { roi: 'Voters', timeSaved: 'Communication', revenue: 'Campaign' },
-      description: 'Jennifer Zarate for Ellis County District Clerk. Proven leadership and values.'
+      description: 'Jennifer Zarate for Ellis County District Clerk. Proven leadership and values.',
+      link: 'https://evobrand.net/jz'
     },
     {
       id: 17,
@@ -166,7 +172,8 @@ const OurWorkPage = () => {
       industry: 'Beauty & Wellness',
       image: '/projects/cutting-edge.jpg',
       metrics: { roi: 'Reservations', timeSaved: 'Management', revenue: 'Growth' },
-      description: 'Precise. Crafted. Modern techniques with classic service.'
+      description: 'Precise. Crafted. Modern techniques with classic service.',
+      link: 'https://evobrand.net/cud'
     },
     {
       id: 18,
