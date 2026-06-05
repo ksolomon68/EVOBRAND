@@ -138,6 +138,15 @@ const OurWorkPage = () => {
       description: 'Mid-Cities (TX) Chapter of The Links, Incorporated. Community service, leadership, and youth empowerment.',
       link: 'https://evobrand.net/MidCityLinks'
     },
+    {
+      id: 10,
+      title: 'Stiber Insurance Services',
+      category: 'Web Development',
+      industry: 'Insurance',
+      image: '/projects/stiber-insurance.jpg',
+      metrics: { roi: 'Quotes', timeSaved: 'Digital', revenue: 'Policy' },
+      description: 'Protecting What Matters Most Since 1985. Homeowners, Flood, Commercial, and Life insurance.'
+    }
   ];
 
   const newPortfolioItems = [
