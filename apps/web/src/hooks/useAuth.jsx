@@ -1,8 +1,8 @@
 import { useState, useEffect, createContext, useContext } from 'react';
 
 const AuthContext = createContext();
-const API_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' 
-  ? 'http://localhost:5000/api/auth' 
+const API_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+  ? 'http://localhost:5000/api/auth'
   : 'https://evobrandconcepts.com/api/auth';
 const TIMEOUT_MS = 10000;
 
@@ -13,12 +13,20 @@ function fetchWithTimeout(url, options = {}) {
     .finally(() => clearTimeout(timer));
 }
 
+function decodeToken(token) {
+  try {
+    const payload = JSON.parse(atob(token.split('.')[1]));
+    return payload.exp * 1000 > Date.now() ? payload : null;
+  } catch {
+    return null;
+  }
+}
+
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Check active session via JWT
     const checkSession = async () => {
       const token = localStorage.getItem('evobrand_token');
       if (!token) {
@@ -26,21 +34,38 @@ export const AuthProvider = ({ children }) => {
         return;
       }
 
+      // Decode JWT locally first — if expired, clear and bail
+      const localPayload = decodeToken(token);
+      if (!localPayload) {
+        localStorage.removeItem('evobrand_token');
+        setLoading(false);
+        return;
+      }
+
+      // Set user immediately from token so the UI never flashes logged-out
+      setUser({
+        id: localPayload.id,
+        email: localPayload.email,
+        name: localPayload.name,
+        is_admin: localPayload.is_admin,
+      });
+
       try {
         const response = await fetchWithTimeout(`${API_URL}/me`, {
-          headers: {
-            'Authorization': `Bearer ${token}`
-          }
+          headers: { 'Authorization': `Bearer ${token}` }
         });
 
         if (response.ok) {
           const data = await response.json();
-          setUser(data.user);
-        } else {
-          // Token invalid or expired
+          setUser(data.user); // refresh with latest DB values
+        } else if (response.status === 401 || response.status === 403) {
+          // Token explicitly rejected — log out
           localStorage.removeItem('evobrand_token');
+          setUser(null);
         }
+        // 5xx or other transient errors: keep the user from the JWT above
       } catch (err) {
+        // Network / timeout: keep the user from the JWT above
         console.error('Session check failed:', err);
       } finally {
         setLoading(false);
