@@ -173,7 +173,7 @@ const OurWorkPage = () => {
       image: '/projects/cutting-edge.jpg',
       metrics: { roi: 'Reservations', timeSaved: 'Management', revenue: 'Growth' },
       description: 'Precise. Crafted. Modern techniques with classic service.',
-      link: 'https://evobrand.net/cud'
+      link: 'https://evobrand.net/sample/cutting%20edge'
     },
     {
       id: 18,
