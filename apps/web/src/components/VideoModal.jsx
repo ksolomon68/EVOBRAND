@@ -1,14 +1,18 @@
 
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X } from 'lucide-react';
 
 const VideoModal = ({ videoId, onClose }) => {
+  const closeButtonRef = useRef(null);
+
   useEffect(() => {
     const handleEsc = (e) => {
       if (e.key === 'Escape') onClose();
     };
     window.addEventListener('keydown', handleEsc);
+    // Move focus to close button when modal opens
+    if (closeButtonRef.current) closeButtonRef.current.focus();
     return () => window.removeEventListener('keydown', handleEsc);
   }, [onClose]);
 
@@ -22,6 +26,7 @@ const VideoModal = ({ videoId, onClose }) => {
         exit={{ opacity: 0 }}
         className="fixed inset-0 z-[100] flex items-center justify-center bg-black/90 backdrop-blur-sm p-4"
         onClick={onClose}
+        aria-hidden="true"
       >
         <motion.div
           initial={{ scale: 0.9, opacity: 0 }}
@@ -30,11 +35,16 @@ const VideoModal = ({ videoId, onClose }) => {
           transition={{ type: 'spring', damping: 25, stiffness: 300 }}
           className="relative w-full max-w-5xl aspect-video bg-black rounded-xl overflow-hidden shadow-2xl border border-white/10"
           onClick={(e) => e.stopPropagation()}
+          role="dialog"
+          aria-modal="true"
+          aria-label="Video player"
+          aria-hidden="false"
         >
           <button
+            ref={closeButtonRef}
             onClick={onClose}
-            className="absolute top-4 right-4 z-10 p-2 bg-black/50 hover:bg-white/20 text-white rounded-full transition-colors"
-            aria-label="Close modal"
+            className="absolute top-4 right-4 z-10 p-2 bg-black/50 hover:bg-white/20 text-white rounded-full transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#22c8e5]"
+            aria-label="Close video"
           >
             <X size={24} />
           </button>
