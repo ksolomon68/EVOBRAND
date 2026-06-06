@@ -3,6 +3,7 @@ const router = express.Router();
 const pool = require('../db/connection');
 const path = require('path');
 const fs = require('fs');
+const { addToCustomersList } = require('../utils/crmHelpers');
 const multer = require('multer');
 const { getEmailTemplate } = require('../utils/emailTemplate');
 const { Resend } = require('resend');
@@ -160,6 +161,10 @@ router.post('/ticket', upload.single('file'), async (req, res) => {
 
       await connection.commit();
       const ticketId = ticketResult.insertId;
+
+      // Auto-add ticket submitter to Customers CRM list
+      const nameParts = (name || '').split(' ');
+      await addToCustomersList(email, { firstName: nameParts[0], lastName: nameParts.slice(1).join(' ') || null });
 
       // Send Email Notifications
       try {
@@ -433,6 +438,16 @@ router.put('/users/:id/plan', authenticateToken, async (req, res) => {
 
     await ensureSupportPlan;
     await pool.query('UPDATE users SET support_plan = ? WHERE id = ?', [plan || null, req.params.id]);
+
+    // Auto-add to Customers CRM list when a plan is assigned (not when removed)
+    if (plan) {
+      const [users] = await pool.query('SELECT email, name FROM users WHERE id = ?', [req.params.id]);
+      if (users.length) {
+        const nameParts = (users[0].name || '').split(' ');
+        await addToCustomersList(users[0].email, { firstName: nameParts[0], lastName: nameParts.slice(1).join(' ') || null });
+      }
+    }
+
     res.status(200).json({ message: 'Support plan updated' });
   } catch (error) {
     console.error('Update plan error:', error);
@@ -474,6 +489,12 @@ router.post('/users', authenticateToken, async (req, res) => {
       'INSERT INTO users (email, name, password_hash, support_plan, is_admin) VALUES (?, ?, ?, ?, FALSE)',
       [email, name || '', passwordHash, plan || null]
     );
+
+    // Auto-add to Customers CRM list if created with a plan
+    if (plan) {
+      const nameParts = (name || '').split(' ');
+      await addToCustomersList(email, { firstName: nameParts[0], lastName: nameParts.slice(1).join(' ') || null });
+    }
 
     // Send Welcome Email
     try {

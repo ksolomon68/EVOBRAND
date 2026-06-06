@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const pool = require('../db/connection');
 const { authenticateToken, requireAdmin } = require('../middleware/auth');
+const { addToCustomersList } = require('../utils/crmHelpers');
 
 const ensureTable = async () => {
   await pool.query(`
@@ -140,6 +141,10 @@ router.post('/:id/sign', authenticateToken, async (req, res) => {
       'UPDATE contracts SET status = "signed", client_signature = ?, client_signed_at = NOW() WHERE id = ?',
       [signature.trim(), req.params.id]
     );
+
+    // Auto-add signer to Customers CRM list
+    const nameParts = (req.user.name || '').split(' ');
+    await addToCustomersList(req.user.email, { firstName: nameParts[0], lastName: nameParts.slice(1).join(' ') || null });
 
     try {
       await require('resend').Resend(process.env.RESEND_API_KEY).emails.send({
