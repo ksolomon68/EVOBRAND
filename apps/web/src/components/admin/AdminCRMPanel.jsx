@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Users, Mail, Plus, Trash2, Send, CheckCircle2, AlertCircle, Loader2, Eye, MousePointerClick } from 'lucide-react';
+import { Users, Mail, Plus, Trash2, Send, CheckCircle2, AlertCircle, Loader2, Eye, MousePointerClick, Pencil, X, Check } from 'lucide-react';
 
 const API_BASE = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' 
   ? 'http://localhost:5000' 
@@ -15,6 +15,7 @@ export default function AdminCRMPanel({ user }) {
   const [contacts, setContacts] = useState([]);
   const [filterList, setFilterList] = useState('');   // contacts filter dropdown
   const [targetList, setTargetList] = useState('');   // add contact form
+  const [editingContact, setEditingContact] = useState(null); // { id, first_name, last_name, list_id }
   const [loadingAudience, setLoadingAudience] = useState(false);
   const [newContact, setNewContact] = useState({ email: '', first_name: '', last_name: '' });
 
@@ -139,9 +140,35 @@ export default function AdminCRMPanel({ user }) {
         const data = await getJSONOrError(res);
         throw new Error(data.error || 'Failed to delete contact');
       }
-      fetchContacts(selectedList);
+      fetchContacts(filterList);
     } catch (err) {
       console.error('Error deleting contact:', err);
+    }
+  };
+
+  const handleUpdateContact = async () => {
+    if (!editingContact?.list_id) {
+      setError('Please select a list.');
+      return;
+    }
+    try {
+      const res = await fetch(`${API_BASE}/api/crm/contacts/${editingContact.id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          first_name: editingContact.first_name,
+          last_name: editingContact.last_name,
+          list_id: editingContact.list_id,
+        }),
+      });
+      const data = await getJSONOrError(res);
+      if (!res.ok) throw new Error(data.error || 'Failed to update contact');
+      setEditingContact(null);
+      setMessage('Contact updated!');
+      fetchContacts(filterList);
+      setTimeout(() => setMessage(''), 3000);
+    } catch (err) {
+      setError(err.message);
     }
   };
 
@@ -406,42 +433,104 @@ export default function AdminCRMPanel({ user }) {
                     </tr>
                   </thead>
                   <tbody>
-                    {contacts.map((contact) => (
-                      <tr key={contact.id} className="border-b border-white/5 hover:bg-white/5 transition-colors">
-                        <td className="p-4">
-                          <div className="flex items-center gap-3">
-                            <div className="w-8 h-8 rounded-full bg-[#22c8e5]/20 text-[#22c8e5] flex items-center justify-center font-bold text-xs flex-shrink-0">
-                              {contact.first_name ? contact.first_name[0].toUpperCase() : contact.email[0].toUpperCase()}
+                    {contacts.map((contact) => {
+                      const isEditing = editingContact?.id === contact.id;
+                      return (
+                        <tr key={contact.id} className={`border-b border-white/5 transition-colors ${isEditing ? 'bg-[#22c8e5]/5' : 'hover:bg-white/5'}`}>
+                          <td className="p-4">
+                            {isEditing ? (
+                              <div className="flex gap-2">
+                                <input
+                                  value={editingContact.first_name || ''}
+                                  onChange={(e) => setEditingContact({ ...editingContact, first_name: e.target.value })}
+                                  placeholder="First"
+                                  className="w-24 bg-[#1a2332] border border-white/20 rounded-lg px-2 py-1 text-white text-xs focus:outline-none focus:border-[#22c8e5]"
+                                />
+                                <input
+                                  value={editingContact.last_name || ''}
+                                  onChange={(e) => setEditingContact({ ...editingContact, last_name: e.target.value })}
+                                  placeholder="Last"
+                                  className="w-24 bg-[#1a2332] border border-white/20 rounded-lg px-2 py-1 text-white text-xs focus:outline-none focus:border-[#22c8e5]"
+                                />
+                              </div>
+                            ) : (
+                              <div className="flex items-center gap-3">
+                                <div className="w-8 h-8 rounded-full bg-[#22c8e5]/20 text-[#22c8e5] flex items-center justify-center font-bold text-xs flex-shrink-0">
+                                  {contact.first_name ? contact.first_name[0].toUpperCase() : contact.email[0].toUpperCase()}
+                                </div>
+                                <div>
+                                  <p className="text-sm font-bold text-white">
+                                    {contact.first_name || contact.last_name ? `${contact.first_name || ''} ${contact.last_name || ''}` : 'Unknown'}
+                                  </p>
+                                  <p className="text-xs text-white/40">{contact.email}</p>
+                                </div>
+                              </div>
+                            )}
+                          </td>
+                          <td className="p-4 text-sm text-white/70">
+                            {isEditing ? (
+                              <select
+                                value={editingContact.list_id}
+                                onChange={(e) => setEditingContact({ ...editingContact, list_id: e.target.value })}
+                                className="bg-[#1a2332] border border-white/20 rounded-lg px-2 py-1 text-white text-xs focus:outline-none focus:border-[#22c8e5]"
+                              >
+                                {lists.map(list => (
+                                  <option key={list.id} value={list.id} className="bg-[#1a2332] text-white">{list.name}</option>
+                                ))}
+                              </select>
+                            ) : (
+                              <span className="bg-white/10 px-2 py-1 rounded-2xl text-xs">{contact.list_name}</span>
+                            )}
+                          </td>
+                          <td className="p-4">
+                            <span className={`text-[10px] font-bold uppercase tracking-wider px-2 py-1 rounded-full ${
+                              contact.status === 'subscribed' ? 'bg-emerald-500/20 text-emerald-400' : 'bg-red-500/20 text-red-400'
+                            }`}>
+                              {contact.status}
+                            </span>
+                          </td>
+                          <td className="p-4 text-right">
+                            <div className="flex items-center justify-end gap-1">
+                              {isEditing ? (
+                                <>
+                                  <button
+                                    onClick={handleUpdateContact}
+                                    className="p-2 text-emerald-400 hover:bg-emerald-400/10 rounded-lg transition-colors"
+                                    title="Save"
+                                  >
+                                    <Check size={16} />
+                                  </button>
+                                  <button
+                                    onClick={() => setEditingContact(null)}
+                                    className="p-2 text-white/40 hover:text-white hover:bg-white/10 rounded-lg transition-colors"
+                                    title="Cancel"
+                                  >
+                                    <X size={16} />
+                                  </button>
+                                </>
+                              ) : (
+                                <>
+                                  <button
+                                    onClick={() => setEditingContact({ id: contact.id, first_name: contact.first_name || '', last_name: contact.last_name || '', list_id: contact.list_id })}
+                                    className="p-2 text-white/40 hover:text-[#22c8e5] hover:bg-[#22c8e5]/10 rounded-lg transition-colors"
+                                    title="Edit Contact"
+                                  >
+                                    <Pencil size={16} />
+                                  </button>
+                                  <button
+                                    onClick={() => handleDeleteContact(contact.id)}
+                                    className="p-2 text-white/40 hover:text-red-400 hover:bg-red-400/10 rounded-lg transition-colors"
+                                    title="Delete Contact"
+                                  >
+                                    <Trash2 size={16} />
+                                  </button>
+                                </>
+                              )}
                             </div>
-                            <div>
-                              <p className="text-sm font-bold text-white">
-                                {contact.first_name || contact.last_name ? `${contact.first_name || ''} ${contact.last_name || ''}` : 'Unknown'}
-                              </p>
-                              <p className="text-xs text-white/40">{contact.email}</p>
-                            </div>
-                          </div>
-                        </td>
-                        <td className="p-4 text-sm text-white/70">
-                          <span className="bg-white/10 px-2 py-1 rounded-2xl text-xs">{contact.list_name}</span>
-                        </td>
-                        <td className="p-4">
-                          <span className={`text-[10px] font-bold uppercase tracking-wider px-2 py-1 rounded-full ${
-                            contact.status === 'subscribed' ? 'bg-emerald-500/20 text-emerald-400' : 'bg-red-500/20 text-red-400'
-                          }`}>
-                            {contact.status}
-                          </span>
-                        </td>
-                        <td className="p-4 text-right">
-                          <button 
-                            onClick={() => handleDeleteContact(contact.id)}
-                            className="p-2 text-white/40 hover:text-red-400 hover:bg-red-400/10 rounded-lg transition-colors"
-                            title="Delete Contact"
-                          >
-                            <Trash2 size={16} />
-                          </button>
-                        </td>
-                      </tr>
-                    ))}
+                          </td>
+                        </tr>
+                      );
+                    })}
                   </tbody>
                 </table>
               )}

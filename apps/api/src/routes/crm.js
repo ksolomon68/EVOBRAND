@@ -87,6 +87,25 @@ router.post('/contacts', async (req, res) => {
   }
 });
 
+// Update a contact (list, name)
+router.put('/contacts/:id', async (req, res) => {
+  const { id } = req.params;
+  const { first_name, last_name, list_id } = req.body;
+  if (!list_id) {
+    return res.status(400).json({ error: 'List ID is required' });
+  }
+  try {
+    await pool.query(
+      'UPDATE crm_contacts SET first_name = ?, last_name = ?, list_id = ? WHERE id = ?',
+      [first_name || null, last_name || null, list_id, id]
+    );
+    res.json({ success: true, message: 'Contact updated successfully' });
+  } catch (error) {
+    console.error('Error updating CRM contact:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
 // Delete a contact
 router.delete('/contacts/:id', async (req, res) => {
   const { id } = req.params;
