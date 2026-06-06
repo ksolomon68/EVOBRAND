@@ -3,7 +3,7 @@ import { AnimatePresence, motion } from 'framer-motion';
 import SEO from '@/components/SEO.jsx';
 import {
   LayoutDashboard, Plus, LogOut, Ticket, Bell,
-  Loader2, Calendar, ShieldCheck, Users, FileText, Menu, X, CheckCircle2, AlertCircle
+  Loader2, Calendar, ShieldCheck, Users, FileText, Menu, X, CheckCircle2, AlertCircle, BarChart2
 } from 'lucide-react';
 import TicketList from '../components/portal/TicketList';
 import NewTicketForm from '../components/portal/NewTicketForm';
@@ -17,6 +17,7 @@ import ContractBuilderPanel from '../components/admin/ContractBuilderPanel';
 import AdminBlackoutPanel from '../components/admin/AdminBlackoutPanel';
 import AdminContactFormsPanel from '../components/admin/AdminContactFormsPanel';
 import MyContractsPanel from '../components/portal/MyContractsPanel';
+import AdminAnalyticsPanel from '../components/admin/AdminAnalyticsPanel';
 import { useAuth } from '../hooks/useAuth.jsx';
 import { useNavigate, useLocation } from 'react-router-dom';
 
@@ -65,6 +66,7 @@ function Sidebar({ user, view, setView, setSelectedTicket, openTicketCount, hand
     { key: 'meetings', icon: Calendar, label: 'My Meetings' },
     { key: 'my-contracts', icon: FileText, label: 'My Contracts' },
     ...(isAdmin ? [
+      { key: 'analytics', icon: BarChart2, label: 'Analytics' },
       { key: 'admin', icon: ShieldCheck, label: 'Support Tickets' },
       { key: 'client-plans', icon: Users, label: 'Client Plans' },
       { key: 'contact-forms', icon: ShieldCheck, label: 'Contact Forms' },
@@ -594,6 +596,19 @@ const ClientPortalPage = () => {
                     transition={{ duration: 0.25 }}
                   >
                     <MyMeetings userId={user?.id} />
+                  </motion.div>
+                )}
+
+                {/* ── Analytics Panel (admin) ── */}
+                {view === 'analytics' && (
+                  <motion.div
+                    key="analytics"
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -10 }}
+                    transition={{ duration: 0.2 }}
+                  >
+                    <AdminAnalyticsPanel />
                   </motion.div>
                 )}
 

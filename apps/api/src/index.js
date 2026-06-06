@@ -63,7 +63,7 @@ app.get('/api/crash', (req, res) => {
 });
 
 // Import Routes
-let supportRoutes, newsletterRoutes, schedulerRoutes, auditorRoutes, authRoutes, crmRoutes, contractRoutes, notificationRoutes, contactsRoutes, paymentsRoutes;
+let supportRoutes, newsletterRoutes, schedulerRoutes, auditorRoutes, authRoutes, crmRoutes, contractRoutes, notificationRoutes, contactsRoutes, paymentsRoutes, analyticsRoutes;
 
 const loadRoute = (name, path) => {
   try {
@@ -89,6 +89,7 @@ contractRoutes = loadRoute('contracts', './routes/contracts');
 notificationRoutes = loadRoute('notifications', './routes/notifications');
 contactsRoutes = loadRoute('contacts', './routes/contacts');
 paymentsRoutes = loadRoute('payments', './routes/payments');
+analyticsRoutes = loadRoute('analytics', './routes/analytics');
 
 app.get('/api/install', (req, res) => {
   try {
@@ -129,6 +130,7 @@ if (auditorRoutes) app.use('/api/auditor', auditorRoutes);
 if (contractRoutes) app.use('/api/contracts', contractRoutes);
 if (notificationRoutes) app.use('/api/notifications', notificationRoutes);
 if (paymentsRoutes) app.use('/api/payments', paymentsRoutes);
+if (analyticsRoutes) app.use('/api/analytics', analyticsRoutes);
 
 // cPanel Passenger often strips the Application URL prefix from requests.
 // We mount them at the root as well so they work on the live server.
@@ -142,6 +144,7 @@ if (contactsRoutes) app.use('/contacts', contactsRoutes);
 if (contractRoutes) app.use('/contracts', contractRoutes);
 if (notificationRoutes) app.use('/notifications', notificationRoutes);
 if (paymentsRoutes) app.use('/payments', paymentsRoutes);
+if (analyticsRoutes) app.use('/analytics', analyticsRoutes);
 
 // Scheduled Tasks
 // Run every 6 hours to auto-close inactive tickets
