@@ -41,19 +41,35 @@ const SITE_URL = process.env.SITE_URL || 'https://evobrandconcepts.com';
       await pool.query(`DELETE FROM crm_lists WHERE id = ?`, [badId]);
     }
 
-    // Remove from every other CRM list anyone who is already in Customers
+    // Move newsletter-only subscribers OUT of Customers → Newsletter Admin.
+    // These ended up in Customers when the old Newsletter list (id=1) was merged.
+    const [nlRows] = await pool.query(`SELECT id FROM crm_lists WHERE name = 'Newsletter Admin' LIMIT 1`);
+    if (nlRows.length > 0) {
+      const nlId = nlRows[0].id;
+      // Add them to Newsletter Admin
+      await pool.query(`
+        INSERT INTO crm_contacts (email, list_id, status)
+        SELECT ns.email, ?, 'subscribed'
+        FROM newsletter_subscribers ns
+        JOIN crm_contacts cc ON ns.email = cc.email
+        JOIN crm_lists l ON cc.list_id = l.id AND l.name = 'Customers'
+        ON DUPLICATE KEY UPDATE status = 'subscribed'
+      `, [nlId]);
+      // Remove them from Customers
+      await pool.query(`
+        DELETE cc FROM crm_contacts cc
+        JOIN newsletter_subscribers ns ON cc.email = ns.email
+        JOIN crm_lists l ON cc.list_id = l.id AND l.name = 'Customers'
+      `);
+    }
+
+    // Remove from every other CRM list anyone who is a confirmed Customer
+    // (real customers added via contract, ticket, or plan — not newsletter migration)
     await pool.query(`
       DELETE c1 FROM crm_contacts c1
       JOIN crm_contacts c2 ON c1.email = c2.email
       JOIN crm_lists l ON c2.list_id = l.id AND l.name = 'Customers'
       WHERE c1.list_id != c2.list_id
-    `);
-
-    // Remove from newsletter_subscribers anyone who is already in the Customers CRM list
-    await pool.query(`
-      DELETE ns FROM newsletter_subscribers ns
-      JOIN crm_contacts cc ON ns.email = cc.email
-      JOIN crm_lists l ON cc.list_id = l.id AND l.name = 'Customers'
     `);
   } catch (err) {
     console.error('Could not run list migrations:', err.message);
