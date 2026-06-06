@@ -182,7 +182,21 @@ const HomePage = () => {
               className="text-center mb-12"
             >
               <h2 className="text-4xl md:text-5xl font-bold text-white mb-4">Trusted by 600+ Businesses</h2>
-              <p className="text-xl text-gray-400">Join industry leaders who trust EVOBRAND</p>
+              <p className="text-xl text-gray-400 mb-8">Join industry leaders who trust EVOBRAND</p>
+              <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                <Link
+                  to="/services"
+                  className="px-8 py-4 bg-[#22c8e5] text-[#003258] rounded-2xl font-bold hover:shadow-lg hover:shadow-[#22c8e5]/50 hover:bg-opacity-90 transition-all text-center"
+                >
+                  Explore Our Services
+                </Link>
+                <Link
+                  to="/contact"
+                  className="px-8 py-4 border-2 border-[#22c8e5] text-[#22c8e5] rounded-2xl font-bold hover:bg-[#22c8e5] hover:text-[#003258] transition-all text-center"
+                >
+                  Get Started Today
+                </Link>
+              </div>
             </motion.div>
           </div>
         </section>
