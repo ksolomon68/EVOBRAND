@@ -17,6 +17,26 @@ const SITE_URL = process.env.SITE_URL || 'https://evobrandconcepts.com';
       WHERE NOT EXISTS (SELECT 1 FROM crm_lists WHERE name = 'Customers')
     `);
 
+    // Ensure "Evobrand newsletter" list exists. Rename "Newsletter Admin" if present,
+    // otherwise create it so newsletter subscribers always have a proper home.
+    const [nlAdminRows] = await pool.query(`SELECT id FROM crm_lists WHERE name = 'Newsletter Admin' LIMIT 1`);
+    if (nlAdminRows.length > 0) {
+      await pool.query(`UPDATE crm_lists SET name = 'Evobrand newsletter' WHERE id = ?`, [nlAdminRows[0].id]);
+    } else {
+      await pool.query(`
+        INSERT INTO crm_lists (name)
+        SELECT 'Evobrand newsletter' FROM DUAL
+        WHERE NOT EXISTS (SELECT 1 FROM crm_lists WHERE name LIKE '%newsletter%')
+      `);
+    }
+
+    // Ensure "Leads" list exists
+    await pool.query(`
+      INSERT INTO crm_lists (name)
+      SELECT 'Leads' FROM DUAL
+      WHERE NOT EXISTS (SELECT 1 FROM crm_lists WHERE name = 'Leads')
+    `);
+
     // Merge any "Customer" or "Custom" list into "Customers" then delete it
     const [[{ customersId }]] = await pool.query(
       `SELECT id AS customersId FROM crm_lists WHERE name = 'Customers' LIMIT 1`
@@ -27,26 +47,21 @@ const SITE_URL = process.env.SITE_URL || 'https://evobrandconcepts.com';
       );
       if (!rows.length) continue;
       const badId = rows[0].id;
-      // Remove duplicates (contacts already in Customers)
       await pool.query(`
         DELETE c1 FROM crm_contacts c1
         INNER JOIN crm_contacts c2 ON c1.email = c2.email AND c2.list_id = ?
         WHERE c1.list_id = ?
       `, [customersId, badId]);
-      // Move the rest
       await pool.query(
         `UPDATE crm_contacts SET list_id = ? WHERE list_id = ?`, [customersId, badId]
       );
-      // Delete the stale list
       await pool.query(`DELETE FROM crm_lists WHERE id = ?`, [badId]);
     }
 
-    // Move newsletter-only subscribers OUT of Customers → Newsletter Admin.
-    // These ended up in Customers when the old Newsletter list (id=1) was merged.
-    const [nlRows] = await pool.query(`SELECT id FROM crm_lists WHERE name = 'Newsletter Admin' LIMIT 1`);
+    // Move newsletter-only subscribers OUT of Customers → Evobrand newsletter.
+    const [nlRows] = await pool.query(`SELECT id FROM crm_lists WHERE name LIKE '%newsletter%' LIMIT 1`);
     if (nlRows.length > 0) {
       const nlId = nlRows[0].id;
-      // Add them to Newsletter Admin
       await pool.query(`
         INSERT INTO crm_contacts (email, list_id, status)
         SELECT ns.email, ?, 'subscribed'
@@ -55,7 +70,6 @@ const SITE_URL = process.env.SITE_URL || 'https://evobrandconcepts.com';
         JOIN crm_lists l ON cc.list_id = l.id AND l.name = 'Customers'
         ON DUPLICATE KEY UPDATE status = 'subscribed'
       `, [nlId]);
-      // Remove them from Customers
       await pool.query(`
         DELETE cc FROM crm_contacts cc
         JOIN newsletter_subscribers ns ON cc.email = ns.email
@@ -109,8 +123,8 @@ const SITE_URL = process.env.SITE_URL || 'https://evobrandconcepts.com';
 // --- ADMIN CLEANUP ---
 router.post('/admin/cleanup-lists', async (req, res) => {
   try {
-    // Step 1: Move newsletter subscribers out of Customers → Newsletter Admin
-    const [nlRows] = await pool.query(`SELECT id FROM crm_lists WHERE name = 'Newsletter Admin' LIMIT 1`);
+    // Step 1: Move newsletter subscribers out of Customers → Evobrand newsletter
+    const [nlRows] = await pool.query(`SELECT id, name FROM crm_lists WHERE name LIKE '%newsletter%' LIMIT 1`);
     let moved = 0;
     if (nlRows.length > 0) {
       const nlId = nlRows[0].id;
@@ -138,7 +152,8 @@ router.post('/admin/cleanup-lists', async (req, res) => {
       WHERE c1.list_id != c2.list_id
     `);
 
-    res.json({ success: true, message: `Moved ${moved} newsletter subscriber(s) to Newsletter Admin. Removed ${dedup.affectedRows} duplicate(s) from other lists.` });
+    const nlName = nlRows.length > 0 ? nlRows[0].name : 'newsletter list';
+    res.json({ success: true, message: `Moved ${moved} newsletter subscriber(s) to ${nlName}. Removed ${dedup.affectedRows} duplicate(s) from other lists.` });
   } catch (err) {
     console.error('Cleanup error:', err);
     res.status(500).json({ error: err.message });

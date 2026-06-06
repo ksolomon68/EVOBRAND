@@ -147,10 +147,10 @@ async function initializeDatabase() {
       )
     `);
 
-    // Ensure core lists exist (Newsletter Admin and Leads by fixed id, Customers by name)
+    // Ensure core lists exist (Evobrand newsletter and Leads by fixed id, Customers by name)
     await pool.query(`
       INSERT INTO crm_lists (id, name) VALUES
-      (2, 'Newsletter Admin'),
+      (2, 'Evobrand newsletter'),
       (3, 'Leads')
       ON DUPLICATE KEY UPDATE name = VALUES(name)
     `);
