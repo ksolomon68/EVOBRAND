@@ -205,40 +205,67 @@ router.delete('/campaigns/:id', async (req, res) => {
   }
 });
 
-// Send a campaign
+const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+
+// Send a campaign — one individual email per subscriber for deliverability and accurate tracking
 router.post('/campaigns/:id/send', async (req, res) => {
   const { id } = req.params;
-  
+
   try {
-    // 1. Get the campaign
     const [campaignRows] = await pool.query('SELECT * FROM crm_campaigns WHERE id = ? AND status = "draft"', [id]);
     if (campaignRows.length === 0) {
       return res.status(404).json({ error: 'Campaign not found or already sent' });
     }
     const campaign = campaignRows[0];
-    
-    // 2. Get the subscribers for that list
-    const [contacts] = await pool.query('SELECT * FROM crm_contacts WHERE list_id = ? AND status = "subscribed"', [campaign.list_id]);
-    
+
+    const [contacts] = await pool.query(
+      'SELECT * FROM crm_contacts WHERE list_id = ? AND status = "subscribed"',
+      [campaign.list_id]
+    );
     if (contacts.length === 0) {
       return res.status(400).json({ error: 'No active subscribers found in this list' });
     }
-    
-    const emails = contacts.map(c => c.email);
-    
-    // 3. Send emails with tracking injected
-    await getResend().emails.send({
-      from: `"EVOBRAND" <${process.env.RESEND_FROM_EMAIL || 'info@evobrand.net'}>`,
-      to: ['info@evobrand.net'], // Resend requires at least one 'to' address
-      bcc: emails, // Send as BCC so recipients don't see each other
-      subject: campaign.subject,
-      html: getEmailTemplate(campaign.subject, campaign.html_content, campaign.id, SITE_URL),
+
+    const from = `"EVOBRAND" <${process.env.RESEND_FROM_EMAIL || 'info@evobrand.net'}>`;
+    const resend = getResend();
+    const html = getEmailTemplate(campaign.subject, campaign.html_content, campaign.id, SITE_URL);
+    let sent = 0;
+    let failed = 0;
+    const errors = [];
+
+    for (let i = 0; i < contacts.length; i++) {
+      const contact = contacts[i];
+      try {
+        await resend.emails.send({
+          from,
+          to: [contact.email],
+          subject: campaign.subject,
+          html,
+        });
+        sent++;
+      } catch (emailErr) {
+        failed++;
+        errors.push({ email: contact.email, error: emailErr.message });
+        console.error(`Campaign ${id}: failed to send to ${contact.email}:`, emailErr.message);
+      }
+      // 150ms gap keeps sends under ~6/sec — safe for Resend free and pro tiers
+      if (i < contacts.length - 1) await sleep(150);
+    }
+
+    if (sent > 0) {
+      await pool.query(
+        'UPDATE crm_campaigns SET status = "sent", sent_at = CURRENT_TIMESTAMP WHERE id = ?',
+        [id]
+      );
+    }
+
+    res.json({
+      success: sent > 0,
+      message: `Sent to ${sent} of ${contacts.length} subscriber${contacts.length !== 1 ? 's' : ''}${failed > 0 ? ` — ${failed} failed` : ''}`,
+      sent,
+      failed,
+      ...(errors.length > 0 && { errors }),
     });
-    
-    // 4. Mark campaign as sent
-    await pool.query('UPDATE crm_campaigns SET status = "sent", sent_at = CURRENT_TIMESTAMP WHERE id = ?', [id]);
-    
-    res.json({ success: true, message: `Campaign sent successfully to ${emails.length} subscribers` });
   } catch (error) {
     console.error('Error sending CRM campaign:', error);
     res.status(500).json({ error: 'Failed to send campaign', details: error.message });
