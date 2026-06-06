@@ -205,29 +205,28 @@ router.delete('/campaigns/:id', async (req, res) => {
   }
 });
 
-// Send a campaign
+// Send a campaign — one individual email per subscriber for deliverability and accurate tracking
 router.post('/campaigns/:id/send', async (req, res) => {
   const { id } = req.params;
-  
+
   try {
-    // 1. Get the campaign
     const [campaignRows] = await pool.query('SELECT * FROM crm_campaigns WHERE id = ? AND status = "draft"', [id]);
     if (campaignRows.length === 0) {
       return res.status(404).json({ error: 'Campaign not found or already sent' });
     }
     const campaign = campaignRows[0];
-    
-    // 2. Get the subscribers for that list
-    const [contacts] = await pool.query('SELECT * FROM crm_contacts WHERE list_id = ? AND status = "subscribed"', [campaign.list_id]);
-    
+
+    const [contacts] = await pool.query(
+      'SELECT * FROM crm_contacts WHERE list_id = ? AND status = "subscribed"',
+      [campaign.list_id]
+    );
     if (contacts.length === 0) {
       return res.status(400).json({ error: 'No active subscribers found in this list' });
     }
-    
+
     const emails = contacts.map(c => c.email);
-    
-    // 3. Send emails using Resend Batch API
-    // Resend batch sending allows up to 100 emails per API request
+
+    // Send via Resend Batch API — up to 100 per request, individual sends per subscriber
     const batchSize = 100;
     for (let i = 0; i < emails.length; i += batchSize) {
       const emailChunk = emails.slice(i, i + batchSize);
@@ -239,11 +238,10 @@ router.post('/campaigns/:id/send', async (req, res) => {
       }));
       await getResend().batch.send(batchPayload);
     }
-    
-    // 4. Mark campaign as sent
+
     await pool.query('UPDATE crm_campaigns SET status = "sent", sent_at = CURRENT_TIMESTAMP WHERE id = ?', [id]);
-    
-    res.json({ success: true, message: `Campaign sent successfully to ${emails.length} subscribers` });
+
+    res.json({ success: true, message: `Campaign sent successfully to ${emails.length} subscriber${emails.length !== 1 ? 's' : ''}` });
   } catch (error) {
     console.error('Error sending CRM campaign:', error);
     res.status(500).json({ error: 'Failed to send campaign', details: error.message });
