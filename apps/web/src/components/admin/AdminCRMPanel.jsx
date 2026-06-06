@@ -309,14 +309,14 @@ export default function AdminCRMPanel({ user }) {
             <form onSubmit={handleAddContact} className="space-y-4">
               <div>
                 <label className="block text-xs font-bold text-white/40 uppercase tracking-wider mb-2">Target List</label>
-                <select 
+                <select
                   value={selectedList}
-                  onChange={(e) => setSelectedList(e.e.target.value)}
+                  onChange={(e) => setSelectedList(e.target.value)}
                   className="w-full bg-[#1a2332] border border-white/10 rounded-xl p-3 text-white text-sm focus:outline-none focus:border-[#22c8e5]"
                 >
-                  <option value="">Select a list...</option>
+                  <option value="" className="bg-[#1a2332] text-white">Select a list...</option>
                   {lists.map(list => (
-                    <option key={list.id} value={list.id}>{list.name}</option>
+                    <option key={list.id} value={list.id} className="bg-[#1a2332] text-white">{list.name}</option>
                   ))}
                 </select>
               </div>
@@ -374,14 +374,14 @@ export default function AdminCRMPanel({ user }) {
               
               <div className="flex items-center gap-2">
                 <span className="text-xs text-white/40 uppercase font-bold tracking-wider">Filter:</span>
-                <select 
+                <select
                   value={selectedList}
                   onChange={(e) => setSelectedList(e.target.value)}
-                  className="bg-transparent border border-white/10 rounded-lg px-3 py-1.5 text-white text-sm focus:outline-none focus:border-[#22c8e5]"
+                  className="bg-[#1a2332] border border-white/10 rounded-lg px-3 py-1.5 text-white text-sm focus:outline-none focus:border-[#22c8e5]"
                 >
-                  <option value="">All Lists</option>
+                  <option value="" className="bg-[#1a2332] text-white">All Lists</option>
                   {lists.map(list => (
-                    <option key={list.id} value={list.id}>{list.name}</option>
+                    <option key={list.id} value={list.id} className="bg-[#1a2332] text-white">{list.name}</option>
                   ))}
                 </select>
               </div>
@@ -476,15 +476,15 @@ export default function AdminCRMPanel({ user }) {
 
               <div>
                 <label className="block text-xs font-bold text-white/40 uppercase tracking-wider mb-2">Target Audience List *</label>
-                <select 
+                <select
                   required
                   value={newCampaign.list_id}
                   onChange={(e) => setNewCampaign({...newCampaign, list_id: e.target.value})}
                   className="w-full bg-[#1a2332] border border-white/10 rounded-xl p-3 text-white text-sm focus:outline-none focus:border-[#22c8e5]"
                 >
-                  <option value="">Select a list to send to...</option>
+                  <option value="" className="bg-[#1a2332] text-white">Select a list to send to...</option>
                   {lists.map(list => (
-                    <option key={list.id} value={list.id}>{list.name}</option>
+                    <option key={list.id} value={list.id} className="bg-[#1a2332] text-white">{list.name}</option>
                   ))}
                 </select>
               </div>
