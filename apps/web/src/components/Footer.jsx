@@ -10,6 +10,7 @@ const API_BASE = window.location.hostname === 'localhost' || window.location.hos
   : window.location.origin;
 
 const Footer = () => {
+  const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [status, setStatus] = useState('idle'); // idle, loading, success, error
   const [message, setMessage] = useState('');
@@ -22,12 +23,13 @@ const Footer = () => {
         const response = await fetch(`${API_BASE}/api/newsletter/subscribe`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ email }),
+          body: JSON.stringify({ name, email }),
         });
 
         if (response.ok) {
           setStatus('success');
           setMessage('Subscribed!');
+          setName('');
           setEmail('');
           setTimeout(() => {
             setStatus('idle');
@@ -123,6 +125,16 @@ const Footer = () => {
             <h3 className="text-lg font-semibold mb-4 text-[#22c8e5]">Newsletter</h3>
             <p className="text-gray-400 text-sm mb-4">Stay updated with AI trends and insights.</p>
             <form onSubmit={handleNewsletterSubmit} className="space-y-2">
+              <label htmlFor="footer-newsletter-name" className="sr-only">Name</label>
+              <input
+                id="footer-newsletter-name"
+                type="text"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                placeholder="Your name"
+                className="w-full px-4 py-2 bg-[#1a2332] text-white border border-gray-700 rounded-2xl focus:outline-none focus:border-[#22c8e5] text-sm"
+                required
+              />
               <label htmlFor="footer-newsletter-email" className="sr-only">Email address</label>
               <input
                 id="footer-newsletter-email"

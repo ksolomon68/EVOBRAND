@@ -101,10 +101,12 @@ async function initializeDatabase() {
       CREATE TABLE IF NOT EXISTS newsletter_subscribers (
         id INT AUTO_INCREMENT PRIMARY KEY,
         email VARCHAR(255) NOT NULL UNIQUE,
+        name VARCHAR(255),
         is_active BOOLEAN DEFAULT TRUE,
         subscribed_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       )
     `);
+    await pool.query(`ALTER TABLE newsletter_subscribers ADD COLUMN IF NOT EXISTS name VARCHAR(255)`).catch(() => {});
 
     // Create BlackoutDates table
     await pool.query(`

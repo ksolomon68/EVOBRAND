@@ -8,17 +8,23 @@ const { getEmailTemplate } = require('../utils/emailTemplate');
 // @route POST /api/newsletter/subscribe
 // @desc  Subscribe to newsletter
 router.post('/subscribe', async (req, res) => {
-  const { email } = req.body;
+  const { name, email } = req.body;
 
   if (!email) {
     return res.status(400).json({ error: 'Email is required' });
   }
 
+  const trimmedName = (name || '').trim();
+  const firstName = trimmedName ? trimmedName.split(/\s+/)[0] : null;
+  const lastName = trimmedName && trimmedName.includes(' ')
+    ? trimmedName.split(/\s+/).slice(1).join(' ')
+    : null;
+
   try {
     // Insert into database
     await pool.query(
-      'INSERT INTO newsletter_subscribers (email) VALUES (?) ON DUPLICATE KEY UPDATE is_active = TRUE',
-      [email]
+      'INSERT INTO newsletter_subscribers (email, name) VALUES (?, ?) ON DUPLICATE KEY UPDATE is_active = TRUE, name = COALESCE(VALUES(name), name)',
+      [email, trimmedName || null]
     );
 
     // Sync with CRM
@@ -36,8 +42,8 @@ router.post('/subscribe', async (req, res) => {
       }
 
       await pool.query(
-        'INSERT INTO crm_contacts (email, status, list_id) VALUES (?, "subscribed", ?) ON DUPLICATE KEY UPDATE status = "subscribed"',
-        [email, listId]
+        'INSERT INTO crm_contacts (email, first_name, last_name, status, list_id) VALUES (?, ?, ?, "subscribed", ?) ON DUPLICATE KEY UPDATE status = "subscribed", first_name = COALESCE(VALUES(first_name), first_name), last_name = COALESCE(VALUES(last_name), last_name)',
+        [email, firstName, lastName, listId]
       );
     } catch (crmError) {
       console.error('Failed to sync newsletter with CRM:', crmError);
@@ -49,7 +55,7 @@ router.post('/subscribe', async (req, res) => {
       to: email,
       subject: 'Welcome to EVOBRAND Insider!',
       html: getEmailTemplate('Welcome to EVOBRAND Insider!', `
-          <p>Hi there,</p>
+          <p>Hi ${firstName || 'there'},</p>
           <p>Thank you for subscribing to our newsletter! You'll be the first to know about our latest insights on Enterprise AI, Accessibility, and elite Web Development.</p>
           <p>Stay tuned for our upcoming updates.</p>
           <br/>
