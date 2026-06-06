@@ -11,6 +11,10 @@ async function addToCustomersList(email, { firstName = null, lastName = null } =
        ON DUPLICATE KEY UPDATE status = 'subscribed'`,
       [email, firstName || null, lastName || null, listId]
     );
+    // Remove from every other CRM list — Customers is the final state
+    await pool.query(`DELETE FROM crm_contacts WHERE email = ? AND list_id != ?`, [email, listId]);
+    // Remove from newsletter_subscribers too
+    await pool.query(`DELETE FROM newsletter_subscribers WHERE email = ?`, [email]);
   } catch (err) {
     console.error('Failed to add to Customers CRM list:', err.message);
   }

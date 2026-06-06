@@ -41,6 +41,14 @@ const SITE_URL = process.env.SITE_URL || 'https://evobrandconcepts.com';
       await pool.query(`DELETE FROM crm_lists WHERE id = ?`, [badId]);
     }
 
+    // Remove from every other CRM list anyone who is already in Customers
+    await pool.query(`
+      DELETE c1 FROM crm_contacts c1
+      JOIN crm_contacts c2 ON c1.email = c2.email
+      JOIN crm_lists l ON c2.list_id = l.id AND l.name = 'Customers'
+      WHERE c1.list_id != c2.list_id
+    `);
+
     // Remove from newsletter_subscribers anyone who is already in the Customers CRM list
     await pool.query(`
       DELETE ns FROM newsletter_subscribers ns
