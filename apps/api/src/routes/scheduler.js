@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const pool = require('../db/connection');
 const { getEmailTemplate } = require('../utils/emailTemplate');
+const { addToLeadsIfNew } = require('../utils/crmHelpers');
 const { Resend } = require('resend');
 const { createNotification, notifyAdmins } = require('../utils/notifications');
 const { authenticateToken } = require('../middleware/auth');
@@ -194,6 +195,12 @@ router.post('/book', async (req, res) => {
         finalEmail = uRows[0].email;
         finalName = uRows[0].name;
       }
+    }
+
+    // Add to Leads if not already on any CRM list
+    if (finalEmail) {
+      const nameParts = (finalName || '').split(' ');
+      await addToLeadsIfNew(finalEmail, { firstName: nameParts[0], lastName: nameParts.slice(1).join(' ') || null });
     }
 
     try {
