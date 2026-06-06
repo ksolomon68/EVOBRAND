@@ -1,34 +1,35 @@
-const GA_ID = import.meta.env.VITE_GA_MEASUREMENT_ID;
+const API_BASE = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+  ? 'http://localhost:5000/api/analytics'
+  : `${window.location.origin}/api/analytics`;
 
-function loadScript() {
-  if (!GA_ID || document.getElementById('ga-script')) return;
-
-  window.dataLayer = window.dataLayer || [];
-  window.gtag = function () { window.dataLayer.push(arguments); };
-  window.gtag('js', new Date());
-  window.gtag('config', GA_ID, { send_page_view: false });
-
-  const script = document.createElement('script');
-  script.id = 'ga-script';
-  script.src = `https://www.googletagmanager.com/gtag/js?id=${GA_ID}`;
-  script.async = true;
-  document.head.appendChild(script);
+function getSessionId() {
+  const key = 'evo_sid';
+  let sid = sessionStorage.getItem(key);
+  if (!sid) {
+    sid = Math.random().toString(36).slice(2) + Date.now().toString(36);
+    sessionStorage.setItem(key, sid);
+  }
+  return sid;
 }
 
 export function initAnalytics() {
-  loadScript();
+  // no-op — tracking is handled via trackPageView calls
 }
 
 export function trackPageView(path, title) {
-  if (!GA_ID || !window.gtag) return;
-  window.gtag('event', 'page_view', {
-    page_path: path,
-    page_title: title,
-    send_to: GA_ID,
-  });
+  try {
+    navigator.sendBeacon(
+      `${API_BASE}`,
+      new Blob(
+        [JSON.stringify({ page_path: path, page_title: title, referrer: document.referrer, session_id: getSessionId() })],
+        { type: 'application/json' }
+      )
+    );
+  } catch {
+    // silent fail — never block the user
+  }
 }
 
 export function trackEvent(eventName, params = {}) {
-  if (!GA_ID || !window.gtag) return;
-  window.gtag('event', eventName, { ...params, send_to: GA_ID });
+  trackPageView(`/event/${eventName}`, JSON.stringify(params));
 }

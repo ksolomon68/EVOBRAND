@@ -9,7 +9,6 @@
     "install-dep": "node install_nodemailer.js"
   },
   "dependencies": {
-    "@google-analytics/data": "^4.9.0",
     "@google/generative-ai": "^0.24.1",
     "bcryptjs": "^3.0.3",
     "cors": "^2.8.5",
