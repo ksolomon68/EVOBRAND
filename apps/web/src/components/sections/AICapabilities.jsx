@@ -67,8 +67,8 @@ const AICapabilities = () => {
             </p>
             
             <div className="grid grid-cols-2 gap-6 mt-12">
-              <StatCounter target={140} label="Clients Served" suffix="+" />
-              <StatCounter target={380} label="Projects Delivered" suffix="+" />
+              <StatCounter target={680} label="Clients Served" suffix="+" />
+              <StatCounter target={975} label="Projects Delivered" suffix="+" />
               <StatCounter target={98} label="Client Retention" suffix="%" />
               <StatCounter target={26} label="Years of Innovation" />
             </div>
