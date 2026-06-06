@@ -6,6 +6,7 @@ import { motion } from 'framer-motion';
 import { Sparkles, Zap, FileText, Video, Code } from 'lucide-react';
 import HeroAnimation from '@/components/HeroAnimation.jsx';
 import HeroAmbient from '@/components/HeroAmbient.jsx';
+import AnimatedAuroraBackground from '@/components/AnimatedAuroraBackground.jsx';
 import VideoLibrarySection from '@/components/VideoLibrarySection.jsx';
 import AuditorSection from '@/components/sections/AuditorSection.jsx';
 import ServicesBuiltForScale from '@/components/sections/ServicesBuiltForScale.jsx';
@@ -191,8 +192,9 @@ const HomePage = () => {
         <AuditorSection />
 
         {/* Booking Section */}
-        <section id="booking" className="py-20 bg-[#0d0d18]">
-          <div className="container mx-auto px-4 max-w-xl">
+        <section id="booking" className="py-20 bg-[#0d0d18] relative overflow-hidden">
+          <AnimatedAuroraBackground />
+          <div className="container mx-auto px-4 max-w-xl relative z-10">
             <div className="text-center mb-12">
               <p className="text-[#22c8e5] text-xs font-bold tracking-[0.25em] uppercase mb-3">Schedule a Meeting</p>
               <h2 className="text-4xl md:text-5xl font-bold text-white mb-4">Book a Strategy Call</h2>
