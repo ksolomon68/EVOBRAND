@@ -9,6 +9,9 @@ yarn-error.log*
 supabase/.temp
 deploy.zip
 
+# Claude Code worktrees (temporary agent sandboxes)
+.claude/worktrees/
+
 # Server-generated / runtime files — must not appear as uncommitted changes in cPanel
 apps/api/src/crash.log
 apps/api/crash.log
