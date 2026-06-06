@@ -5,9 +5,12 @@ import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Sparkles, Zap, FileText, Video, Code } from 'lucide-react';
 import HeroAnimation from '@/components/HeroAnimation.jsx';
+import HeroAmbient from '@/components/HeroAmbient.jsx';
+import AnimatedAuroraBackground from '@/components/AnimatedAuroraBackground.jsx';
 import VideoLibrarySection from '@/components/VideoLibrarySection.jsx';
 import AuditorSection from '@/components/sections/AuditorSection.jsx';
 import ServicesBuiltForScale from '@/components/sections/ServicesBuiltForScale.jsx';
+import StatsBanner from '@/components/sections/StatsBanner.jsx';
 import AICapabilities from '@/components/sections/AICapabilities.jsx';
 import SchedulerWidget from '@/components/scheduler/SchedulerWidget.jsx';
 import SEO from '@/components/SEO.jsx';
@@ -107,6 +110,8 @@ const HomePage = () => {
 
             <HeroAnimation scrollContainerRef={heroRef} />
 
+            <HeroAmbient />
+
             <div className="absolute inset-0 container mx-auto px-4 flex flex-col pt-32 lg:pt-48 relative z-10 pointer-events-none">
               <motion.div
                 initial={{ opacity: 0, y: 30 }}
@@ -143,28 +148,7 @@ const HomePage = () => {
         </section>
 
         {/* Stats Banner */}
-        <section className="bg-[#1a2332] py-8">
-          <div className="container mx-auto px-4">
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
-              <div>
-                <p className="text-3xl font-bold text-[#22c8e5]">10x</p>
-                <p className="text-gray-400 text-sm">Faster Production</p>
-              </div>
-              <div>
-                <p className="text-3xl font-bold text-[#22c8e5]">80%</p>
-                <p className="text-gray-400 text-sm">Cost Reduction</p>
-              </div>
-              <div>
-                <p className="text-3xl font-bold text-[#22c8e5]">5x</p>
-                <p className="text-gray-400 text-sm">ROI Increase</p>
-              </div>
-              <div>
-                <p className="text-3xl font-bold text-[#22c8e5]">95%</p>
-                <p className="text-gray-400 text-sm">Client Satisfaction</p>
-              </div>
-            </div>
-          </div>
-        </section>
+        <StatsBanner />
 
         {/* Services Section */}
         <ServicesBuiltForScale />
@@ -208,8 +192,9 @@ const HomePage = () => {
         <AuditorSection />
 
         {/* Booking Section */}
-        <section id="booking" className="py-20 bg-[#0d0d18]">
-          <div className="container mx-auto px-4 max-w-xl">
+        <section id="booking" className="py-20 bg-[#0d0d18] relative overflow-hidden">
+          <AnimatedAuroraBackground />
+          <div className="container mx-auto px-4 max-w-xl relative z-10">
             <div className="text-center mb-12">
               <p className="text-[#22c8e5] text-xs font-bold tracking-[0.25em] uppercase mb-3">Schedule a Meeting</p>
               <h2 className="text-4xl md:text-5xl font-bold text-white mb-4">Book a Strategy Call</h2>
