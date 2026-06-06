@@ -21,10 +21,14 @@ function wrapLinks(html, campaignId, siteUrl) {
  * @param {string} content      - Raw HTML content written by the admin in the CRM editor
  * @param {number|null} campaignId - When provided, injects open pixel + wraps links for tracking
  * @param {string} siteUrl      - Base URL for tracking endpoints (e.g. https://evobrandconcepts.com)
+ * @param {string|null} subscriberEmail - When provided, builds a real unsubscribe link for this recipient
  * @returns {string}            - Full HTML email string
  */
-const getEmailTemplate = (subject, content, campaignId = null, siteUrl = 'https://evobrandconcepts.com') => {
+const getEmailTemplate = (subject, content, campaignId = null, siteUrl = 'https://evobrandconcepts.com', subscriberEmail = null) => {
   const year = new Date().getFullYear();
+  const unsubscribeUrl = subscriberEmail
+    ? `${siteUrl}/api/newsletter/unsubscribe?email=${encodeURIComponent(subscriberEmail)}`
+    : null;
 
   // Wrap links for click tracking (only for real sends)
   const trackedContent = wrapLinks(content, campaignId, siteUrl);
@@ -456,7 +460,7 @@ const getEmailTemplate = (subject, content, campaignId = null, siteUrl = 'https:
     <div class="footer-divider">
       &copy; ${year} EVOBRAND Concepts. All rights reserved. &bull;
       You're receiving this because you're part of the EVOBRAND network. &bull;
-      <a href="#">Unsubscribe</a>
+      ${unsubscribeUrl ? `<a href="${unsubscribeUrl}">Unsubscribe</a>` : '<a href="#">Unsubscribe</a>'}
     </div>
   </div>
 

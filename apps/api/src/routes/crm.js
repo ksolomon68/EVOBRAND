@@ -435,7 +435,7 @@ router.post('/campaigns/:id/send', async (req, res) => {
         from: `"EVOBRAND" <${process.env.RESEND_FROM_EMAIL || 'info@evobrand.net'}>`,
         to: [email],
         subject: campaign.subject,
-        html: getEmailTemplate(campaign.subject, campaign.html_content, campaign.id, SITE_URL),
+        html: getEmailTemplate(campaign.subject, campaign.html_content, campaign.id, SITE_URL, email),
       }));
       await getResend().batch.send(batchPayload);
     }
