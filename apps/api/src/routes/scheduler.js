@@ -45,6 +45,28 @@ const generateICS = (dateStr, timeStr, duration, bookingType, clientName, meetLi
   ].join('\r\n');
 };
 
+// Get all non-cancelled appointments (admin only)
+router.get('/appointments', authenticateToken, async (req, res) => {
+  try {
+    const [userRows] = await pool.query('SELECT is_admin, email FROM users WHERE id = ?', [req.user.id]);
+    const isAdmin = userRows[0] && (userRows[0].is_admin == 1 || userRows[0].is_admin === true || userRows[0].email === 'ks@evobrand.net');
+    if (!isAdmin) return res.status(403).json({ error: 'Admin access required' });
+
+    const [rows] = await pool.query(`
+      SELECT m.id, m.date, m.time, m.type, m.duration, m.status, m.notes,
+             u.name as client_name, u.email as client_email
+      FROM meetings m
+      LEFT JOIN users u ON m.user_id = u.id
+      WHERE m.status != 'canceled'
+      ORDER BY m.date ASC, m.time ASC
+    `);
+    res.json(rows);
+  } catch (error) {
+    console.error('Error fetching appointments:', error);
+    res.status(500).json({ error: 'Failed to fetch appointments' });
+  }
+});
+
 // Get all blackout dates
 router.get('/blackout-dates', async (req, res) => {
   try {

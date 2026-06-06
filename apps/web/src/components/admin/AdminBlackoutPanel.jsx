@@ -1,15 +1,16 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useGSAP } from '@gsap/react';
 import gsap from 'gsap';
-import { ChevronLeft, ChevronRight, Plus, Trash2, Loader2, AlertCircle, ShieldAlert } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Plus, Trash2, Loader2, AlertCircle, ShieldAlert, Calendar, Clock, User } from 'lucide-react';
 
-const API_BASE = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' 
-  ? 'http://localhost:5000/api' 
+const API_BASE = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+  ? 'http://localhost:5000/api'
   : (window.location.origin + '/api');
 
 const GOLD = '#22c8e5';
 const NAVY = '#003258';
 const BEIGE = '#ffffff';
+const APPT_COLOR = '#f59e0b';
 
 const TIME_SLOTS = [
   '10:00 AM', '11:00 AM', '12:00 PM',
@@ -25,9 +26,22 @@ function toISO(y, m, d) {
   return `${y}-${String(m + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
 }
 
-// ─── Mini calendar for selecting blackout date ────────────────────────────────
+function formatBookingDate(dateStr) {
+  if (!dateStr) return '';
+  const d = dateStr.includes('T') ? dateStr.split('T')[0] : dateStr;
+  return new Date(d + 'T12:00:00').toLocaleDateString('en-US', {
+    weekday: 'short', month: 'short', day: 'numeric', year: 'numeric',
+  });
+}
 
-function DatePicker({ value, onChange }) {
+function isUpcoming(dateStr) {
+  const d = dateStr.includes('T') ? dateStr.split('T')[0] : dateStr;
+  return new Date(d + 'T23:59:59') >= new Date();
+}
+
+// ─── Mini calendar ────────────────────────────────────────────────────────────
+
+function DatePicker({ value, onChange, appointmentDates = new Set(), blackoutDates = new Set() }) {
   const [view, setView] = useState(() => {
     const n = new Date();
     return { year: n.getFullYear(), month: n.getMonth() };
@@ -86,25 +100,62 @@ function DatePicker({ value, onChange }) {
           const dateStr = toISO(view.year, view.month, day);
           const selected = value === dateStr;
           const isPast = dateStr < todayStr;
+          const hasAppt = appointmentDates.has(dateStr);
+          const isBlackedOut = blackoutDates.has(dateStr);
+
           return (
             <button
               key={dateStr}
               type="button"
               onClick={() => onChange(dateStr)}
               disabled={isPast}
-              aria-label={`${MONTHS[view.month]} ${day}${isPast ? ' (past)' : ''}`}
+              aria-label={`${MONTHS[view.month]} ${day}${hasAppt ? ' (appointment)' : ''}${isBlackedOut ? ' (blackout)' : ''}${isPast ? ' (past)' : ''}`}
               aria-pressed={selected}
-              className="w-full aspect-square flex items-center justify-center rounded-md text-xs font-medium transition-all duration-150 focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#22c8e5]"
+              className="w-full aspect-square flex flex-col items-center justify-center rounded-md text-xs font-medium transition-all duration-150 focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#22c8e5] relative"
               style={{
-                background: selected ? GOLD : 'transparent',
-                color: isPast ? 'rgba(255,255,255,0.15)' : selected ? NAVY : BEIGE,
+                background: selected
+                  ? GOLD
+                  : isBlackedOut
+                  ? 'rgba(248,113,113,0.15)'
+                  : hasAppt
+                  ? 'rgba(245,158,11,0.12)'
+                  : 'transparent',
+                color: isPast
+                  ? 'rgba(255,255,255,0.15)'
+                  : selected
+                  ? NAVY
+                  : isBlackedOut
+                  ? '#f87171'
+                  : hasAppt
+                  ? APPT_COLOR
+                  : BEIGE,
                 cursor: isPast ? 'not-allowed' : 'pointer',
+                outline: hasAppt && !selected ? `1px solid rgba(245,158,11,0.35)` : undefined,
               }}
             >
-              {day}
+              <span>{day}</span>
+              {hasAppt && !selected && (
+                <span
+                  className="absolute bottom-0.5 left-1/2 -translate-x-1/2 w-1 h-1 rounded-full"
+                  style={{ background: APPT_COLOR }}
+                  aria-hidden="true"
+                />
+              )}
             </button>
           );
         })}
+      </div>
+
+      {/* Legend */}
+      <div className="flex items-center gap-4 mt-3 pt-3 border-t" style={{ borderColor: 'rgba(255,255,255,0.07)' }}>
+        <div className="flex items-center gap-1.5">
+          <span className="w-2.5 h-2.5 rounded-sm" style={{ background: 'rgba(245,158,11,0.2)', outline: '1px solid rgba(245,158,11,0.4)' }} />
+          <span className="text-[9px] uppercase tracking-widest font-bold" style={{ color: 'rgba(255,255,255,0.35)' }}>Appointment</span>
+        </div>
+        <div className="flex items-center gap-1.5">
+          <span className="w-2.5 h-2.5 rounded-sm" style={{ background: 'rgba(248,113,113,0.15)' }} />
+          <span className="text-[9px] uppercase tracking-widest font-bold" style={{ color: 'rgba(255,255,255,0.35)' }}>Blackout</span>
+        </div>
       </div>
     </div>
   );
@@ -112,9 +163,9 @@ function DatePicker({ value, onChange }) {
 
 // ─── Add Blackout Form ────────────────────────────────────────────────────────
 
-function AddBlackoutForm({ onAdded }) {
+function AddBlackoutForm({ onAdded, appointmentDates, blackoutDates }) {
   const [date, setDate] = useState('');
-  const [mode, setMode] = useState('day'); // 'day' | 'slot'
+  const [mode, setMode] = useState('day');
   const [slot, setSlot] = useState('');
   const [reason, setReason] = useState('');
   const [loading, setLoading] = useState(false);
@@ -140,7 +191,7 @@ function AddBlackoutForm({ onAdded }) {
       });
 
       if (!res.ok) throw new Error('Failed to add blackout date');
-      
+
       onAdded();
       setDate('');
       setSlot('');
@@ -164,9 +215,8 @@ function AddBlackoutForm({ onAdded }) {
         Block a Date or Time
       </h3>
 
-      {/* Date picker */}
       <div className="mb-4 p-4 rounded-xl border" style={{ background: 'rgba(10,22,40,0.5)', borderColor: 'rgba(34,200,229,0.12)' }}>
-        <DatePicker value={date} onChange={setDate} />
+        <DatePicker value={date} onChange={setDate} appointmentDates={appointmentDates} blackoutDates={blackoutDates} />
       </div>
 
       {date && (
@@ -175,7 +225,6 @@ function AddBlackoutForm({ onAdded }) {
         </p>
       )}
 
-      {/* Scope: whole day vs slot */}
       <div className="flex gap-2 mb-4" role="group" aria-label="Blackout scope">
         {[
           { key: 'day', label: 'Entire Day' },
@@ -198,7 +247,6 @@ function AddBlackoutForm({ onAdded }) {
         ))}
       </div>
 
-      {/* Slot picker */}
       {mode === 'slot' && (
         <div className="mb-4">
           <label htmlFor="ab-slot" className="block text-xs font-bold uppercase tracking-widest mb-1.5" style={{ color: 'rgba(34,200,229,0.7)' }}>
@@ -211,7 +259,6 @@ function AddBlackoutForm({ onAdded }) {
         </div>
       )}
 
-      {/* Reason */}
       <div className="mb-5">
         <label htmlFor="ab-reason" className="block text-xs font-bold uppercase tracking-widest mb-1.5" style={{ color: 'rgba(34,200,229,0.7)' }}>
           Reason <span style={{ color: 'rgba(255,255,255,0.3)', fontWeight: 400, textTransform: 'none', letterSpacing: 0 }}>(optional)</span>
@@ -256,7 +303,7 @@ function AddBlackoutForm({ onAdded }) {
 function BlackoutList({ blackouts, onDelete }) {
   if (blackouts.length === 0) {
     return (
-      <div className="flex flex-col items-center py-12 text-center rounded-2xl border" style={{ borderColor: 'rgba(34,200,229,0.08)', background: 'rgba(10,22,40,0.3)' }}>
+      <div className="flex flex-col items-center py-8 text-center rounded-2xl border" style={{ borderColor: 'rgba(34,200,229,0.08)', background: 'rgba(10,22,40,0.3)' }}>
         <p className="text-sm" style={{ color: 'rgba(255,255,255,0.35)' }}>No blackout dates configured.</p>
       </div>
     );
@@ -269,10 +316,7 @@ function BlackoutList({ blackouts, onDelete }) {
       {sorted.map((b) => {
         const dateStr = b.date.includes('T') ? b.date.split('T')[0] : b.date;
         const formattedDate = new Date(dateStr + 'T12:00:00').toLocaleDateString('en-US', {
-          weekday: 'short',
-          month: 'short',
-          day: 'numeric',
-          year: 'numeric',
+          weekday: 'short', month: 'short', day: 'numeric', year: 'numeric',
         });
         return (
           <li
@@ -317,11 +361,76 @@ function BlackoutList({ blackouts, onDelete }) {
   );
 }
 
+// ─── Appointment List ─────────────────────────────────────────────────────────
+
+function AppointmentList({ appointments }) {
+  const upcoming = appointments.filter((a) => isUpcoming(a.date));
+
+  if (upcoming.length === 0) {
+    return (
+      <div className="flex flex-col items-center py-8 text-center rounded-2xl border" style={{ borderColor: 'rgba(245,158,11,0.1)', background: 'rgba(10,22,40,0.3)' }}>
+        <p className="text-sm" style={{ color: 'rgba(255,255,255,0.35)' }}>No upcoming appointments.</p>
+      </div>
+    );
+  }
+
+  return (
+    <ul className="space-y-2" aria-label="Scheduled appointments">
+      {upcoming.map((appt) => {
+        const dateStr = appt.date.includes('T') ? appt.date.split('T')[0] : appt.date;
+        return (
+          <li
+            key={appt.id}
+            className="p-4 rounded-xl border"
+            style={{ background: 'rgba(245,158,11,0.05)', borderColor: 'rgba(245,158,11,0.18)' }}
+          >
+            <div className="flex items-start justify-between gap-2 mb-2">
+              <p className="text-sm font-semibold capitalize" style={{ color: BEIGE }}>
+                {appt.type || 'Consultation'}
+              </p>
+              <span
+                className="text-[10px] font-bold uppercase tracking-widest px-2 py-0.5 rounded-full flex-shrink-0"
+                style={{ background: 'rgba(245,158,11,0.15)', color: APPT_COLOR }}
+              >
+                {appt.status || 'scheduled'}
+              </span>
+            </div>
+            <div className="flex flex-wrap gap-x-4 gap-y-1">
+              <div className="flex items-center gap-1.5">
+                <Calendar size={11} style={{ color: APPT_COLOR }} aria-hidden="true" />
+                <span className="text-xs" style={{ color: 'rgba(255,255,255,0.65)' }}>
+                  {formatBookingDate(dateStr)}
+                </span>
+              </div>
+              <div className="flex items-center gap-1.5">
+                <Clock size={11} style={{ color: APPT_COLOR }} aria-hidden="true" />
+                <span className="text-xs" style={{ color: 'rgba(255,255,255,0.65)' }}>
+                  {appt.time} CST · {appt.duration || 30} min
+                </span>
+              </div>
+              {(appt.client_name || appt.client_email) && (
+                <div className="flex items-center gap-1.5">
+                  <User size={11} style={{ color: APPT_COLOR }} aria-hidden="true" />
+                  <span className="text-xs" style={{ color: 'rgba(255,255,255,0.65)' }}>
+                    {appt.client_name || appt.client_email}
+                  </span>
+                </div>
+              )}
+            </div>
+          </li>
+        );
+      })}
+    </ul>
+  );
+}
+
 // ─── Main Panel ───────────────────────────────────────────────────────────────
 
 export default function AdminBlackoutPanel({ user }) {
   const [blackouts, setBlackouts] = useState([]);
+  const [appointments, setAppointments] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [apptLoading, setApptLoading] = useState(true);
   const panelRef = useRef(null);
   const isAdmin = user?.is_admin === 1 || user?.is_admin === true || user?.user_metadata?.role === 'admin';
 
@@ -342,7 +451,25 @@ export default function AdminBlackoutPanel({ user }) {
       });
   }, []);
 
+  const fetchAppointments = useCallback(() => {
+    const token = localStorage.getItem('evobrand_token');
+    if (!token) { setApptLoading(false); return; }
+    fetch(`${API_BASE}/scheduler/appointments`, {
+      headers: { 'Authorization': `Bearer ${token}` },
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        if (Array.isArray(data)) setAppointments(data);
+        setApptLoading(false);
+      })
+      .catch((err) => {
+        console.error('Failed to load appointments', err);
+        setApptLoading(false);
+      });
+  }, []);
+
   useEffect(() => { fetchBlackouts(); }, [fetchBlackouts]);
+  useEffect(() => { fetchAppointments(); }, [fetchAppointments]);
 
   const handleDelete = async (id) => {
     try {
@@ -352,6 +479,20 @@ export default function AdminBlackoutPanel({ user }) {
       console.error('Failed to delete blackout date', err);
     }
   };
+
+  // Build a Set of upcoming appointment date strings for calendar markers
+  const appointmentDates = new Set(
+    appointments
+      .filter((a) => isUpcoming(a.date))
+      .map((a) => (a.date.includes('T') ? a.date.split('T')[0] : a.date))
+  );
+
+  // Build a Set of blackout date strings for calendar markers
+  const blackoutDateSet = new Set(
+    blackouts.map((b) => (b.date.includes('T') ? b.date.split('T')[0] : b.date))
+  );
+
+  const upcomingCount = appointments.filter((a) => isUpcoming(a.date)).length;
 
   if (!isAdmin) {
     return (
@@ -374,41 +515,74 @@ export default function AdminBlackoutPanel({ user }) {
       <div className="mb-8">
         <h1 className="text-3xl font-bold text-white mb-1">Availability Controls</h1>
         <p style={{ color: 'rgba(255,255,255,0.45)' }}>
-          Block specific dates or time slots from appearing in the scheduler.
+          Block specific dates or time slots from appearing in the scheduler. Amber dates have scheduled appointments.
         </p>
       </div>
 
       <div className="grid lg:grid-cols-2 gap-8">
-        {/* Add form */}
+        {/* Add blackout form with appointment-aware calendar */}
         <div
           className="rounded-2xl p-6 border"
           style={{ background: 'rgba(13,30,53,0.7)', borderColor: 'rgba(34,200,229,0.15)' }}
         >
-          <AddBlackoutForm onAdded={fetchBlackouts} />
+          <AddBlackoutForm
+            onAdded={fetchBlackouts}
+            appointmentDates={appointmentDates}
+            blackoutDates={blackoutDateSet}
+          />
         </div>
 
-        {/* Current blackouts */}
-        <div>
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="text-sm font-bold uppercase tracking-widest" style={{ color: GOLD }}>
-              Active Blackouts
-            </h3>
-            <span
-              className="text-xs font-bold px-2 py-0.5 rounded-2xl"
-              style={{ background: 'rgba(34,200,229,0.12)', color: GOLD }}
-              aria-live="polite"
-            >
-              {blackouts.length}
-            </span>
+        {/* Right column: Appointments + Blackouts */}
+        <div className="flex flex-col gap-8">
+          {/* Scheduled Appointments */}
+          <div>
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-sm font-bold uppercase tracking-widest" style={{ color: APPT_COLOR }}>
+                Scheduled Appointments
+              </h3>
+              {!apptLoading && (
+                <span
+                  className="text-xs font-bold px-2 py-0.5 rounded-2xl"
+                  style={{ background: 'rgba(245,158,11,0.12)', color: APPT_COLOR }}
+                  aria-live="polite"
+                >
+                  {upcomingCount}
+                </span>
+              )}
+            </div>
+
+            {apptLoading ? (
+              <div className="flex items-center justify-center py-8">
+                <Loader2 size={20} className="animate-spin" style={{ color: APPT_COLOR }} aria-hidden="true" />
+              </div>
+            ) : (
+              <AppointmentList appointments={appointments} />
+            )}
           </div>
 
-          {loading ? (
-            <div className="flex items-center justify-center py-12">
-              <Loader2 size={24} className="animate-spin" style={{ color: GOLD }} aria-hidden="true" />
+          {/* Active Blackouts */}
+          <div>
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-sm font-bold uppercase tracking-widest" style={{ color: GOLD }}>
+                Active Blackouts
+              </h3>
+              <span
+                className="text-xs font-bold px-2 py-0.5 rounded-2xl"
+                style={{ background: 'rgba(34,200,229,0.12)', color: GOLD }}
+                aria-live="polite"
+              >
+                {blackouts.length}
+              </span>
             </div>
-          ) : (
-            <BlackoutList blackouts={blackouts} onDelete={handleDelete} />
-          )}
+
+            {loading ? (
+              <div className="flex items-center justify-center py-8">
+                <Loader2 size={20} className="animate-spin" style={{ color: GOLD }} aria-hidden="true" />
+              </div>
+            ) : (
+              <BlackoutList blackouts={blackouts} onDelete={handleDelete} />
+            )}
+          </div>
         </div>
       </div>
     </div>
