@@ -45,6 +45,15 @@ const SITE_URL = process.env.SITE_URL || 'https://evobrandconcepts.com';
   }
 })();
 
+// Add target_list_ids column if missing (supports multi-list campaigns)
+(async () => {
+  try {
+    await pool.query(`ALTER TABLE crm_campaigns ADD COLUMN IF NOT EXISTS target_list_ids TEXT DEFAULT NULL`);
+  } catch (err) {
+    console.error('Could not add target_list_ids column:', err.message);
+  }
+})();
+
 // Ensure the tracking events table exists on startup
 (async () => {
   try {
@@ -70,7 +79,13 @@ const SITE_URL = process.env.SITE_URL || 'https://evobrandconcepts.com';
 // Get all lists
 router.get('/lists', async (req, res) => {
   try {
-    const [rows] = await pool.query('SELECT * FROM crm_lists ORDER BY id ASC');
+    const [rows] = await pool.query(`
+      SELECT l.*, COUNT(c.id) AS contact_count
+      FROM crm_lists l
+      LEFT JOIN crm_contacts c ON c.list_id = l.id AND c.status = 'subscribed'
+      GROUP BY l.id
+      ORDER BY l.id ASC
+    `);
     res.json(rows);
   } catch (error) {
     console.error('Error fetching CRM lists:', error);
@@ -227,20 +242,42 @@ router.get('/campaigns', async (req, res) => {
 
 // Create a new campaign (draft)
 router.post('/campaigns', async (req, res) => {
-  const { subject, html_content, list_id } = req.body;
-  
-  if (!subject || !html_content || !list_id) {
-    return res.status(400).json({ error: 'Subject, Content, and List ID are required' });
+  const { subject, html_content, target_list_ids } = req.body;
+  const listIds = Array.isArray(target_list_ids) ? target_list_ids : [];
+  if (!subject || !html_content || !listIds.length) {
+    return res.status(400).json({ error: 'Subject, content, and at least one list are required' });
   }
-  
   try {
     const [result] = await pool.query(
-      'INSERT INTO crm_campaigns (subject, html_content, list_id, status) VALUES (?, ?, ?, "draft")',
-      [subject, html_content, list_id]
+      'INSERT INTO crm_campaigns (subject, html_content, list_id, target_list_ids, status) VALUES (?, ?, ?, ?, "draft")',
+      [subject, html_content, listIds[0], JSON.stringify(listIds)]
     );
     res.json({ success: true, id: result.insertId, message: 'Campaign saved as draft' });
   } catch (error) {
     console.error('Error creating CRM campaign:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// Update a draft campaign
+router.put('/campaigns/:id', async (req, res) => {
+  const { id } = req.params;
+  const { subject, html_content, target_list_ids } = req.body;
+  const listIds = Array.isArray(target_list_ids) ? target_list_ids : [];
+  if (!subject || !html_content || !listIds.length) {
+    return res.status(400).json({ error: 'Subject, content, and at least one list are required' });
+  }
+  try {
+    const [rows] = await pool.query('SELECT status FROM crm_campaigns WHERE id = ?', [id]);
+    if (!rows.length) return res.status(404).json({ error: 'Campaign not found' });
+    if (rows[0].status !== 'draft') return res.status(400).json({ error: 'Only draft campaigns can be edited' });
+    await pool.query(
+      'UPDATE crm_campaigns SET subject = ?, html_content = ?, list_id = ?, target_list_ids = ? WHERE id = ?',
+      [subject, html_content, listIds[0], JSON.stringify(listIds), id]
+    );
+    res.json({ success: true, message: 'Campaign updated' });
+  } catch (error) {
+    console.error('Error updating campaign:', error);
     res.status(500).json({ error: 'Internal server error' });
   }
 });
@@ -273,12 +310,16 @@ router.post('/campaigns/:id/send', async (req, res) => {
     }
     const campaign = campaignRows[0];
 
+    const listIds = campaign.target_list_ids
+      ? JSON.parse(campaign.target_list_ids)
+      : [campaign.list_id];
+    const placeholders = listIds.map(() => '?').join(',');
     const [contacts] = await pool.query(
-      'SELECT * FROM crm_contacts WHERE list_id = ? AND status = "subscribed"',
-      [campaign.list_id]
+      `SELECT DISTINCT email FROM crm_contacts WHERE list_id IN (${placeholders}) AND status = 'subscribed'`,
+      listIds
     );
     if (contacts.length === 0) {
-      return res.status(400).json({ error: 'No active subscribers found in this list' });
+      return res.status(400).json({ error: 'No active subscribers found in the selected lists' });
     }
 
     const emails = contacts.map(c => c.email);
