@@ -1,7 +1,8 @@
 
-import React from 'react';
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import React, { useEffect } from 'react';
+import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import ScrollToTop from '@/components/ScrollToTop.jsx';
+import { initAnalytics, trackPageView } from '@/lib/analytics';
 import Header from '@/components/Header.jsx';
 import Footer from '@/components/Footer.jsx';
 import AccessibilityWidget from '@/components/AccessibilityWidget.jsx';
@@ -22,9 +23,24 @@ import MaintenancePlansPage from '@/pages/MaintenancePlansPage.jsx';
 import PaymentSuccessPage from '@/pages/PaymentSuccessPage.jsx';
 import NotFoundPage from '@/pages/NotFoundPage.jsx';
 
+function AnalyticsTracker() {
+  const location = useLocation();
+
+  useEffect(() => {
+    initAnalytics();
+  }, []);
+
+  useEffect(() => {
+    trackPageView(location.pathname + location.search, document.title);
+  }, [location]);
+
+  return null;
+}
+
 function App() {
   return (
     <BrowserRouter>
+      <AnalyticsTracker />
       <ScrollToTop />
       <a
         href="#main-content"

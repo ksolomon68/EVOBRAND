@@ -19,6 +19,7 @@ import AdminContactFormsPanel from '../components/admin/AdminContactFormsPanel';
 import MyContractsPanel from '../components/portal/MyContractsPanel';
 import { useAuth } from '../hooks/useAuth.jsx';
 import { useNavigate, useLocation } from 'react-router-dom';
+import { trackEvent } from '@/lib/analytics';
 
 const GOLD = '#22c8e5';
 const NAVY = '#003258';
@@ -169,6 +170,12 @@ const ClientPortalPage = () => {
   const [showNewTicketModal, setShowNewTicketModal] = useState(false);
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
   const [paymentBanner, setPaymentBanner] = useState(null); // { type: 'success'|'cancelled', message }
+
+  useEffect(() => {
+    if (view !== 'dashboard') {
+      trackEvent('portal_view', { view_name: view, is_admin: !!(user?.is_admin) });
+    }
+  }, [view, user?.is_admin]);
 
   useEffect(() => {
     if (!authLoading && !user) navigate('/login');
