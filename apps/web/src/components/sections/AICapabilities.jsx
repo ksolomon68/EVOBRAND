@@ -70,7 +70,7 @@ const AICapabilities = () => {
               <StatCounter target={140} label="Clients Served" suffix="+" />
               <StatCounter target={380} label="Projects Delivered" suffix="+" />
               <StatCounter target={98} label="Client Retention" suffix="%" />
-              <StatCounter target={12} label="Years of Innovation" />
+              <StatCounter target={26} label="Years of Innovation" />
             </div>
           </motion.div>
 
