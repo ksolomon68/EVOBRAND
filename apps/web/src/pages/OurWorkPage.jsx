@@ -116,7 +116,7 @@ const OurWorkPage = () => {
       image: '/projects/nela-sickle-cell.jpg',
       metrics: { roi: 'Outreach', timeSaved: 'Managed', revenue: 'Donations' },
       description: 'Northeast Louisiana Sickle Cell Anemia Foundation - Making a Difference Today.',
-      link: 'https://evobrand.net/NELA'
+      link: 'https://nelascaf.org/'
     },
     {
       id: 8,
