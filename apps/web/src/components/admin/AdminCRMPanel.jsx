@@ -16,6 +16,7 @@ export default function AdminCRMPanel({ user }) {
   const [filterList, setFilterList] = useState('');   // contacts filter dropdown
   const [targetList, setTargetList] = useState('');   // add contact form
   const [editingContact, setEditingContact] = useState(null); // { id, first_name, last_name, list_id }
+  const [isSavingContact, setIsSavingContact] = useState(false);
   const [loadingAudience, setLoadingAudience] = useState(false);
   const [newContact, setNewContact] = useState({ email: '', first_name: '', last_name: '' });
 
@@ -147,10 +148,13 @@ export default function AdminCRMPanel({ user }) {
   };
 
   const handleUpdateContact = async () => {
-    if (!editingContact?.list_id) {
+    const listId = String(editingContact?.list_id || '');
+    if (!listId) {
       setError('Please select a list.');
       return;
     }
+    setIsSavingContact(true);
+    setError('');
     try {
       const res = await fetch(`${API_BASE}/api/crm/contacts/${editingContact.id}`, {
         method: 'PUT',
@@ -158,7 +162,7 @@ export default function AdminCRMPanel({ user }) {
         body: JSON.stringify({
           first_name: editingContact.first_name,
           last_name: editingContact.last_name,
-          list_id: editingContact.list_id,
+          list_id: listId,
         }),
       });
       const data = await getJSONOrError(res);
@@ -169,6 +173,8 @@ export default function AdminCRMPanel({ user }) {
       setTimeout(() => setMessage(''), 3000);
     } catch (err) {
       setError(err.message);
+    } finally {
+      setIsSavingContact(false);
     }
   };
 
@@ -495,10 +501,11 @@ export default function AdminCRMPanel({ user }) {
                                 <>
                                   <button
                                     onClick={handleUpdateContact}
-                                    className="p-2 text-emerald-400 hover:bg-emerald-400/10 rounded-lg transition-colors"
+                                    disabled={isSavingContact}
+                                    className="p-2 text-emerald-400 hover:bg-emerald-400/10 rounded-lg transition-colors disabled:opacity-50"
                                     title="Save"
                                   >
-                                    <Check size={16} />
+                                    {isSavingContact ? <Loader2 size={16} className="animate-spin" /> : <Check size={16} />}
                                   </button>
                                   <button
                                     onClick={() => setEditingContact(null)}
@@ -511,7 +518,7 @@ export default function AdminCRMPanel({ user }) {
                               ) : (
                                 <>
                                   <button
-                                    onClick={() => setEditingContact({ id: contact.id, first_name: contact.first_name || '', last_name: contact.last_name || '', list_id: contact.list_id })}
+                                    onClick={() => setEditingContact({ id: contact.id, first_name: contact.first_name || '', last_name: contact.last_name || '', list_id: String(contact.list_id) })}
                                     className="p-2 text-white/40 hover:text-[#22c8e5] hover:bg-[#22c8e5]/10 rounded-lg transition-colors"
                                     title="Edit Contact"
                                   >

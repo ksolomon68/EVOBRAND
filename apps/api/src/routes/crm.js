@@ -7,6 +7,16 @@ const { getEmailTemplate } = require('../utils/emailTemplate');
 
 const SITE_URL = process.env.SITE_URL || 'https://evobrandconcepts.com';
 
+// Run list-name migrations on startup
+(async () => {
+  try {
+    // Rename legacy "Custom" list to "Customer"
+    await pool.query(`UPDATE crm_lists SET name = 'Customer' WHERE name = 'Custom'`);
+  } catch (err) {
+    console.error('Could not migrate list names:', err.message);
+  }
+})();
+
 // Ensure the tracking events table exists on startup
 (async () => {
   try {
