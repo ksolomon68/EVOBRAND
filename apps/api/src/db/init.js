@@ -147,12 +147,11 @@ async function initializeDatabase() {
       )
     `);
 
-    // Ensure core lists exist (Evobrand newsletter and Leads by fixed id, Customers by name)
+    // Ensure Leads list exists (by name, not forced id)
     await pool.query(`
-      INSERT INTO crm_lists (id, name) VALUES
-      (2, 'Evobrand newsletter'),
-      (3, 'Leads')
-      ON DUPLICATE KEY UPDATE name = VALUES(name)
+      INSERT INTO crm_lists (name)
+      SELECT 'Leads' FROM DUAL
+      WHERE NOT EXISTS (SELECT 1 FROM crm_lists WHERE name = 'Leads')
     `);
     await pool.query(`
       INSERT INTO crm_lists (name)

@@ -17,18 +17,36 @@ const SITE_URL = process.env.SITE_URL || 'https://evobrandconcepts.com';
       WHERE NOT EXISTS (SELECT 1 FROM crm_lists WHERE name = 'Customers')
     `);
 
-    // Ensure "Evobrand newsletter" list exists. Rename "Newsletter Admin" if present,
-    // otherwise create it so newsletter subscribers always have a proper home.
-    const [nlAdminRows] = await pool.query(`SELECT id FROM crm_lists WHERE name = 'Newsletter Admin' LIMIT 1`);
-    if (nlAdminRows.length > 0) {
-      await pool.query(`UPDATE crm_lists SET name = 'Evobrand newsletter' WHERE id = ?`, [nlAdminRows[0].id]);
-    } else {
-      await pool.query(`
-        INSERT INTO crm_lists (name)
-        SELECT 'Evobrand newsletter' FROM DUAL
-        WHERE NOT EXISTS (SELECT 1 FROM crm_lists WHERE name LIKE '%newsletter%')
-      `);
+    // Deduplicate newsletter lists: keep the one with the most contacts (the original),
+    // merge all others into it, then delete the duplicates.
+    // Uses LOWER() to catch any case variation (EVOBRAND Newsletter, Evobrand newsletter, Newsletter Admin, etc.)
+    const [allNlLists] = await pool.query(
+      `SELECT l.id, l.name, COUNT(c.id) AS cnt
+       FROM crm_lists l
+       LEFT JOIN crm_contacts c ON c.list_id = l.id
+       WHERE LOWER(l.name) LIKE '%newsletter%'
+       GROUP BY l.id, l.name
+       ORDER BY cnt DESC, l.id ASC`
+    );
+    if (allNlLists.length > 1) {
+      const keepId = allNlLists[0].id; // the one with the most contacts
+      for (const dup of allNlLists.slice(1)) {
+        // Move contacts from the duplicate into the keeper (skip duplicates)
+        await pool.query(`
+          DELETE c1 FROM crm_contacts c1
+          INNER JOIN crm_contacts c2 ON c1.email = c2.email AND c2.list_id = ?
+          WHERE c1.list_id = ?
+        `, [keepId, dup.id]);
+        await pool.query(`UPDATE crm_contacts SET list_id = ? WHERE list_id = ?`, [keepId, dup.id]);
+        await pool.query(`DELETE FROM crm_lists WHERE id = ?`, [dup.id]);
+      }
+    } else if (allNlLists.length === 0) {
+      // No newsletter list at all — create one
+      await pool.query(`INSERT INTO crm_lists (name) VALUES ('EVOBRAND Newsletter')`);
     }
+
+    // Rename any leftover "Newsletter Admin" placeholder to the canonical name
+    await pool.query(`UPDATE crm_lists SET name = 'EVOBRAND Newsletter' WHERE name = 'Newsletter Admin'`);
 
     // Ensure "Leads" list exists
     await pool.query(`
@@ -58,8 +76,8 @@ const SITE_URL = process.env.SITE_URL || 'https://evobrandconcepts.com';
       await pool.query(`DELETE FROM crm_lists WHERE id = ?`, [badId]);
     }
 
-    // Move newsletter-only subscribers OUT of Customers → Evobrand newsletter.
-    const [nlRows] = await pool.query(`SELECT id FROM crm_lists WHERE name LIKE '%newsletter%' LIMIT 1`);
+    // Move newsletter-only subscribers OUT of Customers → EVOBRAND Newsletter.
+    const [nlRows] = await pool.query(`SELECT id FROM crm_lists WHERE LOWER(name) LIKE '%newsletter%' LIMIT 1`);
     if (nlRows.length > 0) {
       const nlId = nlRows[0].id;
       await pool.query(`
@@ -123,8 +141,8 @@ const SITE_URL = process.env.SITE_URL || 'https://evobrandconcepts.com';
 // --- ADMIN CLEANUP ---
 router.post('/admin/cleanup-lists', async (req, res) => {
   try {
-    // Step 1: Move newsletter subscribers out of Customers → Evobrand newsletter
-    const [nlRows] = await pool.query(`SELECT id, name FROM crm_lists WHERE name LIKE '%newsletter%' LIMIT 1`);
+    // Step 1: Move newsletter subscribers out of Customers → EVOBRAND Newsletter
+    const [nlRows] = await pool.query(`SELECT id, name FROM crm_lists WHERE LOWER(name) LIKE '%newsletter%' LIMIT 1`);
     let moved = 0;
     if (nlRows.length > 0) {
       const nlId = nlRows[0].id;

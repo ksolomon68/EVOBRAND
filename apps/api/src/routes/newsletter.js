@@ -23,8 +23,8 @@ router.post('/subscribe', async (req, res) => {
 
     // Sync with CRM
     try {
-      // Find a list named 'Newsletter' or default to first list
-      const [lists] = await pool.query('SELECT id FROM crm_lists WHERE name LIKE "%Newsletter%" LIMIT 1');
+      // Find the newsletter list (case-insensitive) or default to first list
+      const [lists] = await pool.query('SELECT id FROM crm_lists WHERE LOWER(name) LIKE "%newsletter%" LIMIT 1');
       let listId = 1;
       if (lists.length > 0) {
         listId = lists[0].id;
