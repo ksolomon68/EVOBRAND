@@ -40,6 +40,14 @@ const SITE_URL = process.env.SITE_URL || 'https://evobrandconcepts.com';
       // Delete the stale list
       await pool.query(`DELETE FROM crm_lists WHERE id = ?`, [badId]);
     }
+
+    // Remove from "Newsletter Admin" anyone who is also in "Customers"
+    await pool.query(`
+      DELETE c1 FROM crm_contacts c1
+      JOIN crm_contacts c2 ON c1.email = c2.email
+      JOIN crm_lists l1 ON c1.list_id = l1.id AND l1.name = 'Newsletter Admin'
+      JOIN crm_lists l2 ON c2.list_id = l2.id AND l2.name = 'Customers'
+    `);
   } catch (err) {
     console.error('Could not run list migrations:', err.message);
   }
