@@ -81,6 +81,26 @@
     border-radius: 12px;
     opacity: 0.15;
   }
+
+  /* Cursor-tracking glare for tilt cards (vars set by useMagneticTilt) */
+  .service-card--tilt {
+    will-change: transform;
+  }
+
+  .service-glare {
+    position: absolute;
+    inset: 0;
+    border-radius: 16px;
+    pointer-events: none;
+    opacity: var(--glare-opacity, 0);
+    background: radial-gradient(
+      circle at var(--glare-x, 50%) var(--glare-y, 50%),
+      rgba(34, 200, 229, 0.18) 0%,
+      transparent 45%
+    );
+    transition: opacity .35s ease;
+    z-index: 1;
+  }
 }
 
 /* Respect user motion preference */
