@@ -13,7 +13,8 @@ export default function AdminCRMPanel({ user }) {
   // State for Audience Tab
   const [lists, setLists] = useState([]);
   const [contacts, setContacts] = useState([]);
-  const [selectedList, setSelectedList] = useState('');
+  const [filterList, setFilterList] = useState('');   // contacts filter dropdown
+  const [targetList, setTargetList] = useState('');   // add contact form
   const [loadingAudience, setLoadingAudience] = useState(false);
   const [newContact, setNewContact] = useState({ email: '', first_name: '', last_name: '' });
 
@@ -40,9 +41,9 @@ export default function AdminCRMPanel({ user }) {
 
   useEffect(() => {
     if (activeTab === 'audience' && isAdmin) {
-      fetchContacts(selectedList);
+      fetchContacts(filterList);
     }
-  }, [selectedList, activeTab, isAdmin]);
+  }, [filterList, activeTab, isAdmin]);
 
   // --- API Calls ---
 
@@ -63,9 +64,6 @@ export default function AdminCRMPanel({ user }) {
       const data = await getJSONOrError(res);
       if (!res.ok) throw new Error(data.error || 'Failed to fetch lists');
       setLists(Array.isArray(data) ? data : []);
-      if (Array.isArray(data) && data.length > 0 && !selectedList) {
-        setSelectedList(data[0].id);
-      }
     } catch (err) {
       console.error('Error fetching lists:', err);
     }
@@ -105,7 +103,7 @@ export default function AdminCRMPanel({ user }) {
     setError('');
     setMessage('');
 
-    if (!newContact.email || !selectedList) {
+    if (!newContact.email || !targetList) {
       setError('Email and a selected list are required.');
       return;
     }
@@ -116,16 +114,16 @@ export default function AdminCRMPanel({ user }) {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           ...newContact,
-          list_id: selectedList
+          list_id: targetList
         })
       });
-      
+
       const data = await getJSONOrError(res);
       if (!res.ok) throw new Error(data.error || 'Failed to add contact');
-      
+
       setMessage('Contact added successfully!');
       setNewContact({ email: '', first_name: '', last_name: '' });
-      fetchContacts(selectedList);
+      fetchContacts(filterList);
       
       setTimeout(() => setMessage(''), 3000);
     } catch (err) {
@@ -310,8 +308,8 @@ export default function AdminCRMPanel({ user }) {
               <div>
                 <label className="block text-xs font-bold text-white/40 uppercase tracking-wider mb-2">Target List</label>
                 <select
-                  value={selectedList}
-                  onChange={(e) => setSelectedList(e.target.value)}
+                  value={targetList}
+                  onChange={(e) => setTargetList(e.target.value)}
                   className="w-full bg-[#1a2332] border border-white/10 rounded-xl p-3 text-white text-sm focus:outline-none focus:border-[#22c8e5]"
                 >
                   <option value="" className="bg-[#1a2332] text-white">Select a list...</option>
@@ -375,8 +373,8 @@ export default function AdminCRMPanel({ user }) {
               <div className="flex items-center gap-2">
                 <span className="text-xs text-white/40 uppercase font-bold tracking-wider">Filter:</span>
                 <select
-                  value={selectedList}
-                  onChange={(e) => setSelectedList(e.target.value)}
+                  value={filterList}
+                  onChange={(e) => setFilterList(e.target.value)}
                   className="bg-[#1a2332] border border-white/10 rounded-lg px-3 py-1.5 text-white text-sm focus:outline-none focus:border-[#22c8e5]"
                 >
                   <option value="" className="bg-[#1a2332] text-white">All Lists</option>

@@ -150,7 +150,7 @@ async function initializeDatabase() {
     // Insert default lists, updating names if they already exist
     await pool.query(`
       INSERT INTO crm_lists (id, name) VALUES
-      (1, 'Custom'),
+      (1, 'Customer'),
       (2, 'Newsletter Admin'),
       (3, 'Leads')
       ON DUPLICATE KEY UPDATE name = VALUES(name)
