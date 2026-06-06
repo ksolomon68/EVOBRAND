@@ -106,6 +106,45 @@ const SITE_URL = process.env.SITE_URL || 'https://evobrandconcepts.com';
   }
 })();
 
+// --- ADMIN CLEANUP ---
+router.post('/admin/cleanup-lists', async (req, res) => {
+  try {
+    // Step 1: Move newsletter subscribers out of Customers → Newsletter Admin
+    const [nlRows] = await pool.query(`SELECT id FROM crm_lists WHERE name = 'Newsletter Admin' LIMIT 1`);
+    let moved = 0;
+    if (nlRows.length > 0) {
+      const nlId = nlRows[0].id;
+      await pool.query(`
+        INSERT INTO crm_contacts (email, list_id, status)
+        SELECT ns.email, ?, 'subscribed'
+        FROM newsletter_subscribers ns
+        JOIN crm_contacts cc ON ns.email = cc.email
+        JOIN crm_lists l ON cc.list_id = l.id AND l.name = 'Customers'
+        ON DUPLICATE KEY UPDATE status = 'subscribed'
+      `, [nlId]);
+      const [del] = await pool.query(`
+        DELETE cc FROM crm_contacts cc
+        JOIN newsletter_subscribers ns ON cc.email = ns.email
+        JOIN crm_lists l ON cc.list_id = l.id AND l.name = 'Customers'
+      `);
+      moved = del.affectedRows;
+    }
+
+    // Step 2: Remove from other lists anyone confirmed in Customers
+    const [dedup] = await pool.query(`
+      DELETE c1 FROM crm_contacts c1
+      JOIN crm_contacts c2 ON c1.email = c2.email
+      JOIN crm_lists l ON c2.list_id = l.id AND l.name = 'Customers'
+      WHERE c1.list_id != c2.list_id
+    `);
+
+    res.json({ success: true, message: `Moved ${moved} newsletter subscriber(s) to Newsletter Admin. Removed ${dedup.affectedRows} duplicate(s) from other lists.` });
+  } catch (err) {
+    console.error('Cleanup error:', err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
 // --- LISTS ---
 // Get all lists
 router.get('/lists', async (req, res) => {

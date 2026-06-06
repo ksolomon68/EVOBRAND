@@ -334,6 +334,23 @@ export default function AdminCRMPanel({ user }) {
           <div>
             <h2 className="text-2xl font-bold text-white mb-1">CRM & Campaigns</h2>
             <p className="text-sm text-white/40">Manage your audience and send email broadcasts</p>
+            <button
+              onClick={async () => {
+                try {
+                  const res = await fetch(`${API_BASE}/api/crm/admin/cleanup-lists`, { method: 'POST' });
+                  const data = await res.json();
+                  setMessage(data.message || 'Cleanup complete.');
+                  fetchLists();
+                  fetchContacts(filterList);
+                  setTimeout(() => setMessage(''), 6000);
+                } catch (err) {
+                  setError('Cleanup failed: ' + err.message);
+                }
+              }}
+              className="mt-2 text-xs text-white/30 hover:text-[#22c8e5] transition-colors underline"
+            >
+              Fix duplicate list assignments
+            </button>
           </div>
           <div className="flex bg-[#1a2332] p-1 rounded-lg">
             <button
