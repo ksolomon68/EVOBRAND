@@ -226,14 +226,19 @@ router.post('/campaigns/:id/send', async (req, res) => {
     
     const emails = contacts.map(c => c.email);
     
-    // 3. Send emails with tracking injected
-    await getResend().emails.send({
-      from: `"EVOBRAND" <${process.env.RESEND_FROM_EMAIL || 'info@evobrand.net'}>`,
-      to: ['info@evobrand.net'], // Resend requires at least one 'to' address
-      bcc: emails, // Send as BCC so recipients don't see each other
-      subject: campaign.subject,
-      html: getEmailTemplate(campaign.subject, campaign.html_content, campaign.id, SITE_URL),
-    });
+    // 3. Send emails using Resend Batch API
+    // Resend batch sending allows up to 100 emails per API request
+    const batchSize = 100;
+    for (let i = 0; i < emails.length; i += batchSize) {
+      const emailChunk = emails.slice(i, i + batchSize);
+      const batchPayload = emailChunk.map(email => ({
+        from: `"EVOBRAND" <${process.env.RESEND_FROM_EMAIL || 'info@evobrand.net'}>`,
+        to: [email],
+        subject: campaign.subject,
+        html: getEmailTemplate(campaign.subject, campaign.html_content, campaign.id, SITE_URL),
+      }));
+      await getResend().batch.send(batchPayload);
+    }
     
     // 4. Mark campaign as sent
     await pool.query('UPDATE crm_campaigns SET status = "sent", sent_at = CURRENT_TIMESTAMP WHERE id = ?', [id]);
