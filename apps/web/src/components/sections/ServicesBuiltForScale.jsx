@@ -2,7 +2,6 @@ import React, { useRef } from 'react';
 import gsap from 'gsap';
 import { useGSAP } from '@gsap/react';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
-import useMagneticTilt from '@/hooks/useMagneticTilt.js';
 
 gsap.registerPlugin(ScrollTrigger, useGSAP);
 
@@ -39,29 +38,21 @@ const SERVICES = [
   },
 ];
 
-const ServiceCard = ({ icon, title, desc }) => {
-  const tiltRef = useMagneticTilt({ max: 10, scale: 1.04 });
-
-  return (
-    <div ref={tiltRef} className="service-card service-card--tilt">
-      {/* Cursor-tracking glare highlight (driven by --glare-* vars from the tilt hook) */}
-      <div className="service-glare" aria-hidden="true" />
-      <div className="service-icon" style={{ transform: 'translateZ(40px)' }}>
-        <div className="service-icon-bg" style={{ background: '#22c8e5' }}></div>
-        <span>{icon}</span>
-      </div>
-      <h3 className="text-xl font-bold mb-3 text-white" style={{ transform: 'translateZ(25px)' }}>{title}</h3>
-      <p className="text-[#8892a4] text-sm leading-relaxed" style={{ transform: 'translateZ(15px)' }}>{desc}</p>
+const ServiceCard = ({ icon, title, desc }) => (
+  <div className="service-card">
+    <div className="service-icon">
+      <div className="service-icon-bg" style={{ background: '#22c8e5' }}></div>
+      <span>{icon}</span>
     </div>
-  );
-};
+    <h3 className="text-xl font-bold mb-3 text-white">{title}</h3>
+    <p className="text-[#8892a4] text-sm leading-relaxed">{desc}</p>
+  </div>
+);
 
 const ServicesBuiltForScale = () => {
   const sectionRef = useRef(null);
 
   useGSAP(() => {
-    const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-
     gsap.from('.svc-head', {
       scrollTrigger: { trigger: sectionRef.current, start: 'top 80%' },
       y: 30,
@@ -71,25 +62,23 @@ const ServicesBuiltForScale = () => {
       stagger: 0.12,
     });
 
-    if (reduce) return;
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
 
-    // Staggered 3D card entrance as the grid scrolls into view.
-    gsap.from('.service-card--tilt', {
+    // Simple staggered fade-up entrance for the cards.
+    gsap.from('.service-card', {
       scrollTrigger: { trigger: '.svc-grid', start: 'top 85%' },
-      y: 60,
+      y: 40,
       opacity: 0,
-      rotateX: -12,
-      transformOrigin: 'center bottom',
-      duration: 0.7,
+      duration: 0.6,
       ease: 'power3.out',
-      stagger: { each: 0.1, from: 'start' },
+      stagger: 0.1,
     });
   }, { scope: sectionRef });
 
   return (
     <section ref={sectionRef} id="services" className="py-20 relative bg-gradient-to-b from-[#0a0a0f] to-[#0d0d18]">
       <div className="container mx-auto px-4 lg:max-w-[1200px]">
-        <div className="text-center mb-16" style={{ perspective: 1000 }}>
+        <div className="text-center mb-16">
           <span className="svc-head inline-block text-[#22c8e5] text-xs font-bold tracking-[0.15em] uppercase mb-4">
             What We Do
           </span>
@@ -101,7 +90,7 @@ const ServicesBuiltForScale = () => {
           </p>
         </div>
 
-        <div className="svc-grid grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6" style={{ perspective: 1200 }}>
+        <div className="svc-grid grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
           {SERVICES.map((s) => (
             <ServiceCard key={s.title} {...s} />
           ))}
