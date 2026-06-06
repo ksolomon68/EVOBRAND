@@ -7,13 +7,41 @@ const { getEmailTemplate } = require('../utils/emailTemplate');
 
 const SITE_URL = process.env.SITE_URL || 'https://evobrandconcepts.com';
 
-// Run list-name migrations on startup
+// Run list migrations on startup
 (async () => {
   try {
-    // Rename legacy "Custom" list to "Customer"
-    await pool.query(`UPDATE crm_lists SET name = 'Customer' WHERE name = 'Custom'`);
+    // Ensure "Customers" list exists (create only if missing)
+    await pool.query(`
+      INSERT INTO crm_lists (name)
+      SELECT 'Customers' FROM DUAL
+      WHERE NOT EXISTS (SELECT 1 FROM crm_lists WHERE name = 'Customers')
+    `);
+
+    // Merge any "Customer" or "Custom" list into "Customers" then delete it
+    const [[{ customersId }]] = await pool.query(
+      `SELECT id AS customersId FROM crm_lists WHERE name = 'Customers' LIMIT 1`
+    );
+    for (const badName of ['Customer', 'Custom']) {
+      const [rows] = await pool.query(
+        `SELECT id FROM crm_lists WHERE name = ? LIMIT 1`, [badName]
+      );
+      if (!rows.length) continue;
+      const badId = rows[0].id;
+      // Remove duplicates (contacts already in Customers)
+      await pool.query(`
+        DELETE c1 FROM crm_contacts c1
+        INNER JOIN crm_contacts c2 ON c1.email = c2.email AND c2.list_id = ?
+        WHERE c1.list_id = ?
+      `, [customersId, badId]);
+      // Move the rest
+      await pool.query(
+        `UPDATE crm_contacts SET list_id = ? WHERE list_id = ?`, [customersId, badId]
+      );
+      // Delete the stale list
+      await pool.query(`DELETE FROM crm_lists WHERE id = ?`, [badId]);
+    }
   } catch (err) {
-    console.error('Could not migrate list names:', err.message);
+    console.error('Could not run list migrations:', err.message);
   }
 })();
 

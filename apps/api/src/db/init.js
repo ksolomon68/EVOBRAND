@@ -147,13 +147,17 @@ async function initializeDatabase() {
       )
     `);
 
-    // Insert default lists, updating names if they already exist
+    // Ensure core lists exist (Newsletter Admin and Leads by fixed id, Customers by name)
     await pool.query(`
       INSERT INTO crm_lists (id, name) VALUES
-      (1, 'Customer'),
       (2, 'Newsletter Admin'),
       (3, 'Leads')
       ON DUPLICATE KEY UPDATE name = VALUES(name)
+    `);
+    await pool.query(`
+      INSERT INTO crm_lists (name)
+      SELECT 'Customers' FROM DUAL
+      WHERE NOT EXISTS (SELECT 1 FROM crm_lists WHERE name = 'Customers')
     `);
 
     // Create CRM Contacts table
