@@ -184,24 +184,6 @@ const HomePage = () => {
               <h2 className="text-4xl md:text-5xl font-bold text-white mb-4">Trusted by 600+ Businesses</h2>
               <p className="text-xl text-gray-400">Join industry leaders who trust EVOBRAND</p>
             </motion.div>
-
-
-
-            {/* Live Stats */}
-            <div className="grid md:grid-cols-3 gap-6 text-center">
-              <div className="bg-[#0f1419] p-6 rounded-xl">
-                <p className="text-4xl font-bold text-[#22c8e5] mb-2">500+</p>
-                <p className="text-gray-400">Projects Delivered</p>
-              </div>
-              <div className="bg-[#0f1419] p-6 rounded-xl">
-                <p className="text-4xl font-bold text-[#22c8e5] mb-2">95%</p>
-                <p className="text-gray-400">Client Retention</p>
-              </div>
-              <div className="bg-[#0f1419] p-6 rounded-xl">
-                <p className="text-4xl font-bold text-[#22c8e5] mb-2">$2.5M+</p>
-                <p className="text-gray-400">Saved for Clients</p>
-              </div>
-            </div>
           </div>
         </section>
 
