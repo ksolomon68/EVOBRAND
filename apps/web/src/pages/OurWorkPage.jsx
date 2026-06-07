@@ -59,6 +59,16 @@ const OurWorkPage = () => {
       link: 'https://truereleafmonroe.com'
     },
     {
+      id: 101,
+      title: 'Common Ground Ministries',
+      category: 'Web Development',
+      industry: 'Non-profit',
+      image: '/projects/cgm.png',
+      metrics: { roi: 'Community', timeSaved: 'Outreach', revenue: 'Donations' },
+      description: 'Where every child is celebrated for who they are. Serving at-risk children with faith, mentorship, and a safe place to grow.',
+      link: 'https://evobrand.net/cgm/'
+    },
+    {
       id: 1,
       title: 'Breaking Silences',
       category: 'Web Development',
