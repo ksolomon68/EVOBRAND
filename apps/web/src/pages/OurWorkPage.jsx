@@ -69,26 +69,6 @@ const OurWorkPage = () => {
       link: 'https://evobrand.net/cgm/'
     },
     {
-      id: 1,
-      title: 'Breaking Silences',
-      category: 'Web Development',
-      industry: 'Community',
-      image: '/projects/breaking-silences.jpg',
-      metrics: { roi: 'N/A', timeSaved: 'High', revenue: 'N/A' },
-      description: 'A secure platform featuring live debates, discussion forums, and groups for free speech.',
-      link: 'https://breakingsilences.org/'
-    },
-    {
-      id: 3,
-      title: 'My Social Grid',
-      category: 'Web Development',
-      industry: 'Social Media',
-      image: '/projects/my-social-grid.jpg',
-      metrics: { roi: 'High', timeSaved: 'Real-time', revenue: 'Scalable' },
-      description: 'Free speech social media platform for connecting, buying, selling, and learning.',
-      link: 'https://mysocialgrid.com/'
-    },
-    {
       id: 5,
       title: 'Pigment Cosmetics',
       category: 'E-commerce',
