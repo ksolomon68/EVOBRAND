@@ -84,8 +84,8 @@ function Sidebar({ user, view, setView, setSelectedTicket, openTicketCount, hand
       .join('') ?? 'U';
 
   const navContent = (
-    <div className="flex flex-col h-full">
-        <div className="p-8">
+    <div className="flex flex-col h-full min-h-0">
+        <div className="p-8 flex-1 overflow-y-auto min-h-0">
           <div className="flex flex-col items-start gap-4 mb-12">
             <img src="/logo.png" alt="EVOBRAND" className="h-10 object-contain" />
             <div className="h-px w-8" style={{ background: `${GOLD}30` }} aria-hidden="true" />
@@ -106,7 +106,7 @@ function Sidebar({ user, view, setView, setSelectedTicket, openTicketCount, hand
             </div>
           </nav>
         </div>
-        <div className="mt-auto p-8 border-t" style={{ borderColor: 'rgba(255,255,255,0.05)' }}>
+        <div className="shrink-0 p-8 border-t" style={{ borderColor: 'rgba(255,255,255,0.05)' }}>
           <div className="flex items-center gap-4 mb-5">
             <div className="w-11 h-11 rounded-2xl flex items-center justify-center font-bold shadow-lg text-sm"
               style={{ background: `linear-gradient(135deg, ${GOLD}, #1ba3c0)`, color: NAVY, boxShadow: `0 4px 16px ${GOLD}25` }}
