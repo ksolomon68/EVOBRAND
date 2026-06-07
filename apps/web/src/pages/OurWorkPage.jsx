@@ -9,14 +9,14 @@ const OurWorkPage = () => {
 
   const portfolioItems = [
     {
-      id: 101,
-      title: 'Common Ground Ministries',
+      id: 12,
+      title: 'Pivotal Voice',
       category: 'Web Development',
-      industry: 'Non-profit',
-      image: '/projects/cgm.png',
-      metrics: { roi: 'Community', timeSaved: 'Outreach', revenue: 'Donations' },
-      description: 'Where every child is celebrated for who they are. Serving at-risk children with faith, mentorship, and a safe place to grow.',
-      link: 'https://evobrand.net/cgm/'
+      industry: 'Government',
+      image: '/projects/pivotal-voice.jpg',
+      metrics: { roi: 'Engagement', timeSaved: 'Streamlined', revenue: 'N/A' },
+      description: 'The comprehensive civic engagement platform connecting Ellis County residents with democracy.',
+      link: 'https://pivotalvoice.org/'
     },
     {
       id: 102,
@@ -59,16 +59,6 @@ const OurWorkPage = () => {
       link: 'https://truereleafmonroe.com'
     },
     {
-      id: 12,
-      title: 'Pivotal Voice',
-      category: 'Web Development',
-      industry: 'Government',
-      image: '/projects/pivotal-voice.jpg',
-      metrics: { roi: 'Engagement', timeSaved: 'Streamlined', revenue: 'N/A' },
-      description: 'The comprehensive civic engagement platform connecting Ellis County residents with democracy.',
-      link: 'https://pivotalvoice.org/'
-    },
-    {
       id: 1,
       title: 'Breaking Silences',
       category: 'Web Development',
@@ -97,16 +87,6 @@ const OurWorkPage = () => {
       metrics: { roi: 'Sales', timeSaved: 'Streamlined', revenue: 'Direct' },
       description: 'Professional cosmetics e-commerce site offering products, kits, and educational support.',
       link: 'https://pigmentcosmetics.com/'
-    },
-    {
-      id: 6,
-      title: 'Esoteric Kings',
-      category: 'Web Development',
-      industry: 'Community',
-      image: '/projects/esoteric-kings.jpg',
-      metrics: { roi: 'Membership', timeSaved: 'Efficient', revenue: 'N/A' },
-      description: 'Championing Honor, Integrity, and Personal Growth through the timeless principles of Freemasonry.',
-      link: 'https://evobrand.net/ekd'
     },
     {
       id: 7,
@@ -151,26 +131,6 @@ const OurWorkPage = () => {
   ];
 
   const newPortfolioItems = [
-    {
-      id: 16,
-      title: 'Zarate for Ellis County',
-      category: 'Web Development',
-      industry: 'Political',
-      image: '/projects/zarate-for-ellis-county.jpg',
-      metrics: { roi: 'Voters', timeSaved: 'Communication', revenue: 'Campaign' },
-      description: 'Jennifer Zarate for Ellis County District Clerk. Proven leadership and values.',
-      link: 'https://evobrand.net/jz'
-    },
-    {
-      id: 17,
-      title: 'Cutting Edge',
-      category: 'Web Development',
-      industry: 'Beauty & Wellness',
-      image: '/projects/cutting-edge.jpg',
-      metrics: { roi: 'Reservations', timeSaved: 'Management', revenue: 'Growth' },
-      description: 'Precise. Crafted. Modern techniques with classic service.',
-      link: 'https://evobrand.net/sample/cutting%20edge'
-    },
     {
       id: 18,
       title: 'The Star List',
