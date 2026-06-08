@@ -1,6 +1,6 @@
 
-import React from 'react';
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import React, { useEffect } from 'react';
+import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import ScrollToTop from '@/components/ScrollToTop.jsx';
 import Header from '@/components/Header.jsx';
 import Footer from '@/components/Footer.jsx';
@@ -21,11 +21,21 @@ import ResetPasswordPage from '@/pages/ResetPasswordPage.jsx';
 import MaintenancePlansPage from '@/pages/MaintenancePlansPage.jsx';
 import PaymentSuccessPage from '@/pages/PaymentSuccessPage.jsx';
 import NotFoundPage from '@/pages/NotFoundPage.jsx';
+import { trackPageView } from '@/lib/analytics.js';
+
+function AnalyticsTracker() {
+  const location = useLocation();
+  useEffect(() => {
+    trackPageView(location.pathname, document.title);
+  }, [location.pathname]);
+  return null;
+}
 
 function App() {
   return (
     <BrowserRouter>
       <ScrollToTop />
+      <AnalyticsTracker />
       <a
         href="#main-content"
         className="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-[200] focus:px-4 focus:py-2 focus:bg-[#22c8e5] focus:text-[#003258] focus:font-bold focus:rounded-lg focus:shadow-lg"
