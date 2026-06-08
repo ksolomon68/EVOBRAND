@@ -10,7 +10,6 @@ const API_BASE = window.location.hostname === 'localhost' || window.location.hos
   : window.location.origin;
 
 const Footer = () => {
-  const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [status, setStatus] = useState('idle'); // idle, loading, success, error
   const [message, setMessage] = useState('');
@@ -23,13 +22,12 @@ const Footer = () => {
         const response = await fetch(`${API_BASE}/api/newsletter/subscribe`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ name, email }),
+          body: JSON.stringify({ email }),
         });
 
         if (response.ok) {
           setStatus('success');
           setMessage('Subscribed!');
-          setName('');
           setEmail('');
           setTimeout(() => {
             setStatus('idle');
@@ -61,10 +59,10 @@ const Footer = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-8">
           {/* Brand Section */}
           <div>
-            <Link to="/" className="inline-block mb-4" aria-label="EVOBRAND — go to home page">
+            <Link to="/" className="inline-block mb-4">
               <motion.img
                 src="/logo.png"
-                alt=""
+                alt="EVOBRAND"
                 className="h-[40px] md:h-[50px] lg:h-[60px] w-auto object-contain"
                 whileHover={{ scale: 1.02 }}
                 transition={{ duration: 0.3 }}
@@ -74,17 +72,17 @@ const Footer = () => {
               AI Transformation Partner - Empowering businesses with cutting-edge AI solutions, custom applications, and intelligent automation.
             </p>
             <div className="flex space-x-4">
-              <a href="http://facebook.com/evobrandconcepts" target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-[#22c8e5] transition-colors" aria-label="EVOBRAND on Facebook (opens in new tab)">
-                <Facebook size={20} aria-hidden="true" />
+              <a href="http://facebook.com/evobrandconcepts" target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-[#22c8e5] transition-colors">
+                <Facebook size={20} />
               </a>
-              <a href="https://www.linkedin.com/company/evobrand-concepts/" target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-[#22c8e5] transition-colors" aria-label="EVOBRAND on LinkedIn (opens in new tab)">
-                <Linkedin size={20} aria-hidden="true" />
+              <a href="https://www.linkedin.com/company/evobrand-concepts/" target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-[#22c8e5] transition-colors">
+                <Linkedin size={20} />
               </a>
-              <a href="https://www.instagram.com/evobrandconcepts" target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-[#22c8e5] transition-colors" aria-label="EVOBRAND on Instagram (opens in new tab)">
-                <Instagram size={20} aria-hidden="true" />
+              <a href="https://www.instagram.com/evobrandconcepts" target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-[#22c8e5] transition-colors">
+                <Instagram size={20} />
               </a>
-              <a href="https://www.youtube.com/channel/UC8z66n8_seQVY5PjBEDMM7w" target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-[#22c8e5] transition-colors" aria-label="EVOBRAND on YouTube (opens in new tab)">
-                <Youtube size={20} aria-hidden="true" />
+              <a href="https://www.youtube.com/channel/UC8z66n8_seQVY5PjBEDMM7w" target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-[#22c8e5] transition-colors">
+                <Youtube size={20} />
               </a>
             </div>
           </div>
@@ -104,17 +102,15 @@ const Footer = () => {
             <h3 className="text-lg font-semibold mb-4 text-[#22c8e5]">Contact Us</h3>
             <ul className="space-y-3">
               <li className="flex items-center space-x-2 text-gray-400 text-sm">
-                <Phone size={16} className="text-[#22c8e5]" aria-hidden="true" />
+                <Phone size={16} className="text-[#22c8e5]" />
                 <a href="tel:+12145314427" className="hover:text-[#22c8e5] transition-colors">+1 214-531-4427</a>
               </li>
               <li className="flex items-center space-x-2 text-gray-400 text-sm">
-                <Mail size={16} className="text-[#22c8e5]" aria-hidden="true" />
-                <a href="mailto:info@evobrand.net" className="hover:text-[#22c8e5] transition-colors">
-                  info@evobrand.net <span className="sr-only">(opens email client)</span>
-                </a>
+                <Mail size={16} className="text-[#22c8e5]" />
+                <a href="mailto:info@evobrand.net" className="hover:text-[#22c8e5] transition-colors">info@evobrand.net</a>
               </li>
               <li className="flex items-start space-x-2 text-gray-400 text-sm">
-                <MapPin size={16} className="text-[#22c8e5] mt-1" aria-hidden="true" />
+                <MapPin size={16} className="text-[#22c8e5] mt-1" />
                 <span>Ellis County, Texas</span>
               </li>
             </ul>
@@ -125,19 +121,7 @@ const Footer = () => {
             <h3 className="text-lg font-semibold mb-4 text-[#22c8e5]">Newsletter</h3>
             <p className="text-gray-400 text-sm mb-4">Stay updated with AI trends and insights.</p>
             <form onSubmit={handleNewsletterSubmit} className="space-y-2">
-              <label htmlFor="footer-newsletter-name" className="sr-only">Name</label>
               <input
-                id="footer-newsletter-name"
-                type="text"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                placeholder="Your name"
-                className="w-full px-4 py-2 bg-[#1a2332] text-white border border-gray-700 rounded-2xl focus:outline-none focus:border-[#22c8e5] text-sm"
-                required
-              />
-              <label htmlFor="footer-newsletter-email" className="sr-only">Email address</label>
-              <input
-                id="footer-newsletter-email"
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}

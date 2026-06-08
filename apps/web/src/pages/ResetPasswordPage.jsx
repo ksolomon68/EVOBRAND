@@ -2,8 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Lock, CheckCircle2, AlertCircle } from 'lucide-react';
 import SEO from '@/components/SEO.jsx';
-import { useAuth } from '../hooks/useAuth.jsx';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import { supabase } from '../lib/supabase.js';
+import { useNavigate } from 'react-router-dom';
 
 export default function ResetPasswordPage() {
   const [password, setPassword] = useState('');
@@ -11,15 +11,16 @@ export default function ResetPasswordPage() {
   const [loading, setLoading] = useState(false);
   const [done, setDone] = useState(false);
   const [error, setError] = useState('');
-  const [searchParams] = useSearchParams();
-  const { resetPassword } = useAuth();
+  const [ready, setReady] = useState(false);
   const navigate = useNavigate();
 
-  const token = searchParams.get('token');
-
   useEffect(() => {
-    if (!token) setError('Invalid or missing reset link. Please request a new one.');
-  }, [token]);
+    if (!supabase) return;
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event) => {
+      if (event === 'PASSWORD_RECOVERY') setReady(true);
+    });
+    return () => subscription.unsubscribe();
+  }, []);
 
   async function handleSubmit(e) {
     e.preventDefault();
@@ -27,20 +28,20 @@ export default function ResetPasswordPage() {
     if (password.length < 8) { setError('Password must be at least 8 characters.'); return; }
     setLoading(true);
     setError('');
-    try {
-      await resetPassword({ token, password });
+    if (!supabase) { setError('Password reset is not configured.'); setLoading(false); return; }
+    const { error } = await supabase.auth.updateUser({ password });
+    if (error) {
+      setError(error.message);
+      setLoading(false);
+    } else {
       setDone(true);
       setTimeout(() => navigate('/login'), 3000);
-    } catch (err) {
-      setError(err.message);
-    } finally {
-      setLoading(false);
     }
   }
 
   return (
     <>
-      <SEO
+      <SEO 
         title="Reset Password"
         description="Reset your EVOBRAND client portal password."
         noindex={true}
@@ -68,6 +69,11 @@ export default function ResetPasswordPage() {
                 <h2 className="text-2xl font-bold text-white mb-3">Password updated!</h2>
                 <p className="text-white/50 text-sm">Redirecting you to login…</p>
               </div>
+            ) : !ready ? (
+              <div className="text-center py-8">
+                <div className="w-10 h-10 border-2 border-[#22c8e5]/20 border-t-[#22c8e5] rounded-full animate-spin mx-auto mb-4" />
+                <p className="text-white/40 text-sm">Verifying reset link…</p>
+              </div>
             ) : (
               <>
                 <h2 className="text-2xl font-bold text-white mb-2">Set new password</h2>
@@ -89,8 +95,7 @@ export default function ResetPasswordPage() {
                         type="password"
                         required
                         minLength={8}
-                        disabled={!token}
-                        className="w-full bg-white/5 border border-white/10 rounded-2xl py-4 pl-12 pr-4 text-white focus:outline-none focus:border-[#22c8e5] transition-colors disabled:opacity-40"
+                        className="w-full bg-white/5 border border-white/10 rounded-2xl py-4 pl-12 pr-4 text-white focus:outline-none focus:border-[#22c8e5] transition-colors"
                         placeholder="Min. 8 characters"
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
@@ -105,8 +110,7 @@ export default function ResetPasswordPage() {
                       <input
                         type="password"
                         required
-                        disabled={!token}
-                        className="w-full bg-white/5 border border-white/10 rounded-2xl py-4 pl-12 pr-4 text-white focus:outline-none focus:border-[#22c8e5] transition-colors disabled:opacity-40"
+                        className="w-full bg-white/5 border border-white/10 rounded-2xl py-4 pl-12 pr-4 text-white focus:outline-none focus:border-[#22c8e5] transition-colors"
                         placeholder="••••••••"
                         value={confirm}
                         onChange={(e) => setConfirm(e.target.value)}
@@ -116,7 +120,7 @@ export default function ResetPasswordPage() {
 
                   <button
                     type="submit"
-                    disabled={loading || !token}
+                    disabled={loading}
                     className="w-full bg-[#22c8e5] hover:bg-[#1ba3c0] text-[#003258] font-bold py-4 rounded-2xl transition-all flex items-center justify-center gap-2 disabled:opacity-50"
                   >
                     {loading

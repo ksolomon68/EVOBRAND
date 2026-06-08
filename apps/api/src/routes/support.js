@@ -3,7 +3,6 @@ const router = express.Router();
 const pool = require('../db/connection');
 const path = require('path');
 const fs = require('fs');
-const { addToCustomersList } = require('../utils/crmHelpers');
 const multer = require('multer');
 const { getEmailTemplate } = require('../utils/emailTemplate');
 const { Resend } = require('resend');
@@ -31,12 +30,10 @@ const upload = multer({
   },
 });
 
-// Auto-migrate: add missing columns on startup
-pool.query("ALTER TABLE support_tickets ADD COLUMN attachment_url VARCHAR(500)").catch(() => {});
-// Stored as a promise so handlers can await it before querying support_plan
-const ensureSupportPlan = pool.query(
-  "ALTER TABLE users ADD COLUMN support_plan ENUM('basic','pro','elite') DEFAULT NULL"
-).catch(() => {});
+// Auto-migrate: add attachment_url column if missing
+pool.query(
+  "ALTER TABLE support_tickets ADD COLUMN attachment_url VARCHAR(500)"
+).catch(() => {}); // ignore if already exists
 
 const getResend = () => new Resend(process.env.RESEND_API_KEY || 're_placeholder');
 
@@ -162,17 +159,13 @@ router.post('/ticket', upload.single('file'), async (req, res) => {
       await connection.commit();
       const ticketId = ticketResult.insertId;
 
-      // Auto-add ticket submitter to Customers CRM list
-      const nameParts = (name || '').split(' ');
-      await addToCustomersList(email, { firstName: nameParts[0], lastName: nameParts.slice(1).join(' ') || null });
-
       // Send Email Notifications
       try {
         const attachmentNote = attachmentUrl
           ? `<p><strong>Attachment:</strong> <a href="https://evobrandconcepts.com${attachmentUrl}">${req.file.originalname}</a></p>`
           : '';
         await getResend().emails.send({
-          from: `"EVOBRAND" <${process.env.RESEND_FROM_EMAIL || 'info@evobrand.net'}>`,
+          from: `"EVOBRAND Support" <${process.env.RESEND_FROM_EMAIL || 'info@evobrand.net'}>`,
           to: 'info@evobrand.net',
           subject: `New Ticket: ${subject}`,
             html: getEmailTemplate(`New Ticket: ${subject}`, `<p><strong>New Support Ticket from ${name || email}</strong></p>
@@ -181,7 +174,7 @@ router.post('/ticket', upload.single('file'), async (req, res) => {
                  <p><strong>Message:</strong><br/>${message}</p>${attachmentNote}`)
         });
         await getResend().emails.send({
-          from: `"EVOBRAND" <${process.env.RESEND_FROM_EMAIL || 'info@evobrand.net'}>`,
+          from: `"EVOBRAND Support" <${process.env.RESEND_FROM_EMAIL || 'info@evobrand.net'}>`,
           to: email,
           subject: `Ticket Received: ${subject}`,
             html: getEmailTemplate(`Ticket Received: ${subject}`, `<p>Hi ${name || ''},</p>
@@ -245,7 +238,7 @@ router.post('/tickets/:id/reply', authenticateToken, async (req, res) => {
       
       // Email Admin
       await getResend().emails.send({
-        from: `"EVOBRAND" <${process.env.RESEND_FROM_EMAIL || 'info@evobrand.net'}>`,
+        from: `"EVOBRAND Support" <${process.env.RESEND_FROM_EMAIL || 'info@evobrand.net'}>`,
         to: 'info@evobrand.net',
         subject: `New Reply: Ticket #${ticketId}`,
             html: getEmailTemplate(`New Reply: Ticket #${ticketId}`, `<p>The client has replied to ticket #${ticketId} ("${currentTicket.subject}"). The status is now <strong>OPEN</strong>.</p>
@@ -259,7 +252,7 @@ router.post('/tickets/:id/reply', authenticateToken, async (req, res) => {
       // Email User
       if (currentTicket.user_email) {
         await getResend().emails.send({
-          from: `"EVOBRAND" <${process.env.RESEND_FROM_EMAIL || 'info@evobrand.net'}>`,
+          from: `"EVOBRAND Support" <${process.env.RESEND_FROM_EMAIL || 'info@evobrand.net'}>`,
           to: currentTicket.user_email,
           subject: `New Reply on Ticket: ${currentTicket.subject}`,
             html: getEmailTemplate(`New Reply on Ticket: ${currentTicket.subject}`, `<p>Hi ${currentTicket.user_name || ''},</p>
@@ -315,7 +308,7 @@ router.put('/tickets/:id', authenticateToken, async (req, res) => {
       // Email User
       if (currentTicket.user_email) {
         await getResend().emails.send({
-          from: `"EVOBRAND" <${process.env.RESEND_FROM_EMAIL || 'info@evobrand.net'}>`,
+          from: `"EVOBRAND Support" <${process.env.RESEND_FROM_EMAIL || 'info@evobrand.net'}>`,
           to: currentTicket.user_email,
           subject: `Ticket Status Updated: ${currentTicket.subject}`,
             html: getEmailTemplate(`Ticket Status Updated: ${currentTicket.subject}`, `<p>Hi ${currentTicket.user_name || ''},</p>
@@ -326,7 +319,7 @@ router.put('/tickets/:id', authenticateToken, async (req, res) => {
       
       // Email Admin
       await getResend().emails.send({
-        from: `"EVOBRAND" <${process.env.RESEND_FROM_EMAIL || 'info@evobrand.net'}>`,
+        from: `"EVOBRAND Support" <${process.env.RESEND_FROM_EMAIL || 'info@evobrand.net'}>`,
         to: 'info@evobrand.net',
         subject: `Ticket Status Changed: #${ticketId}`,
             html: getEmailTemplate(`Ticket Status Changed: #${ticketId}`, `<p>Ticket #${ticketId} ("${currentTicket.subject}") status changed to <strong>${formattedStatus}</strong> by an admin.</p>`)
@@ -362,7 +355,7 @@ router.post('/tickets/:id/close', authenticateToken, async (req, res) => {
       // Email User
       if (currentTicket.user_email) {
         await getResend().emails.send({
-          from: `"EVOBRAND" <${process.env.RESEND_FROM_EMAIL || 'info@evobrand.net'}>`,
+          from: `"EVOBRAND Support" <${process.env.RESEND_FROM_EMAIL || 'info@evobrand.net'}>`,
           to: currentTicket.user_email,
           subject: `Ticket Closed: ${currentTicket.subject}`,
             html: getEmailTemplate(`Ticket Closed: ${currentTicket.subject}`, `<p>Hi ${currentTicket.user_name || ''},</p>
@@ -372,7 +365,7 @@ router.post('/tickets/:id/close', authenticateToken, async (req, res) => {
       
       // Email Admin
       await getResend().emails.send({
-        from: `"EVOBRAND" <${process.env.RESEND_FROM_EMAIL || 'info@evobrand.net'}>`,
+        from: `"EVOBRAND Support" <${process.env.RESEND_FROM_EMAIL || 'info@evobrand.net'}>`,
         to: 'info@evobrand.net',
         subject: `Ticket Closed by Client: #${ticketId}`,
             html: getEmailTemplate(`Ticket Closed by Client: #${ticketId}`, `<p>Ticket #${ticketId} ("${currentTicket.subject}") was closed by the client.</p>`)
@@ -392,34 +385,13 @@ router.get('/users', authenticateToken, async (req, res) => {
   try {
     const admin = await isAdminUser(req.user.id);
     if (!admin) return res.status(403).json({ error: 'Admin access required' });
-
-    let users;
-    try {
-      // Primary query — requires support_plan column to exist
-      [users] = await pool.query(
-        'SELECT id, name, email, support_plan, created_at FROM users WHERE is_admin = 0 OR is_admin IS NULL ORDER BY created_at DESC'
-      );
-    } catch {
-      // Column missing: try to add it, then retry. If ALTER is blocked (e.g. no DDL
-      // permission on shared hosting), fall back to NULL so the list still loads.
-      await pool.query(
-        "ALTER TABLE users ADD COLUMN support_plan ENUM('basic','pro','elite') DEFAULT NULL"
-      ).catch(() => {});
-      try {
-        [users] = await pool.query(
-          'SELECT id, name, email, support_plan, created_at FROM users WHERE is_admin = 0 OR is_admin IS NULL ORDER BY created_at DESC'
-        );
-      } catch {
-        [users] = await pool.query(
-          'SELECT id, name, email, NULL as support_plan, created_at FROM users WHERE is_admin = 0 OR is_admin IS NULL ORDER BY created_at DESC'
-        );
-      }
-    }
-
+    const [users] = await pool.query(
+      'SELECT id, name, email, support_plan, created_at FROM users WHERE is_admin = 0 OR is_admin IS NULL ORDER BY created_at DESC'
+    );
     res.status(200).json({ users });
   } catch (error) {
     console.error('Fetch users error:', error);
-    res.status(500).json({ error: error.message || 'Server error' });
+    res.status(500).json({ error: 'Server error' });
   }
 });
 
@@ -436,22 +408,11 @@ router.put('/users/:id/plan', authenticateToken, async (req, res) => {
       return res.status(400).json({ error: 'Invalid plan. Use basic, pro, elite, or null.' });
     }
 
-    await ensureSupportPlan;
     await pool.query('UPDATE users SET support_plan = ? WHERE id = ?', [plan || null, req.params.id]);
-
-    // Auto-add to Customers CRM list when a plan is assigned (not when removed)
-    if (plan) {
-      const [users] = await pool.query('SELECT email, name FROM users WHERE id = ?', [req.params.id]);
-      if (users.length) {
-        const nameParts = (users[0].name || '').split(' ');
-        await addToCustomersList(users[0].email, { firstName: nameParts[0], lastName: nameParts.slice(1).join(' ') || null });
-      }
-    }
-
     res.status(200).json({ message: 'Support plan updated' });
   } catch (error) {
     console.error('Update plan error:', error);
-    res.status(500).json({ error: error.message || 'Server error updating plan' });
+    res.status(500).json({ error: 'Server error updating plan' });
   }
 });
 
@@ -484,17 +445,10 @@ router.post('/users', authenticateToken, async (req, res) => {
     const passwordHash = await bcrypt.hash(randomPassword, salt);
 
     // Insert user
-    await ensureSupportPlan;
     await pool.query(
       'INSERT INTO users (email, name, password_hash, support_plan, is_admin) VALUES (?, ?, ?, ?, FALSE)',
       [email, name || '', passwordHash, plan || null]
     );
-
-    // Auto-add to Customers CRM list if created with a plan
-    if (plan) {
-      const nameParts = (name || '').split(' ');
-      await addToCustomersList(email, { firstName: nameParts[0], lastName: nameParts.slice(1).join(' ') || null });
-    }
 
     // Send Welcome Email
     try {
@@ -516,7 +470,7 @@ router.post('/users', authenticateToken, async (req, res) => {
     res.status(201).json({ message: 'Client created successfully' });
   } catch (error) {
     console.error('Create user error:', error);
-    res.status(500).json({ error: error.message || 'Server error creating client' });
+    res.status(500).json({ error: 'Server error creating client' });
   }
 });
 

@@ -132,7 +132,7 @@ const BookingSection = () => {
               className="w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-6"
               style={{ background: 'rgba(34,200,229,0.12)', border: '2px solid #22c8e5' }}
             >
-              <CheckCircle2 size={36} style={{ color: '#22c8e5' }} aria-hidden="true" />
+              <CheckCircle2 size={36} style={{ color: '#22c8e5' }} />
             </div>
             <h3 className="text-3xl font-bold text-white mb-3">Strategy Call Booked!</h3>
             <p className="text-[#8892a4] mb-2">
@@ -145,7 +145,7 @@ const BookingSection = () => {
               onClick={handleReset}
               className="text-sm font-bold text-[#22c8e5] hover:opacity-75 transition-opacity"
             >
-              Book another session <span aria-hidden="true">→</span>
+              Book another session →
             </button>
           </motion.div>
         </div>
@@ -197,26 +197,24 @@ const BookingSection = () => {
             <div className="flex items-center justify-between mb-6">
               <button
                 onClick={prevMonth}
-                aria-label="Previous month"
                 className="w-8 h-8 rounded-md border border-[rgba(255,255,255,0.08)] text-white flex items-center justify-center hover:bg-[#22c8e5] hover:border-[#22c8e5] hover:text-[#003258] transition-all"
               >
-                <span aria-hidden="true">&#8249;</span>
+                &#8249;
               </button>
               <h3 className="text-white font-bold text-base">
                 {MONTHS[viewMonth.month]} {viewMonth.year}
               </h3>
               <button
                 onClick={nextMonth}
-                aria-label="Next month"
                 className="w-8 h-8 rounded-md border border-[rgba(255,255,255,0.08)] text-white flex items-center justify-center hover:bg-[#22c8e5] hover:border-[#22c8e5] hover:text-[#003258] transition-all"
               >
-                <span aria-hidden="true">&#8250;</span>
+                &#8250;
               </button>
             </div>
 
             <div className="grid grid-cols-7 gap-1 mb-4">
               {['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'].map(d => (
-                <div key={d} className="text-center text-[0.7rem] text-[#8892a4] font-semibold p-1 uppercase" aria-hidden="true">{d}</div>
+                <div key={d} className="text-center text-[0.7rem] text-[#8892a4] font-semibold p-1 uppercase">{d}</div>
               ))}
               {Array.from({ length: firstDow }).map((_, i) => (
                 <div key={`e${i}`} />
@@ -224,16 +222,12 @@ const BookingSection = () => {
               {Array.from({ length: daysInMonth }, (_, i) => i + 1).map(day => {
                 const dateStr = toISO(viewMonth.year, viewMonth.month, day);
                 const disabled = dateStr < todayStr;
-                const selected = selectedDay === day;
+                const selected = selectedDay === day && viewMonth.year === viewMonth.year;
                 return (
-                  <button
+                  <div
                     key={day}
-                    type="button"
-                    onClick={() => setSelectedDay(day)}
-                    disabled={disabled}
-                    aria-label={`${MONTHS[viewMonth.month]} ${day}, ${viewMonth.year}${disabled ? ' (unavailable)' : ''}`}
-                    aria-pressed={selected}
-                    className={`text-center p-2 text-[0.85rem] rounded-md border border-transparent transition-all focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#22c8e5] focus-visible:outline-offset-1 ${
+                    onClick={() => !disabled && setSelectedDay(day)}
+                    className={`text-center p-2 text-[0.85rem] rounded-md border border-transparent transition-all ${
                       disabled
                         ? 'text-white/20 cursor-not-allowed'
                         : selected
@@ -242,7 +236,7 @@ const BookingSection = () => {
                     }`}
                   >
                     {day}
-                  </button>
+                  </div>
                 );
               })}
             </div>
@@ -279,22 +273,20 @@ const BookingSection = () => {
 
             <form onSubmit={handleSubmit} noValidate>
               {/* Service selection */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-6" role="group" aria-label="Select a service">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-6">
                 {availableServices.map((service) => (
-                  <button
+                  <div
                     key={service.id}
-                    type="button"
                     onClick={() => setSelectedService(service.id)}
-                    aria-pressed={selectedService === service.id}
-                    className={`border rounded-lg p-3 cursor-pointer transition-all flex items-center gap-2 text-left focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#22c8e5] focus-visible:outline-offset-1 ${
+                    className={`border rounded-lg p-3 cursor-pointer transition-all flex items-center gap-2 ${
                       selectedService === service.id
                         ? 'bg-[rgba(34,200,229,0.15)] border-[#22c8e5]'
                         : 'bg-[rgba(255,255,255,0.04)] border-[rgba(255,255,255,0.08)] hover:border-[rgba(34,200,229,0.4)]'
                     }`}
                   >
-                    <span className="text-xl" aria-hidden="true">{service.icon}</span>
+                    <span className="text-xl">{service.icon}</span>
                     <span className="text-[0.85rem] text-white font-medium">{service.label}</span>
-                  </button>
+                  </div>
                 ))}
               </div>
 
@@ -358,7 +350,7 @@ const BookingSection = () => {
 
               {error && (
                 <div className="mb-4 flex items-center gap-2 p-3 rounded-lg bg-red-900/20 border border-red-500/30">
-                  <AlertCircle size={14} className="text-red-400 flex-shrink-0" aria-hidden="true" />
+                  <AlertCircle size={14} className="text-red-400 flex-shrink-0" />
                   <p className="text-red-300 text-sm">{error}</p>
                 </div>
               )}
@@ -376,7 +368,7 @@ const BookingSection = () => {
               >
                 {loading ? (
                   <>
-                    <Loader2 size={16} className="animate-spin" aria-hidden="true" />
+                    <Loader2 size={16} className="animate-spin" />
                     Booking...
                   </>
                 ) : (

@@ -198,18 +198,14 @@ export default function ContractBuilderPanel() {
             <div className={sectionHeadClass}>Scope of Services</div>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               {availableServices.map(s => (
-                <button
-                  key={s.id}
-                  type="button"
-                  onClick={() => toggleService(s.id)}
-                  aria-pressed={selectedServices.includes(s.id)}
-                  className={`flex items-center gap-3 p-3 rounded-lg border transition-colors text-left w-full focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#22c8e5] ${selectedServices.includes(s.id) ? 'bg-[rgba(34,200,229,0.1)] border-[#22c8e5]' : 'border-[rgba(255,255,255,0.08)] hover:border-[rgba(34,200,229,0.4)]'}`}
+                <div key={s.id} onClick={() => toggleService(s.id)}
+                  className={`flex items-center gap-3 p-3 rounded-lg cursor-pointer border transition-colors ${selectedServices.includes(s.id) ? 'bg-[rgba(34,200,229,0.1)] border-[#22c8e5]' : 'border-[rgba(255,255,255,0.08)] hover:border-[rgba(34,200,229,0.4)]'}`}
                 >
-                  <div className={`w-5 h-5 rounded border flex items-center justify-center flex-shrink-0 ${selectedServices.includes(s.id) ? 'bg-[#22c8e5] border-[#22c8e5]' : 'border-gray-500'}`} aria-hidden="true">
+                  <div className={`w-5 h-5 rounded border flex items-center justify-center flex-shrink-0 ${selectedServices.includes(s.id) ? 'bg-[#22c8e5] border-[#22c8e5]' : 'border-gray-500'}`}>
                     {selectedServices.includes(s.id) && <Check size={14} className="text-[#003258]" />}
                   </div>
                   <span className="text-white text-sm font-medium">{s.icon} {s.label}</span>
-                </button>
+                </div>
               ))}
             </div>
           </div>
@@ -218,21 +214,17 @@ export default function ContractBuilderPanel() {
           <div className="mb-8">
             <div className={sectionHeadClass}>Legal Clauses</div>
             {sidebarClauses.map(c => isRelevant(c.key) && (
-              <button
-                key={c.key}
-                type="button"
-                onClick={() => toggleClause(c.key)}
-                aria-pressed={!!clauses[c.key]}
-                className={`flex items-start gap-3 p-3 rounded-lg border mb-3 transition-colors w-full text-left focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#22c8e5] ${clauses[c.key] ? 'bg-[rgba(34,200,229,0.1)] border-[#22c8e5]' : 'border-[rgba(255,255,255,0.08)] hover:border-[rgba(34,200,229,0.4)]'}`}
+              <div key={c.key} onClick={() => toggleClause(c.key)}
+                className={`flex items-start gap-3 p-3 rounded-lg cursor-pointer border mb-3 transition-colors ${clauses[c.key] ? 'bg-[rgba(34,200,229,0.1)] border-[#22c8e5]' : 'border-[rgba(255,255,255,0.08)] hover:border-[rgba(34,200,229,0.4)]'}`}
               >
-                <div className={`w-5 h-5 rounded border mt-0.5 flex items-center justify-center flex-shrink-0 ${clauses[c.key] ? 'bg-[#22c8e5] border-[#22c8e5]' : 'border-gray-500'}`} aria-hidden="true">
+                <div className={`w-5 h-5 rounded border mt-0.5 flex items-center justify-center flex-shrink-0 ${clauses[c.key] ? 'bg-[#22c8e5] border-[#22c8e5]' : 'border-gray-500'}`}>
                   {clauses[c.key] && <Check size={14} className="text-[#003258]" />}
                 </div>
                 <div>
                   <h4 className="text-white text-[0.9rem] font-semibold mb-1">{c.title}</h4>
                   <p className="text-[#8892a4] text-[0.8rem]">{c.desc}</p>
                 </div>
-              </button>
+              </div>
             ))}
           </div>
 

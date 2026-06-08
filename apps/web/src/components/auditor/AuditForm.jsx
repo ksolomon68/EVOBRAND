@@ -162,7 +162,7 @@ const AuditForm = ({ onComplete, prefillData }) => {
               <p className="text-white/50 mb-8 ">Let's start with the basics.</p>
               <div className="space-y-5">
                 <div>
-                  <label htmlFor="audit-business-name" className={labelClass}>Business name <span aria-hidden="true">*</span></label>
+                  <label className={labelClass}>Business name *</label>
                   <input
                     type="text"
                     placeholder="e.g. Apex Consulting Group"
@@ -170,24 +170,21 @@ const AuditForm = ({ onComplete, prefillData }) => {
                     onChange={(e) => set('businessName', e.target.value)}
                     className={inputClass}
                     id="audit-business-name"
-                    aria-required="true"
-                    aria-describedby={errors.businessName ? 'err-businessName' : undefined}
-                    aria-invalid={!!errors.businessName}
                   />
-                  {errors.businessName && <p id="err-businessName" className="text-red-400 text-xs mt-1" role="alert">{errors.businessName}</p>}
+                  {errors.businessName && <p className="text-red-400 text-xs mt-1">{errors.businessName}</p>}
                 </div>
 
                 {/* Website URL — enables live internet scan */}
                 <div className="relative">
-                  <label htmlFor="audit-website-url" className={labelClass}>
+                  <label className={labelClass}>
                     Website URL
                     <span className="ml-2 inline-flex items-center gap-1 text-[10px] tracking-widest uppercase bg-[#22C8E5]/10 text-[#22C8E5] border border-[#22C8E5]/20 rounded-full px-2 py-0.5">
-                      <span className="inline-block w-1.5 h-1.5 rounded-full bg-[#22C8E5] animate-pulse" aria-hidden="true" />
+                      <span className="inline-block w-1.5 h-1.5 rounded-full bg-[#22C8E5] animate-pulse" />
                       Enables live scan
                     </span>
                   </label>
                   <div className="relative">
-                    <span className="absolute left-4 top-1/2 -translate-y-1/2 text-white/30 text-sm pointer-events-none" aria-hidden="true">🌐</span>
+                    <span className="absolute left-4 top-1/2 -translate-y-1/2 text-white/30 text-sm pointer-events-none">🌐</span>
                     <input
                       type="url"
                       placeholder="https://yourwebsite.com"
@@ -195,51 +192,43 @@ const AuditForm = ({ onComplete, prefillData }) => {
                       onChange={(e) => set('websiteUrl', e.target.value)}
                       className={inputClass + ' pl-10'}
                       id="audit-website-url"
-                      aria-describedby={errors.websiteUrl ? 'err-websiteUrl' : 'hint-websiteUrl'}
-                      aria-invalid={!!errors.websiteUrl}
                     />
                   </div>
                   {errors.websiteUrl
-                    ? <p id="err-websiteUrl" className="text-red-400 text-xs mt-1" role="alert">{errors.websiteUrl}</p>
-                    : <p id="hint-websiteUrl" className="text-white/30 text-xs mt-1">Optional but highly recommended — we'll scan your site for real data</p>
+                    ? <p className="text-red-400 text-xs mt-1">{errors.websiteUrl}</p>
+                    : <p className="text-white/30 text-xs mt-1">Optional but highly recommended — we'll scan your site for real data</p>
                   }
                 </div>
 
                 <div>
-                  <label htmlFor="audit-industry" className={labelClass}>Industry <span aria-hidden="true">*</span></label>
+                  <label className={labelClass}>Industry *</label>
                   <select
                     value={form.industry}
                     onChange={(e) => set('industry', e.target.value)}
                     className={inputClass + ' cursor-pointer'}
                     id="audit-industry"
-                    aria-required="true"
-                    aria-describedby={errors.industry ? 'err-industry' : undefined}
-                    aria-invalid={!!errors.industry}
                   >
                     <option value="" className="bg-[#04080f]">Select your industry</option>
                     {INDUSTRIES.map((i) => (
                       <option key={i} value={i} className="bg-[#04080f]">{i}</option>
                     ))}
                   </select>
-                  {errors.industry && <p id="err-industry" className="text-red-400 text-xs mt-1" role="alert">{errors.industry}</p>}
+                  {errors.industry && <p className="text-red-400 text-xs mt-1">{errors.industry}</p>}
                 </div>
                 <div>
-                  <label htmlFor="audit-years" className={labelClass}>Years in business <span aria-hidden="true">*</span></label>
+                  <label className={labelClass}>Years in business *</label>
                   <select
                     value={form.years}
                     onChange={(e) => set('years', e.target.value)}
                     className={inputClass + ' cursor-pointer'}
                     id="audit-years"
-                    aria-required="true"
-                    aria-describedby={errors.years ? 'err-years' : undefined}
-                    aria-invalid={!!errors.years}
                   >
                     <option value="" className="bg-[#04080f]">Select range</option>
                     {YEARS.map((y) => (
                       <option key={y} value={y} className="bg-[#04080f]">{y}</option>
                     ))}
                   </select>
-                  {errors.years && <p id="err-years" className="text-red-400 text-xs mt-1" role="alert">{errors.years}</p>}
+                  {errors.years && <p className="text-red-400 text-xs mt-1">{errors.years}</p>}
                 </div>
               </div>
             </div>

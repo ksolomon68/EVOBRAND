@@ -19,11 +19,6 @@ const cors = require('cors');
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-// Stamped once at process startup so /api/health reflects the actual
-// running build/boot, not the time of each request.
-const API_VERSION = 'v4';
-const BOOTED_AT = new Date().toISOString();
-
 // Middleware
 app.use(cors());
 app.use(express.json());
@@ -36,21 +31,7 @@ app.use('/uploads', express.static(uploadsDir));
 
 // Basic health check endpoint
 app.get('/api/health', (req, res) => {
-  res.status(200).json({ status: 'ok', message: `EVOBRAND API is running ${API_VERSION}`, booted_at: BOOTED_AT, resend_from: process.env.RESEND_FROM_EMAIL || 'info@evobrand.net' });
-});
-
-app.get('/api/diag', (req, res) => {
-  const routes = [];
-  app._router.stack.forEach(layer => {
-    if (layer.handle && layer.handle.stack) {
-      layer.handle.stack.forEach(r => {
-        if (r.route) routes.push(`${Object.keys(r.route.methods).join(',').toUpperCase()} ${layer.regexp} ${r.route.path}`);
-      });
-    }
-    if (layer.route) routes.push(`${Object.keys(layer.route.methods).join(',').toUpperCase()} ${layer.route.path}`);
-  });
-  const crmFile = (() => { try { return require('fs').readFileSync(__dirname + '/routes/crm.js', 'utf8').includes("router.delete('/campaigns/:id'") ? 'HAS_DELETE_ROUTE' : 'MISSING_DELETE_ROUTE'; } catch(e) { return e.message; } })();
-  res.json({ crmFile, routeCount: routes.length, crmRoutes: routes.filter(r => r.includes('crm') || r.includes('campaign') || r.includes('track')) });
+  res.status(200).json({ status: 'ok', message: 'EVOBRAND API is running v2' });
 });
 
 app.get('/api/crash', (req, res) => {
@@ -63,7 +44,7 @@ app.get('/api/crash', (req, res) => {
 });
 
 // Import Routes
-let supportRoutes, newsletterRoutes, schedulerRoutes, auditorRoutes, authRoutes, crmRoutes, contractRoutes, notificationRoutes, contactsRoutes, paymentsRoutes, analyticsRoutes;
+let supportRoutes, newsletterRoutes, schedulerRoutes, auditorRoutes, authRoutes, crmRoutes, contractRoutes, notificationRoutes, contactsRoutes, paymentsRoutes;
 
 const loadRoute = (name, path) => {
   try {
@@ -89,7 +70,6 @@ contractRoutes = loadRoute('contracts', './routes/contracts');
 notificationRoutes = loadRoute('notifications', './routes/notifications');
 contactsRoutes = loadRoute('contacts', './routes/contacts');
 paymentsRoutes = loadRoute('payments', './routes/payments');
-analyticsRoutes = loadRoute('analytics', './routes/analytics');
 
 app.get('/api/install', (req, res) => {
   try {
@@ -127,10 +107,10 @@ if (contactsRoutes) app.use('/api/contacts', contactsRoutes);
 if (authRoutes) app.use('/api/auth', authRoutes);
 if (schedulerRoutes) app.use('/api/scheduler', schedulerRoutes);
 if (auditorRoutes) app.use('/api/auditor', auditorRoutes);
+if (crmRoutes) app.use('/api/crm', crmRoutes);
 if (contractRoutes) app.use('/api/contracts', contractRoutes);
 if (notificationRoutes) app.use('/api/notifications', notificationRoutes);
 if (paymentsRoutes) app.use('/api/payments', paymentsRoutes);
-if (analyticsRoutes) app.use('/api/analytics', analyticsRoutes);
 
 // cPanel Passenger often strips the Application URL prefix from requests.
 // We mount them at the root as well so they work on the live server.
@@ -144,7 +124,6 @@ if (contactsRoutes) app.use('/contacts', contactsRoutes);
 if (contractRoutes) app.use('/contracts', contractRoutes);
 if (notificationRoutes) app.use('/notifications', notificationRoutes);
 if (paymentsRoutes) app.use('/payments', paymentsRoutes);
-if (analyticsRoutes) app.use('/analytics', analyticsRoutes);
 
 // Scheduled Tasks
 // Run every 6 hours to auto-close inactive tickets

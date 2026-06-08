@@ -30,7 +30,7 @@ Deno.serve(async (req) => {
 
     // Notify admin
     await send({
-      from: "EVOBRAND <info@evobrand.net>",
+      from: "EVOBRAND Website <no-reply@evobrand.net>",
       to: ["info@evobrand.net"],
       reply_to: email,
       subject: `New Inquiry — ${service || "General"} from ${name}`,
@@ -39,7 +39,7 @@ Deno.serve(async (req) => {
 
     // Auto-reply to sender
     await send({
-      from: "EVOBRAND <info@evobrand.net>",
+      from: "EVOBRAND <no-reply@evobrand.net>",
       to: [email],
       subject: "We received your message — EVOBRAND",
       html: autoReplyHtml(name),

@@ -2,7 +2,6 @@ const express = require('express');
 const router = express.Router();
 const pool = require('../db/connection');
 const { getEmailTemplate } = require('../utils/emailTemplate');
-const { addToLeadsIfNew } = require('../utils/crmHelpers');
 const { Resend } = require('resend');
 const { createNotification, notifyAdmins } = require('../utils/notifications');
 const { authenticateToken } = require('../middleware/auth');
@@ -33,7 +32,7 @@ const generateICS = (dateStr, timeStr, duration, bookingType, clientName, meetLi
     'BEGIN:VEVENT',
     `UID:${Date.now()}@evobrand.net`,
     `DTSTAMP:${formatDT(new Date())}`,
-    `ORGANIZER;CN="EVOBRAND":mailto:info@evobrand.net`,
+    `ORGANIZER;CN="EVOBRAND Scheduling":mailto:info@evobrand.net`,
     `ATTENDEE;CUTYPE=INDIVIDUAL;ROLE=REQ-PARTICIPANT;PARTSTAT=NEEDS-ACTION;RSVP=TRUE:mailto:ksolomon68@gmail.com`,
     `DTSTART;TZID=America/Chicago:${formatDT(startDt)}`,
     `DTEND;TZID=America/Chicago:${formatDT(endDt)}`,
@@ -45,28 +44,6 @@ const generateICS = (dateStr, timeStr, duration, bookingType, clientName, meetLi
     'END:VCALENDAR'
   ].join('\r\n');
 };
-
-// Get all non-cancelled appointments (admin only)
-router.get('/appointments', authenticateToken, async (req, res) => {
-  try {
-    const [userRows] = await pool.query('SELECT is_admin, email FROM users WHERE id = ?', [req.user.id]);
-    const isAdmin = userRows[0] && (userRows[0].is_admin == 1 || userRows[0].is_admin === true || userRows[0].email === 'ks@evobrand.net');
-    if (!isAdmin) return res.status(403).json({ error: 'Admin access required' });
-
-    const [rows] = await pool.query(`
-      SELECT m.id, m.date, m.time, m.type, m.duration, m.status, m.notes,
-             u.name as client_name, u.email as client_email
-      FROM meetings m
-      LEFT JOIN users u ON m.user_id = u.id
-      WHERE m.status != 'canceled'
-      ORDER BY m.date ASC, m.time ASC
-    `);
-    res.json(rows);
-  } catch (error) {
-    console.error('Error fetching appointments:', error);
-    res.status(500).json({ error: 'Failed to fetch appointments' });
-  }
-});
 
 // Get all blackout dates
 router.get('/blackout-dates', async (req, res) => {
@@ -197,19 +174,13 @@ router.post('/book', async (req, res) => {
       }
     }
 
-    // Add to Leads if not already on any CRM list
-    if (finalEmail) {
-      const nameParts = (finalName || '').split(' ');
-      await addToLeadsIfNew(finalEmail, { firstName: nameParts[0], lastName: nameParts.slice(1).join(' ') || null });
-    }
-
     try {
       const icsString = generateICS(date, time, duration || 30, bookingType, finalName || finalEmail, meet_link, notes);
       const attachments = icsString ? [{ filename: 'invite.ics', content: Buffer.from(icsString).toString('base64'), contentType: 'text/calendar' }] : undefined;
 
       if (finalEmail) {
         await getResend().emails.send({
-          from: `"EVOBRAND" <${process.env.RESEND_FROM_EMAIL || 'info@evobrand.net'}>`,
+          from: `"EVOBRAND Scheduling" <${process.env.RESEND_FROM_EMAIL || 'info@evobrand.net'}>`,
           to: finalEmail,
           subject: 'Appointment Confirmed',
           html: getEmailTemplate('Appointment Confirmed', `
@@ -223,7 +194,7 @@ router.post('/book', async (req, res) => {
       }
 
       await getResend().emails.send({
-        from: `"EVOBRAND" <${process.env.RESEND_FROM_EMAIL || 'info@evobrand.net'}>`,
+        from: `"EVOBRAND Scheduling" <${process.env.RESEND_FROM_EMAIL || 'info@evobrand.net'}>`,
         to: ['info@evobrand.net', 'ksolomon68@gmail.com'],
         subject: `New Booking: ${finalName || finalEmail}`,
         html: getEmailTemplate(`New Booking: ${finalName || finalEmail}`, `
@@ -285,7 +256,7 @@ router.post('/meetings/:id/cancel', async (req, res) => {
       try {
         if (meeting.user_email) {
           await getResend().emails.send({
-            from: `"EVOBRAND" <${process.env.RESEND_FROM_EMAIL || 'info@evobrand.net'}>`,
+            from: `"EVOBRAND Scheduling" <${process.env.RESEND_FROM_EMAIL || 'info@evobrand.net'}>`,
             to: meeting.user_email,
             subject: 'Appointment Cancelled',
             html: getEmailTemplate('Appointment Cancelled', `
@@ -295,7 +266,7 @@ router.post('/meetings/:id/cancel', async (req, res) => {
           });
         }
         await getResend().emails.send({
-          from: `"EVOBRAND" <${process.env.RESEND_FROM_EMAIL || 'info@evobrand.net'}>`,
+          from: `"EVOBRAND Scheduling" <${process.env.RESEND_FROM_EMAIL || 'info@evobrand.net'}>`,
           to: 'info@evobrand.net',
           subject: `Booking Cancelled: ${meeting.date} at ${meeting.time}`,
             html: getEmailTemplate(`Booking Cancelled: ${meeting.date} at ${meeting.time}`, `<p>The appointment for ${meeting.user_name || meeting.user_email || 'a client'} on ${meeting.date} at ${meeting.time} has been cancelled.</p>`)

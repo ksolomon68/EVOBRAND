@@ -61,15 +61,13 @@ const HeroAnimation = ({ scrollContainerRef }) => {
   const currentIndex = useTransform(smoothProgress, [0, 1], [0, frameCount - 1]);
 
   useEffect(() => {
-    const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-
     const render = () => {
       const canvas = canvasRef.current;
       if (!canvas || images.length === 0) return;
 
       const ctx = canvas.getContext('2d');
       // Get the integer index
-      let idx = prefersReducedMotion ? 0 : Math.round(currentIndex.get());
+      let idx = Math.round(currentIndex.get());
       if (idx < 0) idx = 0;
       if (idx >= frameCount) idx = frameCount - 1;
 
@@ -116,22 +114,20 @@ const HeroAnimation = ({ scrollContainerRef }) => {
       <canvas
         ref={canvasRef}
         className="w-full h-full block object-cover relative z-0"
-        aria-hidden="true"
       />
-
+      
       {/* Fallback/First Frame Image - visible until canvas starts rendering */}
       {isLoading && (
-        <img
+        <img 
           src="/header/ezgif-frame-038.jpg"
-          alt=""
-          aria-hidden="true"
+          alt="EVOBRAND Hero"
           className="absolute inset-0 w-full h-full object-cover z-[-1]"
         />
       )}
 
       {/* Loading Indicator (Subtle) */}
       {isLoading && (
-        <div className="absolute bottom-10 right-10 z-10" aria-hidden="true">
+        <div className="absolute bottom-10 right-10 z-10">
           <div className="w-6 h-6 border-2 border-[#22c8e5] border-t-transparent rounded-full animate-spin"></div>
         </div>
       )}

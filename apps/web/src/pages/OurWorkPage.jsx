@@ -9,14 +9,14 @@ const OurWorkPage = () => {
 
   const portfolioItems = [
     {
-      id: 12,
-      title: 'Pivotal Voice',
+      id: 101,
+      title: 'Common Ground Ministries',
       category: 'Web Development',
-      industry: 'Government',
-      image: '/projects/pivotal-voice.jpg',
-      metrics: { roi: 'Engagement', timeSaved: 'Streamlined', revenue: 'N/A' },
-      description: 'The comprehensive civic engagement platform connecting Ellis County residents with democracy.',
-      link: 'https://pivotalvoice.org/'
+      industry: 'Non-profit',
+      image: '/projects/cgm.png',
+      metrics: { roi: 'Community', timeSaved: 'Outreach', revenue: 'Donations' },
+      description: 'Where every child is celebrated for who they are. Serving at-risk children with faith, mentorship, and a safe place to grow.',
+      link: 'https://evobrand.net/cgm/'
     },
     {
       id: 102,
@@ -26,7 +26,7 @@ const OurWorkPage = () => {
       image: '/projects/chamberos.png',
       metrics: { roi: '12+ Hours/Wk', timeSaved: '19 Modules', revenue: '$0 Setup' },
       description: 'Stop running your chamber on spreadsheets. The all-in-one platform built to automate dues, events, governance, advocacy, and member engagement.',
-      link: 'https://evobrand.net/chambercore'
+      link: 'https://evobrand.net/chamberos'
     },
     {
       id: 103,
@@ -55,18 +55,43 @@ const OurWorkPage = () => {
       industry: 'Retail',
       image: '/projects/true-releaf.jpg',
       metrics: { roi: 'Growth', timeSaved: 'Efficient', revenue: 'Sales' },
-      description: 'Serving Only the Best. Premium CBD/Hemp Store with a focus on quality and customer education.',
-      link: 'https://truereleafmonroe.com'
+      description: 'Serving Only the Best. Premium CBD/Hemp Store with a focus on quality and customer education.'
     },
     {
-      id: 101,
-      title: 'Common Ground Ministries',
+      id: 12,
+      title: 'Pivotal Voice',
       category: 'Web Development',
-      industry: 'Non-profit',
-      image: '/projects/cgm.png',
-      metrics: { roi: 'Community', timeSaved: 'Outreach', revenue: 'Donations' },
-      description: 'Where every child is celebrated for who they are. Serving at-risk children with faith, mentorship, and a safe place to grow.',
-      link: 'https://evobrand.net/cgm/'
+      industry: 'Government',
+      image: '/projects/pivotal-voice.jpg',
+      metrics: { roi: 'Engagement', timeSaved: 'Streamlined', revenue: 'N/A' },
+      description: 'The comprehensive civic engagement platform connecting Ellis County residents with democracy.'
+    },
+    {
+      id: 1,
+      title: 'Breaking Silences',
+      category: 'Web Development',
+      industry: 'Community',
+      image: '/projects/breaking-silences.jpg',
+      metrics: { roi: 'N/A', timeSaved: 'High', revenue: 'N/A' },
+      description: 'A secure platform featuring live debates, discussion forums, and groups for free speech.'
+    },
+    {
+      id: 3,
+      title: 'My Social Grid',
+      category: 'Web Development',
+      industry: 'Social Media',
+      image: '/projects/my-social-grid.jpg',
+      metrics: { roi: 'High', timeSaved: 'Real-time', revenue: 'Scalable' },
+      description: 'Free speech social media platform for connecting, buying, selling, and learning.'
+    },
+    {
+      id: 4,
+      title: 'NTBHA',
+      category: 'Web Development',
+      industry: 'Healthcare',
+      image: '/projects/ntbha.jpg',
+      metrics: { roi: 'Impactful', timeSaved: '24/7', revenue: 'Non-profit' },
+      description: 'North Texas Behavioral Health Authority website serving multiple counties with crisis resources.'
     },
     {
       id: 5,
@@ -75,8 +100,16 @@ const OurWorkPage = () => {
       industry: 'Retail',
       image: '/projects/pigment-cosmetics.jpg',
       metrics: { roi: 'Sales', timeSaved: 'Streamlined', revenue: 'Direct' },
-      description: 'Professional cosmetics e-commerce site offering products, kits, and educational support.',
-      link: 'https://pigmentcosmetics.com/'
+      description: 'Professional cosmetics e-commerce site offering products, kits, and educational support.'
+    },
+    {
+      id: 6,
+      title: 'Esoteric Kings',
+      category: 'Web Development',
+      industry: 'Community',
+      image: '/projects/esoteric-kings.jpg',
+      metrics: { roi: 'Membership', timeSaved: 'Efficient', revenue: 'N/A' },
+      description: 'Championing Honor, Integrity, and Personal Growth through the timeless principles of Freemasonry.'
     },
     {
       id: 7,
@@ -85,8 +118,7 @@ const OurWorkPage = () => {
       industry: 'Healthcare',
       image: '/projects/nela-sickle-cell.jpg',
       metrics: { roi: 'Outreach', timeSaved: 'Managed', revenue: 'Donations' },
-      description: 'Northeast Louisiana Sickle Cell Anemia Foundation - Making a Difference Today.',
-      link: 'https://nelascaf.org/'
+      description: 'Northeast Louisiana Sickle Cell Anemia Foundation - Making a Difference Today.'
     },
     {
       id: 8,
@@ -95,8 +127,7 @@ const OurWorkPage = () => {
       industry: 'Government',
       image: '/projects/caltrans.jpg',
       metrics: { roi: 'Contracting', timeSaved: 'Process', revenue: 'Growth' },
-      description: 'Statewide supportive services to help SBEs strengthen readiness for transportation contracting opportunities.',
-      link: 'https://caltransbizconnect.org/'
+      description: 'Statewide supportive services to help SBEs strengthen readiness for transportation contracting opportunities.'
     },
     {
       id: 9,
@@ -105,8 +136,7 @@ const OurWorkPage = () => {
       industry: 'Community',
       image: '/projects/mid-cities-links.jpg',
       metrics: { roi: 'Service', timeSaved: 'Organized', revenue: 'Fundraising' },
-      description: 'Mid-Cities (TX) Chapter of The Links, Incorporated. Community service, leadership, and youth empowerment.',
-      link: 'https://evobrand.net/MidCityLinks'
+      description: 'Mid-Cities (TX) Chapter of The Links, Incorporated. Community service, leadership, and youth empowerment.'
     },
     {
       id: 10,
@@ -115,12 +145,29 @@ const OurWorkPage = () => {
       industry: 'Insurance',
       image: '/projects/stiber-insurance.jpg',
       metrics: { roi: 'Quotes', timeSaved: 'Digital', revenue: 'Policy' },
-      description: 'Protecting What Matters Most Since 1985. Homeowners, Flood, Commercial, and Life insurance.',
-      link: 'https://stiberinsuranceservices.com/'
+      description: 'Protecting What Matters Most Since 1985. Homeowners, Flood, Commercial, and Life insurance.'
     }
   ];
 
   const newPortfolioItems = [
+    {
+      id: 16,
+      title: 'Zarate for Ellis County',
+      category: 'Web Development',
+      industry: 'Political',
+      image: '/projects/zarate-for-ellis-county.jpg',
+      metrics: { roi: 'Voters', timeSaved: 'Communication', revenue: 'Campaign' },
+      description: 'Jennifer Zarate for Ellis County District Clerk. Proven leadership and values.'
+    },
+    {
+      id: 17,
+      title: 'Cutting Edge',
+      category: 'Web Development',
+      industry: 'Beauty & Wellness',
+      image: '/projects/cutting-edge.jpg',
+      metrics: { roi: 'Reservations', timeSaved: 'Management', revenue: 'Growth' },
+      description: 'Precise. Crafted. Modern techniques with classic service.'
+    },
     {
       id: 18,
       title: 'The Star List',
@@ -128,8 +175,7 @@ const OurWorkPage = () => {
       industry: 'Entertainment',
       image: '/projects/the-star-list.jpg',
       metrics: { roi: 'Views', timeSaved: 'Curated', revenue: 'Ads' },
-      description: 'The Ultimate Resource for Music-News and Entertainment Around the World!',
-      link: 'https://thestarlist.com/'
+      description: 'The Ultimate Resource for Music-News and Entertainment Around the World!'
     }
   ];
 
@@ -193,58 +239,49 @@ const OurWorkPage = () => {
         <section className="py-20 bg-[#0f1419]">
           <div className="container mx-auto px-4">
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-              {portfolioItems.map((item, index) => {
-                const cardProps = {
-                  key: item.id,
-                  initial: { opacity: 0, y: 30 },
-                  animate: { opacity: 1, y: 0 },
-                  transition: { delay: index * 0.1 },
-                  whileHover: { y: -10 },
-                  className: `bg-[#1a2332] rounded-xl overflow-hidden group block ${item.link ? 'cursor-pointer' : 'cursor-default'}`,
-                };
-                const inner = (
-                  <>
-                    <div className="relative h-48 overflow-hidden">
-                      <img
-                        src={item.image}
-                        alt={item.title}
-                        className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
-                      />
-                      <div className="absolute top-4 right-4 bg-[#22c8e5] text-white px-3 py-1 rounded-full text-xs font-semibold">
-                        {item.category}
+              {portfolioItems.map((item, index) => (
+                <motion.a
+                  href={item.link || '#'}
+                  target={item.link ? '_blank' : '_self'}
+                  rel="noopener noreferrer"
+                  key={item.id}
+                  initial={{ opacity: 0, y: 30 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: index * 0.1 }}
+                  whileHover={{ y: -10 }}
+                  className="bg-[#1a2332] rounded-xl overflow-hidden cursor-pointer group block"
+                >
+                  <div className="relative h-48 overflow-hidden">
+                    <img
+                      src={item.image}
+                      alt={item.title}
+                      className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
+                    />
+                    <div className="absolute top-4 right-4 bg-[#22c8e5] text-white px-3 py-1 rounded-full text-xs font-semibold">
+                      {item.category}
+                    </div>
+                  </div>
+                  <div className="p-6">
+                    <h3 className="text-xl font-bold text-white mb-2">{item.title}</h3>
+                    <p className="text-gray-400 text-sm mb-4">{item.description}</p>
+                    <div className="grid grid-cols-3 gap-2 mb-4">
+                      <div className="bg-[#0f1419] p-2 rounded text-center">
+                        <p className="text-xs text-gray-500">ROI</p>
+                        <p className="text-[#22c8e5] font-bold">{item.metrics.roi}</p>
+                      </div>
+                      <div className="bg-[#0f1419] p-2 rounded text-center">
+                        <p className="text-xs text-gray-500">Time Saved</p>
+                        <p className="text-[#22c8e5] font-bold">{item.metrics.timeSaved}</p>
+                      </div>
+                      <div className="bg-[#0f1419] p-2 rounded text-center">
+                        <p className="text-xs text-gray-500">Revenue</p>
+                        <p className="text-[#22c8e5] font-bold">{item.metrics.revenue}</p>
                       </div>
                     </div>
-                    <div className="p-6">
-                      <h3 className="text-xl font-bold text-white mb-2">{item.title}</h3>
-                      <p className="text-gray-400 text-sm mb-4">{item.description}</p>
-                      <div className="grid grid-cols-3 gap-2 mb-4">
-                        <div className="bg-[#0f1419] p-2 rounded text-center">
-                          <p className="text-xs text-gray-500">ROI</p>
-                          <p className="text-[#22c8e5] font-bold">{item.metrics.roi}</p>
-                        </div>
-                        <div className="bg-[#0f1419] p-2 rounded text-center">
-                          <p className="text-xs text-gray-500">Time Saved</p>
-                          <p className="text-[#22c8e5] font-bold">{item.metrics.timeSaved}</p>
-                        </div>
-                        <div className="bg-[#0f1419] p-2 rounded text-center">
-                          <p className="text-xs text-gray-500">Revenue</p>
-                          <p className="text-[#22c8e5] font-bold">{item.metrics.revenue}</p>
-                        </div>
-                      </div>
-                      <span className="text-xs text-gray-500">{item.industry}</span>
-                    </div>
-                  </>
-                );
-                return item.link ? (
-                  <motion.a {...cardProps} href={item.link} target="_blank" rel="noopener noreferrer">
-                    {inner}
-                  </motion.a>
-                ) : (
-                  <motion.div {...cardProps}>
-                    {inner}
-                  </motion.div>
-                );
-              })}
+                    <span className="text-xs text-gray-500">{item.industry}</span>
+                  </div>
+                </motion.a>
+              ))}
             </div>
           </div>
         </section>

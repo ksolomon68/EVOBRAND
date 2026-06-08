@@ -1,12 +1,11 @@
 ## Pages
-- [404 — Page Not Found | EVOBRAND](/notfound): The page you
-- [About EVOBRAND | AI Agency Founded in Ellis County, TX](/about): Since 1999, EVOBRAND has evolved from a creative agency to a leading AI transformation partner. Led by Keisha Solomon, we deliver custom AI solutions, visual content, and intelligent automation to businesses nationwide.
+- [About EVOBRAND | AI Agency Founded in Dallas, TX](/about): Since 1999, EVOBRAND has evolved from a creative agency to a leading AI transformation partner. Led by Keisha Solomon, we deliver custom AI solutions, visual content, and intelligent automation to businesses nationwide.
 - [AI Portfolio & Case Studies | Client Work | EVOBRAND](/ourwork): Browse EVOBRAND
 - [AI Resources, Blog & Industry Guides | EVOBRAND](/resources): Free AI resources and expert articles from EVOBRAND. Explore enterprise AI, agentic AI, creative AI, ethics, and industry trends. Stay ahead of the AI revolution.
-- [AI Solutions for Business Growth | Ellis County, TX](/home): EVOBRAND transforms businesses with custom AI applications, visual content creation, intelligent document generation, and AI video production. Ellis County-based agency serving clients nationwide.
+- [AI Solutions for Business Growth | Dallas, TX](/home): EVOBRAND transforms businesses with custom AI applications, visual content creation, intelligent document generation, and AI video production. Dallas-based agency serving clients nationwide.
 - [Audit Results](/auditorresults): View your personalized AI-powered brand audit report from EVOBRAND.
 - [Blog Post](/blogpost): No description available
-- [Book a Free AI Consultation | Contact EVOBRAND — Ellis County, TX](/contact): Ready to transform your business with AI? Contact EVOBRAND for a free 30-minute strategy call. Serving clients nationwide from Ellis County, TX. Call +1 214-531-4427 or email info@evobrand.net.
+- [Book a Free AI Consultation | Contact EVOBRAND — Dallas, TX](/contact): Ready to transform your business with AI? Contact EVOBRAND for a free 30-minute strategy call. Serving clients nationwide from Dallas, TX. Call +1 214-531-4427 or email info@evobrand.net.
 - [Client Portal](/clientportal): EVOBRAND Client Portal - Secure access to your projects and meetings.
 - [Client Portal Login](/clientportallogin): Access your EVOBRAND client portal.
 - [Contract Customizer](/contractcustomizer): Build and customize your enterprise Master Services Agreement in real-time.

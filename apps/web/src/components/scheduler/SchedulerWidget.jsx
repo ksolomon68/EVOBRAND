@@ -171,7 +171,7 @@ function CalendarPicker({ selectedDate, onSelect, blackoutDates }) {
   }, []);
 
   const isBlackedOut = useCallback((dateStr) => {
-    return blackoutDates.some((b) => b.date === dateStr && !b.time);
+    return blackoutDates.some((b) => b.blackout_date === dateStr && b.time_slot === null);
   }, [blackoutDates]);
 
   const isDisabled = useCallback((dateStr) => {
@@ -219,7 +219,6 @@ function CalendarPicker({ selectedDate, onSelect, blackoutDates }) {
         {cells.map((day, idx) => {
           if (!day) return <div key={`e${idx}`} aria-hidden="true" />;
           const dateStr = `${viewDate.year}-${String(viewDate.month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
-          const blacked = isBlackedOut(dateStr);
           const disabled = isDisabled(dateStr);
           const selected = selectedDate === dateStr;
           const isToday = dateStr === todayStr;
@@ -229,29 +228,15 @@ function CalendarPicker({ selectedDate, onSelect, blackoutDates }) {
               key={dateStr}
               onClick={() => !disabled && onSelect(dateStr)}
               disabled={disabled}
-              aria-label={`${MONTHS[viewDate.month]} ${day}, ${viewDate.year}${blacked ? ' (unavailable — blocked)' : disabled ? ' (unavailable)' : ''}`}
+              aria-label={`${MONTHS[viewDate.month]} ${day}, ${viewDate.year}${disabled ? ' (unavailable)' : ''}`}
               aria-pressed={selected}
               className="w-full aspect-square flex items-center justify-center rounded-lg text-sm font-medium transition-all duration-200 focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#22c8e5] focus-visible:outline-offset-1"
               style={{
-                background: selected
-                  ? GOLD
-                  : blacked
-                  ? 'rgba(248,113,113,0.12)'
-                  : isToday
-                  ? 'rgba(34,200,229,0.12)'
-                  : 'transparent',
-                color: selected
-                  ? NAVY
-                  : blacked
-                  ? '#f87171'
-                  : disabled
-                  ? 'rgba(255,255,255,0.25)'
-                  : isToday
-                  ? GOLD
-                  : BEIGE,
+                background: selected ? GOLD : isToday ? 'rgba(34,200,229,0.12)' : 'transparent',
+                color: disabled ? 'rgba(255,255,255,0.3)' : selected ? NAVY : isToday ? GOLD : BEIGE,
                 cursor: disabled ? 'not-allowed' : 'pointer',
                 textDecoration: disabled ? 'line-through' : 'none',
-                opacity: blacked ? 0.75 : disabled ? 0.4 : 1,
+                opacity: disabled ? 0.5 : 1,
                 fontWeight: selected ? 700 : 500,
               }}
             >
@@ -260,18 +245,6 @@ function CalendarPicker({ selectedDate, onSelect, blackoutDates }) {
           );
         })}
       </div>
-
-      {/* Legend — only show when there are blackouts in the visible month */}
-      {cells.some((day) => {
-        if (!day) return false;
-        const dateStr = `${viewDate.year}-${String(viewDate.month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
-        return isBlackedOut(dateStr);
-      }) && (
-        <div className="flex items-center gap-1.5 mt-3 pt-3 border-t" style={{ borderColor: 'rgba(255,255,255,0.07)' }}>
-          <span className="w-2.5 h-2.5 rounded-sm flex-shrink-0" style={{ background: 'rgba(248,113,113,0.2)' }} />
-          <span className="text-[10px] uppercase tracking-widest font-bold" style={{ color: 'rgba(255,255,255,0.35)' }}>Not available</span>
-        </div>
-      )}
     </div>
   );
 }

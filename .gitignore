@@ -9,33 +9,12 @@ yarn-error.log*
 supabase/.temp
 deploy.zip
 
-# Claude Code worktrees (temporary agent sandboxes)
-.claude/worktrees/
-
-# Server-generated / runtime files — must not appear as uncommitted changes in cPanel
+# Server-generated files
 apps/api/src/crash.log
 apps/api/crash.log
-apps/api/crash.txt
-apps/api/src/crash.txt
-apps/api/src/install.log
-apps/api/install.log
-install.log
-deploy.log
 *.log
 nohup.out
 apps/api/uploads/
 apps/api/tmp/
-apps/api/src/tmp/
 tmp/
 
-# One-off test / scratch scripts
-test_gemini.js
-
-# Export / archive files
-*.tar.gz
-*.zip
-*.xls
-*.xlsx
-*.xml
-mockup.html
-wp-maintenance/

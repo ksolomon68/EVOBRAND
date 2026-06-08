@@ -337,7 +337,7 @@ router.post('/verify-public-session', async (req, res) => {
     // To Admin
     try {
       await getResend().emails.send({
-        from: `"EVOBRAND" <${process.env.RESEND_FROM_EMAIL || 'info@evobrand.net'}>`,
+        from: `"EVOBRAND Orders" <${process.env.RESEND_FROM_EMAIL || 'info@evobrand.net'}>`,
         to: 'info@evobrand.net',
         subject: `New Public Sale: ${plan.name}`,
         html: getEmailTemplate(`New Order Received`, 

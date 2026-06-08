@@ -181,15 +181,15 @@
   function buildHTML() {
     const profiles = PROFILES.map(p => `
       <button class="aw-profile" id="aw-prof-${p.id}" data-prof="${p.id}"
-              aria-pressed="false" aria-label="${p.label.replace('\n',' ')}">
-        <span class="aw-profile-ico" aria-hidden="true">${IC[p.ico]}</span>
-        <span class="aw-profile-name" aria-hidden="true">${p.label.replace('\n','<br>')}</span>
+              aria-pressed="false" title="${p.label.replace('\n',' ')}">
+        <span class="aw-profile-ico">${IC[p.ico]}</span>
+        <span class="aw-profile-name">${p.label.replace('\n','<br>')}</span>
       </button>`).join('');
 
     const cards = FEATURES.map(f => `
       <button class="aw-card" id="aw-card-${f.id}" data-feat="${f.id}"
-              role="switch" aria-checked="false">
-        <span class="aw-card-ico" aria-hidden="true">${IC[f.ico]}</span>
+              role="switch" aria-checked="false" title="${f.label}">
+        <span class="aw-card-ico">${IC[f.ico]}</span>
         <span class="aw-card-lbl">${f.label}</span>
       </button>`).join('');
 

@@ -6,10 +6,6 @@
 @tailwind utilities;
 
 @layer base {
-  html {
-    scroll-padding-top: 80px; /* offset for sticky header */
-  }
-
   body {
     @apply bg-[#0f1419] text-white;
     font-family: 'Open Sans', sans-serif;
@@ -80,18 +76,6 @@
     inset: 0;
     border-radius: 12px;
     opacity: 0.15;
-  }
-}
-
-/* Respect user motion preference */
-@media (prefers-reduced-motion: reduce) {
-  *, *::before, *::after {
-    animation-duration: 0.01ms !important;
-    animation-iteration-count: 1 !important;
-    transition-duration: 0.01ms !important;
-  }
-  html {
-    scroll-behavior: auto !important;
   }
 }
 
