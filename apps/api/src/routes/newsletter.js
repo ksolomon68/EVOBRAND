@@ -8,7 +8,7 @@ const { getEmailTemplate } = require('../utils/emailTemplate');
 // @route POST /api/newsletter/subscribe
 // @desc  Subscribe to newsletter
 router.post('/subscribe', async (req, res) => {
-  const { name, email } = req.body;
+  const { name, email, source } = req.body;
 
   if (!email) {
     return res.status(400).json({ error: 'Email is required' });
@@ -20,6 +20,23 @@ router.post('/subscribe', async (req, res) => {
     ? trimmedName.split(/\s+/).slice(1).join(' ')
     : null;
 
+  // Helper: upsert contact into a named CRM list
+  const addToCrmList = async (listPattern, fallbackToFirst = false) => {
+    const [lists] = await pool.query('SELECT id FROM crm_lists WHERE LOWER(name) LIKE ? LIMIT 1', [`%${listPattern}%`]);
+    let listId = null;
+    if (lists.length > 0) {
+      listId = lists[0].id;
+    } else if (fallbackToFirst) {
+      const [anyList] = await pool.query('SELECT id FROM crm_lists ORDER BY id ASC LIMIT 1');
+      if (anyList.length > 0) listId = anyList[0].id;
+    }
+    if (!listId) return;
+    await pool.query(
+      'INSERT INTO crm_contacts (email, first_name, last_name, status, list_id) VALUES (?, ?, ?, "subscribed", ?) ON DUPLICATE KEY UPDATE status = "subscribed", first_name = COALESCE(VALUES(first_name), first_name), last_name = COALESCE(VALUES(last_name), last_name)',
+      [email, firstName, lastName, listId]
+    );
+  };
+
   try {
     // Insert into database
     await pool.query(
@@ -29,22 +46,10 @@ router.post('/subscribe', async (req, res) => {
 
     // Sync with CRM
     try {
-      // Find the newsletter list (case-insensitive) or default to first list
-      const [lists] = await pool.query('SELECT id FROM crm_lists WHERE LOWER(name) LIKE "%newsletter%" LIMIT 1');
-      let listId = 1;
-      if (lists.length > 0) {
-        listId = lists[0].id;
-      } else {
-        const [anyList] = await pool.query('SELECT id FROM crm_lists ORDER BY id ASC LIMIT 1');
-        if (anyList.length > 0) {
-          listId = anyList[0].id;
-        }
+      await addToCrmList('newsletter', true); // always add to newsletter list
+      if (source === 'audit') {
+        await addToCrmList('lead'); // also add to Leads list when from brand audit
       }
-
-      await pool.query(
-        'INSERT INTO crm_contacts (email, first_name, last_name, status, list_id) VALUES (?, ?, ?, "subscribed", ?) ON DUPLICATE KEY UPDATE status = "subscribed", first_name = COALESCE(VALUES(first_name), first_name), last_name = COALESCE(VALUES(last_name), last_name)',
-        [email, firstName, lastName, listId]
-      );
     } catch (crmError) {
       console.error('Failed to sync newsletter with CRM:', crmError);
     }
