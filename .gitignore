@@ -30,3 +30,12 @@ tmp/
 
 # One-off test / scratch scripts
 test_gemini.js
+
+# Export / archive files
+*.tar.gz
+*.zip
+*.xls
+*.xlsx
+*.xml
+mockup.html
+wp-maintenance/
