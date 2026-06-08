@@ -56,6 +56,8 @@ const AuditorPage = () => {
   const [error, setError] = useState(null);
   const [hasWebsite, setHasWebsite] = useState(false);
   const [businessName, setBusinessName] = useState('');
+  const [contactEmail, setContactEmail] = useState('');
+  const [contactName, setContactName] = useState('');
 
   const resetAudit = () => {
     setPhase('form');
@@ -78,6 +80,8 @@ const AuditorPage = () => {
     setError(null);
     setHasWebsite(!!formData.websiteUrl?.trim());
     setBusinessName(formData.businessName || '');
+    setContactEmail(formData.contactEmail || '');
+    setContactName(formData.firstName || '');
     sessionStorage.removeItem('evo_audit_prefill');
 
     try {
@@ -140,6 +144,8 @@ const AuditorPage = () => {
             report={report}
             isLoading={false}
             onDownloadPDF={handleDownloadPDF}
+            prefillEmail={contactEmail}
+            prefillName={contactName}
           />
         )}
 
