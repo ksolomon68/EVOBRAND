@@ -4,15 +4,15 @@ Impaired`,ico:"eye",set:{highContrast:!0,textSize:130,screenReader:!0}},{id:"col
 Blind`,ico:"droplet",set:{desaturate:!0,linkUnderline:!0,highlightLinks:!0}},{id:"dyslexia",label:"Dyslexia",ico:"df",set:{dyslexiaFont:!0,linkUnderline:!0,readingGuide:!0}}],v={activeProfile:null,textSize:100,screenReader:!1,highContrast:!1,darkMode:!1,desaturate:!1,highlightLinks:!1,dyslexiaFont:!1,bigCursor:!1,readingGuide:!1,readingMask:!1,stopAnimations:!1,keyboardNav:!1,linkUnderline:!1};let t=b(),y=!1;function b(){try{return{...v,...JSON.parse(localStorage.getItem(p))}}catch{return{...v}}}function g(){try{localStorage.setItem(p,JSON.stringify(t))}catch{}}function c(){for(let e=110;e<=150;e+=10)document.documentElement.classList.remove(`aw-t${e}`);t.textSize>100&&document.documentElement.classList.add(`aw-t${Math.min(t.textSize,150)}`),d.forEach(e=>document.documentElement.classList.toggle(e.cls,!!t[e.id])),C(),z()}function k(e){var a;t[e]=!t[e],t.activeProfile=null,g(),c(),s((t[e]?"Enabled":"Disabled")+": "+(((a=d.find(i=>i.id===e))==null?void 0:a.label)||e))}function E(e){var a;if(t.activeProfile===e)t={...v};else{const i=u.find(n=>n.id===e);if(!i)return;t={...v,activeProfile:e,...i.set}}g(),c(),s(t.activeProfile?((a=u.find(i=>i.id===e))==null?void 0:a.label.replace(`
 `," "))+" profile applied.":"Profile cleared.")}function B(){t={...v},g(),c(),s("All accessibility settings reset.")}function C(){const e=document.getElementById("a11y-badge");if(!e)return;const a=d.filter(i=>t[i.id]).length+(t.textSize!==100?1:0);e.textContent=a,e.classList.toggle("show",a>0)}function z(){d.forEach(n=>{const l=document.getElementById(`aw-card-${n.id}`);l&&(l.classList.toggle("on",!!t[n.id]),l.setAttribute("aria-pressed",String(!!t[n.id])))}),u.forEach(n=>{const l=document.getElementById(`aw-prof-${n.id}`);l&&(l.classList.toggle("on",t.activeProfile===n.id),l.setAttribute("aria-pressed",String(t.activeProfile===n.id)))});const e=document.getElementById("aw-ts-val"),a=document.getElementById("aw-ts-dec"),i=document.getElementById("aw-ts-inc");e&&(e.textContent=t.textSize+"%"),a&&(a.disabled=t.textSize<=100),i&&(i.disabled=t.textSize>=150)}function s(e){const a=document.getElementById("a11y-live");a&&(a.textContent="",setTimeout(()=>{a.textContent=e},50))}function M(){const e=u.map(i=>`
       <button class="aw-profile" id="aw-prof-${i.id}" data-prof="${i.id}"
-              aria-pressed="false" title="${i.label.replace(`
+              aria-pressed="false" aria-label="${i.label.replace(`
 `," ")}">
-        <span class="aw-profile-ico">${r[i.ico]}</span>
-        <span class="aw-profile-name">${i.label.replace(`
+        <span class="aw-profile-ico" aria-hidden="true">${r[i.ico]}</span>
+        <span class="aw-profile-name" aria-hidden="true">${i.label.replace(`
 `,"<br>")}</span>
       </button>`).join(""),a=d.map(i=>`
       <button class="aw-card" id="aw-card-${i.id}" data-feat="${i.id}"
-              role="switch" aria-checked="false" title="${i.label}">
-        <span class="aw-card-ico">${r[i.ico]}</span>
+              role="switch" aria-checked="false">
+        <span class="aw-card-ico" aria-hidden="true">${r[i.ico]}</span>
         <span class="aw-card-lbl">${i.label}</span>
       </button>`).join("");return`
       <div id="a11y-panel" role="dialog" aria-modal="true" aria-label="Accessibility Menu">
