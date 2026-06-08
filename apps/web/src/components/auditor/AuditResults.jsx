@@ -23,7 +23,7 @@ function MailingListSignup({ prefillEmail = '', prefillName = '' }) {
       const res = await fetch(NEWSLETTER_API, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email: email.trim(), name: name.trim() }),
+        body: JSON.stringify({ email: email.trim(), name: name.trim(), source: 'audit' }),
       });
       if (!res.ok) {
         const d = await res.json().catch(() => ({}));
