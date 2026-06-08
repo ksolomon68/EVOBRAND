@@ -3,7 +3,7 @@ import { AnimatePresence, motion } from 'framer-motion';
 import SEO from '@/components/SEO.jsx';
 import {
   LayoutDashboard, Plus, LogOut, Ticket, Bell,
-  Loader2, Calendar, ShieldCheck, Users, FileText, Menu, X, CheckCircle2, AlertCircle
+  Loader2, Calendar, ShieldCheck, Users, FileText, Menu, X, CheckCircle2, AlertCircle, BarChart2
 } from 'lucide-react';
 import TicketList from '../components/portal/TicketList';
 import NewTicketForm from '../components/portal/NewTicketForm';
@@ -17,6 +17,8 @@ import ContractBuilderPanel from '../components/admin/ContractBuilderPanel';
 import AdminBlackoutPanel from '../components/admin/AdminBlackoutPanel';
 import AdminContactFormsPanel from '../components/admin/AdminContactFormsPanel';
 import MyContractsPanel from '../components/portal/MyContractsPanel';
+import AdminAnalyticsPanel from '../components/admin/AdminAnalyticsPanel';
+import AdminDashboard from '../components/admin/AdminDashboard';
 import { useAuth } from '../hooks/useAuth.jsx';
 import { useNavigate, useLocation } from 'react-router-dom';
 
@@ -65,6 +67,7 @@ function Sidebar({ user, view, setView, setSelectedTicket, openTicketCount, hand
     { key: 'meetings', icon: Calendar, label: 'My Meetings' },
     { key: 'my-contracts', icon: FileText, label: 'My Contracts' },
     ...(isAdmin ? [
+      { key: 'analytics', icon: BarChart2, label: 'Analytics' },
       { key: 'admin', icon: ShieldCheck, label: 'Support Tickets' },
       { key: 'client-plans', icon: Users, label: 'Client Plans' },
       { key: 'contact-forms', icon: ShieldCheck, label: 'Contact Forms' },
@@ -504,63 +507,65 @@ const ClientPortalPage = () => {
                     exit={{ opacity: 0, y: -10 }}
                     transition={{ duration: 0.25 }}
                   >
-                    <div className="mb-10">
-                      <h1 className="text-4xl font-bold text-white mb-2">Operational Dashboard</h1>
-                      <p className="text-white/40">Manage your deployment tickets and monitor system updates.</p>
-                    </div>
-
-                    {/* Stat cards */}
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-5 mb-12">
-                      {[
-                        {
-                          label: 'Active Tickets',
-                          value: tickets.filter((t) => t.status === 'open' || t.status === 'in_progress').length,
-                          color: GOLD,
-                        },
-                        {
-                          label: 'Awaiting Action',
-                          value: tickets.filter((t) => t.status === 'pending').length,
-                          color: '#facc15',
-                        },
-                        {
-                          label: 'Resolved',
-                          value: tickets.filter((t) => t.status === 'resolved' || t.status === 'closed').length,
-                          color: '#34d399',
-                        },
-                      ].map(({ label, value, color }) => (
-                        <div
-                          key={label}
-                          className="p-8 rounded-3xl border transition-all"
-                          style={{ background: 'rgba(255,255,255,0.03)', borderColor: 'rgba(255,255,255,0.07)' }}
-                          onMouseEnter={(e) => (e.currentTarget.style.borderColor = `${color}30`)}
-                          onMouseLeave={(e) => (e.currentTarget.style.borderColor = 'rgba(255,255,255,0.07)')}
-                        >
-                          <h3 className="text-white/40 text-xs font-bold uppercase tracking-widest mb-3">{label}</h3>
-                          <p className="text-5xl font-bold" style={{ color }}>{value}</p>
+                    {user?.is_admin === 1 || user?.is_admin === true ? (
+                      <AdminDashboard
+                        tickets={tickets}
+                        setView={setView}
+                        onViewTicket={async (ticket) => {
+                          setSelectedTicket(ticket);
+                          setView('detail');
+                          try {
+                            const token = localStorage.getItem('evobrand_token');
+                            const res = await fetch(`${API_URL}/tickets/${ticket.id}`, { headers: { 'Authorization': `Bearer ${token}` } });
+                            if (res.ok) {
+                              const data = await res.json();
+                              setSelectedTicket({ ...data.ticket, history: data.replies });
+                            }
+                          } catch (err) { console.error(err); }
+                        }}
+                      />
+                    ) : (
+                      <>
+                        <div className="mb-10">
+                          <h1 className="text-4xl font-bold text-white mb-2">My Dashboard</h1>
+                          <p className="text-white/40">Track your tickets and project updates.</p>
                         </div>
-                      ))}
-                    </div>
-
-                    <div className="flex items-center justify-between mb-6">
-                      <h2 className="text-xl font-bold text-white">System Transmissions</h2>
-                      <div className="flex items-center gap-2 text-white/40 text-xs font-bold uppercase tracking-widest">
-                        <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse" aria-hidden="true" />
-                        Live Sync
-                      </div>
-                    </div>
-
-                    <TicketList tickets={tickets} onViewTicket={async (ticket) => {
-                      setSelectedTicket(ticket);
-                      setView('detail');
-                      try {
-                        const token = localStorage.getItem('evobrand_token');
-                        const res = await fetch(`${API_URL}/tickets/${ticket.id}`, { headers: { 'Authorization': `Bearer ${token}` } });
-                        if (res.ok) {
-                          const data = await res.json();
-                          setSelectedTicket({ ...data.ticket, history: data.replies });
-                        }
-                      } catch (err) { console.error(err); }
-                    }} />
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-5 mb-12">
+                          {[
+                            { label: 'Active Tickets', value: tickets.filter(t => t.status === 'open' || t.status === 'in_progress').length, color: GOLD },
+                            { label: 'Awaiting Action', value: tickets.filter(t => t.status === 'pending').length, color: '#facc15' },
+                            { label: 'Resolved', value: tickets.filter(t => t.status === 'resolved' || t.status === 'closed').length, color: '#34d399' },
+                          ].map(({ label, value, color }) => (
+                            <div key={label} className="p-8 rounded-3xl border transition-all"
+                              style={{ background: 'rgba(255,255,255,0.03)', borderColor: 'rgba(255,255,255,0.07)' }}
+                              onMouseEnter={e => e.currentTarget.style.borderColor = `${color}30`}
+                              onMouseLeave={e => e.currentTarget.style.borderColor = 'rgba(255,255,255,0.07)'}>
+                              <h3 className="text-white/40 text-xs font-bold uppercase tracking-widest mb-3">{label}</h3>
+                              <p className="text-5xl font-bold" style={{ color }}>{value}</p>
+                            </div>
+                          ))}
+                        </div>
+                        <div className="flex items-center justify-between mb-6">
+                          <h2 className="text-xl font-bold text-white">My Tickets</h2>
+                          <div className="flex items-center gap-2 text-white/40 text-xs font-bold uppercase tracking-widest">
+                            <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse" aria-hidden="true" />
+                            Live Sync
+                          </div>
+                        </div>
+                        <TicketList tickets={tickets} onViewTicket={async (ticket) => {
+                          setSelectedTicket(ticket);
+                          setView('detail');
+                          try {
+                            const token = localStorage.getItem('evobrand_token');
+                            const res = await fetch(`${API_URL}/tickets/${ticket.id}`, { headers: { 'Authorization': `Bearer ${token}` } });
+                            if (res.ok) {
+                              const data = await res.json();
+                              setSelectedTicket({ ...data.ticket, history: data.replies });
+                            }
+                          } catch (err) { console.error(err); }
+                        }} />
+                      </>
+                    )}
                   </motion.div>
                 )}
 
@@ -594,6 +599,19 @@ const ClientPortalPage = () => {
                     transition={{ duration: 0.25 }}
                   >
                     <MyMeetings userId={user?.id} />
+                  </motion.div>
+                )}
+
+                {/* ── Analytics Panel (admin) ── */}
+                {view === 'analytics' && (
+                  <motion.div
+                    key="analytics"
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -10 }}
+                    transition={{ duration: 0.2 }}
+                  >
+                    <AdminAnalyticsPanel />
                   </motion.div>
                 )}
 
