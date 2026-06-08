@@ -27,9 +27,9 @@ const inputClass = `
 `;
 
 const PROOF_POINTS = [
-  { icon: <Zap size={16} />, text: 'Instant AI-generated score' },
-  { icon: <BarChart3 size={16} />, text: '5-category breakdown' },
-  { icon: <FileText size={16} />, text: 'Personalized action plan' },
+  { icon: <Zap size={16} aria-hidden="true" />, text: 'Instant AI-generated score' },
+  { icon: <BarChart3 size={16} aria-hidden="true" />, text: '5-category breakdown' },
+  { icon: <FileText size={16} aria-hidden="true" />, text: 'Personalized action plan' },
 ];
 
 const AuditorSection = () => {
@@ -198,6 +198,7 @@ const AuditorSection = () => {
                     Tell us about your business.
                   </h3>
                   <div className="space-y-4">
+                    <label htmlFor="section-business-name" className="sr-only">Business name</label>
                     <input
                       type="text"
                       placeholder="Business name"
@@ -206,6 +207,7 @@ const AuditorSection = () => {
                       className={inputClass}
                       id="section-business-name"
                     />
+                    <label htmlFor="section-industry" className="sr-only">Industry</label>
                     <select
                       value={form.industry}
                       onChange={(e) => set('industry', e.target.value)}
@@ -217,6 +219,7 @@ const AuditorSection = () => {
                         <option key={i} value={i} className="bg-[#04080f]">{i}</option>
                       ))}
                     </select>
+                    <label htmlFor="section-years" className="sr-only">Years in business</label>
                     <select
                       value={form.years}
                       onChange={(e) => set('years', e.target.value)}
@@ -284,7 +287,7 @@ const AuditorSection = () => {
                 className="w-full mt-8 py-4 bg-[#22C8E5] text-[#003258] rounded-2xl font-bold uppercase tracking-wider text-base hover:bg-[#1db5d0] transition-colors cursor-pointer"
                 id="section-auditor-cta"
               >
-                {step === 1 ? 'Continue →' : 'Get My Free Brand Score →'}
+                {step === 1 ? <>Continue <span aria-hidden="true">→</span></> : <>Get My Free Brand Score <span aria-hidden="true">→</span></>}
               </motion.button>
 
               <p className="text-white/20 text-xs text-center mt-4 ">

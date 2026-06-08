@@ -250,7 +250,7 @@ async function sendEmails(params: {
   try {
     // Confirmation to client
     await send({
-      from: "EVOBRAND <no-reply@evobrand.net>",
+      from: "EVOBRAND <info@evobrand.net>",
       to: [params.clientEmail],
       subject: `Consultation Confirmed — ${formattedDate} at ${params.timeSlot}`,
       html: clientConfirmationHtml({ ...params, formattedDate }),
@@ -259,7 +259,7 @@ async function sendEmails(params: {
 
     // Internal notification to admin
     await send({
-      from: "EVOBRAND Scheduler <no-reply@evobrand.net>",
+      from: "EVOBRAND <info@evobrand.net>",
       to: ["info@evobrand.net"],
       subject: `New Booking: ${params.clientName} — ${formattedDate} at ${params.timeSlot}`,
       html: adminNotificationHtml({ ...params, formattedDate }),

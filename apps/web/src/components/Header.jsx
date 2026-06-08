@@ -23,10 +23,10 @@ const Header = () => {
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between h-20">
           {/* Logo */}
-          <NavLink to="/" className="flex items-center">
+          <NavLink to="/" className="flex items-center" aria-label="EVOBRAND — go to home page">
             <motion.img
               src="/logo.png"
-              alt="EVOBRAND"
+              alt=""
               className="h-[40px] md:h-[50px] lg:h-[60px] w-auto object-contain"
               whileHover={{ scale: 1.02 }}
               transition={{ duration: 0.3 }}
@@ -59,8 +59,10 @@ const Header = () => {
           {/* Mobile Menu Button */}
           <button
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            className="lg:hidden text-white hover:text-[#22c8e5] transition-colors"
-            aria-label="Toggle menu"
+            className="lg:hidden text-white hover:text-[#22c8e5] transition-colors p-2"
+            aria-label={mobileMenuOpen ? 'Close navigation menu' : 'Open navigation menu'}
+            aria-expanded={mobileMenuOpen}
+            aria-controls="mobile-nav"
           >
             {mobileMenuOpen ? <X size={28} /> : <Menu size={28} />}
           </button>
@@ -76,8 +78,9 @@ const Header = () => {
             exit={{ x: '100%' }}
             transition={{ type: 'tween', duration: 0.3 }}
             className="fixed top-20 right-0 bottom-0 w-64 bg-[#1a2332] shadow-2xl lg:hidden"
+            id="mobile-nav"
           >
-            <nav className="flex flex-col p-6 space-y-4">
+            <nav className="flex flex-col p-6 space-y-4" aria-label="Mobile navigation">
               {navLinks.map((link) => (
                 <NavLink
                   key={link.to}

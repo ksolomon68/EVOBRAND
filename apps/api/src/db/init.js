@@ -20,6 +20,8 @@ async function initializeDatabase() {
     await pool.query(`ALTER TABLE users ADD COLUMN IF NOT EXISTS password_hash VARCHAR(255)`).catch(() => {});
     await pool.query(`ALTER TABLE users ADD COLUMN IF NOT EXISTS is_admin BOOLEAN DEFAULT FALSE`).catch(() => {});
     await pool.query(`ALTER TABLE users ADD COLUMN IF NOT EXISTS support_plan ENUM('basic','pro','elite') DEFAULT NULL`).catch(() => {});
+    await pool.query(`ALTER TABLE users ADD COLUMN IF NOT EXISTS reset_token VARCHAR(255) DEFAULT NULL`).catch(() => {});
+    await pool.query(`ALTER TABLE users ADD COLUMN IF NOT EXISTS reset_token_expires_at TIMESTAMP NULL DEFAULT NULL`).catch(() => {});
 
     // Create Contracts table
     await pool.query(`
@@ -99,10 +101,12 @@ async function initializeDatabase() {
       CREATE TABLE IF NOT EXISTS newsletter_subscribers (
         id INT AUTO_INCREMENT PRIMARY KEY,
         email VARCHAR(255) NOT NULL UNIQUE,
+        name VARCHAR(255),
         is_active BOOLEAN DEFAULT TRUE,
         subscribed_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       )
     `);
+    await pool.query(`ALTER TABLE newsletter_subscribers ADD COLUMN IF NOT EXISTS name VARCHAR(255)`).catch(() => {});
 
     // Create BlackoutDates table
     await pool.query(`
@@ -145,12 +149,16 @@ async function initializeDatabase() {
       )
     `);
 
-    // Insert default lists if not exist
+    // Ensure Leads list exists (by name, not forced id)
     await pool.query(`
-      INSERT IGNORE INTO crm_lists (id, name) VALUES 
-      (1, 'Newsletter'), 
-      (2, 'Clients'), 
-      (3, 'Leads')
+      INSERT INTO crm_lists (name)
+      SELECT 'Leads' FROM DUAL
+      WHERE NOT EXISTS (SELECT 1 FROM crm_lists WHERE name = 'Leads')
+    `);
+    await pool.query(`
+      INSERT INTO crm_lists (name)
+      SELECT 'Customers' FROM DUAL
+      WHERE NOT EXISTS (SELECT 1 FROM crm_lists WHERE name = 'Customers')
     `);
 
     // Create CRM Contacts table

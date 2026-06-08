@@ -19,7 +19,7 @@ Deno.serve(async (req) => {
     const emailsToSend: any[] = [];
     const pushEmail = (to: string[], subject: string, html: string) => {
       emailsToSend.push({
-        from: "EVOBRAND Support <no-reply@evobrand.net>",
+        from: "EVOBRAND <info@evobrand.net>",
         to,
         subject,
         html,

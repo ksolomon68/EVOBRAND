@@ -59,7 +59,7 @@ router.post('/submit', async (req, res) => {
     try {
       // To Admin
       await getResend().emails.send({
-        from: `"EVOBRAND Website" <${process.env.RESEND_FROM_EMAIL || 'info@evobrand.net'}>`,
+        from: `"EVOBRAND" <${process.env.RESEND_FROM_EMAIL || 'info@evobrand.net'}>`,
         to: ['info@evobrand.net', 'ksolomon68@gmail.com'],
         subject: `New Contact Form: ${subject || 'General Inquiry'}`,
         html: getEmailTemplate(`New Contact Form: ${subject || 'General Inquiry'}`, `
