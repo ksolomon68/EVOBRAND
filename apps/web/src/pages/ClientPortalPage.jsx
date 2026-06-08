@@ -165,7 +165,11 @@ const ClientPortalPage = () => {
   const { user, signOut, loading: authLoading } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
-  const [view, setView] = useState('dashboard');
+  const VALID_VIEWS = ['dashboard','meetings','analytics','admin','client-plans','contact-forms','scheduler-admin','crm','contracts','my-tickets','blackout'];
+  const [view, setView] = useState(() => {
+    const hash = window.location.hash.replace('#', '');
+    return VALID_VIEWS.includes(hash) ? hash : 'dashboard';
+  });
   const [tickets, setTickets] = useState([]);
   const [loading, setLoading] = useState(true);
   const [selectedTicket, setSelectedTicket] = useState(null);
@@ -214,6 +218,23 @@ const ClientPortalPage = () => {
   useEffect(() => {
     if (user) fetchTickets(true);
   }, [user]);
+
+  // Sync view → URL hash so refresh restores the active panel
+  useEffect(() => {
+    if (view !== 'detail') {
+      window.location.hash = view === 'dashboard' ? '' : view;
+    }
+  }, [view]);
+
+  // Keep view in sync with browser back/forward navigation
+  useEffect(() => {
+    const onHashChange = () => {
+      const hash = window.location.hash.replace('#', '');
+      setView(VALID_VIEWS.includes(hash) ? hash : 'dashboard');
+    };
+    window.addEventListener('hashchange', onHashChange);
+    return () => window.removeEventListener('hashchange', onHashChange);
+  }, []);
 
   const API_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' 
     ? 'http://localhost:5000/api/support' 
