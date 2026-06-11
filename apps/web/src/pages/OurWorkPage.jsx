@@ -130,6 +130,36 @@ const OurWorkPage = () => {
       metrics: { roi: 'Views', timeSaved: 'Curated', revenue: 'Ads' },
       description: 'The Ultimate Resource for Music-News and Entertainment Around the World!',
       link: 'https://thestarlist.com/'
+    },
+    {
+      id: 19,
+      title: 'Jewels of North Texas',
+      category: 'Web Development',
+      industry: 'Non-profit',
+      image: '/projects/jewels-of-north-texas.jpg',
+      metrics: { roi: 'Legacy', timeSaved: 'Excellence', revenue: 'Community' },
+      description: 'The inaugural debutante presentation by the 11 chapters of the Dallas Center of Excellence within Jack and Jill of America — celebrating young women of extraordinary character.',
+      link: 'https://evobrandconcepts.com/jewels/'
+    },
+    {
+      id: 20,
+      title: 'HAMPCO, Inc.',
+      category: 'Web Development',
+      industry: 'Non-profit',
+      image: '/projects/hampco.jpg',
+      metrics: { roi: '400K+', timeSaved: '30+ Yrs', revenue: '35+ Programs' },
+      description: 'Empowering Families. Building Stronger Communities. HAMPCO is dedicated to socioeconomic elevation, teen mentorship, healthcare outreach, and financial literacy across Northeast Louisiana.',
+      link: 'https://hampcoinc.org'
+    },
+    {
+      id: 21,
+      title: 'PulseOps',
+      category: 'Web Development',
+      industry: 'Industrial IoT',
+      image: '/projects/pulseops.jpg',
+      metrics: { roi: '99.97%', timeSaved: '47ms', revenue: '6× MTTR' },
+      description: 'Zero Downtime Starts Here. PulseOps unifies operational technology and IT infrastructure into a single real-time command surface for industrial teams.',
+      link: 'https://evobrandconcepts.com/html/pulseops.html'
     }
   ];
 
