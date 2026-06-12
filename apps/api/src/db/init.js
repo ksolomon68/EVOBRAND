@@ -140,6 +140,9 @@ async function initializeDatabase() {
       )
     `);
 
+    // Add google_event_id to meetings for calendar sync
+    await pool.query(`ALTER TABLE meetings ADD COLUMN IF NOT EXISTS google_event_id VARCHAR(255) DEFAULT NULL`).catch(() => {});
+
     // Create CRM Lists table
     await pool.query(`
       CREATE TABLE IF NOT EXISTS crm_lists (

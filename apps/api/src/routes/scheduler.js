@@ -5,6 +5,7 @@ const { getEmailTemplate } = require('../utils/emailTemplate');
 const { Resend } = require('resend');
 const { createNotification, notifyAdmins } = require('../utils/notifications');
 const { authenticateToken } = require('../middleware/auth');
+const { createCalendarEvent, deleteCalendarEvent } = require('../utils/googleCalendar');
 
 const getResend = () => new Resend(process.env.RESEND_API_KEY || 're_placeholder');
 
@@ -214,6 +215,25 @@ router.post('/book', async (req, res) => {
       console.error('Failed to send booking emails:', emailErr);
     }
 
+    // Create Google Calendar event (non-blocking — failure doesn't stop booking)
+    try {
+      const googleEventId = await createCalendarEvent({
+        date,
+        time,
+        duration: duration || 30,
+        bookingType,
+        clientName: finalName,
+        clientEmail: finalEmail,
+        notes,
+        meetLink: meet_link,
+      });
+      if (googleEventId) {
+        await pool.query('UPDATE meetings SET google_event_id = ? WHERE id = ?', [googleEventId, result.insertId]);
+      }
+    } catch (calErr) {
+      console.error('Google Calendar event creation failed (non-fatal):', calErr.message);
+    }
+
     if (resolvedUserId) {
       await createNotification(
         resolvedUserId,
@@ -250,7 +270,13 @@ router.post('/meetings/:id/cancel', async (req, res) => {
     `, [id]);
     
     await pool.query('UPDATE meetings SET status = ? WHERE id = ?', ['canceled', id]);
-    
+
+    if (meetings.length > 0 && meetings[0].google_event_id) {
+      deleteCalendarEvent(meetings[0].google_event_id).catch((e) =>
+        console.error('Google Calendar event deletion failed (non-fatal):', e.message)
+      );
+    }
+
     if (meetings.length > 0) {
       const meeting = meetings[0];
       try {
