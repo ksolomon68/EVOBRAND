@@ -1,10 +1,13 @@
 import React, { useState, useMemo, useRef, useEffect } from 'react';
 import { useGSAP } from '@gsap/react';
 import gsap from 'gsap';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { Loader2 } from 'lucide-react';
 import useYouTubePlaylist from '@/hooks/useYouTubePlaylist.js';
 import VideoSlider from '@/components/VideoSlider.jsx';
 import VideoModal from '@/components/VideoModal.jsx';
+
+gsap.registerPlugin(ScrollTrigger);
 
 const CATEGORIES = ['All', 'Branding', 'Automation', 'AI Solutions', 'Business Growth'];
 
