@@ -1,12 +1,11 @@
 /**
- * ScrubSection — Scroll-synced image sequence + chapter text panels.
- * Adapted from evobrand-scrub-loader.js for React/GSAP ScrollTrigger.
- *
+ * ScrubSection — Hero + scroll-synced image sequence + chapter panels.
+ * This is the primary hero. The existing headline and CTAs live here.
  * Frames: /header/ezgif-frame-001.jpg … ezgif-frame-076.jpg (local public/)
- * Frame 1-19 → Chapter 1, 20-38 → Ch2, 39-57 → Ch3, 58-76 → Ch4
  */
 
 import React, { useRef, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 
@@ -49,10 +48,13 @@ const CHAPTERS = [
 ];
 
 const ScrubSection = () => {
-  const sectionRef = useRef(null);
-  const canvasRef = useRef(null);
-  const panelRefs = useRef([]);
-  const internalRef = useRef({
+  const sectionRef  = useRef(null);
+  const canvasRef   = useRef(null);
+  const panelRefs   = useRef([]);
+  const headlineRef = useRef(null);
+  const heroOverlayRef = useRef(null);
+
+  const internal = useRef({
     frames: new Array(TOTAL_FRAMES).fill(null),
     loadedCount: 0,
     currentChapter: -1,
@@ -60,25 +62,39 @@ const ScrubSection = () => {
     ctx: null,
   });
 
+  // ── Kinetic word reveal on mount ─────────────────────────────────
+  useEffect(() => {
+    const el = headlineRef.current;
+    if (!el) return;
+    const words = el.querySelectorAll('.hero-word-inner');
+    if (!words.length) return;
+    gsap.set(words, { clipPath: 'inset(0 100% 0 0)' });
+    gsap.to(words, {
+      clipPath: 'inset(0 0% 0 0)',
+      duration: 0.65,
+      ease: 'power3.out',
+      stagger: 0.1,
+      delay: 0.35,
+    });
+  }, []);
+
+  // ── Canvas + ScrollTrigger ────────────────────────────────────────
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
+    const state = internal.current;
+    state.ctx = canvas.getContext('2d');
+    const ctx = state.ctx;
 
-    const internal = internalRef.current;
-    internal.ctx = canvas.getContext('2d');
-    const ctx = internal.ctx;
-
-    // ── Canvas resize ──────────────────────────────────────────────
     function resizeCanvas() {
-      canvas.width = window.innerWidth;
+      canvas.width  = window.innerWidth;
       canvas.height = window.innerHeight;
       redraw();
     }
 
     function drawCover(img) {
-      if (!img || !img.complete || img.naturalWidth === 0) return;
-      const cw = canvas.width;
-      const ch = canvas.height;
+      if (!img?.complete || img.naturalWidth === 0) return;
+      const cw = canvas.width, ch = canvas.height;
       const ir = img.naturalWidth / img.naturalHeight;
       const cr = cw / ch;
       let dw, dh, dx, dy;
@@ -91,32 +107,25 @@ const ScrubSection = () => {
     }
 
     function redraw() {
-      const frames = internal.frames;
-      // find the most recent loaded frame to show during initial load
-      for (let i = 0; i < frames.length; i++) {
-        if (frames[i]?.complete && frames[i].naturalWidth > 0) {
+      for (const img of state.frames) {
+        if (img?.complete && img.naturalWidth > 0) {
           ctx.clearRect(0, 0, canvas.width, canvas.height);
-          drawCover(frames[i]);
+          drawCover(img);
           break;
         }
       }
     }
 
-    // ── Chapter panels ─────────────────────────────────────────────
     function showPanel(index) {
       const panels = panelRefs.current;
-      const prev = internal.activePanelIndex;
+      const prev   = state.activePanelIndex;
       if (index === prev) return;
-
       if (prev >= 0 && panels[prev]) {
         gsap.to(panels[prev], { opacity: 0, y: -22, duration: 0.3, ease: 'power2.in' });
       }
-
-      internal.activePanelIndex = index;
-
+      state.activePanelIndex = index;
       if (panels[index]) {
-        gsap.fromTo(
-          panels[index],
+        gsap.fromTo(panels[index],
           { opacity: 0, y: 26 },
           { opacity: 1, y: 0, duration: 0.45, ease: 'power2.out' }
         );
@@ -124,29 +133,22 @@ const ScrubSection = () => {
     }
 
     function hidePanels() {
-      panelRefs.current.forEach(p => {
-        if (p) gsap.to(p, { opacity: 0, duration: 0.2 });
-      });
-      internal.activePanelIndex = -1;
-      internal.currentChapter = -1;
+      panelRefs.current.forEach(p => { if (p) gsap.to(p, { opacity: 0, duration: 0.2 }); });
+      state.activePanelIndex = -1;
+      state.currentChapter   = -1;
     }
 
-    // ── Frame renderer ─────────────────────────────────────────────
     function renderFrame(progress) {
-      const frames = internal.frames;
-      const total = TOTAL_FRAMES;
-      const rawIndex = progress * (total - 1);
-      const index = Math.min(Math.floor(rawIndex), total - 1);
-      const frac = rawIndex - index;
-
-      const curr = frames[index];
-      const next = frames[Math.min(index + 1, total - 1)];
+      const { frames } = state;
+      const rawIndex = progress * (TOTAL_FRAMES - 1);
+      const index    = Math.min(Math.floor(rawIndex), TOTAL_FRAMES - 1);
+      const frac     = rawIndex - index;
+      const curr     = frames[index];
+      const next     = frames[Math.min(index + 1, TOTAL_FRAMES - 1)];
 
       if (!curr?.complete) return;
-
       ctx.clearRect(0, 0, canvas.width, canvas.height);
       drawCover(curr);
-
       if (next?.complete && next.naturalWidth > 0 && frac > 0.02) {
         ctx.globalAlpha = frac;
         drawCover(next);
@@ -154,52 +156,45 @@ const ScrubSection = () => {
       }
 
       const newChapter = chapterForFrame(index + 1);
-      if (newChapter !== internal.currentChapter) {
-        internal.currentChapter = newChapter;
+      if (newChapter !== state.currentChapter) {
+        state.currentChapter = newChapter;
         showPanel(newChapter);
+      }
+
+      // Fade hero title/CTAs out as user scrolls into the story
+      if (heroOverlayRef.current) {
+        const fadeStart = 0.05;
+        const fadeEnd   = 0.20;
+        const alpha = 1 - Math.max(0, Math.min(1, (progress - fadeStart) / (fadeEnd - fadeStart)));
+        heroOverlayRef.current.style.opacity = alpha;
       }
     }
 
-    // ── Preload frames ─────────────────────────────────────────────
+    // Preload
     console.log('[EVOBRAND Scrubber] Initializing. First frame URL:', buildUrl(1));
-
     for (let i = 0; i < TOTAL_FRAMES; i++) {
       const img = new Image();
-      const frameNumber = i + 1;
-      img.src = buildUrl(frameNumber);
+      img.src = buildUrl(i + 1);
       img.onload = () => {
-        internal.loadedCount++;
-        // Draw first loaded frame immediately
-        if (internal.loadedCount === 1) {
-          ctx.clearRect(0, 0, canvas.width, canvas.height);
-          drawCover(img);
-        }
-        if (internal.loadedCount === TOTAL_FRAMES) {
-          console.log('[EVOBRAND Scrubber] All 76 frames loaded.');
-        }
+        state.loadedCount++;
+        if (state.loadedCount === 1) { ctx.clearRect(0, 0, canvas.width, canvas.height); drawCover(img); }
+        if (state.loadedCount === TOTAL_FRAMES) console.log('[EVOBRAND Scrubber] All 76 frames loaded.');
       };
-      img.onerror = () => {
-        internal.loadedCount++;
-        console.warn('[EVOBRAND Scrubber] Failed to load:', buildUrl(frameNumber));
-      };
-      internal.frames[i] = img;
+      img.onerror = () => { state.loadedCount++; };
+      state.frames[i] = img;
     }
 
-    // ── ScrollTrigger ──────────────────────────────────────────────
     window.addEventListener('resize', resizeCanvas);
     resizeCanvas();
 
     const trigger = ScrollTrigger.create({
       trigger: sectionRef.current,
-      start: 'top top',
-      end: 'bottom bottom',
-      scrub: 0.8,
-      onUpdate: self => renderFrame(self.progress),
-      onEnter: () => {
-        renderFrame(0);
-        showPanel(0);
-      },
-      onLeaveBack: () => hidePanels(),
+      start:  'top top',
+      end:    'bottom bottom',
+      scrub:  0.8,
+      onUpdate:   self => renderFrame(self.progress),
+      onEnter:    ()   => { renderFrame(0); showPanel(0); },
+      onLeaveBack: ()  => hidePanels(),
     });
 
     return () => {
@@ -212,7 +207,7 @@ const ScrubSection = () => {
     <section
       ref={sectionRef}
       style={{ position: 'relative', height: '500vh', background: '#0f1419' }}
-      aria-label="EVOBRAND story scroll"
+      aria-label="EVOBRAND hero and story scroll"
     >
       {/* Sticky viewport */}
       <div style={{ position: 'sticky', top: 0, height: '100vh', overflow: 'hidden' }}>
@@ -224,17 +219,91 @@ const ScrubSection = () => {
           style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', display: 'block' }}
         />
 
-        {/* Readability gradient overlay */}
-        <div
-          aria-hidden="true"
-          style={{
-            position: 'absolute', inset: 0, zIndex: 1,
-            background: 'linear-gradient(to bottom, rgba(15,20,25,0.45) 0%, rgba(15,20,25,0.1) 50%, rgba(15,20,25,0.65) 100%)',
-            pointerEvents: 'none',
-          }}
-        />
+        {/* Gradient overlays for readability */}
+        <div aria-hidden="true" style={{
+          position: 'absolute', inset: 0, zIndex: 1, pointerEvents: 'none',
+          background: 'linear-gradient(to right, rgba(15,20,25,0.88) 0%, rgba(15,20,25,0.4) 55%, transparent 100%)',
+        }} />
+        <div aria-hidden="true" style={{
+          position: 'absolute', inset: 0, zIndex: 1, pointerEvents: 'none',
+          background: 'linear-gradient(to bottom, transparent 60%, rgba(15,20,25,0.85) 100%)',
+        }} />
 
-        {/* Chapter text panels */}
+        {/* ── Hero title + CTAs (fades out as story begins) ── */}
+        <div
+          ref={heroOverlayRef}
+          style={{
+            position: 'absolute', inset: 0, zIndex: 3,
+            display: 'flex', flexDirection: 'column', justifyContent: 'flex-end',
+            padding: '0 clamp(20px, 5vw, 80px) clamp(60px, 10vh, 120px)',
+          }}
+        >
+          <h1
+            ref={headlineRef}
+            style={{
+              fontSize: 'clamp(36px, 6vw, 80px)',
+              fontWeight: 700,
+              lineHeight: 1.05,
+              color: '#ffffff',
+              marginBottom: '32px',
+              maxWidth: '700px',
+            }}
+          >
+            {['Your', 'Partner', 'in'].map((word, i) => (
+              <span key={i} style={{ display: 'inline-block', overflow: 'hidden', marginRight: '0.22em', verticalAlign: 'baseline' }}>
+                <span className="hero-word-inner" style={{ display: 'inline-block' }}>{word}</span>
+              </span>
+            ))}{' '}
+            <span style={{ color: '#22c8e5' }}>
+              {['AI', 'Transformation'].map((word, i) => (
+                <span key={i} style={{ display: 'inline-block', overflow: 'hidden', marginRight: '0.22em', verticalAlign: 'baseline' }}>
+                  <span className="hero-word-inner" style={{ display: 'inline-block' }}>{word}</span>
+                </span>
+              ))}
+            </span>
+          </h1>
+
+          <div style={{ display: 'flex', gap: '16px', flexWrap: 'wrap' }}>
+            <Link
+              to="/our-work"
+              style={{
+                display: 'inline-block',
+                padding: '14px 36px',
+                background: '#22c8e5',
+                color: '#003258',
+                borderRadius: '16px',
+                fontWeight: 700,
+                fontSize: '15px',
+                textDecoration: 'none',
+                transition: 'opacity 0.2s, transform 0.15s',
+              }}
+              onMouseEnter={e => { e.currentTarget.style.opacity = '0.88'; e.currentTarget.style.transform = 'translateY(-2px)'; }}
+              onMouseLeave={e => { e.currentTarget.style.opacity = '1'; e.currentTarget.style.transform = 'translateY(0)'; }}
+            >
+              See Our Work
+            </Link>
+            <Link
+              to="/audit"
+              style={{
+                display: 'inline-block',
+                padding: '13px 34px',
+                border: '2px solid #22c8e5',
+                color: '#22c8e5',
+                borderRadius: '16px',
+                fontWeight: 700,
+                fontSize: '15px',
+                textDecoration: 'none',
+                transition: 'background 0.2s, color 0.2s, transform 0.15s',
+              }}
+              onMouseEnter={e => { e.currentTarget.style.background = '#22c8e5'; e.currentTarget.style.color = '#003258'; e.currentTarget.style.transform = 'translateY(-2px)'; }}
+              onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = '#22c8e5'; e.currentTarget.style.transform = 'translateY(0)'; }}
+            >
+              Free Brand Audit
+            </Link>
+          </div>
+        </div>
+
+        {/* ── Chapter story panels (centered, appear as user scrolls) ── */}
         <div style={{
           position: 'absolute', inset: 0, zIndex: 2,
           display: 'flex', alignItems: 'center', justifyContent: 'center',
@@ -254,35 +323,22 @@ const ScrubSection = () => {
               }}
             >
               <p style={{
-                fontSize: '11px',
-                fontWeight: 600,
-                letterSpacing: '0.25em',
-                textTransform: 'uppercase',
-                color: '#22c8e5',
-                marginBottom: '16px',
-                fontFamily: 'inherit',
+                fontSize: '11px', fontWeight: 600, letterSpacing: '0.25em',
+                textTransform: 'uppercase', color: '#22c8e5', marginBottom: '16px',
               }}>
                 {ch.number}
               </p>
-
               <h2 style={{
                 fontSize: 'clamp(26px, 4.5vw, 54px)',
-                fontWeight: 700,
-                lineHeight: 1.1,
-                letterSpacing: '-0.025em',
-                color: '#ffffff',
-                marginBottom: '18px',
-                whiteSpace: 'pre-line',
+                fontWeight: 700, lineHeight: 1.1, letterSpacing: '-0.025em',
+                color: '#ffffff', marginBottom: '18px', whiteSpace: 'pre-line',
               }}>
                 {ch.title}
               </h2>
-
               <p style={{
                 fontSize: 'clamp(14px, 1.6vw, 17px)',
-                color: 'rgba(255,255,255,0.6)',
-                lineHeight: 1.75,
-                maxWidth: '520px',
-                margin: '0 auto',
+                color: 'rgba(255,255,255,0.6)', lineHeight: 1.75,
+                maxWidth: '520px', margin: '0 auto',
               }}>
                 {ch.body}
               </p>

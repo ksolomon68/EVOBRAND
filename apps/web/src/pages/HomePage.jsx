@@ -1,11 +1,8 @@
 
 import React from 'react';
-import { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { gsap } from 'gsap';
 import { Sparkles, Zap, FileText, Video, Code } from 'lucide-react';
-import HeroAnimation from '@/components/HeroAnimation.jsx';
 import ScrubSection from '@/components/ScrubSection.jsx';
 import VideoLibrarySection from '@/components/VideoLibrarySection.jsx';
 import AuditorSection from '@/components/sections/AuditorSection.jsx';
@@ -15,22 +12,6 @@ import SchedulerWidget from '@/components/scheduler/SchedulerWidget.jsx';
 import SEO from '@/components/SEO.jsx';
 
 const HomePage = () => {
-  const [typewriterText, setTypewriterText] = useState('');
-  const fullText = 'Transform Your Business with AI-Powered Solutions';
-
-  useEffect(() => {
-    let index = 0;
-    const interval = setInterval(() => {
-      if (index <= fullText.length) {
-        setTypewriterText(fullText.slice(0, index));
-        index++;
-      } else {
-        clearInterval(interval);
-      }
-    }, 50);
-    return () => clearInterval(interval);
-  }, []);
-
   const services = [
     {
       icon: <Sparkles size={40} />,
@@ -69,25 +50,6 @@ const HomePage = () => {
     }
   ];
 
-  const heroRef = useRef(null);
-  const headlineRef = useRef(null);
-
-  // Kinetic text mask reveal on mount
-  useEffect(() => {
-    const el = headlineRef.current;
-    if (!el) return;
-    const words = el.querySelectorAll('.hero-word-inner');
-    if (!words.length) return;
-    gsap.set(words, { clipPath: 'inset(0 100% 0 0)' });
-    gsap.to(words, {
-      clipPath: 'inset(0 0% 0 0)',
-      duration: 0.65,
-      ease: 'power3.out',
-      stagger: 0.1,
-      delay: 0.35,
-    });
-  }, []);
-
   return (
     <>
       <SEO
@@ -120,62 +82,7 @@ const HomePage = () => {
       />
 
       <div className="min-h-screen bg-[#0f1419]">
-        {/* Hero Section */}
-        <section ref={heroRef} className="relative h-[200vh]">
-          <div className="sticky top-0 h-screen overflow-hidden">
-
-            <HeroAnimation scrollContainerRef={heroRef} />
-
-            <div className="absolute inset-0 container mx-auto px-4 flex flex-col pt-32 lg:pt-48 relative z-10 pointer-events-none">
-              <motion.div
-                initial={{ opacity: 0, y: 30 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.8, delay: 0.2 }}
-                className="max-w-3xl pointer-events-auto"
-              >
-                <h1
-                  ref={headlineRef}
-                  className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold text-white mb-6 break-words"
-                >
-                  {['Your', 'Partner', 'in'].map((word, i) => (
-                    <span key={i} className="inline-block overflow-hidden mr-[0.22em] align-baseline">
-                      <span className="hero-word-inner inline-block">{word}</span>
-                    </span>
-                  ))}{' '}
-                  <span className="text-[#22c8e5]">
-                    {['AI', 'Transformation'].map((word, i) => (
-                      <span key={i} className="inline-block overflow-hidden mr-[0.22em] align-baseline">
-                        <span className="hero-word-inner inline-block">{word}</span>
-                      </span>
-                    ))}
-                  </span>
-                </h1>
-                <p className="text-2xl md:text-3xl text-[#22c8e5] mb-6 h-20">
-                  {typewriterText}<span className="animate-pulse">|</span>
-                </p>
-                <p className="text-lg text-gray-300 mb-8 max-w-2xl">
-                  Harness the power of AI to accelerate your business growth. We deliver custom AI solutions that drive real results.
-                </p>
-                <div className="flex flex-col sm:flex-row gap-4">
-                  <Link
-                    to="/our-work"
-                    className="px-8 py-4 bg-[#22c8e5] text-[#003258] rounded-2xl font-bold hover:shadow-lg hover:shadow-[#22c8e5]/50 hover:bg-opacity-90 transition-all text-center"
-                  >
-                    See Our Work
-                  </Link>
-                  <Link
-                    to="/audit"
-                    className="px-8 py-4 border-2 border-[#22c8e5] text-[#22c8e5] rounded-2xl font-bold hover:bg-[#22c8e5] hover:text-[#003258] transition-all text-center"
-                  >
-                    Free Brand Audit
-                  </Link>
-                </div>
-              </motion.div>
-            </div>
-          </div>
-        </section>
-
-        {/* Scroll-synced image sequence — 76 Higgsfield frames, 4 story chapters */}
+        {/* Hero + scroll-synced image sequence */}
         <ScrubSection />
 
         {/* Stats Banner */}
