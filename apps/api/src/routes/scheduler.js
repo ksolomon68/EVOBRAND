@@ -86,6 +86,27 @@ router.delete('/blackout-dates/:id', async (req, res) => {
   }
 });
 
+// Get all appointments (admin only) — used by AdminDashboard and AdminBlackoutPanel
+router.get('/appointments', authenticateToken, async (req, res) => {
+  try {
+    const [userRows] = await pool.query('SELECT is_admin, email FROM users WHERE id = ?', [req.user.id]);
+    const isAdmin = userRows[0] && (userRows[0].is_admin == 1 || userRows[0].is_admin === true || userRows[0].email === 'ks@evobrand.net');
+    if (!isAdmin) return res.status(403).json({ error: 'Unauthorized' });
+
+    const [rows] = await pool.query(`
+      SELECT m.*, u.name as client_name, u.email as client_email
+      FROM meetings m
+      LEFT JOIN users u ON m.user_id = u.id
+      WHERE m.status != 'canceled'
+      ORDER BY m.date ASC, m.time ASC
+    `);
+    res.json(rows);
+  } catch (error) {
+    console.error('Error fetching appointments:', error);
+    res.status(500).json({ error: 'Failed to fetch appointments' });
+  }
+});
+
 // Get user meetings (admins see all)
 router.get('/meetings/:userId', authenticateToken, async (req, res) => {
   const { userId } = req.params;
