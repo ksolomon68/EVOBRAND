@@ -1,9 +1,89 @@
 import React, { useState, useEffect, lazy, Suspense } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { CheckCircle, ArrowRight, TrendingUp, AlertTriangle, Download, Calendar } from 'lucide-react';
+import { CheckCircle, ArrowRight, TrendingUp, AlertTriangle, Download, Calendar, Mail } from 'lucide-react';
 import ScoreCounter from './ScoreCounter';
 import ScoreRadar from './ScoreRadar';
 import { Link } from 'react-router-dom';
+
+const NEWSLETTER_API = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+  ? 'http://localhost:5000/api/newsletter/subscribe'
+  : `${window.location.origin}/api/newsletter/subscribe`;
+
+function MailingListSignup({ prefillEmail = '', prefillName = '' }) {
+  const [email, setEmail] = useState(prefillEmail);
+  const [name, setName] = useState(prefillName);
+  const [status, setStatus] = useState('idle'); // 'idle' | 'loading' | 'success' | 'error'
+  const [errorMsg, setErrorMsg] = useState('');
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (!email.trim()) return;
+    setStatus('loading');
+    try {
+      const res = await fetch(NEWSLETTER_API, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: email.trim(), name: name.trim(), source: 'audit' }),
+      });
+      if (!res.ok) {
+        const d = await res.json().catch(() => ({}));
+        throw new Error(d.error || 'Subscription failed');
+      }
+      setStatus('success');
+    } catch (err) {
+      setErrorMsg(err.message || 'Something went wrong');
+      setStatus('error');
+    }
+  };
+
+  if (status === 'success') {
+    return (
+      <div className="mt-8 pt-8 border-t border-white/10 text-center">
+        <div className="inline-flex items-center gap-2 px-5 py-3 rounded-2xl bg-[#22C8E5]/10 border border-[#22C8E5]/30">
+          <CheckCircle size={16} className="text-[#22C8E5]" />
+          <span className="text-[#22C8E5] font-bold text-sm">You're on the list! Watch your inbox for AI brand tips.</span>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="mt-8 pt-8 border-t border-white/10">
+      <div className="flex items-center justify-center gap-2 mb-3">
+        <Mail size={15} className="text-[#22C8E5]" />
+        <p className="text-white/60 text-sm font-semibold">Get AI brand tips & strategies delivered to your inbox</p>
+      </div>
+      <form onSubmit={handleSubmit} className="flex flex-col sm:flex-row gap-3 max-w-md mx-auto">
+        {!prefillName && (
+          <input
+            type="text"
+            placeholder="Your name"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            className="flex-1 px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white placeholder-white/30 text-sm focus:outline-none focus:border-[#22C8E5]/50"
+          />
+        )}
+        <input
+          type="email"
+          required
+          placeholder="Your email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          className="flex-1 px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white placeholder-white/30 text-sm focus:outline-none focus:border-[#22C8E5]/50"
+        />
+        <button
+          type="submit"
+          disabled={status === 'loading'}
+          className="px-6 py-3 rounded-xl bg-[#22C8E5]/20 border border-[#22C8E5]/40 text-[#22C8E5] text-sm font-bold uppercase tracking-wider hover:bg-[#22C8E5]/30 transition-colors disabled:opacity-50 whitespace-nowrap"
+        >
+          {status === 'loading' ? 'Subscribing…' : 'Subscribe'}
+        </button>
+      </form>
+      {status === 'error' && <p className="text-red-400 text-xs text-center mt-2">{errorMsg}</p>}
+      <p className="text-white/20 text-[11px] text-center mt-3">No spam. Unsubscribe any time.</p>
+    </div>
+  );
+}
 
 const SCAN_PHASES = [
   { icon: '🌐', label: 'Fetching your website...', sub: 'Checking availability, SSL & metadata' },
@@ -295,7 +375,7 @@ const normalizeReport = (report) => {
   };
 };
 
-const AuditResults = ({ report, onDownloadPDF, isLoading, hasWebsite }) => {
+const AuditResults = ({ report, onDownloadPDF, isLoading, hasWebsite, prefillEmail, prefillName }) => {
   if (isLoading) return <LoadingState hasWebsite={hasWebsite} />;
   if (!report) return null;
 
@@ -441,6 +521,7 @@ const AuditResults = ({ report, onDownloadPDF, isLoading, hasWebsite }) => {
           <p className="text-white/30 text-sm ">
             Keisha Solomon · CEO, EVOBRAND Concepts · Ellis County, TX
           </p>
+          <MailingListSignup prefillEmail={prefillEmail} prefillName={prefillName} />
         </motion.div>
       </div>
     </div>

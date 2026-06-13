@@ -40,6 +40,9 @@ jobs:
         run: npm ci
         working-directory: apps/web
 
+      - name: Clean old dist assets
+        run: rm -rf dist/apps/web/assets/ dist/apps/web/index.html
+
       - name: Build frontend
         run: npm run build
         working-directory: apps/web

@@ -101,10 +101,12 @@ async function initializeDatabase() {
       CREATE TABLE IF NOT EXISTS newsletter_subscribers (
         id INT AUTO_INCREMENT PRIMARY KEY,
         email VARCHAR(255) NOT NULL UNIQUE,
+        name VARCHAR(255),
         is_active BOOLEAN DEFAULT TRUE,
         subscribed_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       )
     `);
+    await pool.query(`ALTER TABLE newsletter_subscribers ADD COLUMN IF NOT EXISTS name VARCHAR(255)`).catch(() => {});
 
     // Create BlackoutDates table
     await pool.query(`
@@ -138,6 +140,9 @@ async function initializeDatabase() {
       )
     `);
 
+    // Add google_event_id to meetings for calendar sync
+    await pool.query(`ALTER TABLE meetings ADD COLUMN IF NOT EXISTS google_event_id VARCHAR(255) DEFAULT NULL`).catch(() => {});
+
     // Create CRM Lists table
     await pool.query(`
       CREATE TABLE IF NOT EXISTS crm_lists (
@@ -147,12 +152,16 @@ async function initializeDatabase() {
       )
     `);
 
-    // Insert default lists if not exist
+    // Ensure Leads list exists (by name, not forced id)
     await pool.query(`
-      INSERT IGNORE INTO crm_lists (id, name) VALUES 
-      (1, 'Newsletter'), 
-      (2, 'Clients'), 
-      (3, 'Leads')
+      INSERT INTO crm_lists (name)
+      SELECT 'Leads' FROM DUAL
+      WHERE NOT EXISTS (SELECT 1 FROM crm_lists WHERE name = 'Leads')
+    `);
+    await pool.query(`
+      INSERT INTO crm_lists (name)
+      SELECT 'Customers' FROM DUAL
+      WHERE NOT EXISTS (SELECT 1 FROM crm_lists WHERE name = 'Customers')
     `);
 
     // Create CRM Contacts table

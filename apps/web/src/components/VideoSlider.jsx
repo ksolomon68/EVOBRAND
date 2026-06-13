@@ -78,7 +78,6 @@ export default function VideoSlider({ videos = [], onVideoSelect }) {
     dragStart.current = e.clientX;
     posAtDrag.current = posRef.current;
     gsap.killTweensOf(trackRef.current);
-    containerRef.current.setPointerCapture(e.pointerId);
   }, []);
 
   const onPointerMove = useCallback((e) => {
@@ -132,7 +131,7 @@ export default function VideoSlider({ videos = [], onVideoSelect }) {
         aria-label="Previous videos"
         className="absolute left-0 top-1/2 -translate-y-1/2 z-20 w-10 h-10 rounded-full bg-[#0A1628] border border-[#22c8e5]/30 flex items-center justify-center text-[#22c8e5] disabled:opacity-20 disabled:cursor-not-allowed hover:bg-[#22c8e5] hover:text-[#003258] transition-all duration-200 shadow-lg shadow-black/60 focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#22c8e5] focus-visible:outline-offset-2"
       >
-        <ChevronLeft size={18} />
+        <ChevronLeft size={18} aria-hidden="true" />
       </button>
 
       {/* Next arrow */}
@@ -142,7 +141,7 @@ export default function VideoSlider({ videos = [], onVideoSelect }) {
         aria-label="Next videos"
         className="absolute right-0 top-1/2 -translate-y-1/2 z-20 w-10 h-10 rounded-full bg-[#0A1628] border border-[#22c8e5]/30 flex items-center justify-center text-[#22c8e5] disabled:opacity-20 disabled:cursor-not-allowed hover:bg-[#22c8e5] hover:text-[#003258] transition-all duration-200 shadow-lg shadow-black/60 focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#22c8e5] focus-visible:outline-offset-2"
       >
-        <ChevronRight size={18} />
+        <ChevronRight size={18} aria-hidden="true" />
       </button>
 
       {/* Track */}
@@ -177,17 +176,17 @@ export default function VideoSlider({ videos = [], onVideoSelect }) {
               {/* Thumbnail */}
               <img
                 src={video.thumbnail}
-                alt={video.title}
+                alt=""
                 className="w-full h-full object-cover"
                 draggable={false}
                 loading={i < 4 ? 'eager' : 'lazy'}
               />
 
               {/* Persistent dark gradient at bottom */}
-              <div className="absolute inset-0 bg-gradient-to-t from-[#0A1628]/80 via-transparent to-transparent pointer-events-none" />
+              <div className="absolute inset-0 bg-gradient-to-t from-[#0A1628]/80 via-transparent to-transparent pointer-events-none" aria-hidden="true" />
 
               {/* Hover overlay */}
-              <div className="vs-overlay absolute inset-0 bg-[#0A1628]/60 opacity-0 flex flex-col items-center justify-center pointer-events-none">
+              <div className="vs-overlay absolute inset-0 bg-[#0A1628]/60 opacity-0 flex flex-col items-center justify-center pointer-events-none" aria-hidden="true">
                 <div
                   className="w-14 h-14 rounded-full flex items-center justify-center mb-3 shadow-xl"
                   style={{ background: 'linear-gradient(135deg, #22c8e5, #1ba3c0)' }}
@@ -198,7 +197,7 @@ export default function VideoSlider({ videos = [], onVideoSelect }) {
               </div>
 
               {/* Title — always shown, animates on hover */}
-              <p className="vs-title absolute bottom-3 left-3 right-3 text-white text-xs font-semibold leading-tight line-clamp-2 opacity-0 translate-y-2 pointer-events-none">
+              <p className="vs-title absolute bottom-3 left-3 right-3 text-white text-xs font-semibold leading-tight line-clamp-2 opacity-0 translate-y-2 pointer-events-none" aria-hidden="true">
                 {video.title}
               </p>
             </div>
@@ -207,12 +206,11 @@ export default function VideoSlider({ videos = [], onVideoSelect }) {
       </div>
 
       {/* Dot indicators */}
-      <div className="flex justify-center gap-1.5 mt-4" role="tablist" aria-label="Video slider position">
+      <div className="flex justify-center gap-1.5 mt-4" role="group" aria-label="Video slider position">
         {videos.map((_, i) => (
           <button
             key={i}
-            role="tab"
-            aria-selected={i === activeIndex}
+            aria-pressed={i === activeIndex}
             aria-label={`Go to video ${i + 1}`}
             onClick={() => snapToIndex(i)}
             className={`h-1 rounded-full transition-all duration-300 focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#22c8e5] ${
