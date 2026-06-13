@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useGSAP } from '@gsap/react';
 import gsap from 'gsap';
-import { ChevronLeft, ChevronRight, Plus, Trash2, Loader2, AlertCircle, ShieldAlert, Calendar, Clock, User } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Plus, Trash2, Loader2, AlertCircle, ShieldAlert, Calendar, Clock, User, RefreshCw } from 'lucide-react';
 
 const API_BASE = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
   ? 'http://localhost:5000/api'
@@ -431,6 +431,8 @@ export default function AdminBlackoutPanel({ user }) {
   const [appointments, setAppointments] = useState([]);
   const [loading, setLoading] = useState(true);
   const [apptLoading, setApptLoading] = useState(true);
+  const [syncStatus, setSyncStatus] = useState(null);
+  const [syncing, setSyncing] = useState(false);
   const panelRef = useRef(null);
   const isAdmin = user?.is_admin === 1 || user?.is_admin === true || user?.user_metadata?.role === 'admin';
 
@@ -466,6 +468,25 @@ export default function AdminBlackoutPanel({ user }) {
         console.error('Failed to load appointments', err);
         setApptLoading(false);
       });
+  }, []);
+
+  const handleSyncCalendar = useCallback(async () => {
+    const token = localStorage.getItem('evobrand_token');
+    if (!token) return;
+    setSyncing(true);
+    setSyncStatus(null);
+    try {
+      const res = await fetch(`${API_BASE}/scheduler/sync-calendar`, {
+        method: 'POST',
+        headers: { 'Authorization': `Bearer ${token}` },
+      });
+      const data = await res.json();
+      setSyncStatus(data);
+    } catch (err) {
+      setSyncStatus({ error: err.message });
+    } finally {
+      setSyncing(false);
+    }
   }, []);
 
   useEffect(() => { fetchBlackouts(); }, [fetchBlackouts]);
@@ -512,11 +533,32 @@ export default function AdminBlackoutPanel({ user }) {
 
   return (
     <div ref={panelRef}>
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold text-white mb-1">Availability Controls</h1>
-        <p style={{ color: 'rgba(255,255,255,0.45)' }}>
-          Block specific dates or time slots from appearing in the scheduler. Amber dates have scheduled appointments.
-        </p>
+      <div className="mb-8 flex flex-wrap items-start justify-between gap-4">
+        <div>
+          <h1 className="text-3xl font-bold text-white mb-1">Availability Controls</h1>
+          <p style={{ color: 'rgba(255,255,255,0.45)' }}>
+            Block specific dates or time slots from appearing in the scheduler. Amber dates have scheduled appointments.
+          </p>
+        </div>
+        <div className="flex flex-col items-end gap-2">
+          <button
+            onClick={handleSyncCalendar}
+            disabled={syncing}
+            className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold transition-opacity"
+            style={{ background: 'rgba(34,200,229,0.15)', color: GOLD, border: '1px solid rgba(34,200,229,0.3)', opacity: syncing ? 0.6 : 1 }}
+          >
+            <RefreshCw size={14} className={syncing ? 'animate-spin' : ''} />
+            {syncing ? 'Syncing…' : 'Sync to Google Calendar'}
+          </button>
+          {syncStatus && !syncStatus.error && (
+            <p className="text-xs" style={{ color: 'rgba(255,255,255,0.5)' }}>
+              {syncStatus.synced} synced · {syncStatus.failed} failed of {syncStatus.total} appointments
+            </p>
+          )}
+          {syncStatus?.error && (
+            <p className="text-xs" style={{ color: '#f87171' }}>{syncStatus.error}</p>
+          )}
+        </div>
       </div>
 
       <div className="grid lg:grid-cols-2 gap-8">

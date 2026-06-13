@@ -349,4 +349,59 @@ router.post('/meetings/:id/cancel', async (req, res) => {
   }
 });
 
+// Back-fill Google Calendar events for existing meetings that don't have one (admin only)
+router.post('/sync-calendar', authenticateToken, async (req, res) => {
+  try {
+    const [userRows] = await pool.query('SELECT is_admin, email FROM users WHERE id = ?', [req.user.id]);
+    const isAdmin = userRows[0] && (userRows[0].is_admin == 1 || userRows[0].is_admin === true || userRows[0].email === 'ks@evobrand.net');
+    if (!isAdmin) return res.status(403).json({ error: 'Admin only' });
+
+    const [meetings] = await pool.query(`
+      SELECT m.*, u.name as client_name, u.email as client_email
+      FROM meetings m
+      LEFT JOIN users u ON m.user_id = u.id
+      WHERE m.google_event_id IS NULL AND m.status != 'canceled'
+      ORDER BY m.date ASC
+    `);
+
+    const meet_link = 'https://meet.google.com/pdh-sjeq-bja';
+    let synced = 0;
+    let failed = 0;
+    const errors = [];
+
+    for (const meeting of meetings) {
+      try {
+        const googleEventId = await createCalendarEvent({
+          date: meeting.date instanceof Date
+            ? meeting.date.toISOString().slice(0, 10)
+            : String(meeting.date).slice(0, 10),
+          time: meeting.time,
+          duration: meeting.duration || 30,
+          bookingType: meeting.type || 'discovery',
+          clientName: meeting.client_name,
+          clientEmail: meeting.client_email,
+          notes: meeting.notes,
+          meetLink: meeting.meet_link || meet_link,
+        });
+
+        if (googleEventId) {
+          await pool.query('UPDATE meetings SET google_event_id = ? WHERE id = ?', [googleEventId, meeting.id]);
+          synced++;
+        } else {
+          failed++;
+          errors.push(`Meeting ${meeting.id}: Google Calendar credentials not configured`);
+        }
+      } catch (err) {
+        failed++;
+        errors.push(`Meeting ${meeting.id}: ${err.message}`);
+      }
+    }
+
+    res.json({ total: meetings.length, synced, failed, errors });
+  } catch (error) {
+    console.error('Error syncing calendar:', error);
+    res.status(500).json({ error: 'Failed to sync calendar' });
+  }
+});
+
 module.exports = router;
