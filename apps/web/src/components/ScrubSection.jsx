@@ -222,11 +222,11 @@ const ScrubSection = () => {
         {/* Gradient overlays for readability */}
         <div aria-hidden="true" style={{
           position: 'absolute', inset: 0, zIndex: 1, pointerEvents: 'none',
-          background: 'linear-gradient(to right, rgba(15,20,25,0.88) 0%, rgba(15,20,25,0.4) 55%, transparent 100%)',
+          background: 'rgba(15,20,25,0.52)',
         }} />
         <div aria-hidden="true" style={{
           position: 'absolute', inset: 0, zIndex: 1, pointerEvents: 'none',
-          background: 'linear-gradient(to bottom, transparent 60%, rgba(15,20,25,0.85) 100%)',
+          background: 'linear-gradient(to bottom, rgba(15,20,25,0.25) 0%, transparent 40%, rgba(15,20,25,0.6) 100%)',
         }} />
 
         {/* ── Hero title + CTAs (fades out as story begins) ── */}
@@ -234,8 +234,11 @@ const ScrubSection = () => {
           ref={heroOverlayRef}
           style={{
             position: 'absolute', inset: 0, zIndex: 3,
-            display: 'flex', flexDirection: 'column', justifyContent: 'flex-end',
-            padding: '0 clamp(20px, 5vw, 80px) clamp(60px, 10vh, 120px)',
+            display: 'flex', flexDirection: 'column',
+            alignItems: 'center', justifyContent: 'center',
+            textAlign: 'center',
+            padding: '0 24px',
+            paddingTop: '72px', /* clear fixed nav */
           }}
         >
           <h1
@@ -245,8 +248,8 @@ const ScrubSection = () => {
               fontWeight: 700,
               lineHeight: 1.05,
               color: '#ffffff',
-              marginBottom: '32px',
-              maxWidth: '700px',
+              marginBottom: '36px',
+              maxWidth: '800px',
             }}
           >
             {['Your', 'Partner', 'in'].map((word, i) => (
@@ -263,7 +266,7 @@ const ScrubSection = () => {
             </span>
           </h1>
 
-          <div style={{ display: 'flex', gap: '16px', flexWrap: 'wrap' }}>
+          <div style={{ display: 'flex', gap: '16px', flexWrap: 'wrap', justifyContent: 'center' }}>
             <Link
               to="/our-work"
               style={{
