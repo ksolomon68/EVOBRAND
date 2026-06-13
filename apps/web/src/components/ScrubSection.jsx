@@ -155,18 +155,19 @@ const ScrubSection = () => {
         ctx.globalAlpha = 1;
       }
 
-      const newChapter = chapterForFrame(index + 1);
-      if (newChapter !== state.currentChapter) {
-        state.currentChapter = newChapter;
-        showPanel(newChapter);
+      // Hero fades out over first 8% of scroll progress
+      if (heroOverlayRef.current) {
+        const alpha = 1 - Math.max(0, Math.min(1, progress / 0.08));
+        heroOverlayRef.current.style.opacity = alpha;
       }
 
-      // Fade hero title/CTAs out as user scrolls into the story
-      if (heroOverlayRef.current) {
-        const fadeStart = 0.05;
-        const fadeEnd   = 0.20;
-        const alpha = 1 - Math.max(0, Math.min(1, (progress - fadeStart) / (fadeEnd - fadeStart)));
-        heroOverlayRef.current.style.opacity = alpha;
+      // Chapter panels only appear after hero is gone (progress > 10%)
+      if (progress >= 0.10) {
+        const newChapter = chapterForFrame(index + 1);
+        if (newChapter !== state.currentChapter) {
+          state.currentChapter = newChapter;
+          showPanel(newChapter);
+        }
       }
     }
 
@@ -192,9 +193,15 @@ const ScrubSection = () => {
       start:  'top top',
       end:    'bottom bottom',
       scrub:  0.8,
-      onUpdate:   self => renderFrame(self.progress),
-      onEnter:    ()   => { renderFrame(0); showPanel(0); },
-      onLeaveBack: ()  => hidePanels(),
+      onUpdate: self => {
+        renderFrame(self.progress);
+        // Suppress chapter panels until hero has fully faded (first 10% of scroll)
+        if (self.progress < 0.10 && state.activePanelIndex !== -1) {
+          hidePanels();
+        }
+      },
+      onEnter:    () => renderFrame(0),
+      onLeaveBack: () => hidePanels(),
     });
 
     return () => {
