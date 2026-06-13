@@ -393,6 +393,15 @@ router.post('/sync-calendar', authenticateToken, async (req, res) => {
     const isAdmin = userRows[0] && (userRows[0].is_admin == 1 || userRows[0].is_admin === true || userRows[0].email === 'ks@evobrand.net');
     if (!isAdmin) return res.status(403).json({ error: 'Admin only' });
 
+    // Check credentials are present before attempting sync
+    const { GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET, GOOGLE_REFRESH_TOKEN } = process.env;
+    if (!GOOGLE_CLIENT_ID || !GOOGLE_CLIENT_SECRET || !GOOGLE_REFRESH_TOKEN) {
+      return res.status(400).json({
+        error: 'Google Calendar credentials are not configured. Add GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET, and GOOGLE_REFRESH_TOKEN to your .env file and restart the server.',
+        synced: 0, failed: 0, total: 0,
+      });
+    }
+
     const [meetings] = await pool.query(`
       SELECT m.*, u.name as client_name, u.email as client_email
       FROM meetings m
@@ -408,10 +417,12 @@ router.post('/sync-calendar', authenticateToken, async (req, res) => {
 
     for (const meeting of meetings) {
       try {
+        const dateStr = meeting.date instanceof Date
+          ? meeting.date.toISOString().slice(0, 10)
+          : String(meeting.date).slice(0, 10);
+
         const googleEventId = await createCalendarEvent({
-          date: meeting.date instanceof Date
-            ? meeting.date.toISOString().slice(0, 10)
-            : String(meeting.date).slice(0, 10),
+          date: dateStr,
           time: meeting.time,
           duration: meeting.duration || 30,
           bookingType: meeting.type || 'discovery',
@@ -426,7 +437,7 @@ router.post('/sync-calendar', authenticateToken, async (req, res) => {
           synced++;
         } else {
           failed++;
-          errors.push(`Meeting ${meeting.id}: Google Calendar credentials not configured`);
+          errors.push(`Meeting ${meeting.id} (${dateStr}): Calendar client returned null — check credentials`);
         }
       } catch (err) {
         failed++;
@@ -440,5 +451,6 @@ router.post('/sync-calendar', authenticateToken, async (req, res) => {
     res.status(500).json({ error: 'Failed to sync calendar' });
   }
 });
+
 
 module.exports = router;

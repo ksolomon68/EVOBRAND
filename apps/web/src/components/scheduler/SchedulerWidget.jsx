@@ -173,7 +173,11 @@ function CalendarPicker({ selectedDate, onSelect, blackoutDates, fullyBookedDate
   }, []);
 
   const isBlackedOut = useCallback((dateStr) => {
-    return blackoutDates.some((b) => b.blackout_date === dateStr && b.time_slot === null);
+    // b.date and b.time are the real field names returned by the API
+    return blackoutDates.some((b) => {
+      const bDate = b.date instanceof Date ? b.date.toISOString().slice(0, 10) : String(b.date || '').slice(0, 10);
+      return bDate === dateStr && (b.time === null || b.time === undefined || b.time === '');
+    });
   }, [blackoutDates]);
 
   const isFullyBooked = useCallback((dateStr) => {
@@ -262,7 +266,7 @@ function CalendarPicker({ selectedDate, onSelect, blackoutDates, fullyBookedDate
                 textDecoration: disabled && !fullyBooked && !blackedOut ? 'line-through' : 'none',
                 opacity: disabled && !fullyBooked && !blackedOut ? 0.4 : 1,
                 fontWeight: selected ? 700 : 500,
-                border: fullyBooked ? '1px solid rgba(239,68,68,0.2)' : 'none',
+                border: (fullyBooked || blackedOut) ? '1px solid rgba(239,68,68,0.2)' : 'none',
               }}
             >
               {day}
@@ -297,7 +301,11 @@ function TimeSlotPicker({ selectedDate, selectedSlot, onSelect, blackoutDates, b
 
   const isSlotBlocked = useCallback((slot) => {
     return (
-      blackoutDates.some((b) => b.date === selectedDate && (b.time === null || b.time === undefined || b.time === slot)) ||
+      blackoutDates.some((b) => {
+        const bDate = b.date instanceof Date ? b.date.toISOString().slice(0, 10) : String(b.date || '').slice(0, 10);
+        // whole-day blackout (time is null/empty) OR specific slot blackout
+        return bDate === selectedDate && (b.time === null || b.time === undefined || b.time === '' || b.time === slot);
+      }) ||
       bookedSlots.includes(slot)
     );
   }, [blackoutDates, bookedSlots, selectedDate]);
