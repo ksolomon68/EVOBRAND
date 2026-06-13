@@ -86,7 +86,7 @@ router.delete('/blackout-dates/:id', async (req, res) => {
   }
 });
 
-// Get all appointments (admin) or own appointments (user) — no userId param needed
+// Get all appointments (admin sees all, user sees own) — used by AdminDashboard and AdminBlackoutPanel
 router.get('/appointments', authenticateToken, async (req, res) => {
   try {
     const [userRows] = await pool.query('SELECT is_admin, email FROM users WHERE id = ?', [req.user.id]);
@@ -98,10 +98,11 @@ router.get('/appointments', authenticateToken, async (req, res) => {
         SELECT m.*, u.name as client_name, u.email as client_email
         FROM meetings m
         LEFT JOIN users u ON m.user_id = u.id
-        ORDER BY m.date DESC, m.time DESC
+        WHERE m.status != 'canceled'
+        ORDER BY m.date ASC, m.time ASC
       `);
     } else {
-      [rows] = await pool.query('SELECT * FROM meetings WHERE user_id = ? ORDER BY date DESC, time DESC', [req.user.id]);
+      [rows] = await pool.query('SELECT * FROM meetings WHERE user_id = ? AND status != ? ORDER BY date ASC, time ASC', [req.user.id, 'canceled']);
     }
     res.json(rows);
   } catch (error) {
@@ -135,6 +136,42 @@ router.get('/meetings/:userId', authenticateToken, async (req, res) => {
   } catch (error) {
     console.error('Error fetching meetings:', error);
     res.status(500).json({ error: 'Failed to fetch meetings' });
+  }
+});
+
+// Get fully-booked dates for a given month (all 6 slots taken)
+// Returns an array of date strings e.g. ["2026-06-15", "2026-06-18"]
+router.get('/booked-dates', async (req, res) => {
+  const { year, month } = req.query;
+  if (!year || !month) return res.status(400).json({ error: 'year and month are required' });
+
+  const TIME_SLOTS = ['12:00 PM', '1:00 PM', '2:00 PM', '3:00 PM', '4:00 PM', '5:00 PM'];
+  const totalSlots = TIME_SLOTS.length;
+
+  try {
+    const pad = (n) => String(n).padStart(2, '0');
+    const startDate = `${year}-${pad(month)}-01`;
+    const endDate = `${year}-${pad(month)}-31`;
+
+    // Count booked (non-canceled) slots grouped by date
+    const [rows] = await pool.query(
+      `SELECT date, COUNT(*) as booked_count
+       FROM meetings
+       WHERE date >= ? AND date <= ? AND status != 'canceled'
+       GROUP BY date
+       HAVING booked_count >= ?`,
+      [startDate, endDate, totalSlots]
+    );
+
+    const fullyBookedDates = rows.map((r) => {
+      const d = r.date instanceof Date ? r.date.toISOString().slice(0, 10) : String(r.date).slice(0, 10);
+      return d;
+    });
+
+    res.json(fullyBookedDates);
+  } catch (error) {
+    console.error('Error fetching booked dates:', error);
+    res.status(500).json({ error: 'Failed to fetch booked dates' });
   }
 });
 

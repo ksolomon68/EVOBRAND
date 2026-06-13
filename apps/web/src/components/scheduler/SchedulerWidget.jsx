@@ -101,7 +101,7 @@ function StepIndicator({ step }) {
 
 // ─── Step 1: Calendar ────────────────────────────────────────────────────────
 
-function CalendarPicker({ selectedDate, onSelect, blackoutDates }) {
+function CalendarPicker({ selectedDate, onSelect, blackoutDates, fullyBookedDates = new Set(), onMonthChange }) {
   const todayStr = today();
   const ref = useRef(null);
 
@@ -119,15 +119,17 @@ function CalendarPicker({ selectedDate, onSelect, blackoutDates }) {
 
   const prevMonth = () => {
     setViewDate((v) => {
-      if (v.month === 0) return { year: v.year - 1, month: 11 };
-      return { ...v, month: v.month - 1 };
+      const next = v.month === 0 ? { year: v.year - 1, month: 11 } : { ...v, month: v.month - 1 };
+      onMonthChange?.(next.year, next.month + 1);
+      return next;
     });
   };
 
   const nextMonth = () => {
     setViewDate((v) => {
-      if (v.month === 11) return { year: v.year + 1, month: 0 };
-      return { ...v, month: v.month + 1 };
+      const next = v.month === 11 ? { year: v.year + 1, month: 0 } : { ...v, month: v.month + 1 };
+      onMonthChange?.(next.year, next.month + 1);
+      return next;
     });
   };
 
@@ -174,9 +176,13 @@ function CalendarPicker({ selectedDate, onSelect, blackoutDates }) {
     return blackoutDates.some((b) => b.blackout_date === dateStr && b.time_slot === null);
   }, [blackoutDates]);
 
+  const isFullyBooked = useCallback((dateStr) => {
+    return fullyBookedDates.has(dateStr);
+  }, [fullyBookedDates]);
+
   const isDisabled = useCallback((dateStr) => {
-    return dateStr <= todayStr || isWeekend(dateStr) || isHoliday(dateStr) || isBlackedOut(dateStr);
-  }, [todayStr, isWeekend, isHoliday, isBlackedOut]);
+    return dateStr <= todayStr || isWeekend(dateStr) || isHoliday(dateStr) || isBlackedOut(dateStr) || isFullyBooked(dateStr);
+  }, [todayStr, isWeekend, isHoliday, isBlackedOut, isFullyBooked]);
 
   const cells = [];
   for (let i = 0; i < firstDow; i++) cells.push(null);
@@ -222,25 +228,53 @@ function CalendarPicker({ selectedDate, onSelect, blackoutDates }) {
           const disabled = isDisabled(dateStr);
           const selected = selectedDate === dateStr;
           const isToday = dateStr === todayStr;
+          const fullyBooked = !selected && isFullyBooked(dateStr);
+          const blackedOut = !selected && isBlackedOut(dateStr);
 
           return (
             <button
               key={dateStr}
               onClick={() => !disabled && onSelect(dateStr)}
               disabled={disabled}
-              aria-label={`${MONTHS[viewDate.month]} ${day}, ${viewDate.year}${disabled ? ' (unavailable)' : ''}`}
+              aria-label={`${MONTHS[viewDate.month]} ${day}, ${viewDate.year}${fullyBooked ? ' (fully booked)' : blackedOut ? ' (unavailable)' : disabled ? ' (unavailable)' : ''}`}
               aria-pressed={selected}
-              className="w-full aspect-square flex items-center justify-center rounded-lg text-sm font-medium transition-all duration-200 focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#22c8e5] focus-visible:outline-offset-1"
+              className="w-full aspect-square flex items-center justify-center rounded-lg text-sm font-medium transition-all duration-200 focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#22c8e5] focus-visible:outline-offset-1 relative"
               style={{
-                background: selected ? GOLD : isToday ? 'rgba(34,200,229,0.12)' : 'transparent',
-                color: disabled ? 'rgba(255,255,255,0.3)' : selected ? NAVY : isToday ? GOLD : BEIGE,
+                background: selected
+                  ? GOLD
+                  : fullyBooked
+                  ? 'rgba(239,68,68,0.1)'
+                  : blackedOut
+                  ? 'rgba(239,68,68,0.1)'
+                  : isToday
+                  ? 'rgba(34,200,229,0.12)'
+                  : 'transparent',
+                color: selected
+                  ? NAVY
+                  : (fullyBooked || blackedOut)
+                  ? 'rgba(255,255,255,0.25)'
+                  : disabled
+                  ? 'rgba(255,255,255,0.2)'
+                  : isToday
+                  ? GOLD
+                  : BEIGE,
                 cursor: disabled ? 'not-allowed' : 'pointer',
-                textDecoration: disabled ? 'line-through' : 'none',
-                opacity: disabled ? 0.5 : 1,
+                textDecoration: disabled && !fullyBooked && !blackedOut ? 'line-through' : 'none',
+                opacity: disabled && !fullyBooked && !blackedOut ? 0.4 : 1,
                 fontWeight: selected ? 700 : 500,
+                border: fullyBooked ? '1px solid rgba(239,68,68,0.2)' : 'none',
               }}
             >
               {day}
+              {fullyBooked && (
+                <span
+                  className="absolute bottom-0.5 left-1/2 -translate-x-1/2 text-[7px] font-bold uppercase tracking-wider leading-none"
+                  style={{ color: 'rgba(239,68,68,0.6)' }}
+                  aria-hidden="true"
+                >
+                  full
+                </span>
+              )}
             </button>
           );
         })}
@@ -729,6 +763,11 @@ export default function SchedulerWidget() {
   const [selectedSlot, setSelectedSlot] = useState('');
   const [blackoutDates, setBlackoutDates] = useState([]);
   const [bookedSlots, setBookedSlots] = useState([]);
+  const [fullyBookedDates, setFullyBookedDates] = useState(new Set());
+  const [calendarMonth, setCalendarMonth] = useState(() => {
+    const d = new Date();
+    return { year: d.getFullYear(), month: d.getMonth() + 1 };
+  });
   const [booking, setBooking] = useState(null);
   // step 4 = success, step 5 = create account (guests only)
   const panelRef = useRef(null);
@@ -745,6 +784,19 @@ export default function SchedulerWidget() {
       })
       .catch(() => {});
   }, []);
+
+  // Fetch fully-booked dates for the visible calendar month
+  useEffect(() => {
+    fetch(`${API_BASE}/scheduler/booked-dates?year=${calendarMonth.year}&month=${calendarMonth.month}`)
+      .then((res) => {
+        if (!res.ok || !res.headers.get('content-type')?.includes('application/json')) return [];
+        return res.json();
+      })
+      .then((data) => {
+        if (Array.isArray(data)) setFullyBookedDates(new Set(data));
+      })
+      .catch(() => {});
+  }, [calendarMonth]);
 
   // Fetch booked slots whenever selected date changes
   useEffect(() => {
@@ -813,6 +865,8 @@ export default function SchedulerWidget() {
               selectedDate={selectedDate}
               onSelect={(d) => { setSelectedDate(d); }}
               blackoutDates={blackoutDates}
+              fullyBookedDates={fullyBookedDates}
+              onMonthChange={(year, month) => setCalendarMonth({ year, month })}
             />
             <button
               onClick={goToStep2}
