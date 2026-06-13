@@ -266,12 +266,14 @@ const ScrubSection = () => {
               maxWidth: '800px',
             }}
           >
-            {['Your', 'Partner', 'in'].map((word, i) => (
-              <span key={i} style={{ display: 'inline-block', overflow: 'hidden', marginRight: '0.22em', verticalAlign: 'baseline' }}>
-                <span className="hero-word-inner" style={{ display: 'inline-block' }}>{word}</span>
-              </span>
-            ))}{' '}
-            <span style={{ color: '#22c8e5' }}>
+            <span style={{ display: 'block' }}>
+              {['Your', 'Partner', 'in'].map((word, i) => (
+                <span key={i} style={{ display: 'inline-block', overflow: 'hidden', marginRight: '0.22em', verticalAlign: 'baseline' }}>
+                  <span className="hero-word-inner" style={{ display: 'inline-block' }}>{word}</span>
+                </span>
+              ))}
+            </span>
+            <span style={{ display: 'block', color: '#22c8e5' }}>
               {['AI', 'Transformation'].map((word, i) => (
                 <span key={i} style={{ display: 'inline-block', overflow: 'hidden', marginRight: '0.22em', verticalAlign: 'baseline' }}>
                   <span className="hero-word-inner" style={{ display: 'inline-block' }}>{word}</span>
