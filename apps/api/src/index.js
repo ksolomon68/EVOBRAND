@@ -53,6 +53,34 @@ app.get('/api/diag', (req, res) => {
   res.json({ crmFile, routeCount: routes.length, crmRoutes: routes.filter(r => r.includes('crm') || r.includes('campaign') || r.includes('track')) });
 });
 
+app.get('/api/db-health', async (req, res) => {
+  const pool = require('./db/connection');
+  const envCheck = {
+    DB_HOST:     process.env.DB_HOST     ? '✓ set' : '✗ MISSING',
+    DB_USER:     process.env.DB_USER     ? '✓ set' : '✗ MISSING',
+    DB_PASSWORD: process.env.DB_PASSWORD ? '✓ set' : '✗ MISSING',
+    DB_NAME:     process.env.DB_NAME     ? '✓ set' : '✗ MISSING',
+    DB_PORT:     process.env.DB_PORT     ? `✓ ${process.env.DB_PORT}` : '(default 3306)',
+  };
+  try {
+    const conn = await pool.getConnection();
+    const [tables] = await conn.query(`SELECT table_name, table_rows FROM information_schema.tables WHERE table_schema = DATABASE() ORDER BY table_name`);
+    const counts = {};
+    for (const t of ['meetings', 'blackout_dates', 'users']) {
+      try {
+        const [[row]] = await conn.query(`SELECT COUNT(*) as n FROM \`${t}\``);
+        counts[t] = row.n;
+      } catch (e) {
+        counts[t] = `ERROR: ${e.message}`;
+      }
+    }
+    conn.release();
+    res.json({ status: 'connected', env: envCheck, tables: tables.map(t => t.table_name), record_counts: counts });
+  } catch (err) {
+    res.status(500).json({ status: 'failed', error: err.message, env: envCheck });
+  }
+});
+
 app.get('/api/crash', (req, res) => {
   try {
     const log = fs.readFileSync(__dirname + '/crash.log', 'utf8');
