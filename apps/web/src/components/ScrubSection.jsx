@@ -118,12 +118,15 @@ const ScrubSection = () => {
 
     function showPanel(index) {
       const panels = panelRefs.current;
-      const prev   = state.activePanelIndex;
-      if (index === prev) return;
-      if (prev >= 0 && panels[prev]) {
-        gsap.to(panels[prev], { opacity: 0, y: -22, duration: 0.3, ease: 'power2.in' });
-      }
+      if (index === state.activePanelIndex) return;
+
+      // Kill all running panel tweens first — prevents stacking in GSAP 3
+      panels.forEach(p => { if (p) gsap.killTweensOf(p); });
+      // Instantly hide all panels, then fade in only the target
+      panels.forEach(p => { if (p) gsap.set(p, { opacity: 0, y: 0 }); });
+
       state.activePanelIndex = index;
+
       if (panels[index]) {
         gsap.fromTo(panels[index],
           { opacity: 0, y: 26 },
@@ -133,7 +136,11 @@ const ScrubSection = () => {
     }
 
     function hidePanels() {
-      panelRefs.current.forEach(p => { if (p) gsap.to(p, { opacity: 0, duration: 0.2 }); });
+      const panels = panelRefs.current;
+      // Kill tweens and instantly hide — no animation, avoids overlap on scroll-back
+      panels.forEach(p => {
+        if (p) { gsap.killTweensOf(p); gsap.set(p, { opacity: 0 }); }
+      });
       state.activePanelIndex = -1;
       state.currentChapter   = -1;
     }
@@ -155,14 +162,19 @@ const ScrubSection = () => {
         ctx.globalAlpha = 1;
       }
 
-      // Hero fades out over first 8% of scroll progress
+      // Hero fades out over first 8% of scroll progress (fades back in when returning)
       if (heroOverlayRef.current) {
         const alpha = 1 - Math.max(0, Math.min(1, progress / 0.08));
         heroOverlayRef.current.style.opacity = alpha;
       }
 
-      // Chapter panels only appear after hero is gone (progress > 10%)
-      if (progress >= 0.10) {
+      if (progress < 0.10) {
+        // Scrolled back into hero zone — kill all panels immediately
+        if (state.currentChapter !== -1 || state.activePanelIndex !== -1) {
+          hidePanels();
+        }
+      } else {
+        // Story zone — show chapter matching current frame
         const newChapter = chapterForFrame(index + 1);
         if (newChapter !== state.currentChapter) {
           state.currentChapter = newChapter;
@@ -193,13 +205,7 @@ const ScrubSection = () => {
       start:  'top top',
       end:    'bottom bottom',
       scrub:  0.8,
-      onUpdate: self => {
-        renderFrame(self.progress);
-        // Suppress chapter panels until hero has fully faded (first 10% of scroll)
-        if (self.progress < 0.10 && state.activePanelIndex !== -1) {
-          hidePanels();
-        }
-      },
+      onUpdate: self => renderFrame(self.progress),
       onEnter:    () => renderFrame(0),
       onLeaveBack: () => hidePanels(),
     });
@@ -251,11 +257,11 @@ const ScrubSection = () => {
           <h1
             ref={headlineRef}
             style={{
-              fontSize: 'clamp(36px, 6vw, 80px)',
+              fontSize: 'clamp(26px, 5.5vw, 80px)',
               fontWeight: 700,
-              lineHeight: 1.05,
+              lineHeight: 1.1,
               color: '#ffffff',
-              marginBottom: '36px',
+              marginBottom: '28px',
               maxWidth: '800px',
             }}
           >
