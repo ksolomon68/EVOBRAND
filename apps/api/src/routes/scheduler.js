@@ -139,7 +139,7 @@ router.get('/meetings/:userId', authenticateToken, async (req, res) => {
   }
 });
 
-// Get fully-booked dates for a given month (all 6 slots taken)
+// Get fully-booked dates for a given month (all 6 slots taken OR full-day blackout)
 // Returns an array of date strings e.g. ["2026-06-15", "2026-06-18"]
 router.get('/booked-dates', async (req, res) => {
   const { year, month } = req.query;
@@ -153,8 +153,8 @@ router.get('/booked-dates', async (req, res) => {
     const startDate = `${year}-${pad(month)}-01`;
     const endDate = `${year}-${pad(month)}-31`;
 
-    // Count booked (non-canceled) slots grouped by date
-    const [rows] = await pool.query(
+    // Dates where all time slots are booked
+    const [bookedRows] = await pool.query(
       `SELECT date, COUNT(*) as booked_count
        FROM meetings
        WHERE date >= ? AND date <= ? AND status != 'canceled'
@@ -163,17 +163,27 @@ router.get('/booked-dates', async (req, res) => {
       [startDate, endDate, totalSlots]
     );
 
-    const fullyBookedDates = rows.map((r) => {
-      const d = r.date instanceof Date ? r.date.toISOString().slice(0, 10) : String(r.date).slice(0, 10);
-      return d;
-    });
+    // Full-day blackout dates (time IS NULL)
+    const [blackoutRows] = await pool.query(
+      `SELECT date FROM blackout_dates WHERE date >= ? AND date <= ? AND (time IS NULL OR time = '')`,
+      [startDate, endDate]
+    );
 
-    res.json(fullyBookedDates);
+    const normalize = (d) =>
+      d instanceof Date ? d.toISOString().slice(0, 10) : String(d).slice(0, 10);
+
+    const dateSet = new Set([
+      ...bookedRows.map((r) => normalize(r.date)),
+      ...blackoutRows.map((r) => normalize(r.date)),
+    ]);
+
+    res.json([...dateSet]);
   } catch (error) {
     console.error('Error fetching booked dates:', error);
     res.status(500).json({ error: 'Failed to fetch booked dates' });
   }
 });
+
 
 // Get booked time slots for a specific date
 router.get('/booked-slots', async (req, res) => {
