@@ -135,6 +135,42 @@ router.get('/meetings/:userId', authenticateToken, async (req, res) => {
   }
 });
 
+// Get fully-booked dates for a given month (all 6 slots taken)
+// Returns an array of date strings e.g. ["2026-06-15", "2026-06-18"]
+router.get('/booked-dates', async (req, res) => {
+  const { year, month } = req.query;
+  if (!year || !month) return res.status(400).json({ error: 'year and month are required' });
+
+  const TIME_SLOTS = ['12:00 PM', '1:00 PM', '2:00 PM', '3:00 PM', '4:00 PM', '5:00 PM'];
+  const totalSlots = TIME_SLOTS.length;
+
+  try {
+    const pad = (n) => String(n).padStart(2, '0');
+    const startDate = `${year}-${pad(month)}-01`;
+    const endDate = `${year}-${pad(month)}-31`;
+
+    // Count booked (non-canceled) slots grouped by date
+    const [rows] = await pool.query(
+      `SELECT date, COUNT(*) as booked_count
+       FROM meetings
+       WHERE date >= ? AND date <= ? AND status != 'canceled'
+       GROUP BY date
+       HAVING booked_count >= ?`,
+      [startDate, endDate, totalSlots]
+    );
+
+    const fullyBookedDates = rows.map((r) => {
+      const d = r.date instanceof Date ? r.date.toISOString().slice(0, 10) : String(r.date).slice(0, 10);
+      return d;
+    });
+
+    res.json(fullyBookedDates);
+  } catch (error) {
+    console.error('Error fetching booked dates:', error);
+    res.status(500).json({ error: 'Failed to fetch booked dates' });
+  }
+});
+
 // Get booked time slots for a specific date
 router.get('/booked-slots', async (req, res) => {
   const { date } = req.query;
