@@ -165,7 +165,15 @@ setInterval(async () => {
   }
 }, 6 * 60 * 60 * 1000);
 
-// Start server
-app.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}`);
-});
+// Initialize DB tables on startup, then start server
+const { initializeDatabase } = require('./db/init');
+initializeDatabase()
+  .then(() => {
+    app.listen(PORT, () => {
+      console.log(`Server is running on port ${PORT}`);
+    });
+  })
+  .catch((err) => {
+    console.error('Database initialization failed — server will not start:', err.message);
+    process.exit(1);
+  });

@@ -194,11 +194,17 @@ async function initializeDatabase() {
     `);
 
     console.log('Database initialization complete.');
-    process.exit(0);
   } catch (error) {
     console.error('Error initializing database:', error.message);
-    process.exit(1);
+    throw error;
   }
 }
 
-initializeDatabase();
+// When run directly (node src/db/init.js), execute and exit
+if (require.main === module) {
+  initializeDatabase()
+    .then(() => process.exit(0))
+    .catch(() => process.exit(1));
+}
+
+module.exports = { initializeDatabase };
