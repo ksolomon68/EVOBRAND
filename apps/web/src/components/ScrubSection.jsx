@@ -257,6 +257,7 @@ const ScrubSection = () => {
           <h1
             ref={headlineRef}
             style={{
+              fontFamily: "'Space Grotesk', 'Montserrat', sans-serif",
               fontSize: 'clamp(26px, 5.5vw, 80px)',
               fontWeight: 700,
               lineHeight: 1.1,
@@ -345,6 +346,7 @@ const ScrubSection = () => {
                 {ch.number}
               </p>
               <h2 style={{
+                fontFamily: "'Space Grotesk', 'Montserrat', sans-serif",
                 fontSize: 'clamp(26px, 4.5vw, 54px)',
                 fontWeight: 700, lineHeight: 1.1, letterSpacing: '-0.025em',
                 color: '#ffffff', marginBottom: '18px', whiteSpace: 'pre-line',
