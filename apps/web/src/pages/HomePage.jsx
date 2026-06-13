@@ -1,10 +1,12 @@
 
 import React from 'react';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
+import { gsap } from 'gsap';
 import { Sparkles, Zap, FileText, Video, Code } from 'lucide-react';
 import HeroAnimation from '@/components/HeroAnimation.jsx';
+import ScrubSection from '@/components/ScrubSection.jsx';
 import VideoLibrarySection from '@/components/VideoLibrarySection.jsx';
 import AuditorSection from '@/components/sections/AuditorSection.jsx';
 import ServicesBuiltForScale from '@/components/sections/ServicesBuiltForScale.jsx';
@@ -67,7 +69,24 @@ const HomePage = () => {
     }
   ];
 
-  const heroRef = React.useRef(null);
+  const heroRef = useRef(null);
+  const headlineRef = useRef(null);
+
+  // Kinetic text mask reveal on mount
+  useEffect(() => {
+    const el = headlineRef.current;
+    if (!el) return;
+    const words = el.querySelectorAll('.hero-word-inner');
+    if (!words.length) return;
+    gsap.set(words, { clipPath: 'inset(0 100% 0 0)' });
+    gsap.to(words, {
+      clipPath: 'inset(0 0% 0 0)',
+      duration: 0.65,
+      ease: 'power3.out',
+      stagger: 0.1,
+      delay: 0.35,
+    });
+  }, []);
 
   return (
     <>
@@ -114,8 +133,22 @@ const HomePage = () => {
                 transition={{ duration: 0.8, delay: 0.2 }}
                 className="max-w-3xl pointer-events-auto"
               >
-                <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold text-white mb-6 break-words">
-                  Your Partner in <span className="text-[#22c8e5]">AI Transformation</span>
+                <h1
+                  ref={headlineRef}
+                  className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold text-white mb-6 break-words"
+                >
+                  {['Your', 'Partner', 'in'].map((word, i) => (
+                    <span key={i} className="inline-block overflow-hidden mr-[0.22em] align-baseline">
+                      <span className="hero-word-inner inline-block">{word}</span>
+                    </span>
+                  ))}{' '}
+                  <span className="text-[#22c8e5]">
+                    {['AI', 'Transformation'].map((word, i) => (
+                      <span key={i} className="inline-block overflow-hidden mr-[0.22em] align-baseline">
+                        <span className="hero-word-inner inline-block">{word}</span>
+                      </span>
+                    ))}
+                  </span>
                 </h1>
                 <p className="text-2xl md:text-3xl text-[#22c8e5] mb-6 h-20">
                   {typewriterText}<span className="animate-pulse">|</span>
@@ -141,6 +174,9 @@ const HomePage = () => {
             </div>
           </div>
         </section>
+
+        {/* Scroll-synced image sequence — 76 Higgsfield frames, 4 story chapters */}
+        <ScrubSection />
 
         {/* Stats Banner */}
         <section className="bg-[#1a2332] py-8">
