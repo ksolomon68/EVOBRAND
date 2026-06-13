@@ -86,6 +86,30 @@ router.delete('/blackout-dates/:id', async (req, res) => {
   }
 });
 
+// Get all appointments (admin) or own appointments (user) — no userId param needed
+router.get('/appointments', authenticateToken, async (req, res) => {
+  try {
+    const [userRows] = await pool.query('SELECT is_admin, email FROM users WHERE id = ?', [req.user.id]);
+    const isAdmin = userRows[0] && (userRows[0].is_admin == 1 || userRows[0].is_admin === true || userRows[0].email === 'ks@evobrand.net');
+
+    let rows;
+    if (isAdmin) {
+      [rows] = await pool.query(`
+        SELECT m.*, u.name as client_name, u.email as client_email
+        FROM meetings m
+        LEFT JOIN users u ON m.user_id = u.id
+        ORDER BY m.date DESC, m.time DESC
+      `);
+    } else {
+      [rows] = await pool.query('SELECT * FROM meetings WHERE user_id = ? ORDER BY date DESC, time DESC', [req.user.id]);
+    }
+    res.json(rows);
+  } catch (error) {
+    console.error('Error fetching appointments:', error);
+    res.status(500).json({ error: 'Failed to fetch appointments' });
+  }
+});
+
 // Get user meetings (admins see all)
 router.get('/meetings/:userId', authenticateToken, async (req, res) => {
   const { userId } = req.params;
