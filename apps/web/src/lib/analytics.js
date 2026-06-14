@@ -17,16 +17,27 @@ export function initAnalytics() {
 }
 
 export function trackPageView(path, title) {
-  try {
-    navigator.sendBeacon(
-      `${API_BASE}`,
-      new Blob(
-        [JSON.stringify({ page_path: path, page_title: title, referrer: document.referrer, session_id: getSessionId() })],
-        { type: 'application/json' }
-      )
-    );
-  } catch {
-    // silent fail — never block the user
+  const payload = JSON.stringify({
+    page_path: path,
+    page_title: title,
+    referrer: document.referrer,
+    session_id: getSessionId(),
+  });
+
+  // keepalive fetch survives SPA route changes; sendBeacon as fallback for page unload
+  if (typeof fetch !== 'undefined') {
+    fetch(API_BASE, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: payload,
+      keepalive: true,
+    }).catch(err => console.warn('[analytics] track failed:', err.message));
+  } else {
+    try {
+      navigator.sendBeacon(API_BASE, new Blob([payload], { type: 'application/json' }));
+    } catch {
+      // silent fail
+    }
   }
 }
 
