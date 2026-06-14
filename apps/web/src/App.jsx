@@ -21,6 +21,7 @@ import ResetPasswordPage from '@/pages/ResetPasswordPage.jsx';
 import MaintenancePlansPage from '@/pages/MaintenancePlansPage.jsx';
 import PaymentSuccessPage from '@/pages/PaymentSuccessPage.jsx';
 import NotFoundPage from '@/pages/NotFoundPage.jsx';
+import AccessibilityStatementPage from '@/pages/AccessibilityStatementPage.jsx';
 import { trackPageView } from '@/lib/analytics.js';
 
 function AnalyticsTracker() {
@@ -61,6 +62,7 @@ function App() {
             <Route path="/auditor/results/:id" element={<AuditorResultsPage />} />
             <Route path="/maintenance-plans" element={<MaintenancePlansPage />} />
             <Route path="/payment-success" element={<PaymentSuccessPage />} />
+            <Route path="/accessibility-statement" element={<AccessibilityStatementPage />} />
             <Route path="/contract-builder" element={<Navigate to="/client-portal" replace />} />
             <Route path="*" element={<NotFoundPage />} />
           </Routes>
