@@ -52,7 +52,7 @@ Blind`,ico:"droplet",set:{desaturate:!0,linkUnderline:!0,highlightLinks:!0}},{id
         </div>
 
         <div class="aw-footer">
-          <a class="stmt" href="accessibility-statement.html" target="_blank" rel="noopener">Accessibility Statement</a>
+          <a class="stmt" href="/accessibility-statement" target="_blank" rel="noopener">Accessibility Statement</a>
           <div class="aw-branding">Accessibility by <a href="https://evobrand.net" target="_blank" rel="noopener noreferrer">EVOBRAND Concepts</a></div>
         </div>
       </div>
