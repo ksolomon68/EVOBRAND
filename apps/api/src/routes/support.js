@@ -520,4 +520,29 @@ router.post('/users', authenticateToken, async (req, res) => {
   }
 });
 
+// @route PUT /api/support/users/:id/password
+// @desc  Admin: set a user's password directly
+router.put('/users/:id/password', authenticateToken, async (req, res) => {
+  try {
+    const admin = await isAdminUser(req.user.id);
+    if (!admin) return res.status(403).json({ error: 'Admin access required' });
+
+    const { password } = req.body;
+    if (!password) return res.status(400).json({ error: 'Password is required' });
+    if (password.length < 8) return res.status(400).json({ error: 'Password must be at least 8 characters' });
+
+    const bcrypt = require('bcryptjs');
+    const salt = await bcrypt.genSalt(10);
+    const passwordHash = await bcrypt.hash(password, salt);
+
+    const [result] = await pool.query('UPDATE users SET password_hash = ? WHERE id = ?', [passwordHash, req.params.id]);
+    if (result.affectedRows === 0) return res.status(404).json({ error: 'User not found' });
+
+    res.status(200).json({ message: 'Password updated successfully' });
+  } catch (error) {
+    console.error('Update password error:', error);
+    res.status(500).json({ error: error.message || 'Server error updating password' });
+  }
+});
+
 module.exports = router;

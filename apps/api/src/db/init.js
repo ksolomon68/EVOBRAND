@@ -80,6 +80,8 @@ async function initializeDatabase() {
     await pool.query(`ALTER TABLE support_tickets ADD COLUMN IF NOT EXISTS is_paid BOOLEAN DEFAULT FALSE`).catch(() => {});
     await pool.query(`ALTER TABLE support_tickets ADD COLUMN IF NOT EXISTS ticket_type VARCHAR(50) DEFAULT 'standard'`).catch(() => {});
     await pool.query(`ALTER TABLE support_tickets ADD COLUMN IF NOT EXISTS plan_covered BOOLEAN DEFAULT FALSE`).catch(() => {});
+    await pool.query(`ALTER TABLE support_tickets ADD COLUMN IF NOT EXISTS service VARCHAR(100) DEFAULT 'General'`).catch(() => {});
+    await pool.query(`ALTER TABLE support_tickets ADD COLUMN IF NOT EXISTS attachment_url VARCHAR(500) DEFAULT NULL`).catch(() => {});
     // Add pending status to enum if not already present
     await pool.query(`ALTER TABLE support_tickets MODIFY COLUMN status ENUM('open', 'in_progress', 'pending', 'resolved', 'closed') DEFAULT 'open'`).catch(() => {});
 

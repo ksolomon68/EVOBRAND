@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Loader2, ShieldAlert, Shield, Zap, Star, Search, Check, Plus, X, AlertCircle } from 'lucide-react';
+import { Loader2, ShieldAlert, Shield, Zap, Star, Search, Check, Plus, X, AlertCircle, KeyRound } from 'lucide-react';
 
 const API_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
   ? 'http://localhost:5000/api/support'
@@ -303,6 +303,98 @@ function AddClientModal({ existingClients = [], onClose, onAdded }) {
   );
 }
 
+function SetPasswordModal({ client, onClose }) {
+  const [password, setPassword] = useState('');
+  const [confirm, setConfirm] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [msg, setMsg] = useState('');
+  const [error, setError] = useState('');
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setError('');
+    setMsg('');
+    if (password.length < 8) return setError('Password must be at least 8 characters');
+    if (password !== confirm) return setError('Passwords do not match');
+
+    setLoading(true);
+    try {
+      const res = await fetch(`${API_URL}/users/${client.id}/password`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${localStorage.getItem('evobrand_token')}`,
+        },
+        body: JSON.stringify({ password }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (res.ok) {
+        setMsg('Password updated successfully');
+        setPassword('');
+        setConfirm('');
+        setTimeout(onClose, 1500);
+      } else {
+        setError(data.error || 'Failed to update password');
+      }
+    } catch {
+      setError('Network error');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm" onClick={onClose}>
+      <div className="bg-[#0f1419] border border-white/10 rounded-2xl p-6 w-full max-w-md shadow-2xl relative" onClick={e => e.stopPropagation()}>
+        <div className="flex justify-between items-center mb-6">
+          <div>
+            <h2 className="text-xl font-bold text-white flex items-center gap-2"><KeyRound size={18} style={{ color: GOLD }} /> Set Password</h2>
+            <p className="text-xs text-white/40 mt-1">{client.name || client.email}</p>
+          </div>
+          <button onClick={onClose} className="text-white/40 hover:text-white transition-colors"><X size={20} /></button>
+        </div>
+
+        {error && <div className="mb-4 p-3 rounded-lg bg-red-500/10 border border-red-500/20 text-red-400 text-sm">{error}</div>}
+        {msg && <div className="mb-4 p-3 rounded-lg bg-green-500/10 border border-green-500/20 text-green-400 text-sm flex items-center gap-2"><Check size={14} />{msg}</div>}
+
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div>
+            <label className="block text-xs font-bold text-white/40 uppercase tracking-widest mb-2">New Password</label>
+            <input
+              type="password"
+              required
+              minLength={8}
+              value={password}
+              onChange={e => setPassword(e.target.value)}
+              className="w-full bg-[#1a2332] border border-white/10 rounded-xl p-3 text-sm text-white focus:outline-none focus:border-[#22c8e5]"
+              placeholder="Min 8 characters"
+            />
+          </div>
+          <div>
+            <label className="block text-xs font-bold text-white/40 uppercase tracking-widest mb-2">Confirm Password</label>
+            <input
+              type="password"
+              required
+              value={confirm}
+              onChange={e => setConfirm(e.target.value)}
+              className="w-full bg-[#1a2332] border border-white/10 rounded-xl p-3 text-sm text-white focus:outline-none focus:border-[#22c8e5]"
+              placeholder="Re-enter password"
+            />
+          </div>
+          <button
+            type="submit"
+            disabled={loading}
+            className="w-full flex justify-center items-center gap-2 py-3 mt-2 rounded-2xl font-bold uppercase tracking-widest text-[#003258] disabled:opacity-50"
+            style={{ background: GOLD }}
+          >
+            {loading ? <Loader2 size={16} className="animate-spin" /> : 'Update Password'}
+          </button>
+        </form>
+      </div>
+    </div>
+  );
+}
+
 export default function AdminClientPlansPanel({ user }) {
   const [clients, setClients] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -310,6 +402,7 @@ export default function AdminClientPlansPanel({ user }) {
   const [search, setSearch] = useState('');
   const [filterPlan, setFilterPlan] = useState('all');
   const [showAddClient, setShowAddClient] = useState(false);
+  const [passwordClient, setPasswordClient] = useState(null);
 
   const isAdmin = user?.is_admin === 1 || user?.is_admin === true;
 
@@ -463,6 +556,7 @@ export default function AdminClientPlansPanel({ user }) {
                 <th className="px-6 py-3">Current Plan</th>
                 <th className="px-6 py-3">Assign Plan</th>
                 <th className="px-6 py-3">Joined</th>
+                <th className="px-6 py-3">Password</th>
               </tr>
             </thead>
             <tbody>
@@ -485,6 +579,15 @@ export default function AdminClientPlansPanel({ user }) {
                   <td className="px-6 py-4 text-white/30 text-xs">
                     {client.created_at ? new Date(client.created_at).toLocaleDateString() : '—'}
                   </td>
+                  <td className="px-6 py-4">
+                    <button
+                      onClick={() => setPasswordClient(client)}
+                      className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold transition-all hover:opacity-80"
+                      style={{ background: 'rgba(34,200,229,0.08)', color: GOLD, border: '1px solid rgba(34,200,229,0.2)' }}
+                    >
+                      <KeyRound size={11} /> Set Password
+                    </button>
+                  </td>
                 </tr>
               ))}
             </tbody>
@@ -500,6 +603,13 @@ export default function AdminClientPlansPanel({ user }) {
             setShowAddClient(false);
             fetchClients();
           }}
+        />
+      )}
+
+      {passwordClient && (
+        <SetPasswordModal
+          client={passwordClient}
+          onClose={() => setPasswordClient(null)}
         />
       )}
     </div>

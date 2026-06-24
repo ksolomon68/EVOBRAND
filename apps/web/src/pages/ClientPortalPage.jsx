@@ -165,7 +165,7 @@ const ClientPortalPage = () => {
   const { user, signOut, loading: authLoading } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
-  const VALID_VIEWS = ['dashboard','meetings','analytics','admin','client-plans','contact-forms','scheduler-admin','crm','contracts','my-tickets','blackout'];
+  const VALID_VIEWS = ['dashboard','meetings','my-contracts','analytics','admin','client-plans','contact-forms','scheduler-admin','crm','contracts','my-tickets','blackout','contract-builder'];
   const [view, setView] = useState(() => {
     const hash = window.location.hash.replace('#', '');
     return VALID_VIEWS.includes(hash) ? hash : 'dashboard';
