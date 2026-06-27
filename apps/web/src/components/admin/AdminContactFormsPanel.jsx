@@ -115,7 +115,7 @@ export default function AdminContactFormsPanel({ user }) {
                     {sub.status === 'new' && <span className="w-2 h-2 rounded-full bg-[#22c8e5] flex-shrink-0 mt-1.5" />}
                   </div>
                   <div className="text-xs text-[#22c8e5] truncate mb-2">{sub.service}</div>
-                  <div className="text-xs text-white/40 truncate">{formatDate(sub.created_at)}</div>
+                  <div className="text-xs text-white/60 truncate">{formatDate(sub.created_at)}</div>
                 </button>
               ))
             )}
@@ -160,7 +160,7 @@ export default function AdminContactFormsPanel({ user }) {
                 </div>
 
                 <div className="p-6 flex-1 overflow-y-auto">
-                  <div className="bg-white/5 border border-white/10 rounded-xl p-5 text-white/90 whitespace-pre-wrap leading-relaxed text-sm">
+                  <div className="bg-white/10 border border-white/20 rounded-xl p-5 text-white whitespace-pre-wrap leading-relaxed text-base">
                     {selected.message}
                   </div>
                   
