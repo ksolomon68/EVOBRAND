@@ -33,8 +33,7 @@ const Header = () => {
             />
           </NavLink>
 
-          {/* Desktop Navigation */}
-          <nav className="hidden lg:flex items-center space-x-8">
+          <nav className="hidden lg:flex items-center space-x-5">
             {navLinks.map((link) => (
               <NavLink
                 key={link.to}
@@ -49,8 +48,14 @@ const Header = () => {
               </NavLink>
             ))}
             <NavLink
+              to="/book-consultation"
+              className="text-sm font-bold bg-[#22c8e5] text-[#003258] hover:bg-opacity-90 hover:shadow-lg transition-all px-5 py-2 rounded-2xl whitespace-nowrap"
+            >
+              Book Consultation
+            </NavLink>
+            <NavLink
               to="/client-portal"
-              className="text-sm font-bold text-[#22c8e5] hover:bg-[#22c8e5] hover:text-[#003258] transition-colors px-6 py-2 border-2 border-[#22c8e5] rounded-2xl"
+              className="text-sm font-bold text-[#22c8e5] hover:bg-[#22c8e5] hover:text-[#003258] transition-colors px-5 py-2 border-2 border-[#22c8e5] rounded-2xl"
             >
               Client Portal
             </NavLink>
@@ -96,9 +101,16 @@ const Header = () => {
                 </NavLink>
               ))}
               <NavLink
+                to="/book-consultation"
+                onClick={() => setMobileMenuOpen(false)}
+                className="text-lg font-bold bg-[#22c8e5] text-[#003258] hover:bg-opacity-90 transition-all px-6 py-3 rounded-2xl text-center mt-4 shadow-md"
+              >
+                Book Consultation
+              </NavLink>
+              <NavLink
                 to="/client-portal"
                 onClick={() => setMobileMenuOpen(false)}
-                className="text-lg font-bold text-[#22c8e5] hover:bg-[#22c8e5] hover:text-[#003258] transition-colors px-6 py-3 border-2 border-[#22c8e5] rounded-2xl text-center mt-4"
+                className="text-lg font-bold text-[#22c8e5] hover:bg-[#22c8e5] hover:text-[#003258] transition-colors px-6 py-3 border-2 border-[#22c8e5] rounded-2xl text-center mt-2"
               >
                 Client Portal
               </NavLink>

@@ -8,6 +8,7 @@
 - [Audit Results](/auditorresults): View your personalized AI-powered brand audit report from EVOBRAND.
 - [Blog Post](/blogpost): No description available
 - [Book a Free AI Consultation | Contact EVOBRAND — Ellis County, TX](/contact): Ready to transform your business with AI? Contact EVOBRAND for a free 30-minute strategy call. Serving clients nationwide from Ellis County, TX. Call +1 214-531-4427 or email info@evobrand.net.
+- [Book a Free AI Strategy Consultation | EVOBRAND](/bookconsultation): Schedule a free 30-minute consultation with EVOBRAND to discuss your business automation, custom AI integrations, and digital transformation goals.
 - [Client Portal](/clientportal): EVOBRAND Client Portal - Secure access to your projects and meetings.
 - [Client Portal Login](/clientportallogin): Access your EVOBRAND client portal.
 - [Contract Customizer](/contractcustomizer): Build and customize your enterprise Services Agreement in real-time.

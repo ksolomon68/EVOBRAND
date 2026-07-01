@@ -22,6 +22,7 @@ import MaintenancePlansPage from '@/pages/MaintenancePlansPage.jsx';
 import PaymentSuccessPage from '@/pages/PaymentSuccessPage.jsx';
 import NotFoundPage from '@/pages/NotFoundPage.jsx';
 import AccessibilityStatementPage from '@/pages/AccessibilityStatementPage.jsx';
+import BookConsultationPage from '@/pages/BookConsultationPage.jsx';
 import { trackPageView } from '@/lib/analytics.js';
 
 function AnalyticsTracker() {
@@ -63,6 +64,8 @@ function App() {
             <Route path="/maintenance-plans" element={<MaintenancePlansPage />} />
             <Route path="/payment-success" element={<PaymentSuccessPage />} />
             <Route path="/accessibility-statement" element={<AccessibilityStatementPage />} />
+            <Route path="/book-consultation" element={<BookConsultationPage />} />
+            <Route path="/book" element={<Navigate to="/book-consultation" replace />} />
             <Route path="/contract-builder" element={<Navigate to="/client-portal" replace />} />
             <Route path="*" element={<NotFoundPage />} />
           </Routes>

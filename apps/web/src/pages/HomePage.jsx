@@ -134,7 +134,7 @@ const HomePage = () => {
                   Explore Our Services
                 </Link>
                 <Link
-                  to="/contact"
+                  to="/book-consultation"
                   className="px-8 py-4 border-2 border-[#22c8e5] text-[#22c8e5] rounded-2xl font-bold hover:bg-[#22c8e5] hover:text-[#003258] transition-all text-center"
                 >
                   Get Started Today
@@ -176,7 +176,7 @@ const HomePage = () => {
               </p>
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
                 <Link
-                  to="/contact"
+                  to="/book-consultation"
                   className="px-8 py-4 bg-[#22c8e5] text-[#003258] rounded-2xl font-bold hover:shadow-lg hover:bg-opacity-90 transition-all"
                 >
                   Book Free Consultation
