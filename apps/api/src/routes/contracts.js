@@ -3,6 +3,11 @@ const router = express.Router();
 const pool = require('../db/connection');
 const { authenticateToken, requireAdmin } = require('../middleware/auth');
 const { addToCustomersList } = require('../utils/crmHelpers');
+const { Resend } = require('resend');
+const { getEmailTemplate } = require('../utils/emailTemplate');
+
+const getResend = () => new Resend(process.env.RESEND_API_KEY || 're_placeholder');
+
 
 const ensureTable = async () => {
   await pool.query(`
@@ -66,6 +71,39 @@ router.post('/', authenticateToken, requireAdmin, async (req, res) => {
       'INSERT INTO contracts (title, client_email, client_user_id, contract_data, created_by, status) VALUES (?, ?, ?, ?, ?, ?)',
       [title, clientEmail || null, clientUserId, JSON.stringify(contractData), req.user.id, 'sent']
     );
+
+    // Send email notification to client and copy to admin
+    if (clientEmail && clientEmail.includes('@')) {
+      try {
+        const clientInfo = contractData.clientInfo || {};
+        const project = contractData.project || {};
+        const repName = clientInfo.repName || 'Representative';
+        const companyName = clientInfo.companyName || 'Client';
+
+        const emailBody = `
+          <p>Hi ${repName},</p>
+          <p>A new Master Services Agreement (<strong>${title}</strong>) has been prepared and sent to you by <strong>EVOBRAND Concepts LLC</strong>.</p>
+          <p><strong>Agreement Summary:</strong></p>
+          <ul>
+            <li><strong>Client Company:</strong> ${companyName}</li>
+            <li><strong>Estimated Completion:</strong> ${project.completion || 'N/A'}</li>
+            <li><strong>Governing State:</strong> ${project.state || 'N/A'}</li>
+          </ul>
+          <p>Please log in to your EVOBRAND Client Portal to review and sign the agreement electronically:</p>
+          <p><a href="https://evobrandconcepts.com/login" style="color: #22c8e5; font-weight: bold; text-decoration: none;">Go to Client Portal</a></p>
+          <p>If you don't have an active password yet, you can set one using the <strong>Forgot Password</strong> link on the login page.</p>
+        `;
+
+        await getResend().emails.send({
+          from: `"EVOBRAND" <${process.env.RESEND_FROM_EMAIL || 'info@evobrand.net'}>`,
+          to: [clientEmail, 'ks@evobrand.net'],
+          subject: `New Contract Prepared: ${title}`,
+          html: getEmailTemplate(`New Agreement Prepared`, emailBody)
+        });
+      } catch (emailErr) {
+        console.error('Failed to send contract notification email:', emailErr);
+      }
+    }
 
     res.status(201).json({ message: 'Contract saved', id: result.insertId });
   } catch (error) {
@@ -162,7 +200,7 @@ router.post('/:id/sign', authenticateToken, async (req, res) => {
     await addToCustomersList(req.user.email, { firstName: nameParts[0], lastName: nameParts.slice(1).join(' ') || null });
 
     try {
-      await require('resend').Resend(process.env.RESEND_API_KEY).emails.send({
+      await getResend().emails.send({
         from: `"EVOBRAND" <${process.env.RESEND_FROM_EMAIL || 'info@evobrand.net'}>`,
         to: ['info@evobrand.net', 'ksolomon68@gmail.com'],
         subject: `Contract Signed: ${contract.title}`,
