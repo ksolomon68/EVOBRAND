@@ -47,7 +47,7 @@ const inputClass = 'w-full bg-[rgba(255,255,255,0.04)] border border-[rgba(255,2
 const labelClass = 'block text-[0.8rem] font-semibold text-[#8892a4] mb-2 uppercase';
 const sectionHeadClass = 'text-[#22c8e5] text-[0.75rem] font-bold uppercase tracking-[0.1em] mb-4 pb-2 border-b border-[rgba(255,255,255,0.08)]';
 
-export default function ContractBuilderPanel() {
+export default function ContractBuilderPanel({ editingContract, onClear }) {
   const agency = { name: 'EVOBRAND Concepts LLC', address: 'Ellis County, Texas 75165', email: 'info@evobrand.net' };
 
   const [clientInfo, setClientInfo] = useState({ companyName: '', repName: '', title: '', email: '', address: '', phone: '' });
@@ -68,6 +68,29 @@ export default function ContractBuilderPanel() {
   const [saved, setSaved] = useState(false);
   const [saveError, setSaveError] = useState('');
 
+  useEffect(() => {
+    if (editingContract) {
+      const data = typeof editingContract.contract_data === 'string'
+        ? JSON.parse(editingContract.contract_data)
+        : editingContract.contract_data;
+      if (data) {
+        setClientInfo(data.clientInfo || { companyName: '', repName: '', title: '', email: '', address: '', phone: '' });
+        setProject(data.project || { description: '', startDate: todayISO(), completion: '8 weeks from start', fee: 5000, payment: '50% upfront, 50% on delivery', revisions: '3', state: 'Texas', dispute: 'Binding Arbitration (AAA)' });
+        setSelectedServices(data.selectedServices || ['ai-app']);
+        setClauses(data.clauses || { nda: true, ip: false, sla: true, wcag_clause: true, ai_ethics: true, liability: true, indemnification: true, termination: true, force_majeure: true, late_payment: true });
+        setSignature(editingContract.client_signature || '');
+        setClientDate(editingContract.client_signed_at ? editingContract.client_signed_at.slice(0, 10) : todayISO());
+      }
+    } else {
+      setClientInfo({ companyName: '', repName: '', title: '', email: '', address: '', phone: '' });
+      setProject({ description: '', startDate: todayISO(), completion: '8 weeks from start', fee: 5000, payment: '50% upfront, 50% on delivery', revisions: '3', state: 'Texas', dispute: 'Binding Arbitration (AAA)' });
+      setSelectedServices(['ai-app']);
+      setClauses({ nda: true, ip: false, sla: true, wcag_clause: true, ai_ethics: true, liability: true, indemnification: true, termination: true, force_majeure: true, late_payment: true });
+      setSignature('');
+      setClientDate(todayISO());
+    }
+  }, [editingContract]);
+
   const toggleClause = (key) => setClauses(prev => ({ ...prev, [key]: !prev[key] }));
   const toggleService = (id) => setSelectedServices(prev => prev.includes(id) ? prev.filter(s => s !== id) : [...prev, id]);
   const isRelevant = (key) => selectedServices.length > 0 && selectedServices.some(s => clauseMapping[key].includes(s));
@@ -80,9 +103,14 @@ export default function ContractBuilderPanel() {
     setSaveError('');
     try {
       const token = localStorage.getItem('evobrand_token');
-      const title = `MSA — ${clientInfo.companyName || clientInfo.email} — ${formatDate(project.startDate)}`;
-      const res = await fetch(`${API_BASE}/contracts`, {
-        method: 'POST',
+      const title = `Agreement — ${clientInfo.companyName || clientInfo.email} — ${formatDate(project.startDate)}`;
+      const url = editingContract 
+        ? `${API_BASE}/contracts/${editingContract.id}`
+        : `${API_BASE}/contracts`;
+      const method = editingContract ? 'PUT' : 'POST';
+
+      const res = await fetch(url, {
+        method: method,
         headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
         body: JSON.stringify({
           title,
@@ -93,7 +121,14 @@ export default function ContractBuilderPanel() {
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || 'Save failed');
       setSaved(true);
-      setTimeout(() => setSaved(false), 4000);
+      if (editingContract && onClear) {
+        setTimeout(() => {
+          setSaved(false);
+          onClear();
+        }, 1500);
+      } else {
+        setTimeout(() => setSaved(false), 4000);
+      }
     } catch (err) {
       setSaveError(err.message);
     } finally {
@@ -121,7 +156,7 @@ export default function ContractBuilderPanel() {
     <>
       <div className="no-print mb-8">
         <h1 className="text-3xl font-bold text-white mb-1">Contract Builder</h1>
-        <p className="text-white/40">Build an MSA and send it to a client account.</p>
+        <p className="text-white/40">Build a Services Agreement and send it to a client account.</p>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-[1.2fr_1fr] gap-8 items-start">
@@ -130,6 +165,21 @@ export default function ContractBuilderPanel() {
           initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }}
           className="no-print bg-[rgba(255,255,255,0.04)] border border-[rgba(255,255,255,0.08)] rounded-[20px] p-8 h-fit max-h-[78vh] overflow-y-auto"
         >
+          {editingContract && (
+            <div className="mb-6 bg-[rgba(34,200,229,0.1)] border border-[#22c8e5] rounded-xl p-4 flex items-center justify-between">
+              <div>
+                <p className="text-white text-sm font-bold">Edit Mode</p>
+                <p className="text-[#8892a4] text-xs">Modifying contract ID #{editingContract.id}</p>
+              </div>
+              <button
+                type="button"
+                onClick={onClear}
+                className="px-3 py-1.5 bg-white/5 border border-white/10 rounded-lg text-xs font-bold text-white hover:bg-white/10 transition-colors"
+              >
+                Cancel
+              </button>
+            </div>
+          )}
           <div className="flex items-center justify-between mb-8">
             <h3 className="text-xl font-bold text-white flex items-center gap-3">
               <FileText size={20} className="text-[#22c8e5]" /> Configure Agreement
@@ -258,8 +308,8 @@ export default function ContractBuilderPanel() {
           style={{ fontFamily: 'Times New Roman, serif' }}
         >
           <div className="text-black text-[0.9rem] leading-[1.8]">
-            <h4 className="text-xl font-bold mb-2 text-center uppercase tracking-widest border-b-2 border-black pb-4">Master Services Agreement</h4>
-            <p className="mt-6 mb-6">This Master Services Agreement (the &ldquo;Agreement&rdquo;) is entered into as of <strong>{formatDate(project.startDate)}</strong> (the &ldquo;Effective Date&rdquo;), by and between:</p>
+            <h4 className="text-xl font-bold mb-2 text-center uppercase tracking-widest border-b-2 border-black pb-4">Services Agreement</h4>
+            <p className="mt-6 mb-6">This Services Agreement (the &ldquo;Agreement&rdquo;) is entered into as of <strong>{formatDate(project.startDate)}</strong> (the &ldquo;Effective Date&rdquo;), by and between:</p>
 
             <div className="mb-6">
               <p className="mb-2"><strong>{agency.name}</strong> (the &ldquo;Agency&rdquo;), located at {agency.address}, email {agency.email}; and</p>

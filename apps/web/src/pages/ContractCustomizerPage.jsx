@@ -128,7 +128,7 @@ const ContractCustomizerPage = () => {
 
   return (
     <>
-      <SEO title="Contract Customizer" description="Build and customize your enterprise Master Services Agreement in real-time." />
+      <SEO title="Contract Customizer" description="Build and customize your enterprise Services Agreement in real-time." />
 
       <style>{`
         @media print {
@@ -166,10 +166,10 @@ const ContractCustomizerPage = () => {
                 Legal &amp; Compliance
               </span>
               <h1 className="text-4xl md:text-5xl font-bold mb-4 text-white">
-                Master Services Agreement Builder
+                Services Agreement Builder
               </h1>
               <p className="text-[#8892a4] text-lg max-w-[640px] mx-auto">
-                Select your services, input your details, and instantly generate a professionally complete, legally robust Master Services Agreement.
+                Select your services, input your details, and instantly generate a professionally complete, legally robust Services Agreement.
               </p>
             </div>
 
@@ -357,10 +357,10 @@ const ContractCustomizerPage = () => {
                 style={{ fontFamily: 'Times New Roman, serif' }}
               >
                 <div className="text-black text-[0.9rem] leading-[1.8]">
-                  <h4 className="text-xl font-bold mb-2 text-center uppercase tracking-widest border-b-2 border-black pb-4">Master Services Agreement</h4>
+                  <h4 className="text-xl font-bold mb-2 text-center uppercase tracking-widest border-b-2 border-black pb-4">Services Agreement</h4>
 
                   <p className="mt-6 mb-6">
-                    This Master Services Agreement (the &ldquo;Agreement&rdquo;) is entered into as of <strong>{formatDate(project.startDate)}</strong> (the &ldquo;Effective Date&rdquo;), by and between:
+                    This Services Agreement (the &ldquo;Agreement&rdquo;) is entered into as of <strong>{formatDate(project.startDate)}</strong> (the &ldquo;Effective Date&rdquo;), by and between:
                   </p>
 
                   {/* Parties block */}

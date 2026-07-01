@@ -82,7 +82,7 @@ router.post('/', authenticateToken, requireAdmin, async (req, res) => {
 
         const emailBody = `
           <p>Hi ${repName},</p>
-          <p>A new Master Services Agreement (<strong>${title}</strong>) has been prepared and sent to you by <strong>EVOBRAND Concepts LLC</strong>.</p>
+          <p>A new Services Agreement (<strong>${title}</strong>) has been prepared and sent to you by <strong>EVOBRAND Concepts LLC</strong>.</p>
           <p><strong>Agreement Summary:</strong></p>
           <ul>
             <li><strong>Client Company:</strong> ${companyName}</li>
@@ -109,6 +109,69 @@ router.post('/', authenticateToken, requireAdmin, async (req, res) => {
   } catch (error) {
     console.error('Save contract error:', error);
     res.status(500).json({ error: 'Server error saving contract' });
+  }
+});
+
+// @route PUT /api/contracts/:id — admin updates a contract and resends notification
+router.put('/:id', authenticateToken, requireAdmin, async (req, res) => {
+  const { title, clientEmail, contractData } = req.body;
+  if (!title || !contractData) {
+    return res.status(400).json({ error: 'Title and contract data are required' });
+  }
+
+  try {
+    await ensureTable();
+
+    // Look up client user by email
+    let clientUserId = null;
+    if (clientEmail) {
+      const [users] = await pool.query('SELECT id FROM users WHERE email = ?', [clientEmail]);
+      if (users.length > 0) clientUserId = users[0].id;
+    }
+
+    // Update contract in database
+    await pool.query(
+      'UPDATE contracts SET title = ?, client_email = ?, client_user_id = ?, contract_data = ? WHERE id = ?',
+      [title, clientEmail || null, clientUserId, JSON.stringify(contractData), req.params.id]
+    );
+
+    // Send email notification to the updated client email and copy to admin
+    if (clientEmail && clientEmail.includes('@')) {
+      try {
+        const clientInfo = contractData.clientInfo || {};
+        const project = contractData.project || {};
+        const repName = clientInfo.repName || 'Representative';
+        const companyName = clientInfo.companyName || 'Client';
+
+        const emailBody = `
+          <p>Hi ${repName},</p>
+          <p>The Services Agreement (<strong>${title}</strong>) has been updated and resent to you by <strong>EVOBRAND Concepts LLC</strong>.</p>
+          <p><strong>Agreement Summary:</strong></p>
+          <ul>
+            <li><strong>Client Company:</strong> ${companyName}</li>
+            <li><strong>Estimated Completion:</strong> ${project.completion || 'N/A'}</li>
+            <li><strong>Governing State:</strong> ${project.state || 'N/A'}</li>
+          </ul>
+          <p>Please log in to your EVOBRAND Client Portal to review and sign the updated agreement electronically:</p>
+          <p><a href="https://evobrandconcepts.com/login" style="color: #22c8e5; font-weight: bold; text-decoration: none;">Go to Client Portal</a></p>
+          <p>If you don't have an active password yet, you can set one using the <strong>Forgot Password</strong> link on the login page.</p>
+        `;
+
+        await getResend().emails.send({
+          from: `"EVOBRAND" <${process.env.RESEND_FROM_EMAIL || 'info@evobrand.net'}>`,
+          to: [clientEmail, 'ks@evobrand.net'],
+          subject: `Updated Contract Prepared: ${title}`,
+          html: getEmailTemplate(`Agreement Updated`, emailBody)
+        });
+      } catch (emailErr) {
+        console.error('Failed to send updated contract notification email:', emailErr);
+      }
+    }
+
+    res.json({ message: 'Contract updated and resent successfully' });
+  } catch (error) {
+    console.error('Update contract error:', error);
+    res.status(500).json({ error: 'Server error updating contract' });
   }
 });
 

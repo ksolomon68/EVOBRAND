@@ -25,7 +25,7 @@ const formatDate = (str) => {
   return new Date(str).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
 };
 
-function ContractModal({ contract, onClose, onSign }) {
+function ContractModal({ contract, onClose, onSign, isAdmin, onEditContract }) {
   const [signature, setSignature] = useState('');
   const [signing, setSigning] = useState(false);
 
@@ -57,6 +57,18 @@ function ContractModal({ contract, onClose, onSign }) {
         <div className="flex items-center justify-between mb-4 no-print">
           <h2 className="text-white font-bold text-lg">{contract.title}</h2>
           <div className="flex items-center gap-3">
+            {isAdmin && (
+              <button
+                onClick={() => {
+                  onEditContract(contract);
+                  onClose();
+                }}
+                className="px-4 py-2 rounded-2xl font-bold text-sm transition-colors hover:bg-white/10"
+                style={{ border: '1px solid rgba(255,255,255,0.2)', color: '#fff' }}
+              >
+                Edit &amp; Resend
+              </button>
+            )}
             <button onClick={() => window.print()} className="flex items-center gap-2 px-4 py-2 rounded-2xl font-bold text-sm transition-colors" style={{ background: GOLD, color: '#003258' }}>
               <Download size={14} /> Print / Download
             </button>
@@ -69,8 +81,8 @@ function ContractModal({ contract, onClose, onSign }) {
         {/* Contract document — renders identically to ContractBuilderPanel preview */}
         <div className="bg-white rounded p-10 shadow-2xl print-contract-preview" style={{ fontFamily: 'Times New Roman, serif' }}>
           <div className="text-black text-[0.9rem] leading-[1.8]">
-            <h4 className="text-xl font-bold mb-2 text-center uppercase tracking-widest border-b-2 border-black pb-4">Master Services Agreement</h4>
-            <p className="mt-6 mb-6">This Master Services Agreement (the &ldquo;Agreement&rdquo;) is entered into as of <strong>{fmtDate(project.startDate)}</strong> (the &ldquo;Effective Date&rdquo;), by and between:</p>
+            <h4 className="text-xl font-bold mb-2 text-center uppercase tracking-widest border-b-2 border-black pb-4">Services Agreement</h4>
+            <p className="mt-6 mb-6">This Services Agreement (the &ldquo;Agreement&rdquo;) is entered into as of <strong>{fmtDate(project.startDate)}</strong> (the &ldquo;Effective Date&rdquo;), by and between:</p>
 
             <div className="mb-6">
               <p className="mb-2"><strong>{agency.name}</strong> (the &ldquo;Agency&rdquo;), located at {agency.address}, email {agency.email}; and</p>
@@ -156,7 +168,7 @@ function ContractModal({ contract, onClose, onSign }) {
         {contract.status !== 'signed' && contract.status !== 'draft' && (
           <div className="mt-6 bg-[rgba(10,22,40,0.9)] rounded-xl p-6 border border-[rgba(34,200,229,0.2)] shadow-xl no-print">
             <h3 className="text-lg font-bold text-white mb-2">Electronic Signature</h3>
-            <p className="text-sm text-white/60 mb-4">By typing your name below, you agree to the terms of this Master Services Agreement.</p>
+            <p className="text-sm text-white/60 mb-4">By typing your name below, you agree to the terms of this Services Agreement.</p>
             <div className="flex flex-col sm:flex-row gap-4">
               <input
                 type="text"
@@ -181,7 +193,8 @@ function ContractModal({ contract, onClose, onSign }) {
   );
 }
 
-export default function MyContractsPanel({ user }) {
+export default function MyContractsPanel({ user, onEditContract }) {
+  const isAdmin = user?.is_admin === 1 || user?.is_admin === true;
   const [contracts, setContracts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [selected, setSelected] = useState(null);
@@ -305,6 +318,23 @@ export default function MyContractsPanel({ user }) {
                   <p className="text-white/40 text-xs mt-0.5">{formatDate(c.created_at)}</p>
                 </div>
                 <div className="flex items-center gap-3 flex-shrink-0">
+                  {isAdmin && (
+                    <button
+                      onClick={async (e) => {
+                        e.stopPropagation();
+                        const full = await fetch(`${API_BASE}/contracts/${c.id}`, {
+                          headers: { 'Authorization': `Bearer ${localStorage.getItem('evobrand_token')}` },
+                        }).then(r => r.json()).catch(() => null);
+                        if (full?.contract) {
+                          onEditContract(full.contract);
+                        }
+                      }}
+                      className="px-3 py-1.5 rounded-lg text-[10px] font-bold uppercase tracking-wider transition-all hover:bg-white/10"
+                      style={{ background: 'rgba(255,255,255,0.06)', color: 'rgba(255,255,255,0.8)', border: '1px solid rgba(255,255,255,0.12)' }}
+                    >
+                      Edit &amp; Resend
+                    </button>
+                  )}
                   {isSignedUnpaid && (
                     <button
                       onClick={async () => {
@@ -346,7 +376,13 @@ export default function MyContractsPanel({ user }) {
       <AnimatePresence>
         {selected && (
           <motion.div key="modal" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
-            <ContractModal contract={selected} onClose={() => setSelected(null)} onSign={handleSignContract} />
+            <ContractModal
+              contract={selected}
+              onClose={() => setSelected(null)}
+              onSign={handleSignContract}
+              isAdmin={isAdmin}
+              onEditContract={onEditContract}
+            />
           </motion.div>
         )}
       </AnimatePresence>

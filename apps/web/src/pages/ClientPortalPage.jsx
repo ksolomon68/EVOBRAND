@@ -172,6 +172,7 @@ const ClientPortalPage = () => {
     return VALID_VIEWS.includes(hash) ? hash : 'dashboard';
   });
   const [tickets, setTickets] = useState([]);
+  const [editingContract, setEditingContract] = useState(null);
   const [loading, setLoading] = useState(true);
   const [selectedTicket, setSelectedTicket] = useState(null);
   const [showNewTicketModal, setShowNewTicketModal] = useState(false);
@@ -712,7 +713,10 @@ const ClientPortalPage = () => {
                     exit={{ opacity: 0, y: -10 }}
                     transition={{ duration: 0.2 }}
                   >
-                    <ContractBuilderPanel />
+                    <ContractBuilderPanel
+                      editingContract={editingContract}
+                      onClear={() => setEditingContract(null)}
+                    />
                   </motion.div>
                 )}
 
@@ -725,7 +729,13 @@ const ClientPortalPage = () => {
                     exit={{ opacity: 0, y: -10 }}
                     transition={{ duration: 0.2 }}
                   >
-                    <MyContractsPanel user={user} />
+                    <MyContractsPanel
+                      user={user}
+                      onEditContract={(contract) => {
+                        setEditingContract(contract);
+                        setView('contract-builder');
+                      }}
+                    />
                   </motion.div>
                 )}
               </AnimatePresence>
