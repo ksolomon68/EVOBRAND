@@ -163,9 +163,10 @@ function Sidebar({ user, view, setView, setSelectedTicket, openTicketCount, hand
 
 const ClientPortalPage = () => {
   const { user, signOut, loading: authLoading } = useAuth();
+  const isAdmin = user?.is_admin === 1 || user?.is_admin === true;
   const navigate = useNavigate();
   const location = useLocation();
-  const VALID_VIEWS = ['dashboard','meetings','analytics','admin','client-plans','contact-forms','scheduler-admin','crm','contracts','my-tickets','blackout'];
+  const VALID_VIEWS = ['dashboard','meetings','analytics','admin','client-plans','contact-forms','scheduler-admin','crm','contracts','my-tickets','blackout','my-contracts','contract-builder'];
   const [view, setView] = useState(() => {
     const hash = window.location.hash.replace('#', '');
     return VALID_VIEWS.includes(hash) ? hash : 'dashboard';
@@ -703,7 +704,7 @@ const ClientPortalPage = () => {
                 )}
 
                 {/* ── Contract Builder (admin) ── */}
-                {view === 'contract-builder' && (
+                {view === 'contract-builder' && isAdmin && (
                   <motion.div
                     key="contract-builder"
                     initial={{ opacity: 0, y: 10 }}

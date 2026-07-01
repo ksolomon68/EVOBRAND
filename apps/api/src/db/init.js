@@ -27,20 +27,27 @@ async function initializeDatabase() {
     await pool.query(`
       CREATE TABLE IF NOT EXISTS contracts (
         id INT AUTO_INCREMENT PRIMARY KEY,
-        user_id INT,
+        client_user_id INT,
+        client_email VARCHAR(255),
         title VARCHAR(255) NOT NULL,
-        content TEXT NOT NULL,
-        status ENUM('draft', 'sent', 'signed', 'canceled') DEFAULT 'draft',
-        amount DECIMAL(10,2) DEFAULT NULL,
+        contract_data JSON NOT NULL,
+        status ENUM('draft', 'sent', 'signed', 'canceled') DEFAULT 'sent',
+        created_by INT,
         client_signature VARCHAR(255) DEFAULT NULL,
         client_signed_at TIMESTAMP NULL DEFAULT NULL,
-        agency_signature VARCHAR(255) DEFAULT NULL,
-        agency_signed_at TIMESTAMP NULL DEFAULT NULL,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-        FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+        FOREIGN KEY (client_user_id) REFERENCES users(id) ON DELETE SET NULL,
+        FOREIGN KEY (created_by) REFERENCES users(id) ON DELETE SET NULL
       )
     `);
+
+    // Self-healing migrations for pre-existing tables created with the old schema
+    await pool.query(`ALTER TABLE contracts ADD COLUMN client_user_id INT`).catch(() => {});
+    await pool.query(`ALTER TABLE contracts ADD COLUMN client_email VARCHAR(255)`).catch(() => {});
+    await pool.query(`ALTER TABLE contracts ADD COLUMN contract_data JSON`).catch(() => {});
+    await pool.query(`ALTER TABLE contracts ADD COLUMN created_by INT`).catch(() => {});
+    await pool.query(`ALTER TABLE contracts MODIFY COLUMN content TEXT NULL`).catch(() => {});
 
     // Create Notifications table
     await pool.query(`
