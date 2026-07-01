@@ -4,6 +4,37 @@ import axios from 'axios';
 const CACHE_KEY_PREFIX = 'yt_playlist_cache_';
 const CACHE_DURATION = 1000 * 60 * 60; // 1 hour
 
+const FALLBACK_VIDEOS = [
+  {
+    id: 'UYzCXC2hh0I',
+    title: 'Custom AI Agent Automation & Workflows',
+    description: 'A comprehensive guide to building custom AI agents and workflow automation for modern business growth and operations.',
+    thumbnail: 'https://img.youtube.com/vi/UYzCXC2hh0I/maxresdefault.jpg',
+    publishedAt: '2026-01-10T12:00:00Z',
+  },
+  {
+    id: 'pfwsofXBPeg',
+    title: 'EVOBRAND Digital Transformation & Creative Architecture',
+    description: 'Discover how EVOBRAND architects digital infrastructure and custom AI platforms to drive business branding and growth.',
+    thumbnail: 'https://img.youtube.com/vi/pfwsofXBPeg/maxresdefault.jpg',
+    publishedAt: '2025-11-15T10:00:00Z',
+  },
+  {
+    id: 't7D-A0HnLhU',
+    title: 'AI-Powered Document Generation & Brand Assets',
+    description: 'How to automate brand asset creation, logo design, and contract builder setups using AI-powered systems.',
+    thumbnail: 'https://img.youtube.com/vi/t7D-A0HnLhU/maxresdefault.jpg',
+    publishedAt: '2025-08-22T14:30:00Z',
+  },
+  {
+    id: 'l5j9mQ6yQpQ',
+    title: 'Intelligent Database Systems and Automation',
+    description: 'A tutorial on building robust relational schemas and automating API operations using node hooks.',
+    thumbnail: 'https://img.youtube.com/vi/l5j9mQ6yQpQ/maxresdefault.jpg',
+    publishedAt: '2025-06-05T09:15:00Z',
+  },
+];
+
 const useYouTubePlaylist = (playlistId) => {
   const [videos, setVideos] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -15,10 +46,8 @@ const useYouTubePlaylist = (playlistId) => {
       const cacheKey = `${CACHE_KEY_PREFIX}${playlistId}`;
 
       if (!apiKey) {
-        // For development/demo purposes if key is missing, we can either show error or mock data.
-        // Per requirements, we should handle error.
-        console.warn('VITE_YOUTUBE_API_KEY is missing in .env file');
-        setError('YouTube API Key is missing. Please add VITE_YOUTUBE_API_KEY to your .env file.');
+        console.warn('VITE_YOUTUBE_API_KEY is missing in .env file. Using fallback videos.');
+        setVideos(FALLBACK_VIDEOS);
         setLoading(false);
         return;
       }
@@ -71,8 +100,8 @@ const useYouTubePlaylist = (playlistId) => {
         setVideos(formattedVideos);
         setLoading(false);
       } catch (err) {
-        console.error('Error fetching YouTube videos:', err);
-        setError(err.response?.data?.error?.message || err.message || 'Failed to fetch videos');
+        console.error('Error fetching YouTube videos, using fallback:', err);
+        setVideos(FALLBACK_VIDEOS);
         setLoading(false);
       }
     };
