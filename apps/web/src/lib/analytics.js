@@ -12,18 +12,46 @@ function getSessionId() {
   return sid;
 }
 
+/** Read UTM params from the current URL and cache them in sessionStorage so
+ *  they persist across page navigations within the same session. */
+function getUtmParams() {
+  const stored = sessionStorage.getItem('evo_utm');
+  const params = new URLSearchParams(window.location.search);
+  const fromUrl = {
+    utm_source: params.get('utm_source') || '',
+    utm_medium: params.get('utm_medium') || '',
+    utm_campaign: params.get('utm_campaign') || '',
+  };
+  // If current URL has UTM params, update the session cache
+  if (fromUrl.utm_source || fromUrl.utm_medium || fromUrl.utm_campaign) {
+    sessionStorage.setItem('evo_utm', JSON.stringify(fromUrl));
+    return fromUrl;
+  }
+  // Otherwise use cached ones (so attribution persists across page hops)
+  if (stored) {
+    try { return JSON.parse(stored); } catch { /* ignore */ }
+  }
+  return { utm_source: '', utm_medium: '', utm_campaign: '' };
+}
+
 export function initAnalytics() {
   // no-op — tracking is handled via trackPageView calls
 }
 
 export function trackPageView(path, title) {
   try {
+    const utms = getUtmParams();
+    const payload = {
+      page_path: path,
+      page_title: title,
+      referrer: document.referrer,
+      session_id: getSessionId(),
+      screen_width: window.screen?.width || null,
+      ...utms,
+    };
     navigator.sendBeacon(
       `${API_BASE}`,
-      new Blob(
-        [JSON.stringify({ page_path: path, page_title: title, referrer: document.referrer, session_id: getSessionId() })],
-        { type: 'application/json' }
-      )
+      new Blob([JSON.stringify(payload)], { type: 'application/json' })
     );
   } catch {
     // silent fail — never block the user
