@@ -4,6 +4,7 @@ import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Sparkles, Zap, FileText, Video, Code } from 'lucide-react';
 import ScrubSection from '@/components/ScrubSection.jsx';
+import ScrollProgressRail from '@/components/ScrollProgressRail.jsx';
 import VideoLibrarySection from '@/components/VideoLibrarySection.jsx';
 import AuditorSection from '@/components/sections/AuditorSection.jsx';
 import ServicesBuiltForScale from '@/components/sections/ServicesBuiltForScale.jsx';
@@ -82,8 +83,13 @@ const HomePage = () => {
       />
 
       <div className="min-h-screen bg-[#0f1419]">
+        {/* Chapter progress rail (desktop) */}
+        <ScrollProgressRail />
+
         {/* Hero + scroll-synced image sequence */}
-        <ScrubSection />
+        <div id="story">
+          <ScrubSection />
+        </div>
 
         {/* Stats Banner */}
         <section className="bg-[#1a2332] py-8">
@@ -110,10 +116,14 @@ const HomePage = () => {
         </section>
 
         {/* Services Section */}
-        <ServicesBuiltForScale />
+        <div id="services">
+          <ServicesBuiltForScale />
+        </div>
 
         {/* AI Capabilities Section */}
-        <AICapabilities />
+        <div id="capabilities">
+          <AICapabilities />
+        </div>
 
         {/* Trust Section */}
         <section className="py-20 bg-[#1a2332]">
@@ -145,7 +155,9 @@ const HomePage = () => {
         </section>
 
         {/* Video Library Section */}
-        <VideoLibrarySection />
+        <div id="work">
+          <VideoLibrarySection />
+        </div>
 
         {/* Brand Auditor Section */}
         <AuditorSection />
