@@ -54,8 +54,14 @@ export function KineticHeadline({
 }) {
   const ref = useRef(null);
   const reduced = usePrefersReducedMotion();
+  // Vertical insets are negative so descenders (g/y/p/q/j) that extend
+  // below the word's border box under tight line-heights never get clipped
+  // — the reveal is horizontal only.
   const hiddenClip =
-    direction === 'rtl' ? 'inset(0 0 0 100%)' : 'inset(0 100% 0 0)';
+    direction === 'rtl'
+      ? 'inset(-20% 0% -20% 100%)'
+      : 'inset(-20% 100% -20% 0%)';
+  const visibleClip = 'inset(-20% 0% -20% 0%)';
 
   useEffect(() => {
     const el = ref.current;
@@ -63,13 +69,13 @@ export function KineticHeadline({
     const words = el.querySelectorAll('.kin-word');
     if (!words.length) return;
     if (reduced) {
-      gsap.set(words, { clipPath: 'inset(0 0% 0 0%)' });
+      gsap.set(words, { clipPath: visibleClip });
       return;
     }
     gsap.set(words, { clipPath: hiddenClip });
     const play = () =>
       gsap.to(words, {
-        clipPath: 'inset(0 0% 0 0%)',
+        clipPath: visibleClip,
         duration: 0.65,
         ease: 'power3.out',
         stagger: { each: 0.09, from: direction === 'rtl' ? 'end' : 'start' },
@@ -102,10 +108,7 @@ export function KineticHeadline({
       {lines.map((line, li) => (
         <span key={li} className="block">
           {line.map((w, wi) => (
-            <span
-              key={wi}
-              className="mr-[0.24em] inline-block overflow-hidden align-baseline"
-            >
+            <span key={wi} className="mr-[0.24em] inline-block align-baseline">
               <span
                 className={`kin-word inline-block ${w.accent ? 'text-[#22c8e5]' : ''}`}
                 style={{ clipPath: hiddenClip }}

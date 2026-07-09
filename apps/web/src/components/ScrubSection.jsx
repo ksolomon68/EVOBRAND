@@ -68,9 +68,11 @@ const ScrubSection = () => {
     if (!el) return;
     const words = el.querySelectorAll('.hero-word-inner');
     if (!words.length) return;
-    gsap.set(words, { clipPath: 'inset(0 100% 0 0)' });
+    // Negative vertical insets: never clip descenders (g/y) under the
+    // headline's tight line-height — the reveal is horizontal only.
+    gsap.set(words, { clipPath: 'inset(-20% 100% -20% 0%)' });
     gsap.to(words, {
-      clipPath: 'inset(0 0% 0 0)',
+      clipPath: 'inset(-20% 0% -20% 0%)',
       duration: 0.65,
       ease: 'power3.out',
       stagger: 0.1,
@@ -268,14 +270,14 @@ const ScrubSection = () => {
           >
             <span style={{ display: 'block' }}>
               {['Your', 'Partner', 'in'].map((word, i) => (
-                <span key={i} style={{ display: 'inline-block', overflow: 'hidden', marginRight: '0.22em', verticalAlign: 'baseline' }}>
+                <span key={i} style={{ display: 'inline-block', marginRight: '0.22em', verticalAlign: 'baseline' }}>
                   <span className="hero-word-inner" style={{ display: 'inline-block' }}>{word}</span>
                 </span>
               ))}
             </span>
             <span style={{ display: 'block', color: '#22c8e5' }}>
               {['AI', 'Transformation'].map((word, i) => (
-                <span key={i} style={{ display: 'inline-block', overflow: 'hidden', marginRight: '0.22em', verticalAlign: 'baseline' }}>
+                <span key={i} style={{ display: 'inline-block', marginRight: '0.22em', verticalAlign: 'baseline' }}>
                   <span className="hero-word-inner" style={{ display: 'inline-block' }}>{word}</span>
                 </span>
               ))}
