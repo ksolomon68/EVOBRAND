@@ -1,6 +1,9 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { motion } from 'framer-motion';
 import { gsap } from 'gsap';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
+
+gsap.registerPlugin(ScrollTrigger);
 
 /**
  * PageMotion — shared motion language for interior pages.
@@ -35,6 +38,10 @@ export function usePrefersReducedMotion() {
  * KineticHeadline — the homepage hero's clip-path word reveal, reusable.
  * `lines`: array of lines; each line is an array of { t: 'word', accent?: bool }.
  * `replayKey`: change to re-run the reveal (e.g. service tab switches).
+ * `direction`: 'ltr' (default) or 'rtl' — rtl reveals right-to-left and
+ *   staggers from the last word, for bookend moments mirroring the hero.
+ * `startOnView`: defer the reveal until the headline scrolls into view
+ *   (use for below-the-fold headlines).
  */
 export function KineticHeadline({
   lines,
@@ -42,9 +49,13 @@ export function KineticHeadline({
   as: Tag = 'h1',
   delay = 0.25,
   replayKey,
+  direction = 'ltr',
+  startOnView = false,
 }) {
   const ref = useRef(null);
   const reduced = usePrefersReducedMotion();
+  const hiddenClip =
+    direction === 'rtl' ? 'inset(0 0 0 100%)' : 'inset(0 100% 0 0)';
 
   useEffect(() => {
     const el = ref.current;
@@ -52,19 +63,39 @@ export function KineticHeadline({
     const words = el.querySelectorAll('.kin-word');
     if (!words.length) return;
     if (reduced) {
-      gsap.set(words, { clipPath: 'inset(0 0% 0 0)' });
+      gsap.set(words, { clipPath: 'inset(0 0% 0 0%)' });
       return;
     }
-    gsap.set(words, { clipPath: 'inset(0 100% 0 0)' });
-    const tween = gsap.to(words, {
-      clipPath: 'inset(0 0% 0 0)',
-      duration: 0.65,
-      ease: 'power3.out',
-      stagger: 0.09,
-      delay,
-    });
-    return () => tween.kill();
-  }, [reduced, delay, replayKey]);
+    gsap.set(words, { clipPath: hiddenClip });
+    const play = () =>
+      gsap.to(words, {
+        clipPath: 'inset(0 0% 0 0%)',
+        duration: 0.65,
+        ease: 'power3.out',
+        stagger: { each: 0.09, from: direction === 'rtl' ? 'end' : 'start' },
+        delay,
+      });
+
+    if (!startOnView) {
+      const tween = play();
+      return () => tween.kill();
+    }
+    let tween = null;
+    const io = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting) {
+          tween = play();
+          io.disconnect();
+        }
+      },
+      { threshold: 0.35 }
+    );
+    io.observe(el);
+    return () => {
+      io.disconnect();
+      if (tween) tween.kill();
+    };
+  }, [reduced, delay, replayKey, direction, startOnView, hiddenClip]);
 
   return (
     <Tag ref={ref} className={className}>
@@ -77,7 +108,7 @@ export function KineticHeadline({
             >
               <span
                 className={`kin-word inline-block ${w.accent ? 'text-[#22c8e5]' : ''}`}
-                style={{ clipPath: 'inset(0 100% 0 0)' }}
+                style={{ clipPath: hiddenClip }}
               >
                 {w.t}
               </span>
@@ -212,6 +243,53 @@ export function TiltCard({ children, className = '', max = 4, style }) {
       style={{ transition: 'transform 0.2s ease-out', willChange: 'transform', ...style }}
     >
       {children}
+    </div>
+  );
+}
+
+/**
+ * SectionMorphDivider — a gentle SVG curve between sections whose shape
+ * shifts subtly as it crosses the viewport (scroll-scrubbed), replacing a
+ * hard horizontal cut. `from` = background color of the section above,
+ * `to` = background color of the section below. Static under reduced motion.
+ */
+const MORPH_D1 =
+  'M0,32 C240,56 480,8 720,28 C960,48 1200,16 1440,36 L1440,64 L0,64 Z';
+const MORPH_D2 =
+  'M0,26 C240,6 480,50 720,34 C960,14 1200,46 1440,22 L1440,64 L0,64 Z';
+
+export function SectionMorphDivider({ from, to }) {
+  const ref = useRef(null);
+  const pathRef = useRef(null);
+  const reduced = usePrefersReducedMotion();
+
+  useEffect(() => {
+    if (reduced || !pathRef.current) return;
+    const tween = gsap.to(pathRef.current, {
+      attr: { d: MORPH_D2 },
+      ease: 'none',
+      scrollTrigger: {
+        trigger: ref.current,
+        start: 'top bottom',
+        end: 'bottom top',
+        scrub: 1,
+      },
+    });
+    return () => {
+      if (tween.scrollTrigger) tween.scrollTrigger.kill();
+      tween.kill();
+    };
+  }, [reduced]);
+
+  return (
+    <div ref={ref} aria-hidden="true" style={{ background: from, lineHeight: 0 }}>
+      <svg
+        viewBox="0 0 1440 64"
+        preserveAspectRatio="none"
+        className="block h-10 w-full md:h-14"
+      >
+        <path ref={pathRef} d={MORPH_D1} fill={to} />
+      </svg>
     </div>
   );
 }

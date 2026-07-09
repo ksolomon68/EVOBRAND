@@ -1,16 +1,100 @@
 
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
+import { gsap } from 'gsap';
 import { Sparkles, Zap, FileText, Video, Code } from 'lucide-react';
 import ScrubSection from '@/components/ScrubSection.jsx';
 import ScrollProgressRail from '@/components/ScrollProgressRail.jsx';
+import {
+  KineticHeadline,
+  SectionMorphDivider,
+} from '@/components/motion/PageMotion.jsx';
 import VideoLibrarySection from '@/components/VideoLibrarySection.jsx';
 import AuditorSection from '@/components/sections/AuditorSection.jsx';
 import ServicesBuiltForScale from '@/components/sections/ServicesBuiltForScale.jsx';
 import AICapabilities from '@/components/sections/AICapabilities.jsx';
 import SchedulerWidget from '@/components/scheduler/SchedulerWidget.jsx';
 import SEO from '@/components/SEO.jsx';
+
+/**
+ * CountStat — number counts up while an SVG underline draws itself, both
+ * driven by the same tween so they stay perfectly in sync. Triggers once
+ * on scroll entry; renders final values under prefers-reduced-motion.
+ */
+const CountStat = ({ value, suffix, label, delay = 0 }) => {
+  const rootRef = useRef(null);
+  const numRef = useRef(null);
+  const lineRef = useRef(null);
+
+  useEffect(() => {
+    const numEl = numRef.current;
+    const lineEl = lineRef.current;
+    const rootEl = rootRef.current;
+    if (!numEl || !lineEl || !rootEl) return;
+
+    const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (reduced) {
+      numEl.textContent = `${value}${suffix}`;
+      lineEl.style.strokeDashoffset = '0';
+      return;
+    }
+
+    lineEl.style.strokeDashoffset = '100';
+    const state = { p: 0 };
+    let tween = null;
+    const io = new IntersectionObserver(
+      ([entry]) => {
+        if (!entry.isIntersecting) return;
+        io.disconnect();
+        tween = gsap.to(state, {
+          p: 1,
+          duration: 1.6,
+          delay,
+          ease: 'power2.out',
+          onUpdate: () => {
+            numEl.textContent = `${Math.round(state.p * value)}${suffix}`;
+            lineEl.style.strokeDashoffset = String(100 - state.p * 100);
+          },
+        });
+      },
+      { threshold: 0.6 }
+    );
+    io.observe(rootEl);
+    return () => {
+      io.disconnect();
+      if (tween) tween.kill();
+    };
+  }, [value, suffix, delay]);
+
+  return (
+    <div ref={rootRef}>
+      <p className="text-3xl font-bold text-[#22c8e5]" aria-label={`${value}${suffix} ${label}`}>
+        <span ref={numRef} aria-hidden="true">0{suffix}</span>
+      </p>
+      <svg
+        viewBox="0 0 100 2"
+        preserveAspectRatio="none"
+        className="w-16 h-0.5 mx-auto my-2"
+        aria-hidden="true"
+      >
+        <line
+          ref={lineRef}
+          x1="0"
+          y1="1"
+          x2="100"
+          y2="1"
+          pathLength="100"
+          stroke="#22c8e5"
+          strokeWidth="2"
+          strokeDasharray="100"
+          strokeDashoffset="100"
+        />
+      </svg>
+      <p className="text-gray-400 text-sm">{label}</p>
+    </div>
+  );
+};
 
 const HomePage = () => {
   const services = [
@@ -91,29 +175,21 @@ const HomePage = () => {
           <ScrubSection />
         </div>
 
+        <SectionMorphDivider from="#0f1419" to="#1a2332" />
+
         {/* Stats Banner */}
         <section className="bg-[#1a2332] py-8">
           <div className="container mx-auto px-4">
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
-              <div>
-                <p className="text-3xl font-bold text-[#22c8e5]">10x</p>
-                <p className="text-gray-400 text-sm">Faster Production</p>
-              </div>
-              <div>
-                <p className="text-3xl font-bold text-[#22c8e5]">80%</p>
-                <p className="text-gray-400 text-sm">Cost Reduction</p>
-              </div>
-              <div>
-                <p className="text-3xl font-bold text-[#22c8e5]">5x</p>
-                <p className="text-gray-400 text-sm">ROI Increase</p>
-              </div>
-              <div>
-                <p className="text-3xl font-bold text-[#22c8e5]">95%</p>
-                <p className="text-gray-400 text-sm">Client Satisfaction</p>
-              </div>
+              <CountStat value={10} suffix="x" label="Faster Production" />
+              <CountStat value={80} suffix="%" label="Cost Reduction" delay={0.12} />
+              <CountStat value={5} suffix="x" label="ROI Increase" delay={0.24} />
+              <CountStat value={95} suffix="%" label="Client Satisfaction" delay={0.36} />
             </div>
           </div>
         </section>
+
+        <SectionMorphDivider from="#1a2332" to="#0a0a0f" />
 
         {/* Services Section */}
         <div id="services">
@@ -154,6 +230,8 @@ const HomePage = () => {
           </div>
         </section>
 
+        <SectionMorphDivider from="#1a2332" to="#070a0e" />
+
         {/* Video Library Section */}
         <div id="work">
           <VideoLibrarySection />
@@ -182,7 +260,18 @@ const HomePage = () => {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
             >
-              <h2 className="text-4xl md:text-5xl font-bold text-white mb-4">Ready to Transform Your Business?</h2>
+              {/* Bookend: mirrors the hero's kinetic reveal, reversed */}
+              <KineticHeadline
+                as="h2"
+                direction="rtl"
+                startOnView
+                delay={0.1}
+                lines={[
+                  [{ t: 'Ready' }, { t: 'to' }, { t: 'Transform' }],
+                  [{ t: 'Your' }, { t: 'Business?' }],
+                ]}
+                className="text-4xl md:text-5xl font-bold text-white mb-4"
+              />
               <p className="text-xl text-white/90 mb-8">
                 Schedule a free consultation and discover how AI can revolutionize your operations
               </p>
