@@ -1,10 +1,9 @@
 import React, { useState, useRef } from 'react';
-import { useGSAP } from '@gsap/react';
-import gsap from 'gsap';
 import { Mail, Phone, MapPin, Clock, Facebook, Youtube, Linkedin, Instagram, Send, Loader2, CheckCircle2, AlertCircle } from 'lucide-react';
 import { supabase } from '@/lib/supabase.js';
 import SchedulerWidget from '@/components/scheduler/SchedulerWidget.jsx';
 import SEO from '@/components/SEO.jsx';
+import { PageHero, Reveal, TiltCard } from '@/components/motion/PageMotion.jsx';
 
 const GOLD = '#22c8e5';
 const NAVY = '#003258';
@@ -262,31 +261,6 @@ function ContactForm() {
 // ─── Page ─────────────────────────────────────────────────────────────────────
 
 export default function ContactPage() {
-  const heroRef = useRef(null);
-  const methodsRef = useRef(null);
-
-  useGSAP(() => {
-    gsap.fromTo(
-      heroRef.current?.children,
-      { opacity: 0, y: 30 },
-      { opacity: 1, y: 0, duration: 0.7, stagger: 0.12, ease: 'power2.out' }
-    );
-    if (methodsRef.current) {
-      gsap.fromTo(
-        methodsRef.current.children,
-        { opacity: 0, y: 20 },
-        {
-          opacity: 1,
-          y: 0,
-          duration: 0.5,
-          stagger: 0.08,
-          ease: 'power2.out',
-          scrollTrigger: { trigger: methodsRef.current, start: 'top 85%' },
-        }
-      );
-    }
-  }, []);
-
   return (
     <>
       <SEO
@@ -315,62 +289,52 @@ export default function ContactPage() {
         }}
       />
 
-      <div className="min-h-screen" style={{ background: NAVY }}>
+      <div className="min-h-screen bg-[#0f1419]">
         {/* Hero */}
-        <section className="py-24" style={{ background: `linear-gradient(135deg, #0D1E35 0%, ${NAVY} 100%)` }}>
-          <div className="container mx-auto px-4 text-center">
-            <div ref={heroRef}>
-              <p className="text-xs font-bold uppercase tracking-[0.3em] mb-4" style={{ color: GOLD }}>
-                Get in Touch
-              </p>
-              <h1 className="text-5xl md:text-6xl font-bold text-white mb-5">
-                Let's <span style={{ color: GOLD }}>Connect</span>
-              </h1>
-              <div className="w-12 h-0.5 mx-auto mb-6" style={{ background: GOLD }} aria-hidden="true" />
-              <p className="text-lg max-w-2xl mx-auto" style={{ color: 'rgba(255,255,255,0.7)' }}>
-                Ready to transform your business with AI? Reach out for a free 30-minute consultation — no obligation.
-              </p>
-            </div>
-          </div>
-        </section>
+        <PageHero
+          eyebrow="Get in Touch"
+          lines={[[{ t: "Let's" }, { t: 'Connect', accent: true }]]}
+          sub="Ready to transform your business with AI? Reach out for a free 30-minute consultation — no obligation."
+        />
 
         {/* Contact method cards */}
-        <section className="py-12 border-y" style={{ background: 'rgba(13,30,53,0.6)', borderColor: `rgba(34,200,229,0.08)` }}>
+        <section className="py-12 border-y" style={{ background: 'rgba(26,35,50,0.5)', borderColor: `rgba(34,200,229,0.08)` }}>
           <div className="container mx-auto px-4">
-            <div ref={methodsRef} className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
-              {CONTACT_METHODS.map(({ icon: Icon, label, lines }) => (
-                <div
-                  key={label}
-                  className="p-6 rounded-2xl text-center border transition-all duration-300 hover:border-[#22c8e5]/30"
-                  style={{ background: 'rgba(10,22,40,0.6)', borderColor: 'rgba(34,200,229,0.1)' }}
-                >
-                  <div
-                    className="w-10 h-10 rounded-full flex items-center justify-center mx-auto mb-3"
-                    style={{ background: 'rgba(34,200,229,0.1)' }}
-                    aria-hidden="true"
+            <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
+              {CONTACT_METHODS.map(({ icon: Icon, label, lines }, index) => (
+                <Reveal key={label} delay={index * 0.06}>
+                  <TiltCard
+                    className="h-full p-6 rounded-2xl text-center border transition-colors duration-300 hover:border-[#22c8e5]/30"
+                    style={{ background: 'rgba(15,20,25,0.7)', borderColor: 'rgba(34,200,229,0.1)' }}
                   >
-                    <Icon size={18} style={{ color: GOLD }} />
-                  </div>
-                  <h3 className="text-white font-bold text-sm mb-2">{label}</h3>
-                  {lines.map(({ text, href }) =>
-                    href ? (
-                      <a
-                        key={text}
-                        href={href}
-                        className="block text-sm transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#22c8e5] rounded"
-                        style={{ color: 'rgba(255,255,255,0.55)' }}
-                        onMouseEnter={(e) => (e.target.style.color = GOLD)}
-                        onMouseLeave={(e) => (e.target.style.color = 'rgba(255,255,255,0.55)')}
-                      >
-                        {text}
-                      </a>
-                    ) : (
-                      <p key={text} className="text-sm" style={{ color: 'rgba(255,255,255,0.55)' }}>
-                        {text}
-                      </p>
-                    )
-                  )}
-                </div>
+                    <div
+                      className="w-10 h-10 rounded-full flex items-center justify-center mx-auto mb-3"
+                      style={{ background: 'rgba(34,200,229,0.1)' }}
+                      aria-hidden="true"
+                    >
+                      <Icon size={18} style={{ color: GOLD }} />
+                    </div>
+                    <h3 className="text-white font-bold text-sm mb-2">{label}</h3>
+                    {lines.map(({ text, href }) =>
+                      href ? (
+                        <a
+                          key={text}
+                          href={href}
+                          className="block text-sm transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#22c8e5] rounded"
+                          style={{ color: 'rgba(255,255,255,0.55)' }}
+                          onMouseEnter={(e) => (e.target.style.color = GOLD)}
+                          onMouseLeave={(e) => (e.target.style.color = 'rgba(255,255,255,0.55)')}
+                        >
+                          {text}
+                        </a>
+                      ) : (
+                        <p key={text} className="text-sm" style={{ color: 'rgba(255,255,255,0.55)' }}>
+                          {text}
+                        </p>
+                      )
+                    )}
+                  </TiltCard>
+                </Reveal>
               ))}
             </div>
           </div>
@@ -381,9 +345,9 @@ export default function ContactPage() {
           <div className="container mx-auto px-4">
             <div className="grid lg:grid-cols-2 gap-10 max-w-6xl mx-auto">
               {/* Contact Form */}
-              <div
+              <Reveal
                 className="rounded-2xl p-8 border"
-                style={{ background: 'rgba(13,30,53,0.7)', borderColor: 'rgba(34,200,229,0.12)', backdropFilter: 'blur(10px)' }}
+                style={{ background: '#1a2332', borderColor: 'rgba(34,200,229,0.12)' }}
               >
                 <div className="flex items-center gap-3 mb-7">
                   <div
@@ -424,12 +388,12 @@ export default function ContactPage() {
                     ))}
                   </ul>
                 </div>
-              </div>
+              </Reveal>
 
               {/* Scheduler */}
-              <div>
+              <Reveal delay={0.1}>
                 <SchedulerWidget />
-              </div>
+              </Reveal>
             </div>
           </div>
         </section>

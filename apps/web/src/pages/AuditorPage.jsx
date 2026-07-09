@@ -1,6 +1,7 @@
 import React, { useState, useEffect, Component } from 'react';
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
+import { KineticHeadline, Reveal } from '@/components/motion/PageMotion.jsx';
 import AuditForm from '@/components/auditor/AuditForm';
 import SEO from '@/components/SEO.jsx';
 import AuditResults from '@/components/auditor/AuditResults';
@@ -154,22 +155,38 @@ const AuditorPage = () => {
             {/* Hero header */}
             <div className="relative overflow-hidden">
               <div className="absolute inset-0 bg-gradient-to-br from-[#003258]/80 to-transparent" />
+              <div
+                aria-hidden="true"
+                className="absolute inset-0 pointer-events-none"
+                style={{
+                  backgroundImage:
+                    'linear-gradient(rgba(255,255,255,0.035) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.035) 1px, transparent 1px)',
+                  backgroundSize: '56px 56px',
+                  maskImage: 'radial-gradient(ellipse 80% 70% at 50% 30%, black, transparent)',
+                  WebkitMaskImage: 'radial-gradient(ellipse 80% 70% at 50% 30%, black, transparent)',
+                }}
+              />
               <div className="relative container mx-auto px-4 pt-20 pb-16 text-center">
-                <motion.div
-                  initial={{ opacity: 0, y: 30 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.8 }}
-                >
-                  <span className="inline-block px-4 py-1.5 rounded-full bg-[#22C8E5]/10 border border-[#22C8E5]/20 text-[#22C8E5] text-sm tracking-widest uppercase mb-6">
+                <Reveal>
+                  <span className="inline-block px-4 py-1.5 rounded-full bg-[#22C8E5]/10 border border-[#22C8E5]/20 text-[#22C8E5] text-[11px] font-bold tracking-[0.25em] uppercase mb-6">
                     AI-Powered · Free · Instant
                   </span>
-                  <h1 className="text-4xl md:text-6xl font-bold text-white mb-4">
-                    HOW STRONG IS YOUR BRAND?
-                  </h1>
+                </Reveal>
+                <KineticHeadline
+                  lines={[
+                    [{ t: 'HOW' }, { t: 'STRONG' }, { t: 'IS' }],
+                    [
+                      { t: 'YOUR', accent: true },
+                      { t: 'BRAND?', accent: true },
+                    ],
+                  ]}
+                  className="text-4xl md:text-6xl font-bold text-white mb-4"
+                />
+                <Reveal delay={0.45}>
                   <p className="text-white/60 text-lg max-w-xl mx-auto">
                     Get an honest AI-generated brand score in under 4 minutes. 5-category breakdown. Personalized action plan. No fluff.
                   </p>
-                </motion.div>
+                </Reveal>
               </div>
             </div>
 

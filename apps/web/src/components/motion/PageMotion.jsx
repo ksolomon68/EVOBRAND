@@ -153,14 +153,20 @@ export function Reveal({
   y = 24,
   className,
   once = true,
+  style,
 }) {
   const reduced = usePrefersReducedMotion();
   if (reduced) {
-    return <div className={className}>{children}</div>;
+    return (
+      <div className={className} style={style}>
+        {children}
+      </div>
+    );
   }
   return (
     <motion.div
       className={className}
+      style={style}
       initial={{ opacity: 0, y }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once, margin: '-60px' }}
@@ -176,7 +182,7 @@ export function Reveal({
  * touch/pen), disabled under reduced motion. Max tilt kept low on purpose:
  * enterprise audience, precision over bounce.
  */
-export function TiltCard({ children, className = '', max = 4 }) {
+export function TiltCard({ children, className = '', max = 4, style }) {
   const ref = useRef(null);
   const reduced = usePrefersReducedMotion();
 
@@ -203,7 +209,7 @@ export function TiltCard({ children, className = '', max = 4 }) {
       onPointerMove={onMove}
       onPointerLeave={onLeave}
       className={className}
-      style={{ transition: 'transform 0.2s ease-out', willChange: 'transform' }}
+      style={{ transition: 'transform 0.2s ease-out', willChange: 'transform', ...style }}
     >
       {children}
     </div>
