@@ -15,7 +15,7 @@ const OurWorkPage = () => {
       category: 'Web Development',
       industry: 'Government',
       image: '/projects/pivotal-voice.jpg',
-      metrics: { roi: 'Engagement', timeSaved: 'Streamlined', revenue: 'N/A' },
+      highlights: ['Civic Engagement', 'Ellis County', 'Public Platform'],
       description: 'The comprehensive civic engagement platform connecting Ellis County residents with democracy.',
       link: 'https://pivotalvoice.org/'
     },
@@ -25,7 +25,7 @@ const OurWorkPage = () => {
       category: 'SaaS Platform',
       industry: 'Business Solutions',
       image: '/projects/chamberos.png',
-      metrics: { roi: '12+ Hours/Wk', timeSaved: '19 Modules', revenue: '$0 Setup' },
+      highlights: ['Saves 12+ Hrs/Wk', '19 Modules', '$0 Setup'],
       description: 'Stop running your chamber on spreadsheets. The all-in-one platform built to automate dues, events, governance, advocacy, and member engagement.',
       link: 'https://evobrand.net/chambercore'
     },
@@ -35,7 +35,7 @@ const OurWorkPage = () => {
       category: 'SaaS Platform',
       industry: 'Government',
       image: '/projects/primereach.png',
-      metrics: { roi: 'SBE Readiness', timeSaved: 'White-Label', revenue: 'State-DOT' },
+      highlights: ['White-Label', 'State DOT Ready', 'SBE Matching'],
       description: 'Connect your prime contractors with qualified small businesses. A turnkey, white-label government contracting platform built for transportation and infrastructure agencies.',
       link: 'https://primereachgov.com/'
     },
@@ -45,7 +45,7 @@ const OurWorkPage = () => {
       category: 'Web Development',
       industry: 'Education',
       image: '/projects/vibehyr.png',
-      metrics: { roi: '4 Core Courses', timeSaved: 'Reality Potential', revenue: '3 Tiers' },
+      highlights: ['4 Core Courses', 'Daily Journaling', 'Community'],
       description: 'Build your reality. Where neuroscience meets Neville Goddard. Master your internal state through structured courses, daily journaling, and community.',
       link: 'https://vibehyr.com/'
     },
@@ -55,7 +55,7 @@ const OurWorkPage = () => {
       category: 'E-commerce',
       industry: 'Retail',
       image: '/projects/true-releaf.jpg',
-      metrics: { roi: 'Growth', timeSaved: 'Efficient', revenue: 'Sales' },
+      highlights: ['Premium CBD/Hemp', 'Quality Focused', 'Customer Education'],
       description: 'Serving Only the Best. Premium CBD/Hemp Store with a focus on quality and customer education.',
       link: 'https://truereleafmonroe.com'
     },
@@ -65,7 +65,7 @@ const OurWorkPage = () => {
       category: 'Web Development',
       industry: 'Non-profit',
       image: '/projects/cgm.png',
-      metrics: { roi: 'Community', timeSaved: 'Outreach', revenue: 'Donations' },
+      highlights: ['Youth Mentorship', 'Faith-Based', 'Online Donations'],
       description: 'Where every child is celebrated for who they are. Serving at-risk children with faith, mentorship, and a safe place to grow.',
       link: 'https://evobrand.net/cgm/'
     },
@@ -75,7 +75,7 @@ const OurWorkPage = () => {
       category: 'E-commerce',
       industry: 'Retail',
       image: '/projects/pigment-cosmetics.jpg',
-      metrics: { roi: 'Sales', timeSaved: 'Streamlined', revenue: 'Direct' },
+      highlights: ['Products & Kits', 'Pro Cosmetics', 'Education Support'],
       description: 'Professional cosmetics e-commerce site offering products, kits, and educational support.',
       link: 'https://pigmentcosmetics.com/'
     },
@@ -85,7 +85,7 @@ const OurWorkPage = () => {
       category: 'Web Development',
       industry: 'Healthcare',
       image: '/projects/nela-sickle-cell.jpg',
-      metrics: { roi: 'Outreach', timeSaved: 'Managed', revenue: 'Donations' },
+      highlights: ['Health Advocacy', 'Community Outreach', 'Online Donations'],
       description: 'Northeast Louisiana Sickle Cell Anemia Foundation - Making a Difference Today.',
       link: 'https://nelascaf.org/'
     },
@@ -95,7 +95,7 @@ const OurWorkPage = () => {
       category: 'Web Development',
       industry: 'Government',
       image: '/projects/caltrans.jpg',
-      metrics: { roi: 'Contracting', timeSaved: 'Process', revenue: 'Growth' },
+      highlights: ['Statewide Program', 'SBE Support', 'Gov Contracting'],
       description: 'Statewide supportive services to help SBEs strengthen readiness for transportation contracting opportunities.',
       link: 'https://caltransbizconnect.org/'
     },
@@ -105,7 +105,7 @@ const OurWorkPage = () => {
       category: 'Web Development',
       industry: 'Community',
       image: '/projects/mid-cities-links.jpg',
-      metrics: { roi: 'Service', timeSaved: 'Organized', revenue: 'Fundraising' },
+      highlights: ['Community Service', 'Youth Empowerment', 'Fundraising'],
       description: 'Mid-Cities (TX) Chapter of The Links, Incorporated. Community service, leadership, and youth empowerment.',
       link: 'https://evobrand.net/MidCityLinks'
     },
@@ -115,7 +115,7 @@ const OurWorkPage = () => {
       category: 'Web Development',
       industry: 'Insurance',
       image: '/projects/stiber-insurance.jpg',
-      metrics: { roi: 'Quotes', timeSaved: 'Digital', revenue: 'Policy' },
+      highlights: ['Since 1985', 'Online Quotes', 'Multi-Line Coverage'],
       description: 'Protecting What Matters Most Since 1985. Homeowners, Flood, Commercial, and Life insurance.',
       link: 'https://stiberinsuranceservices.com/'
     }
@@ -128,7 +128,7 @@ const OurWorkPage = () => {
       category: 'Web Development',
       industry: 'Entertainment',
       image: '/projects/the-star-list.jpg',
-      metrics: { roi: 'Views', timeSaved: 'Curated', revenue: 'Ads' },
+      highlights: ['Music & Entertainment', 'Curated Content', 'Global Reach'],
       description: 'The Ultimate Resource for Music-News and Entertainment Around the World!',
       link: 'https://thestarlist.com/'
     },
@@ -138,7 +138,7 @@ const OurWorkPage = () => {
       category: 'Web Development',
       industry: 'Non-profit',
       image: '/projects/jewels-of-north-texas.jpg',
-      metrics: { roi: 'Legacy', timeSaved: 'Excellence', revenue: 'Community' },
+      highlights: ['11 Chapters', 'Debutante Gala', 'Legacy Event'],
       description: 'The inaugural debutante presentation by the 11 chapters of the Dallas Center of Excellence within Jack and Jill of America — celebrating young women of extraordinary character.',
       link: 'https://evobrandconcepts.com/jewels/'
     },
@@ -148,7 +148,7 @@ const OurWorkPage = () => {
       category: 'Web Development',
       industry: 'Non-profit',
       image: '/projects/hampco.jpg',
-      metrics: { roi: '400K+', timeSaved: '30+ Yrs', revenue: '35+ Programs' },
+      highlights: ['400K+ Served', '30+ Years', '35+ Programs'],
       description: 'Empowering Families. Building Stronger Communities. HAMPCO is dedicated to socioeconomic elevation, teen mentorship, healthcare outreach, and financial literacy across Northeast Louisiana.',
       link: 'https://hampcoinc.org'
     },
@@ -158,7 +158,7 @@ const OurWorkPage = () => {
       category: 'Web Development',
       industry: 'Industrial IoT',
       image: '/projects/pulseops.jpg',
-      metrics: { roi: '99.97%', timeSaved: '47ms', revenue: '6× MTTR' },
+      highlights: ['99.97% Uptime', 'Real-Time Ops', '6× Faster MTTR'],
       description: 'Zero Downtime Starts Here. PulseOps unifies operational technology and IT infrastructure into a single real-time command surface for industrial teams.',
       link: 'https://evobrandconcepts.com/html/pulseops.html'
     }
@@ -240,20 +240,18 @@ const OurWorkPage = () => {
                     <div className="p-6">
                       <h3 className="text-xl font-bold text-white mb-2">{item.title}</h3>
                       <p className="text-gray-400 text-sm mb-4">{item.description}</p>
-                      <div className="grid grid-cols-3 gap-2 mb-4">
-                        <div className="bg-[#0f1419] p-2 rounded text-center">
-                          <p className="text-xs text-gray-500">ROI</p>
-                          <p className="text-[#22c8e5] font-bold">{item.metrics.roi}</p>
+                      {item.highlights && (
+                        <div className="flex flex-wrap gap-2 mb-4">
+                          {item.highlights.map((h) => (
+                            <span
+                              key={h}
+                              className="text-[11px] font-semibold px-2.5 py-1 rounded-full bg-[#0f1419] border border-[#22c8e5]/15 text-[#22c8e5]"
+                            >
+                              {h}
+                            </span>
+                          ))}
                         </div>
-                        <div className="bg-[#0f1419] p-2 rounded text-center">
-                          <p className="text-xs text-gray-500">Time Saved</p>
-                          <p className="text-[#22c8e5] font-bold">{item.metrics.timeSaved}</p>
-                        </div>
-                        <div className="bg-[#0f1419] p-2 rounded text-center">
-                          <p className="text-xs text-gray-500">Revenue</p>
-                          <p className="text-[#22c8e5] font-bold">{item.metrics.revenue}</p>
-                        </div>
-                      </div>
+                      )}
                       <span className="text-xs text-gray-500">{item.industry}</span>
                     </div>
                   </>
