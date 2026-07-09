@@ -6,6 +6,11 @@ import { Sparkles, Zap, FileText, Video, Code, Check, ArrowRight } from 'lucide-
 
 import SEO from '@/components/SEO.jsx';
 import PublicCheckoutModal from '@/components/PublicCheckoutModal.jsx';
+import {
+  KineticHeadline,
+  Reveal,
+  TiltCard,
+} from '@/components/motion/PageMotion.jsx';
 
 const ServicesPage = () => {
   const [selectedService, setSelectedService] = useState(0);
@@ -381,8 +386,22 @@ const ServicesPage = () => {
               animate={{ opacity: 1, y: 0 }}
               className="text-center max-w-4xl mx-auto"
             >
+              <p className="mb-4 text-[11px] font-bold uppercase tracking-[0.25em] text-[#22c8e5]">
+                {String(selectedService + 1).padStart(2, '0')} — of{' '}
+                {String(services.length).padStart(2, '0')} Services
+              </p>
               <div className="text-[#22c8e5] mb-4 flex justify-center">{currentService.icon}</div>
-              <h1 className="text-3xl md:text-5xl font-bold text-white mb-4">{currentService.title}</h1>
+              <KineticHeadline
+                replayKey={selectedService}
+                delay={0.1}
+                lines={[
+                  currentService.title.split(' ').map((word, i, arr) => ({
+                    t: word,
+                    accent: i === arr.length - 1,
+                  })),
+                ]}
+                className="text-3xl md:text-5xl font-bold text-white mb-4"
+              />
               <p className="text-base md:text-xl text-gray-400">{currentService.description}</p>
             </motion.div>
           </div>
@@ -467,13 +486,18 @@ const ServicesPage = () => {
                 <div className="absolute top-6 left-12 right-12 h-0.5 bg-[#22c8e5]/20 hidden md:block -z-10"></div>
                 
                 {currentService.process.map((step, index) => (
-                  <div key={index} className="flex flex-col items-center text-center relative max-w-[180px] mb-8 md:mb-0 group">
+                  <Reveal
+                    key={index}
+                    delay={index * 0.1}
+                    y={16}
+                    className="flex flex-col items-center text-center relative max-w-[180px] mb-8 md:mb-0 group"
+                  >
                     <div className="w-12 h-12 bg-[#0f1419] border-2 border-[#22c8e5] rounded-full flex items-center justify-center text-[#22c8e5] font-bold mb-4 group-hover:bg-[#22c8e5] group-hover:text-[#003258] transition-colors shadow-[0_0_15px_rgba(34,200,229,0.2)]">
                       {index + 1}
                     </div>
                     <h3 className="text-white font-bold mb-2">{step.step}</h3>
                     <p className="text-sm text-gray-400 leading-tight">{step.description}</p>
-                  </div>
+                  </Reveal>
                 ))}
               </div>
             </motion.div>
@@ -483,16 +507,14 @@ const ServicesPage = () => {
         {/* Full Pricing Reference */}
         <section id="pricing-full" className="py-20 bg-[#0f1419]">
           <div className="container mx-auto px-4 max-w-6xl">
-            <h2 className="text-3xl font-bold text-white mb-12 text-center">Comprehensive Pricing</h2>
+            <Reveal>
+              <h2 className="text-3xl font-bold text-white mb-12 text-center">Comprehensive Pricing</h2>
+            </Reveal>
             <div className="grid md:grid-cols-3 gap-8">
               {currentService.pricing.map((plan, index) => (
-                <motion.div
+                <TiltCard
                   key={index}
-                  initial={{ opacity: 0, y: 30 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ delay: index * 0.1 }}
-                  className={`bg-[#1a2332] p-8 rounded-3xl ${plan.highlighted ? 'border-2 border-[#22c8e5] transform scale-105 shadow-xl shadow-[#22c8e5]/10' : 'border border-white/5'
+                  className={`bg-[#1a2332] p-8 rounded-3xl ${plan.highlighted ? 'border-2 border-[#22c8e5] shadow-xl shadow-[#22c8e5]/10 lg:-translate-y-2' : 'border border-white/5'
                     }`}
                 >
                   <h3 className="text-xl font-bold text-white mb-2">{plan.tier}</h3>
@@ -528,7 +550,7 @@ const ServicesPage = () => {
                       {plan.cta}
                     </button>
                   )}
-                </motion.div>
+                </TiltCard>
               ))}
             </div>
           </div>

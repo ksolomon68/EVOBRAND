@@ -5,6 +5,12 @@ import { motion } from 'framer-motion';
 import { Search, Lightbulb, Code, Rocket, TrendingUp, ChevronDown, ChevronUp } from 'lucide-react';
 import ProcessVisualizer from '@/components/ProcessVisualizer.jsx';
 import SEO from '@/components/SEO.jsx';
+import {
+  PageHero,
+  Reveal,
+  TiltCard,
+  ScrollDrawnLine,
+} from '@/components/motion/PageMotion.jsx';
 
 const HowItWorksPage = () => {
   const [openFaq, setOpenFaq] = useState(null);
@@ -123,52 +129,39 @@ const HowItWorksPage = () => {
 
       <div className="min-h-screen bg-[#0f1419]">
         {/* Hero */}
-        <section className="py-20 bg-gradient-to-br from-[#1a2332] to-[#0f1419]">
-          <div className="container mx-auto px-4 text-center">
-            <motion.div
-              initial={{ opacity: 0, y: 30 }}
-              animate={{ opacity: 1, y: 0 }}
-            >
-              <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-6">
-                Our Proven <span className="text-[#22c8e5]">Process</span>
-              </h1>
-              <p className="text-xl text-gray-400 max-w-3xl mx-auto">
-                From concept to creation, we follow a structured approach that ensures your AI transformation is successful, on-time, and delivers measurable results.
-              </p>
-            </motion.div>
-          </div>
-        </section>
+        <PageHero
+          eyebrow="Discovery → Launch → Beyond"
+          lines={[
+            [{ t: 'Our' }, { t: 'Proven' }, { t: 'Process', accent: true }],
+          ]}
+          sub="From concept to creation, we follow a structured approach that ensures your AI transformation is successful, on-time, and delivers measurable results."
+        />
 
         {/* Process Timeline */}
         <section className="py-20 bg-[#0f1419]">
           <div className="container mx-auto px-4">
-            <h2 className="text-3xl font-bold text-white mb-12 text-center">Step-by-Step Process</h2>
-            <div className="max-w-5xl mx-auto">
-              {processSteps.map((step, index) => (
-                <motion.div
-                  key={index}
-                  initial={{ opacity: 0, x: -50 }}
-                  whileInView={{ opacity: 1, x: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ delay: index * 0.2 }}
-                  className="relative mb-12 last:mb-0"
-                >
-                  {/* Timeline Line */}
-                  {index < processSteps.length - 1 && (
-                    <div className="absolute left-6 top-20 bottom-0 w-0.5 bg-[#22c8e5] opacity-30 hidden md:block"></div>
-                  )}
+            <Reveal>
+              <h2 className="text-3xl font-bold text-white mb-12 text-center">Step-by-Step Process</h2>
+            </Reveal>
+            <div className="max-w-5xl mx-auto relative">
+              {/* Scroll-drawn spine connecting the phases (desktop) */}
+              <ScrollDrawnLine className="hidden md:block left-6 -ml-px top-6 bottom-6" />
 
+              {processSteps.map((step, index) => (
+                <Reveal key={index} delay={0.05} className="relative mb-12 last:mb-0">
                   <div className="flex flex-col md:flex-row items-start gap-6">
                     {/* Icon */}
-                    <div className="flex-shrink-0 w-12 h-12 bg-[#22c8e5] rounded-full flex items-center justify-center text-white z-10">
+                    <div className="flex-shrink-0 w-12 h-12 bg-[#22c8e5] rounded-full flex items-center justify-center text-[#003258] z-10 shadow-[0_0_16px_rgba(34,200,229,0.35)]">
                       {step.icon}
                     </div>
 
                     {/* Content */}
-                    <div className="flex-1 bg-[#1a2332] p-6 rounded-xl">
+                    <div className="flex-1 bg-[#1a2332] p-6 rounded-xl border border-white/5 transition-colors hover:border-[#22c8e5]/25">
                       <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-4">
                         <div>
-                          <p className="text-sm text-[#22c8e5] font-semibold mb-1">{step.week}</p>
+                          <p className="text-[11px] font-bold uppercase tracking-[0.25em] text-[#22c8e5] mb-1">
+                            {String(index + 1).padStart(2, '0')} — {step.week}
+                          </p>
                           <h3 className="text-2xl font-bold text-white">{step.phase}</h3>
                         </div>
                       </div>
@@ -183,7 +176,7 @@ const HowItWorksPage = () => {
                       </ul>
                     </div>
                   </div>
-                </motion.div>
+                </Reveal>
               ))}
             </div>
           </div>
@@ -192,29 +185,26 @@ const HowItWorksPage = () => {
         {/* Service Timelines */}
         <section className="py-20 bg-[#1a2332]">
           <div className="container mx-auto px-4">
-            <h2 className="text-3xl font-bold text-white mb-12 text-center">Estimated Timelines by Service</h2>
+            <Reveal>
+              <h2 className="text-3xl font-bold text-white mb-12 text-center">Estimated Timelines by Service</h2>
+            </Reveal>
             <div className="max-w-4xl mx-auto grid md:grid-cols-2 gap-6">
               {serviceTimelines.map((item, index) => (
-                <motion.div
-                  key={index}
-                  initial={{ opacity: 0, y: 20 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ delay: index * 0.1 }}
-                  className="bg-[#0f1419] p-6 rounded-xl"
-                >
-                  <h3 className="text-lg font-bold text-white mb-2">{item.service}</h3>
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="text-sm text-gray-500">Timeline</p>
-                      <p className="text-[#22c8e5] font-semibold">{item.timeline}</p>
+                <Reveal key={index} delay={index * 0.06}>
+                  <TiltCard className="h-full bg-[#0f1419] p-6 rounded-xl border border-white/5 transition-colors hover:border-[#22c8e5]/25">
+                    <h3 className="text-lg font-bold text-white mb-2">{item.service}</h3>
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="text-sm text-gray-500">Timeline</p>
+                        <p className="text-[#22c8e5] font-semibold">{item.timeline}</p>
+                      </div>
+                      <div>
+                        <p className="text-sm text-gray-500">Complexity</p>
+                        <p className="text-gray-300 font-semibold">{item.complexity}</p>
+                      </div>
                     </div>
-                    <div>
-                      <p className="text-sm text-gray-500">Complexity</p>
-                      <p className="text-gray-300 font-semibold">{item.complexity}</p>
-                    </div>
-                  </div>
-                </motion.div>
+                  </TiltCard>
+                </Reveal>
               ))}
             </div>
           </div>

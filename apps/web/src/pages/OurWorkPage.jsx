@@ -1,9 +1,10 @@
 
 import React from 'react';
 import { useState } from 'react';
-import { motion } from 'framer-motion';
+import { motion, MotionConfig } from 'framer-motion';
 import { Filter, TrendingUp, Clock, DollarSign, Star } from 'lucide-react';
 import SEO from '@/components/SEO.jsx';
+import { PageHero, Reveal } from '@/components/motion/PageMotion.jsx';
 
 const OurWorkPage = () => {
 
@@ -201,23 +202,14 @@ const OurWorkPage = () => {
         canonical="https://evobrand.net/our-work"
       />
 
+      <MotionConfig reducedMotion="user">
       <div className="min-h-screen bg-[#0f1419]">
         {/* Hero */}
-        <section className="py-20 bg-gradient-to-br from-[#1a2332] to-[#0f1419]">
-          <div className="container mx-auto px-4 text-center">
-            <motion.div
-              initial={{ opacity: 0, y: 30 }}
-              animate={{ opacity: 1, y: 0 }}
-            >
-              <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-6">
-                Our <span className="text-[#22c8e5]">Work</span>
-              </h1>
-              <p className="text-xl text-gray-400 max-w-3xl mx-auto">
-                Real projects. Real results. See how we've helped businesses transform with AI.
-              </p>
-            </motion.div>
-          </div>
-        </section>
+        <PageHero
+          eyebrow="Web · SaaS · Government · Nonprofit"
+          lines={[[{ t: 'Our' }, { t: 'Work', accent: true }]]}
+          sub="Real projects. Real results. See how we've helped businesses transform with AI."
+        />
 
         {/* Portfolio Grid */}
         <section className="py-20 bg-[#0f1419]">
@@ -227,10 +219,11 @@ const OurWorkPage = () => {
                 const cardProps = {
                   key: item.id,
                   initial: { opacity: 0, y: 30 },
-                  animate: { opacity: 1, y: 0 },
-                  transition: { delay: index * 0.1 },
+                  whileInView: { opacity: 1, y: 0 },
+                  viewport: { once: true, margin: '-40px' },
+                  transition: { delay: (index % 3) * 0.08, duration: 0.5 },
                   whileHover: { y: -10 },
-                  className: `bg-[#1a2332] rounded-xl overflow-hidden group block ${item.link ? 'cursor-pointer' : 'cursor-default'}`,
+                  className: `bg-[#1a2332] rounded-xl overflow-hidden group block border border-white/5 hover:border-[#22c8e5]/30 transition-colors ${item.link ? 'cursor-pointer' : 'cursor-default'}`,
                 };
                 const inner = (
                   <>
@@ -331,6 +324,7 @@ const OurWorkPage = () => {
           </div>
         </section>
       </div>
+      </MotionConfig>
     </>
   );
 };
