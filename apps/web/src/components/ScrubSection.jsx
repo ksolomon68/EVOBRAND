@@ -11,7 +11,7 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger';
 
 gsap.registerPlugin(ScrollTrigger);
 
-const TOTAL_FRAMES = 76;
+const TOTAL_FRAMES = 77;
 
 function buildUrl(n) {
   return `/header/ezgif-frame-${String(n).padStart(3, '0')}.jpg`;
@@ -19,8 +19,8 @@ function buildUrl(n) {
 
 function chapterForFrame(frameNumber) {
   if (frameNumber <= 19) return 0;
-  if (frameNumber <= 38) return 1;
-  if (frameNumber <= 57) return 2;
+  if (frameNumber <= 39) return 1;
+  if (frameNumber <= 58) return 2;
   return 3;
 }
 
@@ -191,7 +191,7 @@ const ScrubSection = () => {
       img.onload = () => {
         state.loadedCount++;
         if (state.loadedCount === 1) { ctx.clearRect(0, 0, canvas.width, canvas.height); drawCover(img); }
-        if (state.loadedCount === TOTAL_FRAMES) console.log('[EVOBRAND Scrubber] All 76 frames loaded.');
+        if (state.loadedCount === TOTAL_FRAMES) console.log(`[EVOBRAND Scrubber] All ${TOTAL_FRAMES} frames loaded.`);
       };
       img.onerror = () => { state.loadedCount++; };
       state.frames[i] = img;
