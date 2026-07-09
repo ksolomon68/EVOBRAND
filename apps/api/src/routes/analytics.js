@@ -177,6 +177,40 @@ router.post('/', async (req, res) => {
 // ─── All routes below require admin auth ─────────────────────────────────────
 router.use(authenticateToken, requireAdmin);
 
+// Diagnostic test hits (sent from the admin dashboard's "Send Test Hit"
+// button) use /dev/ paths — exclude them from user-facing aggregates.
+const NOT_TEST = "AND page_path NOT LIKE '/dev/%'";
+
+// GET /api/analytics/health — pipeline diagnostics ────────────────────────────
+router.get('/health', async (req, res) => {
+  try {
+    const [[stats]] = await pool.query(`
+      SELECT
+        COUNT(*) AS totalRows,
+        MIN(created_at) AS firstEvent,
+        MAX(created_at) AS lastEvent,
+        SUM(CASE WHEN created_at >= DATE_SUB(NOW(), INTERVAL 24 HOUR) THEN 1 ELSE 0 END) AS last24h
+      FROM pageviews
+    `);
+    const [[tests]] = await pool.query(`
+      SELECT COUNT(*) AS testRows, MAX(created_at) AS lastTest
+      FROM pageviews WHERE page_path LIKE '/dev/%'
+    `);
+    res.json({
+      totalRows: parseInt(stats.totalRows, 10),
+      firstEvent: stats.firstEvent,
+      lastEvent: stats.lastEvent,
+      last24h: parseInt(stats.last24h || 0, 10),
+      testRows: parseInt(tests.testRows, 10),
+      lastTest: tests.lastTest,
+      serverTime: new Date().toISOString(),
+    });
+  } catch (err) {
+    console.error('GA health error:', err.message);
+    res.status(500).json({ error: 'Failed to fetch health' });
+  }
+});
+
 // GET /api/analytics/overview ─────────────────────────────────────────────────
 router.get('/overview', async (req, res) => {
   try {
@@ -186,17 +220,17 @@ router.get('/overview', async (req, res) => {
         COUNT(DISTINCT ip_hash) AS visitors,
         COUNT(DISTINCT session_id) AS sessions
       FROM pageviews
-      WHERE created_at >= DATE_SUB(NOW(), INTERVAL 30 DAY)
+      WHERE created_at >= DATE_SUB(NOW(), INTERVAL 30 DAY) ${NOT_TEST}
     `);
     const [[today]] = await pool.query(`
       SELECT COUNT(*) AS pageViewsToday
-      FROM pageviews WHERE DATE(created_at) = CURDATE()
+      FROM pageviews WHERE DATE(created_at) = CURDATE() ${NOT_TEST}
     `);
     // New vs returning: visitors seen before the last 30 days
     const [[returning]] = await pool.query(`
       SELECT COUNT(DISTINCT p.ip_hash) AS returningVisitors
       FROM pageviews p
-      WHERE p.created_at >= DATE_SUB(NOW(), INTERVAL 30 DAY)
+      WHERE p.created_at >= DATE_SUB(NOW(), INTERVAL 30 DAY) ${NOT_TEST.replace('page_path', 'p.page_path')}
         AND EXISTS (
           SELECT 1 FROM pageviews old
           WHERE old.ip_hash = p.ip_hash
@@ -224,8 +258,11 @@ router.get('/overview', async (req, res) => {
   }
 });
 
-// GET /api/analytics/daily ─────────────────────────────────────────────────────
+// GET /api/analytics/daily?days=7|28|90 ───────────────────────────────────────
 router.get('/daily', async (req, res) => {
+  const days = [7, 28, 90].includes(parseInt(req.query.days, 10))
+    ? parseInt(req.query.days, 10)
+    : 28;
   try {
     const [rows] = await pool.query(`
       SELECT
@@ -234,16 +271,27 @@ router.get('/daily', async (req, res) => {
         COUNT(DISTINCT ip_hash) AS visitors,
         COUNT(DISTINCT session_id) AS sessions
       FROM pageviews
-      WHERE created_at >= DATE_SUB(NOW(), INTERVAL 28 DAY)
+      WHERE created_at >= DATE_SUB(NOW(), INTERVAL ? DAY) ${NOT_TEST}
       GROUP BY DATE(created_at)
       ORDER BY date ASC
-    `);
-    res.json(rows.map(r => ({
-      date: r.date.toISOString().slice(0, 10),
-      pageViews: r.pageViews,
-      visitors: r.visitors,
-      sessions: r.sessions,
-    })));
+    `, [days]);
+    // Zero-fill missing days so sparse data still renders a full axis
+    const byDate = new Map(rows.map(r => [r.date.toISOString().slice(0, 10), r]));
+    const out = [];
+    const cursor = new Date();
+    cursor.setDate(cursor.getDate() - (days - 1));
+    for (let i = 0; i < days; i++) {
+      const key = cursor.toISOString().slice(0, 10);
+      const r = byDate.get(key);
+      out.push({
+        date: key,
+        pageViews: r ? r.pageViews : 0,
+        visitors: r ? r.visitors : 0,
+        sessions: r ? r.sessions : 0,
+      });
+      cursor.setDate(cursor.getDate() + 1);
+    }
+    res.json(out);
   } catch (err) {
     console.error('GA daily error:', err.message);
     res.status(500).json({ error: 'Failed to fetch daily data' });
@@ -256,7 +304,7 @@ router.get('/pages', async (req, res) => {
     const [rows] = await pool.query(`
       SELECT page_path, page_title, COUNT(*) AS views, COUNT(DISTINCT ip_hash) AS visitors
       FROM pageviews
-      WHERE created_at >= DATE_SUB(NOW(), INTERVAL 30 DAY)
+      WHERE created_at >= DATE_SUB(NOW(), INTERVAL 30 DAY) ${NOT_TEST}
       GROUP BY page_path, page_title
       ORDER BY views DESC
       LIMIT 10

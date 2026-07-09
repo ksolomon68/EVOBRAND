@@ -1,6 +1,11 @@
-const API_BASE = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
-  ? 'http://localhost:5000/api/analytics'
-  : `${window.location.origin}/api/analytics`;
+// First-party analytics tracker.
+// The collect endpoint is /api/t — deliberately NOT /api/analytics, because
+// EasyPrivacy-style ad-blocker filter lists block any request path containing
+// "analytics", silently dropping beacons from visitors running content
+// blockers. (The admin dashboard's read endpoints keep the old path.)
+const COLLECT_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+  ? 'http://localhost:5000/api/t'
+  : `${window.location.origin}/api/t`;
 
 function getSessionId() {
   const key = 'evo_sid';
@@ -34,25 +39,41 @@ function getUtmParams() {
   return { utm_source: '', utm_medium: '', utm_campaign: '' };
 }
 
+function buildPayload(path, title) {
+  return {
+    page_path: path,
+    page_title: title,
+    referrer: document.referrer,
+    session_id: getSessionId(),
+    screen_width: window.screen?.width || null,
+    ...getUtmParams(),
+  };
+}
+
 export function initAnalytics() {
   // no-op — tracking is handled via trackPageView calls
 }
 
 export function trackPageView(path, title) {
   try {
-    const utms = getUtmParams();
-    const payload = {
-      page_path: path,
-      page_title: title,
-      referrer: document.referrer,
-      session_id: getSessionId(),
-      screen_width: window.screen?.width || null,
-      ...utms,
-    };
-    navigator.sendBeacon(
-      `${API_BASE}`,
-      new Blob([JSON.stringify(payload)], { type: 'application/json' })
-    );
+    const body = JSON.stringify(buildPayload(path, title));
+    // sendBeacon survives page unload but can refuse (queue full) or be
+    // unavailable — fall back to fetch keepalive, which behaves the same.
+    let queued = false;
+    if (navigator.sendBeacon) {
+      queued = navigator.sendBeacon(
+        COLLECT_URL,
+        new Blob([body], { type: 'application/json' })
+      );
+    }
+    if (!queued) {
+      fetch(COLLECT_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body,
+        keepalive: true,
+      }).catch(() => {});
+    }
   } catch {
     // silent fail — never block the user
   }
@@ -60,4 +81,23 @@ export function trackPageView(path, title) {
 
 export function trackEvent(eventName, params = {}) {
   trackPageView(`/event/${eventName}`, JSON.stringify(params));
+}
+
+/**
+ * Diagnostic used by the admin dashboard's "Send Test Hit" button.
+ * Uses fetch (not sendBeacon) so the HTTP status is observable, and a
+ * /dev/ path so test hits are excluded from reporting aggregates.
+ * Returns { ok, status } — ok=true means the server recorded the hit.
+ */
+export async function sendTestHit() {
+  try {
+    const res = await fetch(COLLECT_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(buildPayload('/dev/test-ping', 'Analytics diagnostics test')),
+    });
+    return { ok: res.ok, status: res.status };
+  } catch (err) {
+    return { ok: false, status: 0, error: err.message };
+  }
 }

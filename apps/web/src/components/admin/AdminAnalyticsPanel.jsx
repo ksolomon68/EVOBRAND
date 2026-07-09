@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import {
-  LineChart, Line, BarChart, Bar, PieChart, Pie, Cell,
+  LineChart, Line, AreaChart, Area, BarChart, Bar, PieChart, Pie, Cell,
   XAxis, YAxis, CartesianGrid, Tooltip,
   ResponsiveContainer, Legend,
 } from 'recharts';
@@ -8,7 +8,9 @@ import {
   Users, Eye, MousePointerClick, RefreshCw, AlertCircle, Zap,
   Globe, Monitor, Smartphone, Tablet, TrendingUp, Activity,
   ArrowUpRight, MapPin, Chrome, Wifi, Clock, BarChart2,
+  Send, CheckCircle2, XCircle, HeartPulse,
 } from 'lucide-react';
+import { sendTestHit } from '@/lib/analytics.js';
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 const CYAN  = '#22c8e5';
@@ -66,6 +68,16 @@ function barWidth(val, max) {
   if (!max) return 0;
   return Math.max(2, (val / max) * 100);
 }
+function relTime(iso) {
+  if (!iso) return 'never';
+  const diff = Date.now() - new Date(iso).getTime();
+  const m = Math.floor(diff / 60000);
+  if (m < 1) return 'just now';
+  if (m < 60) return `${m}m ago`;
+  const h = Math.floor(m / 60);
+  if (h < 24) return `${h}h ago`;
+  return `${Math.floor(h / 24)}d ago`;
+}
 function countryFlag(country) {
   const map = {
     'United States': '🇺🇸', 'Canada': '🇨🇦', 'United Kingdom': '🇬🇧',
@@ -108,7 +120,11 @@ function SectionCard({ title, children }) {
     <div className="rounded-2xl overflow-hidden" style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.07)' }}>
       {title && (
         <div className="px-6 py-4 border-b" style={{ borderColor: 'rgba(255,255,255,0.06)' }}>
-          <h3 className="text-sm font-semibold text-white">{title}</h3>
+          {typeof title === 'string' ? (
+            <h3 className="text-sm font-semibold text-white">{title}</h3>
+          ) : (
+            <div className="text-sm font-semibold text-white">{title}</div>
+          )}
         </div>
       )}
       {children}
@@ -131,10 +147,112 @@ const CustomTooltip = ({ active, payload, label }) => {
   );
 };
 
+// ─── Tracking health / diagnostics strip ──────────────────────────────────────
+function TrackingHealthStrip({ health, healthStatus, onRefreshHealth }) {
+  const [testing, setTesting] = useState(false);
+  const [verdict, setVerdict] = useState(null); // { ok, detail }
+
+  const runTest = async () => {
+    setTesting(true);
+    setVerdict(null);
+    const before = health?.testRows ?? 0;
+    const post = await sendTestHit();
+    if (!post.ok) {
+      setVerdict({
+        ok: false,
+        detail:
+          post.status === 0
+            ? 'The tracking request never reached the server — the /api/t endpoint may not be deployed, or a browser extension blocked it.'
+            : `The tracking endpoint responded with HTTP ${post.status} — check that the API server is running the latest deploy.`,
+      });
+      setTesting(false);
+      return;
+    }
+    // Confirm the row actually landed in the database
+    await new Promise((r) => setTimeout(r, 1200));
+    const fresh = await onRefreshHealth();
+    const after = fresh?.testRows ?? before;
+    setVerdict(
+      after > before
+        ? { ok: true, detail: 'Test hit recorded end-to-end — tracking pipeline is working. Visitor data will accumulate from here.' }
+        : { ok: false, detail: 'The endpoint accepted the hit but no row appeared in the database — check the API server logs for INSERT errors.' }
+    );
+    setTesting(false);
+  };
+
+  const neverTracked = health && health.totalRows === 0;
+  const stale = health && health.totalRows > 0 && health.last24h === 0;
+
+  return (
+    <div
+      className="rounded-2xl px-5 py-4 flex flex-wrap items-center gap-x-6 gap-y-3"
+      style={{
+        background: neverTracked || healthStatus === 'error' ? 'rgba(251,191,36,0.07)' : 'rgba(255,255,255,0.04)',
+        border: `1px solid ${neverTracked || healthStatus === 'error' ? 'rgba(251,191,36,0.3)' : 'rgba(255,255,255,0.07)'}`,
+      }}
+    >
+      <div className="flex items-center gap-2">
+        <HeartPulse size={15} style={{ color: neverTracked || healthStatus === 'error' ? AMBER : EMERALD }} />
+        <span className="text-xs uppercase tracking-widest" style={{ color: 'rgba(255,255,255,0.45)' }}>
+          Tracking Health
+        </span>
+      </div>
+
+      {healthStatus === 'error' ? (
+        <span className="text-sm" style={{ color: AMBER }}>
+          Health endpoint unavailable — the API server may be running an older deploy without <code className="font-mono">/api/analytics/health</code>.
+        </span>
+      ) : !health ? (
+        <span className="text-sm" style={{ color: 'rgba(255,255,255,0.4)' }}>Checking…</span>
+      ) : neverTracked ? (
+        <span className="text-sm" style={{ color: AMBER }}>
+          No pageviews have ever been recorded. Run the test to find out where the pipeline breaks.
+        </span>
+      ) : (
+        <div className="flex flex-wrap items-center gap-x-6 gap-y-1 text-sm" style={{ color: 'rgba(255,255,255,0.65)' }}>
+          <span>
+            <span className="font-semibold text-white">{health.totalRows.toLocaleString()}</span> events total
+          </span>
+          <span>
+            <span className="font-semibold text-white">{health.last24h.toLocaleString()}</span> in last 24h
+          </span>
+          <span>
+            Last event: <span className="font-semibold" style={{ color: stale ? AMBER : EMERALD }}>{relTime(health.lastEvent)}</span>
+          </span>
+        </div>
+      )}
+
+      <div className="ml-auto flex items-center gap-3">
+        {verdict && (
+          <span className="flex items-center gap-1.5 text-xs max-w-md" style={{ color: verdict.ok ? EMERALD : AMBER }}>
+            {verdict.ok ? <CheckCircle2 size={13} className="flex-shrink-0" /> : <XCircle size={13} className="flex-shrink-0" />}
+            {verdict.detail}
+          </span>
+        )}
+        <button
+          onClick={runTest}
+          disabled={testing || healthStatus === 'error'}
+          className="flex items-center gap-2 px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-opacity disabled:opacity-40 flex-shrink-0"
+          style={{ background: `${CYAN}1a`, color: CYAN, border: `1px solid ${CYAN}40` }}
+        >
+          <Send size={12} className={testing ? 'animate-pulse' : ''} />
+          {testing ? 'Testing…' : 'Send Test Hit'}
+        </button>
+      </div>
+    </div>
+  );
+}
+
 // ─── Tab: Overview ────────────────────────────────────────────────────────────
-function OverviewTab({ overview, daily, pages, loading }) {
+const RANGES = [7, 28, 90];
+
+function OverviewTab({ overview, daily, pages, loading, health, healthStatus, onRefreshHealth, days, setDays }) {
+  const totalInRange = daily.reduce((s, d) => s + d.pageViews, 0);
   return (
     <div className="space-y-6">
+      {/* Tracking health / diagnostics */}
+      <TrackingHealthStrip health={health} healthStatus={healthStatus} onRefreshHealth={onRefreshHealth} />
+
       {/* Stat cards */}
       <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4">
         {loading ? Array.from({ length: 6 }).map((_, i) => <Skeleton key={i} className="h-28" />) : overview ? (
@@ -150,25 +268,70 @@ function OverviewTab({ overview, daily, pages, loading }) {
       </div>
 
       {/* Daily traffic chart */}
-      <SectionCard title="Daily Traffic — Last 28 Days">
+      <SectionCard
+        title={
+          <div className="flex items-center justify-between gap-4">
+            <span>Daily Traffic — Last {days} Days</span>
+            <div className="flex gap-1">
+              {RANGES.map((r) => (
+                <button
+                  key={r}
+                  onClick={() => setDays(r)}
+                  className="px-2.5 py-1 rounded-md text-xs font-semibold transition-all"
+                  style={
+                    days === r
+                      ? { background: `${CYAN}22`, color: CYAN, border: `1px solid ${CYAN}50` }
+                      : { background: 'rgba(255,255,255,0.04)', color: 'rgba(255,255,255,0.45)', border: '1px solid rgba(255,255,255,0.08)' }
+                  }
+                >
+                  {r}d
+                </button>
+              ))}
+            </div>
+          </div>
+        }
+      >
         <div className="p-6">
           {loading ? <Skeleton className="h-56" /> : daily.length === 0 ? (
-            <div className="h-56 flex items-center justify-center text-sm" style={{ color: 'rgba(255,255,255,0.3)' }}>
-              No data yet — traffic will appear here once your site receives visitors.
+            <div className="h-56 flex items-center justify-center text-center text-sm px-8" style={{ color: 'rgba(255,255,255,0.35)' }}>
+              {healthStatus === 'error'
+                ? 'Could not reach the analytics API — check that the server is deployed and running.'
+                : 'No data returned for this period.'}
             </div>
           ) : (
-            <ResponsiveContainer width="100%" height={230}>
-              <LineChart data={daily} margin={{ top: 4, right: 4, bottom: 0, left: -10 }}>
-                <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.06)" />
-                <XAxis dataKey="date" tickFormatter={fmtDate} tick={{ fill: 'rgba(255,255,255,0.35)', fontSize: 11 }} axisLine={false} tickLine={false} interval="preserveStartEnd" />
-                <YAxis tick={{ fill: 'rgba(255,255,255,0.35)', fontSize: 11 }} axisLine={false} tickLine={false} />
-                <Tooltip content={<CustomTooltip />} />
-                <Legend wrapperStyle={{ fontSize: 12, color: 'rgba(255,255,255,0.5)' }} />
-                <Line type="monotone" dataKey="pageViews" stroke={CYAN} strokeWidth={2} dot={false} name="Page Views" />
-                <Line type="monotone" dataKey="visitors" stroke={VIOLET} strokeWidth={2} dot={false} name="Visitors" />
-                <Line type="monotone" dataKey="sessions" stroke={EMERALD} strokeWidth={2} dot={false} name="Sessions" strokeDasharray="4 2" />
-              </LineChart>
-            </ResponsiveContainer>
+            <div className="relative">
+              {totalInRange === 0 && (
+                <div className="absolute inset-0 z-10 flex items-center justify-center">
+                  <span className="rounded-lg px-4 py-2 text-sm" style={{ background: 'rgba(15,20,25,0.85)', color: 'rgba(255,255,255,0.5)', border: '1px solid rgba(255,255,255,0.08)' }}>
+                    {health && health.totalRows === 0
+                      ? 'Nothing recorded yet — use "Send Test Hit" above to verify the pipeline.'
+                      : `No traffic in the last ${days} days.`}
+                  </span>
+                </div>
+              )}
+              <ResponsiveContainer width="100%" height={230}>
+                <AreaChart data={daily} margin={{ top: 4, right: 4, bottom: 0, left: -10 }}>
+                  <defs>
+                    <linearGradient id="gaPv" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="0%" stopColor={CYAN} stopOpacity={0.32} />
+                      <stop offset="100%" stopColor={CYAN} stopOpacity={0.02} />
+                    </linearGradient>
+                    <linearGradient id="gaVis" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="0%" stopColor={VIOLET} stopOpacity={0.22} />
+                      <stop offset="100%" stopColor={VIOLET} stopOpacity={0.02} />
+                    </linearGradient>
+                  </defs>
+                  <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.06)" vertical={false} />
+                  <XAxis dataKey="date" tickFormatter={fmtDate} tick={{ fill: 'rgba(255,255,255,0.35)', fontSize: 11 }} axisLine={false} tickLine={false} interval="preserveStartEnd" minTickGap={28} />
+                  <YAxis tick={{ fill: 'rgba(255,255,255,0.35)', fontSize: 11 }} axisLine={false} tickLine={false} allowDecimals={false} />
+                  <Tooltip content={<CustomTooltip />} />
+                  <Legend wrapperStyle={{ fontSize: 12, color: 'rgba(255,255,255,0.5)' }} />
+                  <Area type="monotone" dataKey="pageViews" stroke={CYAN} strokeWidth={2} fill="url(#gaPv)" dot={false} name="Page Views" />
+                  <Area type="monotone" dataKey="visitors" stroke={VIOLET} strokeWidth={2} fill="url(#gaVis)" dot={false} name="Visitors" />
+                  <Line type="monotone" dataKey="sessions" stroke={EMERALD} strokeWidth={1.5} dot={false} name="Sessions" strokeDasharray="4 3" />
+                </AreaChart>
+              </ResponsiveContainer>
+            </div>
           )}
         </div>
       </SectionCard>
@@ -625,9 +788,30 @@ export default function AdminAnalyticsPanel() {
   const [devices, setDevices] = useState(null);
   const [engagement, setEngagement] = useState(null);
   const [realtime, setRealtime] = useState(null);
+  const [health, setHealth] = useState(null);
+  const [healthStatus, setHealthStatus] = useState('loading'); // loading | ok | error
+  const [days, setDays] = useState(28);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const realtimeRef = useRef(null);
+
+  const fetchHealth = useCallback(async () => {
+    const token = localStorage.getItem('evobrand_token');
+    try {
+      const r = await fetch(`${API_BASE}/health`, { headers: { Authorization: `Bearer ${token}` } });
+      if (!r.ok) {
+        setHealthStatus('error');
+        return null;
+      }
+      const data = await r.json();
+      setHealth(data);
+      setHealthStatus('ok');
+      return data;
+    } catch {
+      setHealthStatus('error');
+      return null;
+    }
+  }, []);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -646,7 +830,7 @@ export default function AdminAnalyticsPanel() {
     try {
       const [ov, day, pg, src, geo, dev, eng, rt] = await Promise.all([
         safeFetch(`${API_BASE}/overview`),
-        safeFetch(`${API_BASE}/daily`),
+        safeFetch(`${API_BASE}/daily?days=${days}`),
         safeFetch(`${API_BASE}/pages`),
         safeFetch(`${API_BASE}/sources`),
         safeFetch(`${API_BASE}/geo`),
@@ -668,7 +852,8 @@ export default function AdminAnalyticsPanel() {
     } finally {
       setLoading(false);
     }
-  }, []);
+    fetchHealth();
+  }, [days, fetchHealth]);
 
   // Poll realtime every 30 seconds
   const pollRealtime = useCallback(async () => {
@@ -737,7 +922,7 @@ export default function AdminAnalyticsPanel() {
       </div>
 
       {/* Tab content */}
-      {tab === 'overview'   && <OverviewTab   overview={overview} daily={daily} pages={pages} loading={loading} />}
+      {tab === 'overview'   && <OverviewTab   overview={overview} daily={daily} pages={pages} loading={loading} health={health} healthStatus={healthStatus} onRefreshHealth={fetchHealth} days={days} setDays={setDays} />}
       {tab === 'sources'    && <SourcesTab    sources={sources} loading={loading} />}
       {tab === 'geo'        && <GeoTab        geo={geo} loading={loading} />}
       {tab === 'devices'    && <DevicesTab    devices={devices} loading={loading} />}
