@@ -174,10 +174,10 @@ const AuditorPage = () => {
                 </Reveal>
                 <KineticHeadline
                   lines={[
-                    [{ t: 'HOW' }, { t: 'STRONG' }, { t: 'IS' }],
+                    [{ t: 'How' }, { t: 'Strong' }, { t: 'Is' }],
                     [
-                      { t: 'YOUR', accent: true },
-                      { t: 'BRAND?', accent: true },
+                      { t: 'Your', accent: true },
+                      { t: 'Brand?', accent: true },
                     ],
                   ]}
                   className="text-4xl md:text-6xl font-bold text-white mb-4"
