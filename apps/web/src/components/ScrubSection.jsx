@@ -11,16 +11,16 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger';
 
 gsap.registerPlugin(ScrollTrigger);
 
-const TOTAL_FRAMES = 77;
+const TOTAL_FRAMES = 271;
 
 function buildUrl(n) {
   return `/header/ezgif-frame-${String(n).padStart(3, '0')}.jpg`;
 }
 
 function chapterForFrame(frameNumber) {
-  if (frameNumber <= 19) return 0;
-  if (frameNumber <= 39) return 1;
-  if (frameNumber <= 58) return 2;
+  if (frameNumber <= 67) return 0;
+  if (frameNumber <= 137) return 1;
+  if (frameNumber <= 204) return 2;
   return 3;
 }
 

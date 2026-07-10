@@ -6,8 +6,8 @@ const HeroAnimation = ({ scrollContainerRef }) => {
   const [images, setImages] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
 
-  const startFrame = 38;
-  const endFrame = 76;
+  const startFrame = 134;
+  const endFrame = 271;
   const frameCount = endFrame - startFrame + 1;
 
   // Preload images
@@ -122,7 +122,7 @@ const HeroAnimation = ({ scrollContainerRef }) => {
       {/* Fallback/First Frame Image - visible until canvas starts rendering */}
       {isLoading && (
         <img
-          src="/header/ezgif-frame-038.jpg"
+          src="/header/ezgif-frame-134.jpg"
           alt=""
           aria-hidden="true"
           className="absolute inset-0 w-full h-full object-cover z-[-1]"
