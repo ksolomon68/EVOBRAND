@@ -14,7 +14,7 @@ gsap.registerPlugin(ScrollTrigger);
 const TOTAL_FRAMES = 271;
 
 function buildUrl(n) {
-  return `/header/ezgif-frame-${String(n).padStart(3, '0')}.jpg`;
+  return `/header/ezgif-frame-${String(n).padStart(3, '0')}.jpg?v=2`;
 }
 
 function chapterForFrame(frameNumber) {

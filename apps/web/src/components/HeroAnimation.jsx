@@ -21,7 +21,7 @@ const HeroAnimation = ({ scrollContainerRef }) => {
         const img = new Image();
         // padStart(3, '0') makes 1 into 001, 12 into 012, etc.
         const paddedIndex = i.toString().padStart(3, '0');
-        img.src = `/header/ezgif-frame-${paddedIndex}.jpg`;
+        img.src = `/header/ezgif-frame-${paddedIndex}.jpg?v=2`;
         
         const promise = new Promise((resolve) => {
           img.onload = resolve;
@@ -122,7 +122,7 @@ const HeroAnimation = ({ scrollContainerRef }) => {
       {/* Fallback/First Frame Image - visible until canvas starts rendering */}
       {isLoading && (
         <img
-          src="/header/ezgif-frame-134.jpg"
+          src="/header/ezgif-frame-134.jpg?v=2"
           alt=""
           aria-hidden="true"
           className="absolute inset-0 w-full h-full object-cover z-[-1]"
