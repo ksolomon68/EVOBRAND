@@ -245,7 +245,7 @@ const HomePage = () => {
         <AuditorSection />
 
         {/* Booking Section */}
-        <section id="booking" className="py-20 relative z-10" style={{ background: 'rgba(13,13,24,0.9)' }}>
+        <section id="booking" className="py-20 relative z-10" style={{ background: 'rgba(15,20,25,0.52)' }}>
           <div className="container mx-auto px-4 max-w-xl">
             <div className="text-center mb-12">
               <p className="text-[#22c8e5] text-xs font-bold tracking-[0.25em] uppercase mb-3">Schedule a Meeting</p>

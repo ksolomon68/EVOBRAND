@@ -852,7 +852,7 @@ export default function SchedulerWidget() {
   return (
     <div
       className="rounded-2xl p-7 border"
-      style={{ background: 'rgba(10,22,40,0.9)', borderColor: 'rgba(34,200,229,0.15)', backdropFilter: 'blur(12px)' }}
+      style={{ background: 'rgba(10,22,40,0.4)', borderColor: 'rgba(34,200,229,0.15)', backdropFilter: 'blur(12px)' }}
       aria-label="Appointment scheduler"
     >
       <div className="flex items-center gap-3 mb-7">
