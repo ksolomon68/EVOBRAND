@@ -90,9 +90,9 @@ export default function PageBackgroundScrub() {
 
     function render() {
       raf = null;
-      const revealSection = document.getElementById('film-reveal');
-      const maxScroll = revealSection 
-        ? revealSection.offsetTop + revealSection.offsetHeight - window.innerHeight
+      const targetSection = document.getElementById('trust-section') || document.getElementById('film-reveal');
+      const maxScroll = targetSection 
+        ? targetSection.offsetTop + targetSection.offsetHeight - window.innerHeight
         : document.documentElement.scrollHeight - window.innerHeight;
       const scrollable = Math.max(1, maxScroll);
       const progress = Math.min(Math.max(window.scrollY / scrollable, 0), 1);
