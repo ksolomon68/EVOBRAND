@@ -150,6 +150,7 @@ export function PageHero({ eyebrow, lines, sub, children, replayKey }) {
               'radial-gradient(ellipse 80% 65% at 50% 35%, black, transparent)',
           }}
         />
+        <TechBackdrop density={34} />
       </div>
       <div className="container relative mx-auto px-4 text-center">
         {eyebrow && (
@@ -354,6 +355,153 @@ export function ScrollDrawnLine({ className = '' }) {
         className="w-full rounded-full bg-[#22c8e5]"
         style={{ height: '0%', boxShadow: '0 0 8px rgba(34,200,229,0.5)' }}
       />
+    </div>
+  );
+}
+
+/**
+ * TechBackdrop — procedural network-node canvas (drifting data nodes with
+ * proximity connections). Zero asset weight; pauses offscreen; renders a
+ * single static frame under prefers-reduced-motion. Parent must be
+ * position:relative — the canvas fills it.
+ */
+export function TechBackdrop({ density = 38, className = '' }) {
+  const ref = useRef(null);
+  const reduced = usePrefersReducedMotion();
+
+  useEffect(() => {
+    const canvas = ref.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    const parent = canvas.parentElement;
+    let raf = null;
+    let disposed = false;
+    let visible = true;
+
+    function size() {
+      canvas.width = parent.offsetWidth;
+      canvas.height = parent.offsetHeight;
+    }
+    size();
+
+    const N = window.innerWidth < 768 ? Math.floor(density / 2) : density;
+    const nodes = Array.from({ length: N }, () => ({
+      x: Math.random() * canvas.width,
+      y: Math.random() * canvas.height,
+      vx: (Math.random() - 0.5) * 0.25,
+      vy: (Math.random() - 0.5) * 0.25,
+      r: Math.random() * 1.6 + 0.8,
+    }));
+
+    function draw(move) {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      for (let i = 0; i < nodes.length; i++) {
+        const a = nodes[i];
+        if (move) {
+          a.x += a.vx; a.y += a.vy;
+          if (a.x < 0 || a.x > canvas.width) a.vx *= -1;
+          if (a.y < 0 || a.y > canvas.height) a.vy *= -1;
+        }
+        for (let j = i + 1; j < nodes.length; j++) {
+          const b = nodes[j];
+          const d = Math.hypot(a.x - b.x, a.y - b.y);
+          if (d < 130) {
+            ctx.strokeStyle = `rgba(34,200,229,${(0.1 * (1 - d / 130)).toFixed(3)})`;
+            ctx.lineWidth = 0.7;
+            ctx.beginPath();
+            ctx.moveTo(a.x, a.y);
+            ctx.lineTo(b.x, b.y);
+            ctx.stroke();
+          }
+        }
+        ctx.fillStyle = 'rgba(34,200,229,0.35)';
+        ctx.beginPath();
+        ctx.arc(a.x, a.y, a.r, 0, Math.PI * 2);
+        ctx.fill();
+      }
+    }
+
+    if (reduced) {
+      draw(false);
+      return;
+    }
+
+    function loop() {
+      if (disposed) return;
+      if (visible) draw(true);
+      raf = requestAnimationFrame(loop);
+    }
+    raf = requestAnimationFrame(loop);
+
+    const io = new IntersectionObserver(([e]) => { visible = e.isIntersecting; });
+    io.observe(canvas);
+    const onResize = () => size();
+    window.addEventListener('resize', onResize);
+    return () => {
+      disposed = true;
+      if (raf) cancelAnimationFrame(raf);
+      io.disconnect();
+      window.removeEventListener('resize', onResize);
+    };
+  }, [reduced, density]);
+
+  return (
+    <canvas
+      ref={ref}
+      aria-hidden="true"
+      className={`pointer-events-none absolute inset-0 ${className}`}
+    />
+  );
+}
+
+/**
+ * EraWatermark — giant ghost labels (e.g. 1999 / 2024 / TODAY) that
+ * crossfade as the visitor scrolls through the parent container. Place as
+ * the FIRST child of a position:relative container so content paints above.
+ * Static first label under prefers-reduced-motion.
+ */
+export function EraWatermark({ labels = [] }) {
+  const wrapRef = useRef(null);
+  const reduced = usePrefersReducedMotion();
+
+  useEffect(() => {
+    if (reduced) return;
+    const wrap = wrapRef.current;
+    if (!wrap) return;
+    const els = wrap.querySelectorAll('.era-label');
+    if (!els.length) return;
+    const st = ScrollTrigger.create({
+      trigger: wrap.parentElement,
+      start: 'top 65%',
+      end: 'bottom 40%',
+      scrub: 0.5,
+      onUpdate(self) {
+        const seg = 1 / (els.length - 1);
+        els.forEach((el, i) => {
+          const o = Math.max(0, 1 - Math.abs(self.progress - i * seg) / seg);
+          el.style.opacity = o.toFixed(3);
+        });
+      },
+    });
+    return () => st.kill();
+  }, [reduced, labels]);
+
+  return (
+    <div ref={wrapRef} aria-hidden="true" className="pointer-events-none absolute inset-0 overflow-hidden">
+      {labels.map((label, i) => (
+        <span
+          key={label}
+          className="era-label absolute right-0 top-1/2 -translate-y-1/2 select-none font-bold leading-none"
+          style={{
+            fontFamily: "'Glacial Indifference', sans-serif",
+            fontSize: 'clamp(110px, 20vw, 280px)',
+            color: 'rgba(34,200,229,0.07)',
+            opacity: i === 0 ? 1 : 0,
+          }}
+        >
+          {label}
+        </span>
+      ))}
     </div>
   );
 }

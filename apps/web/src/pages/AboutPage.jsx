@@ -8,6 +8,7 @@ import {
   Reveal,
   TiltCard,
   ScrollDrawnLine,
+  EraWatermark,
 } from '@/components/motion/PageMotion.jsx';
 
 const AboutPage = () => {
@@ -126,6 +127,7 @@ const AboutPage = () => {
               </Reveal>
 
               <div className="relative pl-12 md:pl-16">
+                <EraWatermark labels={['1999', '2024', 'TODAY']} />
                 <ScrollDrawnLine className="left-[5px] md:left-[7px] top-2 bottom-2" />
 
                 {[

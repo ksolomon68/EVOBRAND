@@ -19,11 +19,11 @@ import React, { useEffect, useRef } from 'react';
 
 // ── Sequence config — swap these when a new frame set is uploaded ─────────────
 const CONFIG = {
-  BASE_URL: '/header/',
+  BASE_URL: '/pagebg/',
   PREFIX: 'ezgif-frame-',
   PAD: 3,
   EXT: '.jpg',
-  TOTAL: 77,
+  TOTAL: 271,
 };
 
 function frameUrl(n) {

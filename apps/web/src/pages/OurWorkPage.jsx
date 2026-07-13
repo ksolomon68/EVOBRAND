@@ -1,12 +1,53 @@
 
 import React from 'react';
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
+import gsap from 'gsap';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { motion, MotionConfig } from 'framer-motion';
 import { Filter, TrendingUp, Clock, DollarSign, Star } from 'lucide-react';
 import SEO from '@/components/SEO.jsx';
 import { PageHero, Reveal } from '@/components/motion/PageMotion.jsx';
 
+gsap.registerPlugin(ScrollTrigger);
+
 const OurWorkPage = () => {
+  const reelRef = useRef(null);
+  const reelTrackRef = useRef(null);
+  const reelProgressRef = useRef(null);
+
+  useEffect(() => {
+    const mm = gsap.matchMedia();
+    mm.add('(min-width: 1024px) and (prefers-reduced-motion: no-preference)', () => {
+      const track = reelTrackRef.current;
+      const section = reelRef.current;
+      if (!track || !section) return;
+      const getDistance = () => Math.max(0, track.scrollWidth - track.parentElement.clientWidth);
+      const tween = gsap.to(track, {
+        x: () => -getDistance(),
+        ease: 'none',
+        scrollTrigger: {
+          trigger: section,
+          start: 'top top',
+          end: () => `+=${getDistance()}`,
+          pin: true,
+          scrub: 0.8,
+          anticipatePin: 1,
+          invalidateOnRefresh: true,
+          onUpdate: (self) => {
+            if (reelProgressRef.current) {
+              reelProgressRef.current.style.transform = `scaleX(${self.progress})`;
+            }
+          },
+        },
+      });
+      return () => {
+        if (tween.scrollTrigger) tween.scrollTrigger.kill();
+        tween.kill();
+      };
+    });
+    return () => mm.revert();
+  }, []);
+
 
   const portfolioItems = [
     {
@@ -210,6 +251,76 @@ const OurWorkPage = () => {
           lines={[[{ t: 'Our' }, { t: 'Work', accent: true }]]}
           sub="Real projects. Real results. See how we've helped businesses transform with AI."
         />
+
+        {/* Featured reel — pinned horizontal showcase of flagship builds */}
+        <section ref={reelRef} className="relative overflow-hidden bg-[#0f1419]">
+          <div className="relative py-16 lg:py-0 lg:min-h-screen lg:flex lg:flex-col lg:justify-center">
+            <div className="container mx-auto px-4">
+              <Reveal>
+                <p className="text-[11px] font-bold uppercase tracking-[0.25em] text-[#22c8e5] mb-3">
+                  Featured Work — The Reel
+                </p>
+                <h2 className="text-3xl md:text-5xl font-bold text-white">
+                  Flagship <span className="text-[#22c8e5]">Builds</span>
+                </h2>
+              </Reveal>
+            </div>
+
+            <div className="mt-10 overflow-hidden">
+              <div
+                ref={reelTrackRef}
+                className="flex flex-col lg:flex-row gap-6 container mx-auto px-4 lg:max-w-none lg:w-max lg:mx-0 lg:pl-[max(1rem,calc((100vw-1168px)/2))] lg:pr-[max(1rem,calc((100vw-1168px)/2))]"
+              >
+                {[102, 103, 12, 21].map((id, i) => {
+                  const item = portfolioItems.find((p) => p.id === id);
+                  if (!item) return null;
+                  return (
+                    <a
+                      key={id}
+                      href={item.link}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="group lg:w-[620px] lg:shrink-0 rounded-2xl overflow-hidden border border-white/5 bg-[#141d2b] hover:border-[#22c8e5]/40 transition-colors block"
+                    >
+                      <div className="relative h-56 lg:h-72 overflow-hidden">
+                        <img
+                          src={item.image}
+                          alt={item.title}
+                          className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                        />
+                        <div className="absolute inset-0 bg-gradient-to-t from-[#141d2b] via-transparent to-transparent" />
+                        <span className="absolute top-4 left-4 text-[11px] font-bold tracking-[0.25em] text-[#22c8e5] bg-[#0f1419]/80 px-3 py-1.5 rounded-full border border-[#22c8e5]/20">
+                          {String(i + 1).padStart(2, '0')} / 04
+                        </span>
+                      </div>
+                      <div className="p-6 lg:p-8">
+                        <h3 className="text-2xl font-bold text-white mb-2">{item.title}</h3>
+                        <p className="text-gray-400 text-sm mb-4 line-clamp-2">{item.description}</p>
+                        <div className="flex flex-wrap gap-2">
+                          {item.highlights.map((h) => (
+                            <span key={h} className="text-[11px] font-semibold px-2.5 py-1 rounded-full bg-[#0f1419] border border-[#22c8e5]/15 text-[#22c8e5]">
+                              {h}
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+                    </a>
+                  );
+                })}
+              </div>
+
+              <div className="hidden lg:block container mx-auto px-4 mt-8">
+                <div className="h-0.5 w-full rounded-full bg-white/10">
+                  <div
+                    ref={reelProgressRef}
+                    className="h-full rounded-full bg-[#22c8e5]"
+                    style={{ transform: 'scaleX(0)', transformOrigin: 'left', boxShadow: '0 0 8px rgba(34,200,229,0.5)' }}
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
 
         {/* Portfolio Grid */}
         <section className="py-20 bg-[#0f1419]">

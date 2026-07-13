@@ -9,7 +9,6 @@ import {
   PageHero,
   Reveal,
   TiltCard,
-  ScrollDrawnLine,
 } from '@/components/motion/PageMotion.jsx';
 
 const HowItWorksPage = () => {
@@ -143,40 +142,37 @@ const HowItWorksPage = () => {
             <Reveal>
               <h2 className="text-3xl font-bold text-white mb-12 text-center">Step-by-Step Process</h2>
             </Reveal>
-            <div className="max-w-5xl mx-auto relative">
-              {/* Scroll-drawn spine connecting the phases (desktop) */}
-              <ScrollDrawnLine className="hidden md:block left-6 -ml-px top-6 bottom-6" />
-
+            {/* Cinematic scene stack — each phase slides over the previous */}
+            <div className="max-w-4xl mx-auto">
               {processSteps.map((step, index) => (
-                <Reveal key={index} delay={0.05} className="relative mb-12 last:mb-0">
-                  <div className="flex flex-col md:flex-row items-start gap-6">
-                    {/* Icon */}
-                    <div className="flex-shrink-0 w-12 h-12 bg-[#22c8e5] rounded-full flex items-center justify-center text-[#003258] z-10 shadow-[0_0_16px_rgba(34,200,229,0.35)]">
-                      {step.icon}
-                    </div>
-
-                    {/* Content */}
-                    <div className="flex-1 bg-[#1a2332] p-6 rounded-xl border border-white/5 transition-colors hover:border-[#22c8e5]/25">
-                      <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-4">
-                        <div>
-                          <p className="text-[11px] font-bold uppercase tracking-[0.25em] text-[#22c8e5] mb-1">
-                            {String(index + 1).padStart(2, '0')} — {step.week}
-                          </p>
-                          <h3 className="text-2xl font-bold text-white">{step.phase}</h3>
-                        </div>
+                <div
+                  key={index}
+                  className="sticky mb-[14vh] last:mb-0"
+                  style={{ top: `calc(96px + ${index * 20}px)`, zIndex: index + 1 }}
+                >
+                  <div className="rounded-2xl border border-[#22c8e5]/20 bg-[#141d2b] p-7 md:p-10 shadow-2xl shadow-black/60">
+                    <div className="flex items-center gap-5 mb-6">
+                      <div className="flex-shrink-0 w-14 h-14 bg-[#22c8e5] rounded-full flex items-center justify-center text-[#003258] shadow-[0_0_20px_rgba(34,200,229,0.4)]">
+                        {step.icon}
                       </div>
-                      <p className="text-gray-400 mb-4">{step.description}</p>
-                      <ul className="space-y-2">
-                        {step.activities.map((activity, idx) => (
-                          <li key={idx} className="flex items-start space-x-2 text-gray-300">
-                            <span className="w-1.5 h-1.5 bg-[#22c8e5] rounded-full mt-2 flex-shrink-0"></span>
-                            <span className="text-sm">{activity}</span>
-                          </li>
-                        ))}
-                      </ul>
+                      <div>
+                        <p className="text-[11px] font-bold uppercase tracking-[0.25em] text-[#22c8e5] mb-1">
+                          {String(index + 1).padStart(2, '0')} / {String(processSteps.length).padStart(2, '0')} — {step.week}
+                        </p>
+                        <h3 className="text-2xl md:text-3xl font-bold text-white">{step.phase}</h3>
+                      </div>
                     </div>
+                    <p className="text-gray-400 mb-6">{step.description}</p>
+                    <ul className="grid sm:grid-cols-2 gap-x-8 gap-y-2.5">
+                      {step.activities.map((activity, idx) => (
+                        <li key={idx} className="flex items-start space-x-2 text-gray-300">
+                          <span className="w-1.5 h-1.5 bg-[#22c8e5] rounded-full mt-2 flex-shrink-0"></span>
+                          <span className="text-sm">{activity}</span>
+                        </li>
+                      ))}
+                    </ul>
                   </div>
-                </Reveal>
+                </div>
               ))}
             </div>
           </div>
