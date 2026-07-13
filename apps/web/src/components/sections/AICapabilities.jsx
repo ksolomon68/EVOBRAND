@@ -136,7 +136,7 @@ const AICapabilities = () => {
   }, []);
 
   return (
-    <section ref={sectionRef} id="ai" className="bg-[#0a0a0f] relative overflow-hidden">
+    <section ref={sectionRef} id="ai" className="relative overflow-hidden" style={{ background: 'rgba(10,10,15,0.86)' }}>
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-[radial-gradient(circle,rgba(34,200,229,0.06)_0%,transparent_70%)] pointer-events-none"></div>
 
       <div className="relative py-20 lg:py-0 lg:min-h-screen lg:flex lg:flex-col lg:justify-center">

@@ -147,7 +147,7 @@ export default function VideoLibrarySection() {
   return (
     <section
       className="py-20 relative overflow-hidden"
-      style={{ background: 'linear-gradient(180deg, #070a0e 0%, #0f1419 100%)' }}
+      style={{ background: 'linear-gradient(180deg, rgba(7,10,14,0.88) 0%, rgba(15,20,25,0.88) 100%)' }}
       aria-labelledby="video-library-heading"
     >
       {/* Animated Canvas Background */}

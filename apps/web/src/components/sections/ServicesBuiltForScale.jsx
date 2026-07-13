@@ -3,7 +3,7 @@ import { motion } from 'framer-motion';
 
 const ServicesBuiltForScale = () => {
   return (
-    <section className="py-20 relative bg-gradient-to-b from-[#0a0a0f] to-[#0d0d18]">
+    <section className="py-20 relative" style={{ background: 'linear-gradient(to bottom, rgba(10,10,15,0.86), rgba(13,13,24,0.88))' }}>
       <div className="container mx-auto px-4 lg:max-w-[1200px]">
         <div className="text-center mb-16">
           <motion.span 

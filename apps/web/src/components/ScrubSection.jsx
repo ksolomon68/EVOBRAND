@@ -1,7 +1,9 @@
 /**
- * ScrubSection — Hero + scroll-synced image sequence + chapter panels.
- * This is the primary hero. The existing headline and CTAs live here.
- * Frames: /header/ezgif-frame-001.jpg … ezgif-frame-076.jpg (local public/)
+ * ScrubSection — Hero + chapter panels over the page-wide background film.
+ * This is the primary hero. The frame sequence itself is rendered by
+ * PageBackgroundScrub (a fixed canvas behind the whole page); this section
+ * is transparent and drives the headline reveal, hero fade, and the four
+ * chapter panels from its own scroll progress.
  */
 
 import React, { useRef, useEffect } from 'react';
@@ -11,17 +13,10 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger';
 
 gsap.registerPlugin(ScrollTrigger);
 
-const TOTAL_FRAMES = 77;
-
-function buildUrl(n) {
-  return `/header/ezgif-frame-${String(n).padStart(3, '0')}.jpg`;
-}
-
-function chapterForFrame(frameNumber) {
-  if (frameNumber <= 19) return 0;
-  if (frameNumber <= 39) return 1;
-  if (frameNumber <= 58) return 2;
-  return 3;
+/** Chapter from hero scroll progress: hero zone <0.10, then 4 equal beats. */
+function chapterForProgress(progress) {
+  const t = (progress - 0.10) / (1 - 0.10);
+  return Math.min(3, Math.max(0, Math.floor(t * 4)));
 }
 
 const CHAPTERS = [
@@ -49,17 +44,13 @@ const CHAPTERS = [
 
 const ScrubSection = () => {
   const sectionRef  = useRef(null);
-  const canvasRef   = useRef(null);
   const panelRefs   = useRef([]);
   const headlineRef = useRef(null);
   const heroOverlayRef = useRef(null);
 
   const internal = useRef({
-    frames: new Array(TOTAL_FRAMES).fill(null),
-    loadedCount: 0,
     currentChapter: -1,
     activePanelIndex: -1,
-    ctx: null,
   });
 
   // ── Kinetic word reveal on mount ─────────────────────────────────
@@ -80,43 +71,9 @@ const ScrubSection = () => {
     });
   }, []);
 
-  // ── Canvas + ScrollTrigger ────────────────────────────────────────
+  // ── Chapter panels + hero fade, driven by section scroll progress ──
   useEffect(() => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
     const state = internal.current;
-    state.ctx = canvas.getContext('2d');
-    const ctx = state.ctx;
-
-    function resizeCanvas() {
-      canvas.width  = window.innerWidth;
-      canvas.height = window.innerHeight;
-      redraw();
-    }
-
-    function drawCover(img) {
-      if (!img?.complete || img.naturalWidth === 0) return;
-      const cw = canvas.width, ch = canvas.height;
-      const ir = img.naturalWidth / img.naturalHeight;
-      const cr = cw / ch;
-      let dw, dh, dx, dy;
-      if (ir > cr) {
-        dh = ch; dw = ch * ir; dx = (cw - dw) / 2; dy = 0;
-      } else {
-        dw = cw; dh = cw / ir; dx = 0; dy = (ch - dh) / 2;
-      }
-      ctx.drawImage(img, dx, dy, dw, dh);
-    }
-
-    function redraw() {
-      for (const img of state.frames) {
-        if (img?.complete && img.naturalWidth > 0) {
-          ctx.clearRect(0, 0, canvas.width, canvas.height);
-          drawCover(img);
-          break;
-        }
-      }
-    }
 
     function showPanel(index) {
       const panels = panelRefs.current;
@@ -147,23 +104,7 @@ const ScrubSection = () => {
       state.currentChapter   = -1;
     }
 
-    function renderFrame(progress) {
-      const { frames } = state;
-      const rawIndex = progress * (TOTAL_FRAMES - 1);
-      const index    = Math.min(Math.floor(rawIndex), TOTAL_FRAMES - 1);
-      const frac     = rawIndex - index;
-      const curr     = frames[index];
-      const next     = frames[Math.min(index + 1, TOTAL_FRAMES - 1)];
-
-      if (!curr?.complete) return;
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-      drawCover(curr);
-      if (next?.complete && next.naturalWidth > 0 && frac > 0.02) {
-        ctx.globalAlpha = frac;
-        drawCover(next);
-        ctx.globalAlpha = 1;
-      }
-
+    function onProgress(progress) {
       // Hero fades out over first 8% of scroll progress (fades back in when returning)
       if (heroOverlayRef.current) {
         const alpha = 1 - Math.max(0, Math.min(1, progress / 0.08));
@@ -176,8 +117,8 @@ const ScrubSection = () => {
           hidePanels();
         }
       } else {
-        // Story zone — show chapter matching current frame
-        const newChapter = chapterForFrame(index + 1);
+        // Story zone — show chapter for the current beat
+        const newChapter = chapterForProgress(progress);
         if (newChapter !== state.currentChapter) {
           state.currentChapter = newChapter;
           showPanel(newChapter);
@@ -185,35 +126,16 @@ const ScrubSection = () => {
       }
     }
 
-    // Preload
-    console.log('[EVOBRAND Scrubber] Initializing. First frame URL:', buildUrl(1));
-    for (let i = 0; i < TOTAL_FRAMES; i++) {
-      const img = new Image();
-      img.src = buildUrl(i + 1);
-      img.onload = () => {
-        state.loadedCount++;
-        if (state.loadedCount === 1) { ctx.clearRect(0, 0, canvas.width, canvas.height); drawCover(img); }
-        if (state.loadedCount === TOTAL_FRAMES) console.log(`[EVOBRAND Scrubber] All ${TOTAL_FRAMES} frames loaded.`);
-      };
-      img.onerror = () => { state.loadedCount++; };
-      state.frames[i] = img;
-    }
-
-    window.addEventListener('resize', resizeCanvas);
-    resizeCanvas();
-
     const trigger = ScrollTrigger.create({
       trigger: sectionRef.current,
       start:  'top top',
       end:    'bottom bottom',
       scrub:  0.8,
-      onUpdate: self => renderFrame(self.progress),
-      onEnter:    () => renderFrame(0),
+      onUpdate: self => onProgress(self.progress),
       onLeaveBack: () => hidePanels(),
     });
 
     return () => {
-      window.removeEventListener('resize', resizeCanvas);
       trigger.kill();
     };
   }, []);
@@ -221,18 +143,11 @@ const ScrubSection = () => {
   return (
     <section
       ref={sectionRef}
-      style={{ position: 'relative', height: '500vh', background: '#0f1419' }}
+      style={{ position: 'relative', height: '500vh', background: 'transparent' }}
       aria-label="EVOBRAND hero and story scroll"
     >
-      {/* Sticky viewport */}
+      {/* Sticky viewport — the film renders behind via PageBackgroundScrub */}
       <div style={{ position: 'sticky', top: 0, height: '100vh', overflow: 'hidden' }}>
-
-        {/* Canvas — full-bleed image sequence */}
-        <canvas
-          ref={canvasRef}
-          aria-hidden="true"
-          style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', display: 'block' }}
-        />
 
         {/* Gradient overlays for readability */}
         <div aria-hidden="true" style={{

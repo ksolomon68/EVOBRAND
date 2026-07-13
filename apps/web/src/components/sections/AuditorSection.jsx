@@ -74,7 +74,7 @@ const AuditorSection = () => {
   };
 
   return (
-    <section id="auditor" className="relative py-20 overflow-hidden bg-[#04080f]">
+    <section id="auditor" className="relative py-20 overflow-hidden" style={{ background: 'rgba(4,8,15,0.88)' }}>
       {/* Video background placeholder */}
       <div className="absolute inset-0 z-0">
         <video

@@ -5,6 +5,7 @@ import { motion } from 'framer-motion';
 import { gsap } from 'gsap';
 import { Sparkles, Zap, FileText, Video, Code } from 'lucide-react';
 import ScrubSection from '@/components/ScrubSection.jsx';
+import PageBackgroundScrub from '@/components/PageBackgroundScrub.jsx';
 import ScrollProgressRail from '@/components/ScrollProgressRail.jsx';
 import {
   KineticHeadline,
@@ -166,7 +167,10 @@ const HomePage = () => {
         }}
       />
 
-      <div className="min-h-screen bg-[#0f1419]">
+      <div className="min-h-screen">
+        {/* Page-wide scroll-driven background film */}
+        <PageBackgroundScrub />
+
         {/* Chapter progress rail (desktop) */}
         <ScrollProgressRail />
 
@@ -175,10 +179,10 @@ const HomePage = () => {
           <ScrubSection />
         </div>
 
-        <SectionMorphDivider from="#0f1419" to="#1a2332" />
+        <SectionMorphDivider from="transparent" to="rgba(26,35,50,0.88)" />
 
         {/* Stats Banner */}
-        <section className="bg-[#1a2332] py-8">
+        <section className="py-8" style={{ background: 'rgba(26,35,50,0.88)' }}>
           <div className="container mx-auto px-4">
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
               <CountStat value={10} suffix="x" label="Faster Production" />
@@ -189,7 +193,7 @@ const HomePage = () => {
           </div>
         </section>
 
-        <SectionMorphDivider from="#1a2332" to="#0a0a0f" />
+        <SectionMorphDivider from="rgba(26,35,50,0.88)" to="rgba(10,10,15,0.86)" />
 
         {/* Services Section */}
         <div id="services">
@@ -202,7 +206,7 @@ const HomePage = () => {
         </div>
 
         {/* Trust Section */}
-        <section className="py-20 bg-[#1a2332]">
+        <section className="py-20" style={{ background: 'rgba(26,35,50,0.88)' }}>
           <div className="container mx-auto px-4">
             <motion.div
               initial={{ opacity: 0, y: 30 }}
@@ -230,7 +234,7 @@ const HomePage = () => {
           </div>
         </section>
 
-        <SectionMorphDivider from="#1a2332" to="#070a0e" />
+        <SectionMorphDivider from="rgba(26,35,50,0.88)" to="rgba(7,10,14,0.88)" />
 
         {/* Video Library Section */}
         <div id="work">
@@ -241,7 +245,7 @@ const HomePage = () => {
         <AuditorSection />
 
         {/* Booking Section */}
-        <section id="booking" className="py-20 bg-[#0d0d18]">
+        <section id="booking" className="py-20" style={{ background: 'rgba(13,13,24,0.9)' }}>
           <div className="container mx-auto px-4 max-w-xl">
             <div className="text-center mb-12">
               <p className="text-[#22c8e5] text-xs font-bold tracking-[0.25em] uppercase mb-3">Schedule a Meeting</p>
