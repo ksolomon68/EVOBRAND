@@ -57,23 +57,14 @@ export function initAnalytics() {
 export function trackPageView(path, title) {
   try {
     const body = JSON.stringify(buildPayload(path, title));
-    // sendBeacon survives page unload but can refuse (queue full) or be
-    // unavailable — fall back to fetch keepalive, which behaves the same.
-    let queued = false;
-    if (navigator.sendBeacon) {
-      queued = navigator.sendBeacon(
-        COLLECT_URL,
-        new Blob([body], { type: 'application/json' })
-      );
-    }
-    if (!queued) {
-      fetch(COLLECT_URL, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body,
-        keepalive: true,
-      }).catch(() => {});
-    }
+    // fetch with keepalive is the modern, reliable alternative to sendBeacon
+    // and properly handles CORS preflights for application/json.
+    fetch(COLLECT_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body,
+      keepalive: true,
+    }).catch(() => {});
   } catch {
     // silent fail — never block the user
   }
