@@ -244,9 +244,6 @@ const HomePage = () => {
         {/* Brand Auditor Section */}
         <AuditorSection />
 
-        {/* Dedicated unobstructed "reveal" section for the film */}
-        <section id="film-reveal" className="h-screen w-full relative z-0 pointer-events-none" aria-hidden="true"></section>
-
         {/* Booking Section */}
         <section id="booking" className="py-20 relative z-10" style={{ background: 'rgba(13,13,24,0.9)' }}>
           <div className="container mx-auto px-4 max-w-xl">

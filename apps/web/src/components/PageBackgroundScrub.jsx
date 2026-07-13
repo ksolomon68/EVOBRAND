@@ -90,7 +90,7 @@ export default function PageBackgroundScrub() {
 
     function render() {
       raf = null;
-      const targetSection = document.getElementById('trust-section') || document.getElementById('film-reveal');
+      const targetSection = document.getElementById('trust-section');
       const maxScroll = targetSection 
         ? targetSection.offsetTop + targetSection.offsetHeight - window.innerHeight
         : document.documentElement.scrollHeight - window.innerHeight;
