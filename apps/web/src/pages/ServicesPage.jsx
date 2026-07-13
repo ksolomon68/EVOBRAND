@@ -1,19 +1,14 @@
 
 import React from 'react';
 import { useState } from 'react';
-import { motion } from 'framer-motion';
 import { Sparkles, Zap, FileText, Video, Code, Check, ArrowRight } from 'lucide-react';
 
 import SEO from '@/components/SEO.jsx';
 import PublicCheckoutModal from '@/components/PublicCheckoutModal.jsx';
-import {
-  KineticHeadline,
-  Reveal,
-  TiltCard,
-} from '@/components/motion/PageMotion.jsx';
+import { PageHero } from '@/components/motion/PageMotion.jsx';
+import ServiceDeck from '@/components/services/ServiceDeck.jsx';
 
 const ServicesPage = () => {
-  const [selectedService, setSelectedService] = useState(0);
   const [checkoutPlan, setCheckoutPlan] = useState(null);
 
   const getPlanId = (serviceId, tier) => {
@@ -30,6 +25,8 @@ const ServicesPage = () => {
   const services = [
     {
       id: 0,
+      emoji: '🤖',
+      shortName: 'AI Apps',
       icon: <Sparkles size={48} />,
       title: 'Custom AI Applications',
       description: 'Tailored AI solutions designed to solve your unique business challenges and drive measurable results.',
@@ -78,6 +75,8 @@ const ServicesPage = () => {
     },
     {
       id: 1,
+      emoji: '🎨',
+      shortName: 'Visual AI',
       icon: <Zap size={48} />,
       title: 'AI Visual Content Creation',
       description: 'Generate stunning visuals, graphics, and brand assets using cutting-edge AI technology.',
@@ -126,6 +125,8 @@ const ServicesPage = () => {
     },
     {
       id: 2,
+      emoji: '📄',
+      shortName: 'Doc Gen',
       icon: <FileText size={48} />,
       title: 'Intelligent Document Generation',
       description: 'Automate document creation with AI-powered templates and smart data integration.',
@@ -174,6 +175,8 @@ const ServicesPage = () => {
     },
     {
       id: 3,
+      emoji: '🎬',
+      shortName: 'AI Video',
       icon: <Video size={48} />,
       title: 'AI Video Production',
       description: 'Create professional videos with AI-assisted scripting, editing, and production.',
@@ -222,6 +225,8 @@ const ServicesPage = () => {
     },
     {
       id: 4,
+      emoji: '💻',
+      shortName: 'Web Dev',
       icon: <Code size={48} />,
       title: 'WordPress & Web Development',
       description: 'Professional web solutions and WordPress development for modern businesses.',
@@ -275,6 +280,8 @@ const ServicesPage = () => {
     },
     {
       id: 5,
+      emoji: '♿',
+      shortName: 'WCAG',
       icon: <Check size={48} />,
       title: 'WCAG Accessibility',
       description: 'Ensure your digital experiences are universally accessible. We audit, remediate, and maintain your platforms to meet and exceed WCAG standards.',
@@ -323,8 +330,6 @@ const ServicesPage = () => {
     }
   ];
 
-  const currentService = services[selectedService];
-
   return (
     <>
       <SEO
@@ -335,304 +340,37 @@ const ServicesPage = () => {
         structuredData={{
           "@context": "https://schema.org",
           "@type": "Service",
-          "serviceType": currentService.title,
+          "serviceType": "AI Transformation Services",
           "provider": {
             "@type": "Organization",
             "name": "EVOBRAND Concepts LLC",
             "url": "https://evobrand.net"
           },
-          "description": currentService.description,
+          "description": "Full suite of AI transformation services including custom applications, visual content, document generation, and video production.",
           "areaServed": "United States",
-          "hasOfferCatalog": {
-            "@type": "OfferCatalog",
-            "name": "AI Services",
-            "itemListElement": currentService.pricing.map((p, i) => ({
-              "@type": "Offer",
-              "name": p.tier,
-              "price": p.price,
-              "priceCurrency": "USD"
-            }))
-          }
         }}
       />
 
       <div className="min-h-screen bg-[#0f1419]">
-        {/* Service Navigation */}
-        <section className="bg-[#1a2332] py-4 sticky top-20 z-40">
-          <div className="container mx-auto px-4">
-            <div className="flex overflow-x-auto gap-2 pb-1 no-scrollbar">
-              {services.map((service, index) => (
-                <button
-                  key={service.id}
-                  onClick={() => setSelectedService(index)}
-                  className={`flex-shrink-0 px-4 py-2 rounded-2xl font-bold text-sm transition-all ${selectedService === index
-                      ? 'bg-[#22c8e5] text-[#003258] shadow-[0_0_15px_rgba(34,200,229,0.3)]'
-                      : 'bg-[#0f1419] text-gray-400 hover:text-white border border-white/5'
-                    }`}
-                >
-                  {service.title}
-                </button>
-              ))}
-            </div>
-          </div>
-        </section>
+        {/* Hero */}
+        <PageHero
+          eyebrow="Custom AI · Visual · Video · Docs · Web · WCAG"
+          lines={[[{ t: 'Our' }, { t: 'Services', accent: true }]]}
+          sub="Explore our full suite of AI-powered solutions with transparent pricing and proven results."
+        />
 
-        {/* Service Hero */}
-        <section className="py-10 md:py-16 bg-gradient-to-br from-[#1a2332] to-[#0f1419]">
-          <div className="container mx-auto px-4">
-            <motion.div
-              key={selectedService}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="text-center max-w-4xl mx-auto"
-            >
-              <p className="mb-4 text-[11px] font-bold uppercase tracking-[0.25em] text-[#22c8e5]">
-                {String(selectedService + 1).padStart(2, '0')} — of{' '}
-                {String(services.length).padStart(2, '0')} Services
-              </p>
-              <div className="text-[#22c8e5] mb-4 flex justify-center">{currentService.icon}</div>
-              <KineticHeadline
-                replayKey={selectedService}
-                delay={0.1}
-                lines={[
-                  currentService.title.split(' ').map((word, i, arr) => ({
-                    t: word,
-                    accent: i === arr.length - 1,
-                  })),
-                ]}
-                className="text-3xl md:text-5xl font-bold text-white mb-4"
-              />
-              <p className="text-base md:text-xl text-gray-400">{currentService.description}</p>
-            </motion.div>
-          </div>
-        </section>
+        {/* The immersive service deck */}
+        <ServiceDeck
+          services={services}
+          getPlanId={getPlanId}
+          onCheckout={setCheckoutPlan}
+        />
 
-        {/* Bento Dashboard */}
-        <section className="py-12 bg-[#0f1419]">
-          <div className="container mx-auto px-4 max-w-6xl">
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-              
-              {/* Left Column - Main Feature Box */}
-              <motion.div
-                initial={{ opacity: 0, scale: 0.95 }}
-                animate={{ opacity: 1, scale: 1 }}
-                className="lg:col-span-2 bg-[#1a2332] rounded-3xl p-8 border border-white/5 flex flex-col"
-              >
-                <div className="flex items-center gap-4 mb-8">
-                  <div className="w-12 h-12 bg-[#22c8e5]/10 rounded-xl flex items-center justify-center text-[#22c8e5]">
-                    <Check size={24} />
-                  </div>
-                  <h2 className="text-2xl font-bold text-white">What You Get</h2>
-                </div>
-                
-                <div className="grid sm:grid-cols-2 gap-4 flex-grow">
-                  {currentService.features.map((feature, index) => (
-                    <div key={index} className="flex items-start gap-3 bg-[#0f1419] p-4 rounded-2xl border border-white/5">
-                      <Check className="text-[#22c8e5] flex-shrink-0 mt-0.5" size={18} />
-                      <span className="text-gray-300 text-sm font-medium">{feature}</span>
-                    </div>
-                  ))}
-                </div>
-              </motion.div>
-
-              {/* Right Column - Stacked Boxes */}
-              <div className="flex flex-col gap-6">
-                
-                {/* Pricing Box */}
-                <motion.div
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.1 }}
-                  className="bg-gradient-to-br from-[#22c8e5]/10 to-[#1a2332] rounded-3xl p-8 border border-[#22c8e5]/20 flex-1 flex flex-col justify-center"
-                >
-                  <h3 className="text-lg font-bold text-white mb-2">Investment</h3>
-                  <p className="text-sm text-gray-400 mb-6">Starting from</p>
-                  <p className="text-4xl font-bold text-[#22c8e5] mb-6">
-                    {currentService.pricing[0].price}
-                  </p>
-                  <a href="#pricing-full" className="w-full py-3 bg-[#22c8e5] text-[#003258] rounded-2xl font-bold hover:shadow-lg hover:shadow-[#22c8e5]/20 transition-all text-center block">
-                    View Full Pricing
-                  </a>
-                </motion.div>
-
-                {/* Case Study Highlight Box */}
-                <motion.div
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.2 }}
-                  className="bg-[#1a2332] rounded-3xl p-8 border border-white/5 flex-1"
-                >
-                  <h3 className="text-lg font-bold text-white mb-4">Success Metric</h3>
-                  <div className="bg-[#0f1419] p-4 rounded-2xl border border-white/5 mb-4">
-                    <p className="text-[#22c8e5] font-bold text-xl mb-1">{currentService.caseStudy.results[0]}</p>
-                    <p className="text-xs text-gray-500 uppercase tracking-wider">{currentService.caseStudy.client}</p>
-                  </div>
-                  <p className="text-sm text-gray-400 line-clamp-2">{currentService.caseStudy.solution}</p>
-                </motion.div>
-
-              </div>
-            </div>
-
-            {/* Horizontal Timeline */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.3 }}
-              className="mt-6 bg-[#1a2332] rounded-3xl p-8 border border-white/5 relative z-0"
-            >
-              <h2 className="text-xl font-bold text-white mb-8">Implementation Process</h2>
-              <div className="flex flex-col md:flex-row justify-between relative">
-                {/* Connecting Line */}
-                <div className="absolute top-6 left-12 right-12 h-0.5 bg-[#22c8e5]/20 hidden md:block -z-10"></div>
-                
-                {currentService.process.map((step, index) => (
-                  <Reveal
-                    key={index}
-                    delay={index * 0.1}
-                    y={16}
-                    className="flex flex-col items-center text-center relative max-w-[180px] mb-8 md:mb-0 group"
-                  >
-                    <div className="w-12 h-12 bg-[#0f1419] border-2 border-[#22c8e5] rounded-full flex items-center justify-center text-[#22c8e5] font-bold mb-4 group-hover:bg-[#22c8e5] group-hover:text-[#003258] transition-colors shadow-[0_0_15px_rgba(34,200,229,0.2)]">
-                      {index + 1}
-                    </div>
-                    <h3 className="text-white font-bold mb-2">{step.step}</h3>
-                    <p className="text-sm text-gray-400 leading-tight">{step.description}</p>
-                  </Reveal>
-                ))}
-              </div>
-            </motion.div>
-          </div>
-        </section>
-
-        {/* Full Pricing Reference */}
-        <section id="pricing-full" className="py-20 bg-[#0f1419]">
-          <div className="container mx-auto px-4 max-w-6xl">
-            <Reveal>
-              <h2 className="text-3xl font-bold text-white mb-12 text-center">Comprehensive Pricing</h2>
-            </Reveal>
-            <div className="grid md:grid-cols-3 gap-8">
-              {currentService.pricing.map((plan, index) => (
-                <TiltCard
-                  key={index}
-                  className={`bg-[#1a2332] p-8 rounded-3xl ${plan.highlighted ? 'border-2 border-[#22c8e5] shadow-xl shadow-[#22c8e5]/10 lg:-translate-y-2' : 'border border-white/5'
-                    }`}
-                >
-                  <h3 className="text-xl font-bold text-white mb-2">{plan.tier}</h3>
-                  <p className="text-3xl font-bold text-[#22c8e5] mb-6">{plan.price}</p>
-                  <ul className="space-y-3 mb-8">
-                    {plan.features.map((feature, idx) => (
-                      <li key={idx} className="flex items-start space-x-2 text-gray-300">
-                        <Check className="text-[#22c8e5] flex-shrink-0 mt-1" size={16} />
-                        <span className="text-sm">{feature}</span>
-                      </li>
-                    ))}
-                  </ul>
-                  {plan.price === 'Custom' ? (
-                    <a href="/contact" className={`w-full py-3 rounded-2xl font-bold transition-all text-center block ${plan.highlighted
-                        ? 'bg-[#22c8e5] text-[#003258] hover:shadow-lg hover:bg-opacity-90'
-                        : 'border-2 border-[#22c8e5] text-[#22c8e5] hover:bg-[#22c8e5] hover:text-[#003258]'
-                      }`}>
-                      {plan.cta}
-                    </a>
-                  ) : (
-                    <button
-                      onClick={() => setCheckoutPlan({
-                        planId: getPlanId(currentService.id, plan.tier),
-                        planName: `${currentService.title} - ${plan.tier} Plan`,
-                        price: plan.price,
-                        type: 'one-time'
-                      })}
-                      className={`w-full py-3 rounded-2xl font-bold transition-all text-center block ${plan.highlighted
-                        ? 'bg-[#22c8e5] text-[#003258] hover:shadow-lg hover:bg-opacity-90'
-                        : 'border-2 border-[#22c8e5] text-[#22c8e5] hover:bg-[#22c8e5] hover:text-[#003258]'
-                      }`}
-                    >
-                      {plan.cta}
-                    </button>
-                  )}
-                </TiltCard>
-              ))}
-            </div>
-          </div>
-        </section>
-
-        {/* Maintenance Plans — shown only for WordPress service */}
-        {currentService.maintenancePlans && (
-          <section className="py-20 bg-[#1a2332]">
-            <div className="container mx-auto px-4 max-w-6xl">
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                className="text-center mb-12"
-              >
-                <span className="inline-block mb-4 px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-widest border" style={{ borderColor: 'rgba(34,200,229,0.3)', color: '#22c8e5', background: 'rgba(34,200,229,0.06)' }}>
-                  Ongoing Care
-                </span>
-                <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">WordPress Maintenance Plans</h2>
-                <p className="text-gray-400 max-w-2xl mx-auto">
-                  Keep your site secure, fast, and always up to date. Choose a monthly plan and never worry about updates, hacks, or downtime again.
-                </p>
-              </motion.div>
-
-              <div className="grid md:grid-cols-3 gap-6 mb-10">
-                {currentService.maintenancePlans.map((plan, index) => (
-                  <motion.div
-                    key={index}
-                    initial={{ opacity: 0, y: 30 }}
-                    whileInView={{ opacity: 1, y: 0 }}
-                    viewport={{ once: true }}
-                    transition={{ delay: index * 0.1 }}
-                    className={`relative rounded-3xl p-8 flex flex-col ${plan.highlighted ? 'border-2 border-[#22c8e5] shadow-xl shadow-[#22c8e5]/10' : 'border border-white/8'}`}
-                    style={{ background: plan.highlighted ? 'linear-gradient(135deg, rgba(34,200,229,0.10), rgba(34,200,229,0.03))' : 'rgba(255,255,255,0.03)' }}
-                  >
-                    {plan.highlighted && (
-                      <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-4 py-1 rounded-full text-xs font-bold uppercase tracking-widest" style={{ background: '#22c8e5', color: '#003258' }}>
-                        Most Popular
-                      </div>
-                    )}
-                    <h3 className="text-xl font-bold text-white mb-1">{plan.tier}</h3>
-                    <p className="text-3xl font-bold mb-6" style={{ color: '#22c8e5' }}>{plan.price}</p>
-                    <ul className="space-y-3 mb-8 flex-1">
-                      {plan.features.map((f, fi) => (
-                        <li key={fi} className="flex items-start gap-2.5 text-gray-300 text-sm">
-                          <Check size={15} className="text-[#22c8e5] flex-shrink-0 mt-0.5" />
-                          {f}
-                        </li>
-                      ))}
-                    </ul>
-                    <button
-                      onClick={() => setCheckoutPlan({
-                        planId: `maintenance-${plan.tier.toLowerCase()}`,
-                        planName: `WordPress Maintenance - ${plan.tier} Plan`,
-                        price: plan.price.split('/')[0],
-                        type: 'recurring'
-                      })}
-                      className={`w-full py-3 rounded-2xl font-bold text-sm text-center transition-all ${plan.highlighted ? 'bg-[#22c8e5] text-[#003258] hover:shadow-lg hover:shadow-[#22c8e5]/30' : 'border border-[#22c8e5] text-[#22c8e5] hover:bg-[#22c8e5] hover:text-[#003258]'}`}
-                    >
-                      Get {plan.tier} Plan
-                    </button>
-                  </motion.div>
-                ))}
-              </div>
-
-              <div className="text-center">
-                <a
-                  href="/maintenance-plans"
-                  className="inline-flex items-center gap-2 px-8 py-4 rounded-2xl font-bold text-sm uppercase tracking-widest transition-all border border-[#22c8e5] text-[#22c8e5] hover:bg-[#22c8e5] hover:text-[#003258]"
-                >
-                  View Full Plan Details <ArrowRight size={16} />
-                </a>
-              </div>
-            </div>
-          </section>
-        )}
-
-        {/* CTA */}
+        {/* Final CTA */}
         <section className="py-20 bg-gradient-to-br from-[#1a2332] to-[#22c8e5]">
           <div className="container mx-auto px-4 text-center">
             <h2 className="text-4xl font-bold text-white mb-6">Ready to Get Started?</h2>
-            <p className="text-xl text-white/90 mb-8">Let's discuss how we can help transform your business</p>
+            <p className="text-xl text-white/90 mb-8">Let's discuss how we can transform your business with AI</p>
             <a
               href="/contact"
               className="inline-flex items-center px-8 py-4 bg-[#22c8e5] text-[#003258] rounded-2xl font-bold hover:shadow-lg hover:bg-opacity-90 transition-all"
@@ -641,6 +379,7 @@ const ServicesPage = () => {
             </a>
           </div>
         </section>
+
         {/* Public Checkout Modal */}
         {checkoutPlan && (
           <PublicCheckoutModal
