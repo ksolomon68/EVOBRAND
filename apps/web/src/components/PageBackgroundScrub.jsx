@@ -17,8 +17,8 @@ import React, { useEffect, useRef } from 'react';
  * background is a static image.
  */
 
-// ── Sequence config — swap these when a new frame set is uploaded ─────────────
-const CONFIG = {
+// ── Sequence config ──────────────────────────────────────────────────────────
+const HERO_CONFIG = {
   BASE_URL: '/pagebg/',
   PREFIX: 'ezgif-frame-',
   PAD: 3,
@@ -30,8 +30,22 @@ const CONFIG = {
   COMPLETE_AT: 0.88,
 };
 
-function frameUrl(n) {
-  return `${CONFIG.BASE_URL}${CONFIG.PREFIX}${String(n).padStart(CONFIG.PAD, '0')}${CONFIG.EXT}`;
+const BODY_CONFIG = {
+  BASE_URL: '/body%20backround/',
+  PREFIX: 'ezgif-frame-',
+  PAD: 3,
+  EXT: '.jpg',
+  TOTAL: 214,
+};
+
+function heroFrameUrl(n) {
+  return `${HERO_CONFIG.BASE_URL}${HERO_CONFIG.PREFIX}${String(n).padStart(HERO_CONFIG.PAD, '0')}${HERO_CONFIG.EXT}`;
+}
+
+function bodyFrameUrl(n) {
+  // Offset n by 7 to map 1..214 to actual files 008..221
+  const actualFrameNumber = n + 7;
+  return `${BODY_CONFIG.BASE_URL}${BODY_CONFIG.PREFIX}${String(actualFrameNumber).padStart(BODY_CONFIG.PAD, '0')}${BODY_CONFIG.EXT}`;
 }
 
 /** Wave order: stride 8, then 4, 2, 1 — no duplicates, low-res-first feel. */
@@ -60,10 +74,15 @@ export default function PageBackgroundScrub() {
     const ctx = canvas.getContext('2d');
     const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     const small = window.innerWidth < 768;
-    const step = reduced ? CONFIG.TOTAL : small ? 3 : 1; // frames to skip
-    const frames = new Array(CONFIG.TOTAL).fill(null);
+
+    const heroStep = reduced ? HERO_CONFIG.TOTAL : small ? 3 : 1;
+    const bodyStep = reduced ? BODY_CONFIG.TOTAL : small ? 3 : 1;
+
+    const heroFrames = new Array(HERO_CONFIG.TOTAL).fill(null);
+    const bodyFrames = new Array(BODY_CONFIG.TOTAL).fill(null);
+
     let raf = null;
-    let currentDrawn = -1;
+    let currentDrawnKey = '';
     let disposed = false;
 
     function drawCover(img) {
@@ -81,28 +100,69 @@ export default function PageBackgroundScrub() {
     }
 
     /** Nearest loaded frame at or near the target index. */
-    function nearestLoaded(target) {
-      if (frames[target]?.complete && frames[target].naturalWidth > 0) return target;
-      for (let d = 1; d < CONFIG.TOTAL; d++) {
+    function nearestLoaded(target, framesArray, total) {
+      if (framesArray[target]?.complete && framesArray[target].naturalWidth > 0) return target;
+      for (let d = 1; d < total; d++) {
         const lo = target - d;
         const hi = target + d;
-        if (lo >= 0 && frames[lo]?.complete && frames[lo].naturalWidth > 0) return lo;
-        if (hi < CONFIG.TOTAL && frames[hi]?.complete && frames[hi].naturalWidth > 0) return hi;
+        if (lo >= 0 && framesArray[lo]?.complete && framesArray[lo].naturalWidth > 0) return lo;
+        if (hi < total && framesArray[hi]?.complete && framesArray[hi].naturalWidth > 0) return hi;
       }
       return -1;
     }
 
     function render() {
       raf = null;
-      const scrollable = document.documentElement.scrollHeight - window.innerHeight;
-      const raw = scrollable > 0 ? Math.min(Math.max(window.scrollY / scrollable, 0), 1) : 0;
-      const progress = Math.min(1, raw / CONFIG.COMPLETE_AT);
-      const target = reduced ? 0 : Math.round(progress * (CONFIG.TOTAL - 1));
-      const idx = nearestLoaded(target);
-      if (idx === -1 || idx === currentDrawn) return;
-      currentDrawn = idx;
+      const storyEl = document.getElementById('story');
+
+      const pageHeight = document.documentElement.scrollHeight;
+      const viewportHeight = window.innerHeight;
+      const currentScroll = window.scrollY;
+
+      // Hero sequence boundaries
+      let heroStart = 0;
+      let heroEnd = viewportHeight * 4; // default fallback if element not found
+      if (storyEl) {
+        heroStart = storyEl.offsetTop;
+        heroEnd = storyEl.offsetTop + storyEl.offsetHeight - viewportHeight;
+      }
+      heroEnd = Math.max(heroStart + 1, heroEnd);
+
+      // Body sequence boundaries
+      const bodyStart = heroEnd;
+      const bodyEnd = Math.max(bodyStart + 1, pageHeight - viewportHeight);
+
+      let activeSeq = 'hero';
+      let progress = 0;
+
+      if (currentScroll <= heroEnd) {
+        activeSeq = 'hero';
+        progress = Math.min(Math.max((currentScroll - heroStart) / (heroEnd - heroStart), 0), 1);
+      } else {
+        activeSeq = 'body';
+        progress = Math.min(Math.max((currentScroll - bodyStart) / (bodyEnd - bodyStart), 0), 1);
+      }
+
+      const totalFrames = activeSeq === 'hero' ? HERO_CONFIG.TOTAL : BODY_CONFIG.TOTAL;
+      const framesArray = activeSeq === 'hero' ? heroFrames : bodyFrames;
+      
+      let target;
+      if (reduced) {
+        target = 0;
+      } else if (activeSeq === 'hero') {
+        target = Math.round(progress * (totalFrames - 1));
+      } else {
+        // Reverse the second sequence (body background) as requested
+        target = Math.round((1 - progress) * (totalFrames - 1));
+      }
+
+      const idx = nearestLoaded(target, framesArray, totalFrames);
+      const redrawKey = `${activeSeq}-${idx}`;
+
+      if (idx === -1 || redrawKey === currentDrawnKey) return;
+      currentDrawnKey = redrawKey;
       ctx.clearRect(0, 0, canvas.width, canvas.height);
-      drawCover(frames[idx]);
+      drawCover(framesArray[idx]);
     }
 
     function requestRender() {
@@ -112,29 +172,52 @@ export default function PageBackgroundScrub() {
     function resize() {
       canvas.width = window.innerWidth;
       canvas.height = window.innerHeight;
-      currentDrawn = -1;
+      currentDrawnKey = '';
       requestRender();
     }
 
     // Preload in priority waves
-    const order = reduced ? [0] : waveOrder(CONFIG.TOTAL, step);
+    const heroOrder = reduced ? [0] : waveOrder(HERO_CONFIG.TOTAL, heroStep);
+    const bodyOrder = reduced ? [0] : waveOrder(BODY_CONFIG.TOTAL, bodyStep);
+
+    // Combine waves: all hero waves first, then all body waves
+    const loadQueue = [];
+    heroOrder.forEach(idx => {
+      loadQueue.push({ type: 'hero', index: idx });
+    });
+    bodyOrder.forEach(idx => {
+      loadQueue.push({ type: 'body', index: idx });
+    });
+
     let cursor = 0;
     const CONCURRENCY = 6;
     function pump() {
       if (disposed) return;
-      while (cursor < order.length) {
-        const i = order[cursor++];
+      while (cursor < loadQueue.length) {
+        const item = loadQueue[cursor++];
         const img = new Image();
-        img.src = frameUrl(i + 1);
-        img.onload = () => {
-          frames[i] = img;
-          currentDrawn = -1; // a better frame may now exist for current scroll
-          requestRender();
-          pump();
-        };
-        img.onerror = () => pump();
-        frames[i] = img;
-        if (cursor % CONCURRENCY === 0) break; // keep ~CONCURRENCY in flight
+        if (item.type === 'hero') {
+          img.src = heroFrameUrl(item.index + 1);
+          img.onload = () => {
+            heroFrames[item.index] = img;
+            currentDrawnKey = ''; // trigger redraw
+            requestRender();
+            pump();
+          };
+          img.onerror = () => pump();
+          heroFrames[item.index] = img;
+        } else {
+          img.src = bodyFrameUrl(item.index + 1);
+          img.onload = () => {
+            bodyFrames[item.index] = img;
+            currentDrawnKey = ''; // trigger redraw
+            requestRender();
+            pump();
+          };
+          img.onerror = () => pump();
+          bodyFrames[item.index] = img;
+        }
+        if (cursor % CONCURRENCY === 0) break; // keep concurrency flow
       }
     }
     pump();
