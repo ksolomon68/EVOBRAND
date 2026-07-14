@@ -256,17 +256,6 @@ const HomePage = () => {
           </div>
         </section>
 
-        {/* Film reveal — an unobstructed window on the closing scene */}
-        <section aria-label="Background film finale" className="relative" style={{ height: '170vh' }}>
-          <div className="pointer-events-none sticky top-0 flex h-screen items-end justify-center pb-14">
-            <div className="text-center">
-              <p className="inline-block rounded-full border border-[#22c8e5]/25 bg-[#0f1419]/70 px-4 py-1.5 text-[11px] font-bold uppercase tracking-[0.25em] text-[#22c8e5]">
-                05 — The Reveal
-              </p>
-            </div>
-          </div>
-        </section>
-
         {/* Final CTA */}
         <section className="py-20 bg-gradient-to-br from-[#1a2332] to-[#22c8e5]">
           <div className="container mx-auto px-4 text-center">
