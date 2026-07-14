@@ -24,6 +24,10 @@ const CONFIG = {
   PAD: 3,
   EXT: '.jpg',
   TOTAL: 271,
+  // The film completes at this fraction of total page scroll, so the final
+  // frames play inside the unobstructed reveal section rather than behind
+  // the opaque closing CTA and footer.
+  COMPLETE_AT: 0.88,
 };
 
 function frameUrl(n) {
@@ -91,7 +95,8 @@ export default function PageBackgroundScrub() {
     function render() {
       raf = null;
       const scrollable = document.documentElement.scrollHeight - window.innerHeight;
-      const progress = scrollable > 0 ? Math.min(Math.max(window.scrollY / scrollable, 0), 1) : 0;
+      const raw = scrollable > 0 ? Math.min(Math.max(window.scrollY / scrollable, 0), 1) : 0;
+      const progress = Math.min(1, raw / CONFIG.COMPLETE_AT);
       const target = reduced ? 0 : Math.round(progress * (CONFIG.TOTAL - 1));
       const idx = nearestLoaded(target);
       if (idx === -1 || idx === currentDrawn) return;

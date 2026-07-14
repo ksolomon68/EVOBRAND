@@ -245,7 +245,7 @@ const HomePage = () => {
         <AuditorSection />
 
         {/* Booking Section */}
-        <section id="booking" className="py-20" style={{ background: 'rgba(13,13,24,0.9)' }}>
+        <section id="booking" className="py-20" style={{ background: 'rgba(13,13,24,0.82)' }}>
           <div className="container mx-auto px-4 max-w-xl">
             <div className="text-center mb-12">
               <p className="text-[#22c8e5] text-xs font-bold tracking-[0.25em] uppercase mb-3">Schedule a Meeting</p>
@@ -253,6 +253,17 @@ const HomePage = () => {
               <p className="text-[#8892a4] text-lg max-w-lg mx-auto">Select a date and time and let's start building your competitive advantage.</p>
             </div>
             <SchedulerWidget />
+          </div>
+        </section>
+
+        {/* Film reveal — an unobstructed window on the closing scene */}
+        <section aria-label="Background film finale" className="relative" style={{ height: '170vh' }}>
+          <div className="pointer-events-none sticky top-0 flex h-screen items-end justify-center pb-14">
+            <div className="text-center">
+              <p className="inline-block rounded-full border border-[#22c8e5]/25 bg-[#0f1419]/70 px-4 py-1.5 text-[11px] font-bold uppercase tracking-[0.25em] text-[#22c8e5]">
+                05 — The Reveal
+              </p>
+            </div>
           </div>
         </section>
 
