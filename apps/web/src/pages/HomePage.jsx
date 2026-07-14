@@ -206,7 +206,7 @@ const HomePage = () => {
         </div>
 
         {/* Trust Section */}
-        <section className="py-20" style={{ background: 'rgba(26,35,50,0.88)' }}>
+        <section id="trust-section" className="py-20" style={{ background: 'rgba(26,35,50,0.88)' }}>
           <div className="container mx-auto px-4">
             <motion.div
               initial={{ opacity: 0, y: 30 }}
