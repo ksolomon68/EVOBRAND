@@ -42,7 +42,7 @@ const PLAN_META = {
   elite:  { label: 'Elite Support Plan',  icon: <Star size={14} />,    color: '#E8DDD0' },
 };
 
-const NewTicketForm = ({ onClose, onSubmit, user }) => {
+const NewTicketForm = ({ onClose, onSubmit, user, usage }) => {
   const supportPlan = user?.support_plan || null;
   const hasPlan = !!supportPlan;
 
@@ -111,18 +111,35 @@ const NewTicketForm = ({ onClose, onSubmit, user }) => {
           <form onSubmit={handleSubmit} className="space-y-8">
 
             {/* ── Plan badge or ticket type selector ──────────────────────── */}
-            {hasPlan ? (
-              <div className="flex items-center gap-3 px-5 py-4 rounded-2xl" style={{ background: 'rgba(34,200,229,0.07)', border: '1px solid rgba(34,200,229,0.25)' }}>
-                <span style={{ color: planMeta?.color }}>{planMeta?.icon}</span>
-                <div className="flex-1">
-                  <p className="text-xs font-bold uppercase tracking-widest" style={{ color: 'rgba(232,221,208,0.45)' }}>Active Maintenance Plan</p>
-                  <p className="font-bold text-sm" style={{ color: '#22c8e5' }}>{planMeta?.label}</p>
+            {hasPlan ? (() => {
+              const limitReached = usage && !usage.unlimited && usage.remaining <= 0;
+              return (
+                <div className="flex items-center gap-3 px-5 py-4 rounded-2xl" style={{
+                  background: limitReached ? 'rgba(251,191,36,0.08)' : 'rgba(34,200,229,0.07)',
+                  border: `1px solid ${limitReached ? 'rgba(251,191,36,0.3)' : 'rgba(34,200,229,0.25)'}`,
+                }}>
+                  <span style={{ color: planMeta?.color }}>{planMeta?.icon}</span>
+                  <div className="flex-1">
+                    <p className="text-xs font-bold uppercase tracking-widest" style={{ color: 'rgba(232,221,208,0.45)' }}>Active Maintenance Plan</p>
+                    <p className="font-bold text-sm" style={{ color: '#22c8e5' }}>{planMeta?.label}</p>
+                    {usage && !usage.unlimited && (
+                      <p className="text-xs mt-1" style={{ color: limitReached ? '#fbbf24' : 'rgba(232,221,208,0.4)' }}>
+                        {usage.used} of {usage.quota} included tickets used this month
+                      </p>
+                    )}
+                  </div>
+                  {limitReached ? (
+                    <div className="flex items-center gap-1.5 text-xs font-bold px-3 py-1.5 rounded-full text-center" style={{ background: 'rgba(251,191,36,0.15)', color: '#fbbf24' }}>
+                      Limit reached — billed at $85/hr
+                    </div>
+                  ) : (
+                    <div className="flex items-center gap-1.5 text-xs font-bold px-3 py-1.5 rounded-full" style={{ background: 'rgba(34,200,229,0.12)', color: '#22c8e5' }}>
+                      <Check size={11} /> Covered — no charge
+                    </div>
+                  )}
                 </div>
-                <div className="flex items-center gap-1.5 text-xs font-bold px-3 py-1.5 rounded-full" style={{ background: 'rgba(34,200,229,0.12)', color: '#22c8e5' }}>
-                  <Check size={11} /> Covered — no charge
-                </div>
-              </div>
-            ) : (
+              );
+            })() : (
               <div className="space-y-3">
                 <label className="text-white/40 text-xs font-bold uppercase tracking-widest ml-1">Ticket Type & Pricing</label>
                 <div className="grid grid-cols-1 gap-3">

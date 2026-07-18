@@ -15,6 +15,22 @@ const PLANS = [
   { value: 'elite', label: 'Elite',       icon: Star,            color: '#E8DDD0' },
 ];
 
+// Mirrors PLAN_TICKET_QUOTAS in apps/api/src/routes/support.js — included
+// support tickets per calendar month. null = unlimited.
+const PLAN_TICKET_QUOTAS = { basic: 2, pro: null, elite: null };
+
+function TicketUsage({ plan, used }) {
+  if (!plan) return <span className="text-xs text-white/20">—</span>;
+  const quota = PLAN_TICKET_QUOTAS[plan];
+  if (quota === null) return <span className="text-xs text-white/40">{used} used · Unlimited</span>;
+  const atLimit = used >= quota;
+  return (
+    <span className="text-xs font-bold" style={{ color: atLimit ? '#fbbf24' : 'rgba(255,255,255,0.6)' }}>
+      {used} / {quota} {atLimit && 'reached'}
+    </span>
+  );
+}
+
 function PlanBadge({ plan }) {
   const p = PLANS.find(p => p.value === (plan || ''));
   if (!p || !p.value) return <span className="text-xs text-white/25 font-bold">No Plan</span>;
@@ -461,6 +477,7 @@ export default function AdminClientPlansPanel({ user }) {
               <tr>
                 <th className="px-6 py-3">Client</th>
                 <th className="px-6 py-3">Current Plan</th>
+                <th className="px-6 py-3">Tickets This Month</th>
                 <th className="px-6 py-3">Assign Plan</th>
                 <th className="px-6 py-3">Joined</th>
               </tr>
@@ -474,6 +491,9 @@ export default function AdminClientPlansPanel({ user }) {
                   </td>
                   <td className="px-6 py-4">
                     <PlanBadge plan={client.support_plan} />
+                  </td>
+                  <td className="px-6 py-4">
+                    <TicketUsage plan={client.support_plan} used={client.tickets_used_this_month || 0} />
                   </td>
                   <td className="px-6 py-4">
                     <PlanSelector

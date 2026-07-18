@@ -178,6 +178,7 @@ const ClientPortalPage = () => {
   const [showNewTicketModal, setShowNewTicketModal] = useState(false);
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
   const [paymentBanner, setPaymentBanner] = useState(null); // { type: 'success'|'cancelled', message }
+  const [planUsage, setPlanUsage] = useState(null); // { plan, quota, used, remaining, unlimited }
 
   useEffect(() => {
     if (!authLoading && !user) navigate('/login');
@@ -238,9 +239,20 @@ const ClientPortalPage = () => {
     return () => window.removeEventListener('hashchange', onHashChange);
   }, []);
 
-  const API_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' 
-    ? 'http://localhost:5000/api/support' 
+  const API_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+    ? 'http://localhost:5000/api/support'
     : (window.location.origin + '/api/support');
+
+  // Refetch right before the ticket form opens so the quota shown is current
+  // even if the client already used one up earlier in the session.
+  useEffect(() => {
+    if (!showNewTicketModal) return;
+    const token = localStorage.getItem('evobrand_token');
+    fetch(`${API_URL}/plan-usage`, { headers: { Authorization: `Bearer ${token}` } })
+      .then(r => r.ok ? r.json() : null)
+      .then(data => setPlanUsage(data))
+      .catch(() => setPlanUsage(null));
+  }, [showNewTicketModal]);
 
   const fetchTickets = async (isInitial = false) => {
     if (isInitial) setLoading(true);
@@ -289,8 +301,6 @@ const ClientPortalPage = () => {
       body.append('priority', formData.priority?.toLowerCase() || 'normal');
       body.append('service', formData.service || 'General');
       body.append('ticket_type', formData.ticketType || 'standard');
-      body.append('has_plan', formData.hasPlan ? '1' : '0');
-      body.append('support_plan', formData.supportPlan || '');
       if (formData.file) {
         body.append('file', formData.file);
       }
@@ -754,6 +764,7 @@ const ClientPortalPage = () => {
             onClose={() => setShowNewTicketModal(false)}
             onSubmit={handleCreateTicket}
             user={user}
+            usage={planUsage}
           />
         )}
       </AnimatePresence>
