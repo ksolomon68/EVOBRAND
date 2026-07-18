@@ -8,6 +8,23 @@ const { notifyAdmins } = require('../utils/notifications');
 
 const getResend = () => new Resend(process.env.RESEND_API_KEY || 're_placeholder');
 
+// ─── Spam mitigation ───────────────────────────────────────────────────────
+// In-memory per-IP sliding window. Good enough for a single Node process;
+// resets on deploy/restart, which is an acceptable tradeoff for a public
+// form endpoint that doesn't warrant a new dependency or a DB table.
+const RATE_LIMIT_MAX = 5;
+const RATE_LIMIT_WINDOW_MS = 15 * 60 * 1000;
+const submitTimestamps = new Map(); // ip -> timestamps[]
+
+function isRateLimited(ip) {
+  const now = Date.now();
+  const hits = (submitTimestamps.get(ip) || []).filter((t) => now - t < RATE_LIMIT_WINDOW_MS);
+  hits.push(now);
+  submitTimestamps.set(ip, hits);
+  if (submitTimestamps.size > 5000) submitTimestamps.clear(); // crude unbounded-growth guard
+  return hits.length > RATE_LIMIT_MAX;
+}
+
 const ensureTable = async () => {
   await pool.query(`
     CREATE TABLE IF NOT EXISTS contact_submissions (
@@ -25,10 +42,22 @@ const ensureTable = async () => {
 // @route POST /api/contacts/submit
 // @desc  Submit a public contact form
 router.post('/submit', async (req, res) => {
-  const { name, email, subject, message, subscribeNewsletter } = req.body;
+  const { name, email, subject, message, subscribeNewsletter, website } = req.body;
+
+  // Honeypot: a field named to tempt bots that real visitors never see or
+  // fill in (hidden off-screen in the form). Pretend success so bots don't
+  // learn to avoid it, but skip the DB insert and emails entirely.
+  if (website) {
+    return res.status(201).json({ success: true, message: 'Contact form submitted successfully' });
+  }
 
   if (!name || !email || !message) {
     return res.status(400).json({ error: 'Name, email, and message are required' });
+  }
+
+  const ip = req.headers['x-forwarded-for']?.split(',')[0]?.trim() || req.socket?.remoteAddress || '';
+  if (isRateLimited(ip)) {
+    return res.status(429).json({ error: 'Too many submissions. Please try again later.' });
   }
 
   try {
