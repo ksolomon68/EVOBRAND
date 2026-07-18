@@ -39,7 +39,11 @@ function ticketTypeLabel(type) {
 // what visitors mean by "CST" in everyday use.
 function formatCST(dateStr) {
   if (!dateStr) return '—';
-  return new Date(dateStr).toLocaleString('en-US', {
+  // The API returns naive "YYYY-MM-DD HH:MM:SS" strings (the DB session runs
+  // in UTC) with no timezone marker. `new Date()` parses that shape as local
+  // browser time rather than UTC, so mark it explicitly UTC before converting.
+  const iso = /Z|[+-]\d\d:\d\d$/.test(dateStr) ? dateStr : `${dateStr.replace(' ', 'T')}Z`;
+  return new Date(iso).toLocaleString('en-US', {
     timeZone: 'America/Chicago',
     month: 'short',
     day: 'numeric',
