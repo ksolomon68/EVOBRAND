@@ -9,7 +9,7 @@ const PLANS = [
   {
     name: 'Basic Support Plan',
     slug: 'basic',
-    price: '$99',
+    price: '$129',
     period: '/mo',
     tagline: 'Essential care for growing sites',
     color: '#22c8e5',
@@ -22,6 +22,7 @@ const PLANS = [
       '48-hour response time',
       'Monthly performance report',
       'Basic malware removal',
+      'Additional tickets billed at $85/hr',
     ],
     notIncluded: [
       'Custom development work',
@@ -34,7 +35,7 @@ const PLANS = [
   {
     name: 'Pro Support Plan',
     slug: 'pro',
-    price: '$249',
+    price: '$299',
     period: '/mo',
     tagline: 'Full coverage for serious businesses',
     color: '#22c8e5',
@@ -60,15 +61,15 @@ const PLANS = [
   {
     name: 'Elite Support Plan',
     slug: 'elite',
-    price: '$499',
+    price: '$749',
     period: '/mo',
     tagline: 'White-glove care & dedicated support',
     color: '#E8DDD0',
     icon: <Star size={28} />,
     features: [
       'Everything in Pro, plus:',
-      'Unlimited support tickets',
-      'Same-day emergency response',
+      'Priority support tickets (fair-use)',
+      'Same-day emergency response (business hours)',
       '4 hours of custom dev work/month',
       'Dedicated account manager',
       'Monthly strategy call (30 min)',
@@ -263,7 +264,15 @@ export default function MaintenancePlansPage() {
           </div>
 
           <p className="text-center text-sm mt-8" style={{ color: 'rgba(232,221,208,0.35)' }}>
+            Save 10% with annual billing
+          </p>
+
+          <p className="text-center text-sm mt-2" style={{ color: 'rgba(232,221,208,0.35)' }}>
             Already a maintenance client? Log in to your portal — tickets are covered by your plan at no extra charge.
+          </p>
+
+          <p className="text-center text-xs mt-6 max-w-2xl mx-auto" style={{ color: 'rgba(232,221,208,0.25)' }}>
+            "Fair-use" support tickets means unlimited requests within reasonable monthly volume, with overages billed at standard hourly rates.
           </p>
         </div>
       </section>
