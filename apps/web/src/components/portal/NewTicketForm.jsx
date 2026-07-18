@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { X, Upload, Send, ShieldCheck, Zap, Star, Shield, Check } from 'lucide-react';
 
@@ -147,7 +148,7 @@ const NewTicketForm = ({ onClose, onSubmit, user }) => {
                   ))}
                 </div>
                 <p className="text-xs ml-1" style={{ color: 'rgba(232,221,208,0.3)' }}>
-                  Want unlimited tickets? <a href="/maintenance" className="underline" style={{ color: '#22c8e5' }}>View maintenance plans</a>
+                  Want unlimited tickets? <Link to="/maintenance-plans" className="underline" style={{ color: '#22c8e5' }}>View maintenance plans</Link>
                 </p>
               </div>
             )}
