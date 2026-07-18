@@ -21,6 +21,21 @@ const NAVY = '#003258';
 const STATUS_OPTS = ['open', 'in_progress', 'resolved', 'closed'];
 const PRIORITY_OPTS = ['low', 'normal', 'high', 'urgent'];
 
+// America/Chicago auto-handles CST/CDT (UTC-6 / UTC-5) across DST — this is
+// what visitors mean by "CST" in everyday use.
+function formatCST(dateStr) {
+  if (!dateStr) return '—';
+  return new Date(dateStr).toLocaleString('en-US', {
+    timeZone: 'America/Chicago',
+    month: 'short',
+    day: 'numeric',
+    year: 'numeric',
+    hour: 'numeric',
+    minute: '2-digit',
+    timeZoneName: 'short',
+  });
+}
+
 const statusColor = (s) => ({
   open: 'text-green-400 bg-green-400/10 border-green-400/30',
   in_progress: 'text-yellow-400 bg-yellow-400/10 border-yellow-400/30',
@@ -57,8 +72,11 @@ function TicketRow({ t, onOpen }) {
       <td className="px-5 py-4 text-sm font-bold" style={{ color: GOLD }}>
         {t.quoted_price > 0 ? `$${Number(t.quoted_price).toFixed(2)}` : '—'}
       </td>
-      <td className="px-5 py-4 text-white/30 text-xs">
-        {t.updated_at ? new Date(t.updated_at).toLocaleDateString() : '—'}
+      <td className="px-5 py-4 text-white/30 text-xs whitespace-nowrap">
+        {formatCST(t.created_at)}
+      </td>
+      <td className="px-5 py-4 text-white/30 text-xs whitespace-nowrap">
+        {formatCST(t.updated_at)}
       </td>
     </tr>
   );
@@ -343,8 +361,8 @@ function TicketDetail({ ticket, onBack, onRefresh }) {
               <p className="text-white/40 text-xs">{ticket.user_email}</p>
             </div>
             <div className="text-xs text-white/30">
-              <p>Opened: {new Date(ticket.created_at).toLocaleDateString()}</p>
-              <p>Updated: {new Date(ticket.updated_at).toLocaleDateString()}</p>
+              <p>Opened: {formatCST(ticket.created_at)}</p>
+              <p>Updated: {formatCST(ticket.updated_at)}</p>
             </div>
 
             {/* Maintenance Plan */}
@@ -519,7 +537,8 @@ export default function AdminTicketPanel({ user }) {
                 <th className="px-5 py-3">Status</th>
                 <th className="px-5 py-3">Priority</th>
                 <th className="px-5 py-3">Quote</th>
-                <th className="px-5 py-3">Updated</th>
+                <th className="px-5 py-3">Created (CST)</th>
+                <th className="px-5 py-3">Updated (CST)</th>
               </tr>
             </thead>
             <tbody>

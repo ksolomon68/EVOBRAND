@@ -40,6 +40,12 @@ const ensureSupportPlan = pool.query(
 
 const getResend = () => new Resend(process.env.RESEND_API_KEY || 're_placeholder');
 
+// Ticket notification emails ("New Ticket", "New Reply", etc.) go here.
+// Must match the admin identity used elsewhere in the app (auth.js,
+// isAdminUser below) — previously these were hardcoded to a different,
+// unmonitored address, so ticket notifications were silently going nowhere.
+const ADMIN_NOTIFY_EMAIL = process.env.ADMIN_EMAIL || 'ks@evobrand.net';
+
 // Helper: check if requester is admin from DB (not token, which may be stale)
 async function isAdminUser(userId) {
   const adminEmail = process.env.ADMIN_EMAIL || 'ks@evobrand.net';
@@ -166,31 +172,30 @@ router.post('/ticket', upload.single('file'), async (req, res) => {
       const nameParts = (name || '').split(' ');
       await addToCustomersList(email, { firstName: nameParts[0], lastName: nameParts.slice(1).join(' ') || null });
 
-      // Send Email Notifications
-      try {
-        const attachmentNote = attachmentUrl
-          ? `<p><strong>Attachment:</strong> <a href="https://evobrandconcepts.com${attachmentUrl}">${req.file.originalname}</a></p>`
-          : '';
-        await getResend().emails.send({
-          from: `"EVOBRAND" <${process.env.RESEND_FROM_EMAIL || 'info@evobrand.net'}>`,
-          to: 'info@evobrand.net',
-          subject: `New Ticket: ${subject}`,
-            html: getEmailTemplate(`New Ticket: ${subject}`, `<p><strong>New Support Ticket from ${name || email}</strong></p>
-                 <p><strong>Priority:</strong> ${priority || 'normal'}</p>
-                 <p><strong>Service:</strong> ${service || 'General'}</p>
-                 <p><strong>Message:</strong><br/>${message}</p>${attachmentNote}`)
-        });
-        await getResend().emails.send({
-          from: `"EVOBRAND" <${process.env.RESEND_FROM_EMAIL || 'info@evobrand.net'}>`,
-          to: email,
-          subject: `Ticket Received: ${subject}`,
-            html: getEmailTemplate(`Ticket Received: ${subject}`, `<p>Hi ${name || ''},</p>
-                 <p>We have successfully received your support ticket. Our team will review it and get back to you shortly.</p>
-                 <p><strong>Your Message:</strong><br/>${message}</p>`)
-        });
-      } catch (emailErr) {
-        console.error('Email notification failed:', emailErr);
-      }
+      // Send Email Notifications — admin and client emails are independent
+      // sends (each with its own .catch) so a failure on one never blocks
+      // or skips the other.
+      const attachmentNote = attachmentUrl
+        ? `<p><strong>Attachment:</strong> <a href="https://evobrandconcepts.com${attachmentUrl}">${req.file.originalname}</a></p>`
+        : '';
+      getResend().emails.send({
+        from: `"EVOBRAND" <${process.env.RESEND_FROM_EMAIL || 'info@evobrand.net'}>`,
+        to: ADMIN_NOTIFY_EMAIL,
+        subject: `New Ticket: ${subject}`,
+          html: getEmailTemplate(`New Ticket: ${subject}`, `<p><strong>New Support Ticket from ${name || email}</strong></p>
+               <p><strong>Priority:</strong> ${priority || 'normal'}</p>
+               <p><strong>Service:</strong> ${service || 'General'}</p>
+               <p><strong>Message:</strong><br/>${message}</p>${attachmentNote}`)
+      }).catch(err => console.error('New-ticket admin email failed:', err));
+
+      getResend().emails.send({
+        from: `"EVOBRAND" <${process.env.RESEND_FROM_EMAIL || 'info@evobrand.net'}>`,
+        to: email,
+        subject: `Ticket Received: ${subject}`,
+          html: getEmailTemplate(`Ticket Received: ${subject}`, `<p>Hi ${name || ''},</p>
+               <p>We have successfully received your support ticket. Our team will review it and get back to you shortly.</p>
+               <p><strong>Your Message:</strong><br/>${message}</p>`)
+      }).catch(err => console.error('New-ticket client confirmation email failed:', err));
       
       // Notify admins via in-app notifications
       await notifyAdmins(
@@ -246,7 +251,7 @@ router.post('/tickets/:id/reply', authenticateToken, async (req, res) => {
       // Email Admin
       await getResend().emails.send({
         from: `"EVOBRAND" <${process.env.RESEND_FROM_EMAIL || 'info@evobrand.net'}>`,
-        to: 'info@evobrand.net',
+        to: ADMIN_NOTIFY_EMAIL,
         subject: `New Reply: Ticket #${ticketId}`,
             html: getEmailTemplate(`New Reply: Ticket #${ticketId}`, `<p>The client has replied to ticket #${ticketId} ("${currentTicket.subject}"). The status is now <strong>OPEN</strong>.</p>
                <p><strong>Message:</strong><br/>${message}</p>`)
@@ -327,7 +332,7 @@ router.put('/tickets/:id', authenticateToken, async (req, res) => {
       // Email Admin
       await getResend().emails.send({
         from: `"EVOBRAND" <${process.env.RESEND_FROM_EMAIL || 'info@evobrand.net'}>`,
-        to: 'info@evobrand.net',
+        to: ADMIN_NOTIFY_EMAIL,
         subject: `Ticket Status Changed: #${ticketId}`,
             html: getEmailTemplate(`Ticket Status Changed: #${ticketId}`, `<p>Ticket #${ticketId} ("${currentTicket.subject}") status changed to <strong>${formattedStatus}</strong> by an admin.</p>`)
       }).catch(err => console.error('Admin email fail:', err));
@@ -373,7 +378,7 @@ router.post('/tickets/:id/close', authenticateToken, async (req, res) => {
       // Email Admin
       await getResend().emails.send({
         from: `"EVOBRAND" <${process.env.RESEND_FROM_EMAIL || 'info@evobrand.net'}>`,
-        to: 'info@evobrand.net',
+        to: ADMIN_NOTIFY_EMAIL,
         subject: `Ticket Closed by Client: #${ticketId}`,
             html: getEmailTemplate(`Ticket Closed by Client: #${ticketId}`, `<p>Ticket #${ticketId} ("${currentTicket.subject}") was closed by the client.</p>`)
       }).catch(err => console.error('Admin email fail:', err));
