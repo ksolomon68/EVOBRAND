@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import {
   Loader2, ShieldAlert, ArrowLeft, Send, DollarSign,
-  CheckCircle2, Clock, AlertCircle, Users, Tag, Paperclip, Shield, Zap, Star
+  CheckCircle2, Clock, AlertCircle, Users, Tag, Paperclip, Shield, Zap, Star, X
 } from 'lucide-react';
 
 const API_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
@@ -82,9 +82,48 @@ function TicketRow({ t, onOpen }) {
   );
 }
 
+function AttachmentBlock({ url }) {
+  if (!url) return null;
+  const fullUrl = url.startsWith('http')
+    ? url
+    : `${window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' ? 'http://localhost:5000' : ''}${url}`;
+  const isImage = /\.(jpg|jpeg|png|gif|webp)$/i.test(url);
+  return (
+    <div className="mt-3 pt-3 border-t border-white/10">
+      <p className="text-[10px] font-bold uppercase tracking-widest text-white/30 mb-2 flex items-center gap-1">
+        <Paperclip size={10} /> Attachment
+      </p>
+      {isImage ? (
+        <a href={fullUrl} target="_blank" rel="noreferrer">
+          <img
+            src={fullUrl}
+            alt="Ticket attachment"
+            className="max-w-full max-h-64 rounded-xl object-cover border border-white/10 hover:opacity-80 transition-opacity cursor-pointer"
+          />
+        </a>
+      ) : (
+        <a
+          href={fullUrl}
+          target="_blank"
+          rel="noreferrer"
+          download
+          className="inline-flex items-center gap-2 px-4 py-2 rounded-2xl text-sm font-bold transition-colors"
+          style={{ background: 'rgba(34,200,229,0.1)', color: '#22c8e5', border: '1px solid rgba(34,200,229,0.2)' }}
+          onMouseEnter={e => e.currentTarget.style.background = 'rgba(34,200,229,0.2)'}
+          onMouseLeave={e => e.currentTarget.style.background = 'rgba(34,200,229,0.1)'}
+        >
+          <Paperclip size={14} />
+          {url.split('/').pop()}
+        </a>
+      )}
+    </div>
+  );
+}
+
 function TicketDetail({ ticket, onBack, onRefresh }) {
   const [history, setHistory] = useState(ticket.history || []);
   const [replyText, setReplyText] = useState('');
+  const [replyFile, setReplyFile] = useState(null);
   const [priceInput, setPriceInput] = useState(String(ticket.quoted_price || ''));
   const [saving, setSaving] = useState(false);
   const [saveMsg, setSaveMsg] = useState('');
@@ -93,6 +132,7 @@ function TicketDetail({ ticket, onBack, onRefresh }) {
   const [planSaving, setPlanSaving] = useState(false);
   const [planMsg, setPlanMsg] = useState('');
   const bottomRef = useRef(null);
+  const fileInputRef = useRef(null);
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
@@ -159,13 +199,21 @@ function TicketDetail({ ticket, onBack, onRefresh }) {
     if (!replyText.trim()) return;
     setSending(true);
     try {
+      // multipart/form-data whenever a file is attached — don't set
+      // Content-Type manually, fetch sets the multipart boundary itself.
+      const body = new FormData();
+      body.append('message', replyText);
+      if (replyFile) body.append('file', replyFile);
+
       const res = await fetch(`${API_URL}/tickets/${ticket.id}/reply`, {
         method: 'POST',
-        headers: authHeader(),
-        body: JSON.stringify({ message: replyText }),
+        headers: { 'Authorization': `Bearer ${localStorage.getItem('evobrand_token')}` },
+        body,
       });
       if (res.ok) {
         setReplyText('');
+        setReplyFile(null);
+        if (fileInputRef.current) fileInputRef.current.value = '';
         // reload replies
         const r2 = await fetch(`${API_URL}/tickets/${ticket.id}`, {
           headers: { 'Authorization': `Bearer ${localStorage.getItem('evobrand_token')}` },
@@ -200,44 +248,7 @@ function TicketDetail({ ticket, onBack, onRefresh }) {
               <div className="max-w-[80%] bg-white/5 border border-white/10 rounded-2xl rounded-tl-none p-4">
                 <p className="text-[10px] font-bold uppercase tracking-widest text-white/30 mb-2">Client · Original</p>
                 <p className="text-white/80 text-sm leading-relaxed">{ticket.message}</p>
-
-                {/* Attachment */}
-                {ticket.attachment_url && (() => {
-                  const url = ticket.attachment_url.startsWith('http')
-                    ? ticket.attachment_url
-                    : `${window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' ? 'http://localhost:5000' : ''}${ticket.attachment_url}`;
-                  const isImage = /\.(jpg|jpeg|png|gif|webp)$/i.test(ticket.attachment_url);
-                  return (
-                    <div className="mt-3 pt-3 border-t border-white/10">
-                      <p className="text-[10px] font-bold uppercase tracking-widest text-white/30 mb-2 flex items-center gap-1">
-                        <Paperclip size={10} /> Attachment
-                      </p>
-                      {isImage ? (
-                        <a href={url} target="_blank" rel="noreferrer">
-                          <img
-                            src={url}
-                            alt="Ticket attachment"
-                            className="max-w-full max-h-64 rounded-xl object-cover border border-white/10 hover:opacity-80 transition-opacity cursor-pointer"
-                          />
-                        </a>
-                      ) : (
-                        <a
-                          href={url}
-                          target="_blank"
-                          rel="noreferrer"
-                          download
-                          className="inline-flex items-center gap-2 px-4 py-2 rounded-2xl text-sm font-bold transition-colors"
-                          style={{ background: 'rgba(34,200,229,0.1)', color: '#22c8e5', border: '1px solid rgba(34,200,229,0.2)' }}
-                          onMouseEnter={e => e.currentTarget.style.background = 'rgba(34,200,229,0.2)'}
-                          onMouseLeave={e => e.currentTarget.style.background = 'rgba(34,200,229,0.1)'}
-                        >
-                          <Paperclip size={14} />
-                          {ticket.attachment_url.split('/').pop()}
-                        </a>
-                      )}
-                    </div>
-                  );
-                })()}
+                <AttachmentBlock url={ticket.attachment_url} />
               </div>
             </div>
 
@@ -253,28 +264,59 @@ function TicketDetail({ ticket, onBack, onRefresh }) {
                     {msg.sender_is_admin ? 'You (Admin)' : ticket.user_name || 'Client'}
                   </p>
                   {msg.message}
+                  <AttachmentBlock url={msg.attachment_url} />
                 </div>
               </div>
             ))}
             <div ref={bottomRef} />
           </div>
 
-          <form onSubmit={sendReply} className="p-4 border-t border-white/10 flex gap-3">
-            <input
-              value={replyText}
-              onChange={(e) => setReplyText(e.target.value)}
-              placeholder="Reply to client..."
-              className="flex-1 bg-white/5 border border-white/10 text-white rounded-2xl px-4 py-3 text-sm focus:outline-none focus:border-[#22c8e5] transition-colors"
-            />
-            <button
-              type="submit"
-              disabled={sending || !replyText.trim()}
-              className="px-5 py-3 rounded-2xl font-bold text-sm flex items-center gap-2 disabled:opacity-40 transition-colors"
-              style={{ background: GOLD, color: NAVY }}
-            >
-              {sending ? <Loader2 size={14} className="animate-spin" /> : <Send size={14} />}
-              Send
-            </button>
+          <form onSubmit={sendReply} className="p-4 border-t border-white/10 space-y-3">
+            {replyFile && (
+              <div className="flex items-center gap-2 px-3 py-2 bg-[rgba(34,200,229,0.1)] border border-[rgba(34,200,229,0.2)] rounded-xl text-xs text-white/70 w-fit">
+                <Paperclip size={12} style={{ color: GOLD }} />
+                {replyFile.name}
+                <button
+                  type="button"
+                  onClick={() => { setReplyFile(null); if (fileInputRef.current) fileInputRef.current.value = ''; }}
+                  className="text-white/40 hover:text-white/80 transition-colors"
+                >
+                  <X size={12} />
+                </button>
+              </div>
+            )}
+            <div className="flex gap-3">
+              <input
+                ref={fileInputRef}
+                type="file"
+                id="admin-reply-file-upload"
+                className="hidden"
+                onChange={(e) => e.target.files[0] && setReplyFile(e.target.files[0])}
+                accept="image/*,.pdf,.doc,.docx,.txt,.zip"
+              />
+              <label
+                htmlFor="admin-reply-file-upload"
+                title="Attach screenshot or document"
+                className="flex-shrink-0 px-4 py-3 bg-white/5 hover:bg-white/10 border border-white/10 text-white/40 hover:text-[#22c8e5] rounded-2xl transition-all cursor-pointer flex items-center"
+              >
+                <Paperclip size={16} />
+              </label>
+              <input
+                value={replyText}
+                onChange={(e) => setReplyText(e.target.value)}
+                placeholder="Reply to client..."
+                className="flex-1 bg-white/5 border border-white/10 text-white rounded-2xl px-4 py-3 text-sm focus:outline-none focus:border-[#22c8e5] transition-colors"
+              />
+              <button
+                type="submit"
+                disabled={sending || !replyText.trim()}
+                className="px-5 py-3 rounded-2xl font-bold text-sm flex items-center gap-2 disabled:opacity-40 transition-colors"
+                style={{ background: GOLD, color: NAVY }}
+              >
+                {sending ? <Loader2 size={14} className="animate-spin" /> : <Send size={14} />}
+                Send
+              </button>
+            </div>
           </form>
         </div>
 

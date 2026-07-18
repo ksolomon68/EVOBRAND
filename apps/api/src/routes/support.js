@@ -33,6 +33,7 @@ const upload = multer({
 
 // Auto-migrate: add missing columns on startup
 pool.query("ALTER TABLE support_tickets ADD COLUMN attachment_url VARCHAR(500)").catch(() => {});
+pool.query("ALTER TABLE ticket_replies ADD COLUMN attachment_url VARCHAR(500)").catch(() => {});
 // Stored as a promise so handlers can await it before querying support_plan
 const ensureSupportPlan = pool.query(
   "ALTER TABLE users ADD COLUMN support_plan ENUM('basic','pro','elite') DEFAULT NULL"
@@ -219,8 +220,9 @@ router.post('/ticket', upload.single('file'), async (req, res) => {
 });
 
 // @route POST /api/support/tickets/:id/reply
-// @desc  Add a reply to a ticket
-router.post('/tickets/:id/reply', authenticateToken, async (req, res) => {
+// @desc  Add a reply to a ticket — accepts multipart/form-data so a
+//        screenshot or document can be attached, same as the original ticket
+router.post('/tickets/:id/reply', authenticateToken, upload.single('file'), async (req, res) => {
   const { message } = req.body;
   const ticketId = req.params.id;
 
@@ -230,37 +232,43 @@ router.post('/tickets/:id/reply', authenticateToken, async (req, res) => {
     // Verify access
     const [tickets] = await pool.query('SELECT t.*, u.email as user_email, u.name as user_name FROM support_tickets t LEFT JOIN users u ON t.user_id = u.id WHERE t.id = ?', [ticketId]);
     if (tickets.length === 0) return res.status(404).json({ error: 'Ticket not found' });
-    
+
     const currentTicket = tickets[0];
     const admin = await isAdminUser(req.user.id);
     if (!admin && currentTicket.user_id !== req.user.id) {
       return res.status(403).json({ error: 'Access denied' });
     }
 
+    const attachmentUrl = req.file ? `/uploads/${req.file.filename}` : null;
+
     // Insert reply
     await pool.query(
-      'INSERT INTO ticket_replies (ticket_id, sender_id, message) VALUES (?, ?, ?)',
-      [ticketId, req.user.id, message]
+      'INSERT INTO ticket_replies (ticket_id, sender_id, message, attachment_url) VALUES (?, ?, ?, ?)',
+      [ticketId, req.user.id, message, attachmentUrl]
     );
+
+    const attachmentNote = attachmentUrl
+      ? `<p><strong>Attachment:</strong> <a href="https://evobrandconcepts.com${attachmentUrl}">${req.file.originalname}</a></p>`
+      : '';
 
     // Update ticket updated_at and status if replied by user
     if (!admin) {
       await pool.query('UPDATE support_tickets SET status = "open", updated_at = NOW() WHERE id = ?', [ticketId]);
       await notifyAdmins('New Ticket Reply', `Client replied to ticket #${ticketId}`, '/client-portal', 'ticket');
-      
+
       // Email Admin
       await getResend().emails.send({
         from: `"EVOBRAND" <${process.env.RESEND_FROM_EMAIL || 'info@evobrand.net'}>`,
         to: ADMIN_NOTIFY_EMAIL,
         subject: `New Reply: Ticket #${ticketId}`,
             html: getEmailTemplate(`New Reply: Ticket #${ticketId}`, `<p>The client has replied to ticket #${ticketId} ("${currentTicket.subject}"). The status is now <strong>OPEN</strong>.</p>
-               <p><strong>Message:</strong><br/>${message}</p>`)
+               <p><strong>Message:</strong><br/>${message}</p>${attachmentNote}`)
       }).catch(err => console.error('Admin email fail:', err));
 
     } else {
       await pool.query('UPDATE support_tickets SET status = "in_progress", updated_at = NOW() WHERE id = ?', [ticketId]);
       await createNotification(currentTicket.user_id, 'New Reply', `You received a reply on your ticket`, '/client-portal', 'ticket');
-      
+
       // Email User
       if (currentTicket.user_email) {
         await getResend().emails.send({
@@ -269,12 +277,12 @@ router.post('/tickets/:id/reply', authenticateToken, async (req, res) => {
           subject: `New Reply on Ticket: ${currentTicket.subject}`,
             html: getEmailTemplate(`New Reply on Ticket: ${currentTicket.subject}`, `<p>Hi ${currentTicket.user_name || ''},</p>
                  <p>An admin has replied to your ticket "<strong>${currentTicket.subject}</strong>". The status is now <strong>IN PROGRESS</strong>.</p>
-                 <p><strong>Reply:</strong><br/>${message}</p>`)
+                 <p><strong>Reply:</strong><br/>${message}</p>${attachmentNote}`)
         }).catch(err => console.error('Status email fail:', err));
       }
     }
 
-    res.status(201).json({ message: 'Reply added successfully' });
+    res.status(201).json({ message: 'Reply added successfully', attachmentUrl });
   } catch (error) {
     console.error('Reply error:', error);
     res.status(500).json({ error: 'Server error adding reply' });

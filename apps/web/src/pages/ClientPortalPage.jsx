@@ -315,18 +315,22 @@ const ClientPortalPage = () => {
     }
   };
 
-  const handleClientReply = async (ticketId, message) => {
+  const handleClientReply = async (ticketId, message, file) => {
     try {
       const token = localStorage.getItem('evobrand_token');
+      // multipart/form-data whenever a file is attached — Content-Type with
+      // the multipart boundary is set automatically by fetch, don't set it
+      // manually or the boundary gets lost and the upload breaks.
+      const body = new FormData();
+      body.append('message', message);
+      if (file) body.append('file', file);
+
       const response = await fetch(`${API_URL}/tickets/${ticketId}/reply`, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify({ message })
+        headers: { 'Authorization': `Bearer ${token}` },
+        body,
       });
-      
+
       const data = await response.json();
       if (!response.ok) throw new Error(data.error);
 
