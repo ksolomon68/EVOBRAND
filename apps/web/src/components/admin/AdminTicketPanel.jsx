@@ -21,6 +21,20 @@ const NAVY = '#003258';
 const STATUS_OPTS = ['open', 'in_progress', 'resolved', 'closed'];
 const PRIORITY_OPTS = ['low', 'normal', 'high', 'urgent'];
 
+// Mirrors NewTicketForm.jsx's TICKET_TYPES — the pricing tier the client
+// picked when submitting, so admins can see what was actually selected
+// without asking, or re-deriving it from the quoted price after the fact.
+const TICKET_TYPE_META = {
+  simple_update: { label: 'Simple Update', price: '$50–$150', turnaround: '1–2 business days' },
+  standard:      { label: 'Single Support Ticket', price: '$149', turnaround: '48-hour turnaround' },
+  urgent:        { label: 'Urgent Fix', price: '$299', turnaround: '24-hour response' },
+  custom_dev:    { label: 'Custom Development', price: '$99/hr', turnaround: 'Timeline quoted per project' },
+  plan_covered:  { label: 'Plan-Covered Request', price: 'Included', turnaround: 'Per plan SLA' },
+};
+function ticketTypeLabel(type) {
+  return TICKET_TYPE_META[type]?.label || type || 'Standard';
+}
+
 // America/Chicago auto-handles CST/CDT (UTC-6 / UTC-5) across DST — this is
 // what visitors mean by "CST" in everyday use.
 function formatCST(dateStr) {
@@ -58,7 +72,19 @@ function TicketRow({ t, onOpen }) {
     >
       <td className="px-5 py-4">
         <p className="text-white font-semibold text-sm truncate max-w-[220px]">{t.subject}</p>
-        <p className="text-white/30 text-xs mt-0.5">#{t.id}</p>
+        <div className="flex items-center gap-2 mt-1">
+          <p className="text-white/30 text-xs">#{t.id}</p>
+          {t.service && (
+            <span className="text-[9px] font-bold uppercase tracking-wide px-1.5 py-0.5 rounded bg-white/5 text-white/40 border border-white/10">
+              {t.service}
+            </span>
+          )}
+          {(t.plan_covered === 1 || t.plan_covered === true) && (
+            <span className="text-[9px] font-bold uppercase tracking-wide px-1.5 py-0.5 rounded" style={{ background: 'rgba(34,200,229,0.12)', color: GOLD }}>
+              Plan
+            </span>
+          )}
+        </div>
       </td>
       <td className="px-5 py-4 text-white/50 text-sm">{t.user_name || t.user_email}</td>
       <td className="px-5 py-4">
@@ -326,6 +352,36 @@ function TicketDetail({ ticket, onBack, onRefresh }) {
 
         {/* Controls */}
         <div className="w-full lg:w-72 space-y-5 lg:flex-shrink-0">
+
+          {/* Submission Details — exactly what the client selected on the form */}
+          <div className="bg-white/5 border border-white/10 rounded-2xl p-5 space-y-3">
+            <h3 className="text-xs font-bold uppercase tracking-widest text-white/40 flex items-center gap-2">
+              <Tag size={12} /> Submission Details
+            </h3>
+            <div>
+              <p className="text-[10px] font-bold uppercase tracking-widest text-white/30 mb-1">Target Cluster</p>
+              <p className="text-white text-sm font-semibold">{ticket.service || '—'}</p>
+            </div>
+            <div>
+              <p className="text-[10px] font-bold uppercase tracking-widest text-white/30 mb-1">Ticket Type</p>
+              <p className="text-white text-sm font-semibold">{ticketTypeLabel(ticket.ticket_type)}</p>
+              {TICKET_TYPE_META[ticket.ticket_type] && (
+                <p className="text-white/40 text-xs mt-0.5">
+                  {TICKET_TYPE_META[ticket.ticket_type].price} · {TICKET_TYPE_META[ticket.ticket_type].turnaround}
+                </p>
+              )}
+            </div>
+            <div>
+              <p className="text-[10px] font-bold uppercase tracking-widest text-white/30 mb-1">Billing</p>
+              {(ticket.plan_covered === 1 || ticket.plan_covered === true) ? (
+                <span className="inline-flex items-center gap-1.5 text-xs font-bold px-2.5 py-1 rounded-full" style={{ background: 'rgba(34,200,229,0.12)', color: GOLD }}>
+                  <CheckCircle2 size={11} /> Covered by maintenance plan
+                </span>
+              ) : (
+                <span className="text-white/60 text-sm">Billable — not plan-covered</span>
+              )}
+            </div>
+          </div>
 
           {/* Status & Priority */}
           <div className="bg-white/5 border border-white/10 rounded-2xl p-5 space-y-4">
