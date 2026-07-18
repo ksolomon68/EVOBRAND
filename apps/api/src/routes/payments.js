@@ -182,8 +182,12 @@ const { getEmailTemplate } = require('../utils/emailTemplate');
 const crypto = require('crypto');
 const bcrypt = require('bcryptjs');
 
+// Annual billing pays 10 months' rate for 12 months of service (2 months
+// free) — matches the discount shown on the public maintenance-plans page.
+const ANNUAL_MONTHS_CHARGED = 10;
+
 router.post('/public-checkout', async (req, res) => {
-  const { planId, email, name } = req.body;
+  const { planId, email, name, interval } = req.body;
 
   if (!planId || !email || !name) {
     return res.status(400).json({ error: 'planId, email, and name are required' });
@@ -194,9 +198,14 @@ router.post('/public-checkout', async (req, res) => {
     return res.status(400).json({ error: 'Invalid plan selected' });
   }
 
-  const amountCents = plan.price * 100;
+  // The client only requests month vs. year — price is always computed here
+  // from PUBLIC_PLANS, never taken from the request body.
+  const billingInterval = plan.type === 'recurring' && interval === 'year' ? 'year' : 'month';
+  const isAnnual = plan.type === 'recurring' && billingInterval === 'year';
+  const amountCents = isAnnual ? plan.price * ANNUAL_MONTHS_CHARGED * 100 : plan.price * 100;
+  const displayName = isAnnual ? `${plan.name} (Annual)` : plan.name;
   const origin = process.env.APP_URL || 'https://evobrandconcepts.com';
-  
+
   // URL to redirect client on success
   const successUrl = `${origin}/payment-success?session_id={CHECKOUT_SESSION_ID}&planId=${planId}&email=${encodeURIComponent(email)}&name=${encodeURIComponent(name)}`;
   const cancelUrl = `${origin}/services`;
@@ -210,8 +219,8 @@ router.post('/public-checkout', async (req, res) => {
           price_data: {
             currency: 'usd',
             product_data: {
-              name: plan.name,
-              description: `EVOBRAND Concepts LLC — ${plan.name} Purchase`,
+              name: displayName,
+              description: `EVOBRAND Concepts LLC — ${displayName} Purchase`,
               images: [`${origin}/logo.png`],
             },
             unit_amount: amountCents,
@@ -225,13 +234,14 @@ router.post('/public-checkout', async (req, res) => {
         planId,
         clientName: name,
         clientEmail: email,
-        isPublic: 'true'
+        isPublic: 'true',
+        billingInterval,
       }
     };
 
     if (plan.type === 'recurring') {
       sessionData.mode = 'subscription';
-      sessionData.line_items[0].price_data.recurring = { interval: 'month' };
+      sessionData.line_items[0].price_data.recurring = { interval: billingInterval };
     } else {
       sessionData.mode = 'payment';
     }
@@ -262,6 +272,13 @@ router.post('/verify-public-session', async (req, res) => {
     if (session.payment_status !== 'paid') {
       return res.status(402).json({ error: 'Payment not completed', status: session.payment_status });
     }
+
+    // Read back what was actually charged/billed from the session itself
+    // (set server-side at checkout creation) rather than re-deriving it from
+    // the flat PUBLIC_PLANS price, which would misreport annual purchases.
+    const billingInterval = session.metadata?.billingInterval === 'year' ? 'year' : 'month';
+    const paidAmount = typeof session.amount_total === 'number' ? session.amount_total / 100 : plan.price;
+    const billingSuffix = plan.type === 'recurring' ? (billingInterval === 'year' ? '/yr' : '/mo') : '';
 
     // 1. Find or create user
     let user;
@@ -300,11 +317,11 @@ router.post('/verify-public-session', async (req, res) => {
 
     // 2. Create support ticket as order record
     const ticketSubject = `Order Confirmed: ${plan.name}`;
-    const ticketMessage = `Thank you for your purchase!\n\nOrder Details:\n- Item: ${plan.name}\n- Price: $${plan.price}${plan.type === 'recurring' ? '/mo' : ''}\n- Status: Paid (Stripe Session: ${sessionId})\n\nOur team has been notified and will be in touch shortly to get started.`;
-    
+    const ticketMessage = `Thank you for your purchase!\n\nOrder Details:\n- Item: ${plan.name}\n- Price: $${paidAmount}${billingSuffix}\n- Status: Paid (Stripe Session: ${sessionId})\n\nOur team has been notified and will be in touch shortly to get started.`;
+
     const [ticketResult] = await pool.query(
       'INSERT INTO support_tickets (user_id, subject, message, status, priority, quoted_price, is_paid, stripe_session_id, ticket_type) VALUES (?, ?, ?, "open", "normal", ?, TRUE, ?, "order")',
-      [user.id, ticketSubject, ticketMessage, plan.price, sessionId]
+      [user.id, ticketSubject, ticketMessage, paidAmount, sessionId]
     );
 
     // 3. Send welcome / purchase confirmation emails
@@ -312,7 +329,7 @@ router.post('/verify-public-session', async (req, res) => {
     try {
       let emailBody = `<p>Hi ${name},</p>
         <p>Thank you for purchasing the <strong>${plan.name}</strong>!</p>
-        <p>Your payment of <strong>$${plan.price}${plan.type === 'recurring' ? '/month' : ''}</strong> was processed successfully.</p>`;
+        <p>Your payment of <strong>$${paidAmount}${billingSuffix}</strong> was processed successfully.</p>`;
         
       if (isNewUser) {
         emailBody += `<p>An account has been created for you in the EVOBRAND Client Portal.</p>
@@ -351,7 +368,7 @@ router.post('/verify-public-session', async (req, res) => {
            <p><strong>Order Details:</strong></p>
            <ul>
              <li>Item: ${plan.name}</li>
-             <li>Amount: $${plan.price}${plan.type === 'recurring' ? '/mo' : ''}</li>
+             <li>Amount: $${paidAmount}${billingSuffix}</li>
              <li>Stripe Session: ${sessionId}</li>
            </ul>
            <p>A support ticket/order tracking ticket has been created inside the client portal.</p>`)

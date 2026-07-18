@@ -246,7 +246,8 @@ export default function MaintenancePlansPage() {
                       planId: `maintenance-${plan.slug}`,
                       planName: plan.name,
                       price: annual ? discountedPrice(plan.price) : plan.price,
-                      type: 'recurring'
+                      type: 'recurring',
+                      interval: annual ? 'year' : 'month',
                     })}
                     className="w-full text-center py-4 rounded-2xl font-bold text-sm uppercase tracking-widest transition-all"
                     style={plan.highlighted
@@ -357,6 +358,7 @@ export default function MaintenancePlansPage() {
           planName={checkoutPlan.planName}
           price={checkoutPlan.price}
           type={checkoutPlan.type}
+          interval={checkoutPlan.interval}
           onClose={() => setCheckoutPlan(null)}
         />
       )}

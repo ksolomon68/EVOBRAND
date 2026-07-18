@@ -6,7 +6,7 @@ const API_BASE = window.location.hostname === 'localhost' || window.location.hos
   ? 'http://localhost:5000/api'
   : (window.location.origin + '/api');
 
-export default function PublicCheckoutModal({ planId, planName, price, type, onClose }) {
+export default function PublicCheckoutModal({ planId, planName, price, type, interval = 'month', onClose }) {
   const [email, setEmail] = useState('');
   const [name, setName] = useState('');
   const [loading, setLoading] = useState(false);
@@ -26,7 +26,7 @@ export default function PublicCheckoutModal({ planId, planName, price, type, onC
       const res = await fetch(`${API_BASE}/payments/public-checkout`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ planId, email, name }),
+        body: JSON.stringify({ planId, email, name, interval }),
       });
 
       const data = await res.json();
@@ -82,7 +82,7 @@ export default function PublicCheckoutModal({ planId, planName, price, type, onC
               You are purchasing <strong>{planName}</strong>
             </p>
             <div className="mt-3 inline-block px-4 py-1.5 rounded-full text-lg font-bold bg-[#22c8e5]/10 text-[#22c8e5] border border-[#22c8e5]/20">
-              {price}{type === 'recurring' ? '/mo' : ''}
+              {price}{type === 'recurring' ? (interval === 'year' ? '/yr' : '/mo') : ''}
             </div>
           </div>
 
