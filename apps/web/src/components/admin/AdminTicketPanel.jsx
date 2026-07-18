@@ -30,6 +30,7 @@ const TICKET_TYPE_META = {
   urgent:        { label: 'Urgent Fix', price: '$299', turnaround: '24-hour response' },
   custom_dev:    { label: 'Custom Development', price: '$99/hr', turnaround: 'Timeline quoted per project' },
   plan_covered:  { label: 'Plan-Covered Request', price: 'Included', turnaround: 'Per plan SLA' },
+  plan_overage:  { label: 'Plan Overage — Bill at $85/hr', price: 'Not yet quoted', turnaround: 'Admin to set price' },
 };
 function ticketTypeLabel(type) {
   return TICKET_TYPE_META[type]?.label || type || 'Standard';

@@ -47,6 +47,32 @@ const getResend = () => new Resend(process.env.RESEND_API_KEY || 're_placeholder
 // unmonitored address, so ticket notifications were silently going nowhere.
 const ADMIN_NOTIFY_EMAIL = process.env.ADMIN_EMAIL || 'ks@evobrand.net';
 
+// Included support tickets per calendar month, by plan. null = unlimited.
+// Mirrors the plan copy on apps/web/src/pages/MaintenancePlansPage.jsx —
+// Basic includes 2/mo (extra billed at $85/hr); Pro and Elite are unlimited
+// (Elite is "fair-use," which is a judgment call, not an algorithmic cap).
+const PLAN_TICKET_QUOTAS = { basic: 2, pro: null, elite: null };
+
+// Tickets created since the start of the current calendar month that were
+// covered by the client's plan. Computed entirely in SQL (not pulled into
+// JS as a date) since the pool runs with dateStrings: true.
+async function getTicketsUsedThisMonth(userId) {
+  const [[row]] = await pool.query(
+    `SELECT COUNT(*) AS used FROM support_tickets
+     WHERE user_id = ? AND plan_covered = 1
+       AND created_at >= DATE_FORMAT(NOW(), '%Y-%m-01')`,
+    [userId]
+  );
+  return parseInt(row.used, 10);
+}
+
+function planUsageFor(plan, used) {
+  if (!plan) return { plan: null, quota: null, used: 0, remaining: null, unlimited: false };
+  const quota = PLAN_TICKET_QUOTAS[plan];
+  const unlimited = quota === null;
+  return { plan, quota, used, remaining: unlimited ? null : Math.max(0, quota - used), unlimited };
+}
+
 // Helper: check if requester is admin from DB (not token, which may be stale)
 async function isAdminUser(userId) {
   const adminEmail = process.env.ADMIN_EMAIL || 'ks@evobrand.net';
@@ -85,6 +111,21 @@ router.get('/tickets', authenticateToken, async (req, res) => {
   } catch (error) {
     console.error('Fetch tickets error:', error);
     res.status(500).json({ error: 'Server error fetching tickets' });
+  }
+});
+
+// @route GET /api/support/plan-usage
+// @desc  How many plan-covered tickets the logged-in user has used this
+//        calendar month, and how many (if any) they have left
+router.get('/plan-usage', authenticateToken, async (req, res) => {
+  try {
+    await ensureSupportPlan;
+    const [[user]] = await pool.query('SELECT support_plan FROM users WHERE id = ?', [req.user.id]);
+    const used = await getTicketsUsedThisMonth(req.user.id);
+    res.status(200).json(planUsageFor(user?.support_plan || null, used));
+  } catch (error) {
+    console.error('Fetch plan usage error:', error);
+    res.status(500).json({ error: 'Server error fetching plan usage' });
   }
 });
 
@@ -131,7 +172,7 @@ router.get('/tickets/:id', authenticateToken, async (req, res) => {
 // @route POST /api/support/ticket
 // @desc  Create a new support ticket — accepts multipart/form-data for file uploads
 router.post('/ticket', upload.single('file'), async (req, res) => {
-  const { email, name, subject, message, priority, service, ticket_type, has_plan } = req.body;
+  const { email, name, subject, message, priority, service, ticket_type } = req.body;
 
   if (!email || !subject || !message) {
     return res.status(400).json({ error: 'Email, subject, and message are required' });
@@ -142,8 +183,9 @@ router.post('/ticket', upload.single('file'), async (req, res) => {
     await connection.beginTransaction();
 
     try {
-      let [users] = await connection.query('SELECT id FROM users WHERE email = ?', [email]);
+      let [users] = await connection.query('SELECT id, support_plan FROM users WHERE email = ?', [email]);
       let userId;
+      let supportPlan = null;
 
       if (users.length === 0) {
         const [insertResult] = await connection.query(
@@ -153,6 +195,37 @@ router.post('/ticket', upload.single('file'), async (req, res) => {
         userId = insertResult.insertId;
       } else {
         userId = users[0].id;
+        supportPlan = users[0].support_plan;
+      }
+
+      // Whether this ticket is free is decided here from the user's actual
+      // plan and this month's usage — never trusted from the client, which
+      // previously just sent a self-reported has_plan flag with no
+      // server-side check against the account's real plan or ticket count.
+      let effectiveTicketType = ticket_type || 'standard';
+      let planCovered = false;
+      let overQuota = false;
+      if (supportPlan) {
+        const quota = PLAN_TICKET_QUOTAS[supportPlan];
+        if (quota === null) {
+          planCovered = true;
+          effectiveTicketType = 'plan_covered';
+        } else {
+          const [[{ used }]] = await connection.query(
+            `SELECT COUNT(*) AS used FROM support_tickets
+             WHERE user_id = ? AND plan_covered = 1
+               AND created_at >= DATE_FORMAT(NOW(), '%Y-%m-01')`,
+            [userId]
+          );
+          if (used < quota) {
+            planCovered = true;
+            effectiveTicketType = 'plan_covered';
+          } else {
+            planCovered = false;
+            overQuota = true;
+            effectiveTicketType = 'plan_overage';
+          }
+        }
       }
 
       // Build attachment URL if a file was uploaded
@@ -163,7 +236,7 @@ router.post('/ticket', upload.single('file'), async (req, res) => {
 
       const [ticketResult] = await connection.query(
         'INSERT INTO support_tickets (user_id, subject, message, priority, service, attachment_url, ticket_type, plan_covered) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
-        [userId, subject, message, priority || 'normal', service || 'General', attachmentUrl, ticket_type || 'standard', has_plan === '1' ? 1 : 0]
+        [userId, subject, message, priority || 'normal', service || 'General', attachmentUrl, effectiveTicketType, planCovered ? 1 : 0]
       );
 
       await connection.commit();
@@ -179,13 +252,17 @@ router.post('/ticket', upload.single('file'), async (req, res) => {
       const attachmentNote = attachmentUrl
         ? `<p><strong>Attachment:</strong> <a href="https://evobrandconcepts.com/api${attachmentUrl}">${req.file.originalname}</a></p>`
         : '';
+      const overQuotaNote = overQuota
+        ? `<p style="color:#b45309;"><strong>⚠️ Plan limit reached</strong> — this client's ${supportPlan} plan includes ${PLAN_TICKET_QUOTAS[supportPlan]} tickets/month and that's already used up this cycle. This ticket is billable — set a quoted price (Basic overage rate: $85/hr).</p>`
+        : '';
       getResend().emails.send({
         from: `"EVOBRAND" <${process.env.RESEND_FROM_EMAIL || 'info@evobrand.net'}>`,
         to: ADMIN_NOTIFY_EMAIL,
-        subject: `New Ticket: ${subject}`,
+        subject: `${overQuota ? '[Billable] ' : ''}New Ticket: ${subject}`,
           html: getEmailTemplate(`New Ticket: ${subject}`, `<p><strong>New Support Ticket from ${name || email}</strong></p>
                <p><strong>Priority:</strong> ${priority || 'normal'}</p>
                <p><strong>Service:</strong> ${service || 'General'}</p>
+               ${overQuotaNote}
                <p><strong>Message:</strong><br/>${message}</p>${attachmentNote}`)
       }).catch(err => console.error('New-ticket admin email failed:', err));
 
@@ -195,18 +272,19 @@ router.post('/ticket', upload.single('file'), async (req, res) => {
         subject: `Ticket Received: ${subject}`,
           html: getEmailTemplate(`Ticket Received: ${subject}`, `<p>Hi ${name || ''},</p>
                <p>We have successfully received your support ticket. Our team will review it and get back to you shortly.</p>
+               ${overQuota ? `<p><strong>Note:</strong> you've used all ${PLAN_TICKET_QUOTAS[supportPlan]} of your included tickets for this month, so this one will be billed at the plan's overage rate rather than covered for free.</p>` : ''}
                <p><strong>Your Message:</strong><br/>${message}</p>`)
       }).catch(err => console.error('New-ticket client confirmation email failed:', err));
-      
+
       // Notify admins via in-app notifications
       await notifyAdmins(
-        'New Support Ticket', 
-        `${name || email} has opened a new ticket: ${subject}`, 
-        '/client-portal', 
+        overQuota ? 'New Support Ticket (Billable — over plan limit)' : 'New Support Ticket',
+        `${name || email} has opened a new ticket: ${subject}`,
+        '/client-portal',
         'ticket'
       );
 
-      res.status(201).json({ message: 'Support ticket created successfully', ticketId });
+      res.status(201).json({ message: 'Support ticket created successfully', ticketId, planCovered, overQuota });
     } catch (err) {
       await connection.rollback();
       throw err;
@@ -406,11 +484,21 @@ router.get('/users', authenticateToken, async (req, res) => {
     const admin = await isAdminUser(req.user.id);
     if (!admin) return res.status(403).json({ error: 'Admin access required' });
 
+    // Tickets covered by the client's plan and created since the start of
+    // this calendar month — surfaces "used vs. included" on the client's
+    // profile in the same query, no N+1 round trips.
+    const usageSubquery = `(
+      SELECT COUNT(*) FROM support_tickets st
+      WHERE st.user_id = u.id AND st.plan_covered = 1
+        AND st.created_at >= DATE_FORMAT(NOW(), '%Y-%m-01')
+    ) AS tickets_used_this_month`;
+
     let users;
     try {
       // Primary query — requires support_plan column to exist
       [users] = await pool.query(
-        'SELECT id, name, email, support_plan, created_at FROM users WHERE is_admin = 0 OR is_admin IS NULL ORDER BY created_at DESC'
+        `SELECT u.id, u.name, u.email, u.support_plan, u.created_at, ${usageSubquery}
+         FROM users u WHERE u.is_admin = 0 OR u.is_admin IS NULL ORDER BY u.created_at DESC`
       );
     } catch {
       // Column missing: try to add it, then retry. If ALTER is blocked (e.g. no DDL
@@ -420,11 +508,12 @@ router.get('/users', authenticateToken, async (req, res) => {
       ).catch(() => {});
       try {
         [users] = await pool.query(
-          'SELECT id, name, email, support_plan, created_at FROM users WHERE is_admin = 0 OR is_admin IS NULL ORDER BY created_at DESC'
+          `SELECT u.id, u.name, u.email, u.support_plan, u.created_at, ${usageSubquery}
+           FROM users u WHERE u.is_admin = 0 OR u.is_admin IS NULL ORDER BY u.created_at DESC`
         );
       } catch {
         [users] = await pool.query(
-          'SELECT id, name, email, NULL as support_plan, created_at FROM users WHERE is_admin = 0 OR is_admin IS NULL ORDER BY created_at DESC'
+          'SELECT id, name, email, NULL as support_plan, created_at, 0 as tickets_used_this_month FROM users WHERE is_admin = 0 OR is_admin IS NULL ORDER BY created_at DESC'
         );
       }
     }
