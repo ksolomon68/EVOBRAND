@@ -171,9 +171,9 @@ const PUBLIC_PLANS = {
   'wordpress-professional': { name: 'WordPress Development - Professional Plan', price: 8000, type: 'one-time' },
   'accessibility-audit': { name: 'WCAG Accessibility - Audit Only', price: 2500, type: 'one-time' },
   'accessibility-remediation': { name: 'WCAG Accessibility - Remediation', price: 7500, type: 'one-time' },
-  'maintenance-basic': { name: 'WordPress Maintenance - Basic Plan', price: 99, type: 'recurring' },
-  'maintenance-pro': { name: 'WordPress Maintenance - Pro Plan', price: 249, type: 'recurring' },
-  'maintenance-elite': { name: 'WordPress Maintenance - Elite Plan', price: 499, type: 'recurring' }
+  'maintenance-basic': { name: 'WordPress Maintenance - Basic Plan', price: 129, type: 'recurring' },
+  'maintenance-pro': { name: 'WordPress Maintenance - Pro Plan', price: 299, type: 'recurring' },
+  'maintenance-elite': { name: 'WordPress Maintenance - Elite Plan', price: 749, type: 'recurring' }
 };
 
 const { Resend } = require('resend');
