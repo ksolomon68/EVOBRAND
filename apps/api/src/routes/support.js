@@ -177,7 +177,7 @@ router.post('/ticket', upload.single('file'), async (req, res) => {
       // sends (each with its own .catch) so a failure on one never blocks
       // or skips the other.
       const attachmentNote = attachmentUrl
-        ? `<p><strong>Attachment:</strong> <a href="https://evobrandconcepts.com${attachmentUrl}">${req.file.originalname}</a></p>`
+        ? `<p><strong>Attachment:</strong> <a href="https://evobrandconcepts.com/api${attachmentUrl}">${req.file.originalname}</a></p>`
         : '';
       getResend().emails.send({
         from: `"EVOBRAND" <${process.env.RESEND_FROM_EMAIL || 'info@evobrand.net'}>`,
@@ -248,7 +248,7 @@ router.post('/tickets/:id/reply', authenticateToken, upload.single('file'), asyn
     );
 
     const attachmentNote = attachmentUrl
-      ? `<p><strong>Attachment:</strong> <a href="https://evobrandconcepts.com${attachmentUrl}">${req.file.originalname}</a></p>`
+      ? `<p><strong>Attachment:</strong> <a href="https://evobrandconcepts.com/api${attachmentUrl}">${req.file.originalname}</a></p>`
       : '';
 
     // Update ticket updated_at and status if replied by user

@@ -84,9 +84,13 @@ function TicketRow({ t, onOpen }) {
 
 function AttachmentBlock({ url }) {
   if (!url) return null;
-  const fullUrl = url.startsWith('http')
-    ? url
-    : `${window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' ? 'http://localhost:5000' : ''}${url}`;
+  // Prod: frontend (static host) and API (separate Node app) are deployed
+  // independently — only /api/* is proxied to the Node app, so uploads must
+  // be requested through that prefix or they 404 against the static host.
+  const base = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+    ? 'http://localhost:5000'
+    : `${window.location.origin}/api`;
+  const fullUrl = url.startsWith('http') ? url : `${base}${url}`;
   const isImage = /\.(jpg|jpeg|png|gif|webp)$/i.test(url);
   return (
     <div className="mt-3 pt-3 border-t border-white/10">

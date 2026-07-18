@@ -28,10 +28,17 @@ const BOOTED_AT = new Date().toISOString();
 app.use(cors());
 app.use(express.json());
 
-// Serve uploaded ticket attachments as static files
+// Serve uploaded ticket attachments as static files.
+// In production the frontend (static public_html) and this API are
+// deployed separately — cPanel's proxy only forwards /api/* traffic to
+// this Node app. Anything requested at bare /uploads/* hits the static
+// frontend host instead (404, file doesn't exist there), so uploads must
+// be reachable under /api/uploads. Also mounted at bare /uploads for local
+// dev and in case Passenger strips the /api prefix before routing here.
 const path = require('path');
 const uploadsDir = path.join(__dirname, '../uploads');
 if (!require('fs').existsSync(uploadsDir)) require('fs').mkdirSync(uploadsDir, { recursive: true });
+app.use('/api/uploads', express.static(uploadsDir));
 app.use('/uploads', express.static(uploadsDir));
 
 // Basic health check endpoint
