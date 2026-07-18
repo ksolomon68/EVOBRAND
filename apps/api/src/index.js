@@ -97,6 +97,46 @@ app.get('/api/crash', (req, res) => {
   }
 });
 
+// Every route builds its own Resend client with a 're_placeholder' fallback,
+// so a missing/invalid RESEND_API_KEY silently no-ops every transactional
+// email in the app instead of erroring loudly. This checks the live key
+// against Resend's API so a bad key or unverified sending domain shows up
+// without needing production shell/log access.
+app.get('/api/email-health', async (req, res) => {
+  const key = process.env.RESEND_API_KEY;
+  const fromEmail = process.env.RESEND_FROM_EMAIL || 'info@evobrand.net';
+  const fromDomain = fromEmail.split('@')[1];
+
+  if (!key || key === 're_placeholder') {
+    return res.json({
+      configured: false,
+      fromEmail,
+      reason: 'RESEND_API_KEY is not set (or is the placeholder) in this environment — every transactional email (contact form, tickets, auth, etc.) is silently failing.',
+    });
+  }
+
+  try {
+    const { Resend } = require('resend');
+    const { data, error } = await new Resend(key).domains.list();
+    if (error) {
+      return res.json({ configured: true, apiKeyValid: false, fromEmail, error: error.message || error });
+    }
+    const domains = (data?.data || []).map(d => ({ name: d.name, status: d.status }));
+    const matching = domains.find(d => d.name === fromDomain);
+    res.json({
+      configured: true,
+      apiKeyValid: true,
+      fromEmail,
+      fromDomain,
+      domainFound: !!matching,
+      domainStatus: matching ? matching.status : 'not found in this Resend account — sends from this domain will fail',
+      allDomains: domains,
+    });
+  } catch (err) {
+    res.json({ configured: true, apiKeyValid: false, fromEmail, error: err.message });
+  }
+});
+
 // Import Routes
 let supportRoutes, newsletterRoutes, schedulerRoutes, auditorRoutes, authRoutes, crmRoutes, contractRoutes, notificationRoutes, contactsRoutes, paymentsRoutes, analyticsRoutes;
 

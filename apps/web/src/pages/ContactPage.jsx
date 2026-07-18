@@ -47,7 +47,7 @@ const CONTACT_METHODS = [
 // ─── Contact Form ─────────────────────────────────────────────────────────────
 
 function ContactForm() {
-  const [form, setForm] = useState({ service: '', name: '', email: '', message: '', subscribeNewsletter: true });
+  const [form, setForm] = useState({ service: '', name: '', email: '', message: '', subscribeNewsletter: true, website: '' });
   const [status, setStatus] = useState('idle'); // idle | loading | success | error
   const [errorMsg, setErrorMsg] = useState('');
   const formRef = useRef(null);
@@ -85,6 +85,7 @@ function ContactForm() {
             subject: form.service || 'General Inquiry',
             message: form.message.trim(),
             subscribeNewsletter: form.subscribeNewsletter,
+            website: form.website,
           }),
         });
       } catch (fetchErr) {
@@ -101,7 +102,7 @@ function ContactForm() {
       }
 
       setStatus('success');
-      setForm({ service: '', name: '', email: '', message: '', subscribeNewsletter: true });
+      setForm({ service: '', name: '', email: '', message: '', subscribeNewsletter: true, website: '' });
     } catch (err) {
       setStatus('error');
       setErrorMsg(err.message || 'Failed to send your message. Please try again or email us directly.');
@@ -138,6 +139,21 @@ function ContactForm() {
 
   return (
     <form ref={formRef} onSubmit={handleSubmit} noValidate className="space-y-4" aria-label="Contact form">
+      {/* Honeypot — hidden from sighted/keyboard users, but present in the DOM
+          for bots that auto-fill every field. Server rejects silently if set. */}
+      <div style={{ position: 'absolute', left: '-9999px', width: '1px', height: '1px', overflow: 'hidden' }} aria-hidden="true">
+        <label htmlFor="cf-website">Website</label>
+        <input
+          id="cf-website"
+          name="website"
+          type="text"
+          value={form.website}
+          onChange={handleChange}
+          tabIndex={-1}
+          autoComplete="off"
+        />
+      </div>
+
       <div>
         <label htmlFor="cf-service" className="block text-xs font-bold uppercase tracking-widest mb-1.5" style={{ color: GOLD }}>
           Service Interest
