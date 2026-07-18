@@ -276,7 +276,8 @@ router.get('/daily', async (req, res) => {
       ORDER BY date ASC
     `, [days]);
     // Zero-fill missing days so sparse data still renders a full axis
-    const byDate = new Map(rows.map(r => [r.date.toISOString().slice(0, 10), r]));
+    // (pool uses dateStrings: true, so DATE(created_at) comes back as 'YYYY-MM-DD' already)
+    const byDate = new Map(rows.map(r => [r.date, r]));
     const out = [];
     const cursor = new Date();
     cursor.setDate(cursor.getDate() - (days - 1));
