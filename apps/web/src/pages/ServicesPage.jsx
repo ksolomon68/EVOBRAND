@@ -267,9 +267,9 @@ const ServicesPage = () => {
         }
       ],
       maintenancePlans: [
-        { tier: 'Basic', price: '$99/mo', features: ['Core & plugin updates', 'Security scans', 'Uptime monitoring', '2 support tickets/mo'] },
-        { tier: 'Pro', price: '$249/mo', features: ['Everything in Basic', 'Unlimited tickets', '24-hr priority response', 'Performance optimization', '2 hrs minor edits/mo'], highlighted: true },
-        { tier: 'Elite', price: '$499/mo', features: ['Everything in Pro', 'Same-day emergency response', '4 hrs dev work/mo', 'Dedicated account manager'] },
+        { tier: 'Basic', price: '$129/mo', features: ['Core & plugin updates', 'Security scans', 'Uptime monitoring', '2 support tickets/mo'] },
+        { tier: 'Pro', price: '$299/mo', features: ['Everything in Basic', 'Unlimited tickets', '24-hr priority response', 'Performance optimization', '2 hrs minor edits/mo'], highlighted: true },
+        { tier: 'Elite', price: '$749/mo', features: ['Everything in Pro', 'Same-day emergency response', '4 hrs dev work/mo', 'Dedicated account manager'] },
       ],
       caseStudy: {
         client: 'Retail Business',

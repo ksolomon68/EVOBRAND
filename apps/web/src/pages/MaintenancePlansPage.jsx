@@ -264,7 +264,7 @@ export default function MaintenancePlansPage() {
           </div>
 
           <p className="text-center text-sm mt-8" style={{ color: 'rgba(232,221,208,0.35)' }}>
-            Save 10% with annual billing
+            Save 2 months with annual billing
           </p>
 
           <p className="text-center text-sm mt-2" style={{ color: 'rgba(232,221,208,0.35)' }}>
