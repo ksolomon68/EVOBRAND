@@ -180,6 +180,13 @@ router.use(authenticateToken, requireAdmin);
 // Diagnostic test hits (sent from the admin dashboard's "Send Test Hit"
 // button) use /dev/ paths — exclude them from user-facing aggregates.
 const NOT_TEST = "AND page_path NOT LIKE '/dev/%'";
+// Interaction events (CTA clicks, video plays, bookings, etc.) are stored as
+// pageviews rows under /event/* paths — see trackEvent() in lib/analytics.js.
+// They power the engagement/bounce calc below but must stay out of anything
+// reporting actual page traffic (page view counts, top pages, geo/device
+// breakdowns), or a heavily-clicked page would look like a phantom hit.
+const NOT_EVENT = "AND page_path NOT LIKE '/event/%'";
+const REAL_PAGEVIEW = `${NOT_TEST} ${NOT_EVENT}`;
 
 // GET /api/analytics/health — pipeline diagnostics ────────────────────────────
 router.get('/health', async (req, res) => {
@@ -220,17 +227,17 @@ router.get('/overview', async (req, res) => {
         COUNT(DISTINCT ip_hash) AS visitors,
         COUNT(DISTINCT session_id) AS sessions
       FROM pageviews
-      WHERE created_at >= DATE_SUB(NOW(), INTERVAL 30 DAY) ${NOT_TEST}
+      WHERE created_at >= DATE_SUB(NOW(), INTERVAL 30 DAY) ${REAL_PAGEVIEW}
     `);
     const [[today]] = await pool.query(`
       SELECT COUNT(*) AS pageViewsToday
-      FROM pageviews WHERE DATE(created_at) = CURDATE() ${NOT_TEST}
+      FROM pageviews WHERE DATE(created_at) = CURDATE() ${REAL_PAGEVIEW}
     `);
     // New vs returning: visitors seen before the last 30 days
     const [[returning]] = await pool.query(`
       SELECT COUNT(DISTINCT p.ip_hash) AS returningVisitors
       FROM pageviews p
-      WHERE p.created_at >= DATE_SUB(NOW(), INTERVAL 30 DAY) ${NOT_TEST.replace('page_path', 'p.page_path')}
+      WHERE p.created_at >= DATE_SUB(NOW(), INTERVAL 30 DAY) ${REAL_PAGEVIEW.replace(/page_path/g, 'p.page_path')}
         AND EXISTS (
           SELECT 1 FROM pageviews old
           WHERE old.ip_hash = p.ip_hash
@@ -271,7 +278,7 @@ router.get('/daily', async (req, res) => {
         COUNT(DISTINCT ip_hash) AS visitors,
         COUNT(DISTINCT session_id) AS sessions
       FROM pageviews
-      WHERE created_at >= DATE_SUB(NOW(), INTERVAL ? DAY) ${NOT_TEST}
+      WHERE created_at >= DATE_SUB(NOW(), INTERVAL ? DAY) ${REAL_PAGEVIEW}
       GROUP BY DATE(created_at)
       ORDER BY date ASC
     `, [days]);
@@ -305,7 +312,7 @@ router.get('/pages', async (req, res) => {
     const [rows] = await pool.query(`
       SELECT page_path, page_title, COUNT(*) AS views, COUNT(DISTINCT ip_hash) AS visitors
       FROM pageviews
-      WHERE created_at >= DATE_SUB(NOW(), INTERVAL 30 DAY) ${NOT_TEST}
+      WHERE created_at >= DATE_SUB(NOW(), INTERVAL 30 DAY) ${REAL_PAGEVIEW}
       GROUP BY page_path, page_title
       ORDER BY views DESC
       LIMIT 10
@@ -327,7 +334,7 @@ router.get('/sources', async (req, res) => {
         COUNT(*) AS sessions,
         COUNT(DISTINCT ip_hash) AS visitors
       FROM pageviews
-      WHERE created_at >= DATE_SUB(NOW(), INTERVAL 30 DAY)
+      WHERE created_at >= DATE_SUB(NOW(), INTERVAL 30 DAY) ${NOT_EVENT}
       GROUP BY channel
       ORDER BY sessions DESC
     `);
@@ -338,7 +345,7 @@ router.get('/sources', async (req, res) => {
         COUNT(*) AS sessions,
         COUNT(DISTINCT ip_hash) AS visitors
       FROM pageviews
-      WHERE created_at >= DATE_SUB(NOW(), INTERVAL 30 DAY)
+      WHERE created_at >= DATE_SUB(NOW(), INTERVAL 30 DAY) ${NOT_EVENT}
         AND referrer IS NOT NULL
         AND referrer != ''
         AND channel = 'referral'
@@ -361,7 +368,7 @@ router.get('/sources', async (req, res) => {
         COUNT(*) AS sessions,
         COUNT(DISTINCT ip_hash) AS visitors
       FROM pageviews
-      WHERE created_at >= DATE_SUB(NOW(), INTERVAL 30 DAY)
+      WHERE created_at >= DATE_SUB(NOW(), INTERVAL 30 DAY) ${NOT_EVENT}
         AND utm_source IS NOT NULL
       GROUP BY utm_source, utm_medium, utm_campaign
       ORDER BY sessions DESC
@@ -383,7 +390,7 @@ router.get('/geo', async (req, res) => {
         COUNT(*) AS sessions,
         COUNT(DISTINCT ip_hash) AS visitors
       FROM pageviews
-      WHERE created_at >= DATE_SUB(NOW(), INTERVAL 30 DAY)
+      WHERE created_at >= DATE_SUB(NOW(), INTERVAL 30 DAY) ${NOT_EVENT}
       GROUP BY country
       ORDER BY sessions DESC
       LIMIT 20
@@ -395,7 +402,7 @@ router.get('/geo', async (req, res) => {
         COUNT(*) AS sessions,
         COUNT(DISTINCT ip_hash) AS visitors
       FROM pageviews
-      WHERE created_at >= DATE_SUB(NOW(), INTERVAL 30 DAY)
+      WHERE created_at >= DATE_SUB(NOW(), INTERVAL 30 DAY) ${NOT_EVENT}
         AND region IS NOT NULL
       GROUP BY country, region
       ORDER BY sessions DESC
@@ -408,7 +415,7 @@ router.get('/geo', async (req, res) => {
         COUNT(*) AS sessions,
         COUNT(DISTINCT ip_hash) AS visitors
       FROM pageviews
-      WHERE created_at >= DATE_SUB(NOW(), INTERVAL 30 DAY)
+      WHERE created_at >= DATE_SUB(NOW(), INTERVAL 30 DAY) ${NOT_EVENT}
         AND city IS NOT NULL
       GROUP BY city, country
       ORDER BY sessions DESC
@@ -430,7 +437,7 @@ router.get('/devices', async (req, res) => {
         COUNT(*) AS sessions,
         COUNT(DISTINCT ip_hash) AS visitors
       FROM pageviews
-      WHERE created_at >= DATE_SUB(NOW(), INTERVAL 30 DAY)
+      WHERE created_at >= DATE_SUB(NOW(), INTERVAL 30 DAY) ${NOT_EVENT}
       GROUP BY device_type
       ORDER BY sessions DESC
     `);
@@ -440,7 +447,7 @@ router.get('/devices', async (req, res) => {
         COUNT(*) AS sessions,
         COUNT(DISTINCT ip_hash) AS visitors
       FROM pageviews
-      WHERE created_at >= DATE_SUB(NOW(), INTERVAL 30 DAY)
+      WHERE created_at >= DATE_SUB(NOW(), INTERVAL 30 DAY) ${NOT_EVENT}
       GROUP BY browser
       ORDER BY sessions DESC
       LIMIT 10
@@ -451,7 +458,7 @@ router.get('/devices', async (req, res) => {
         COUNT(*) AS sessions,
         COUNT(DISTINCT ip_hash) AS visitors
       FROM pageviews
-      WHERE created_at >= DATE_SUB(NOW(), INTERVAL 30 DAY)
+      WHERE created_at >= DATE_SUB(NOW(), INTERVAL 30 DAY) ${NOT_EVENT}
       GROUP BY os
       ORDER BY sessions DESC
       LIMIT 10
@@ -474,7 +481,7 @@ router.get('/realtime', async (req, res) => {
     const [recentPages] = await pool.query(`
       SELECT page_path, page_title, COUNT(*) AS hits
       FROM pageviews
-      WHERE created_at >= DATE_SUB(NOW(), INTERVAL 5 MINUTE)
+      WHERE created_at >= DATE_SUB(NOW(), INTERVAL 5 MINUTE) ${NOT_EVENT}
       GROUP BY page_path, page_title
       ORDER BY hits DESC
       LIMIT 5
@@ -485,7 +492,7 @@ router.get('/realtime', async (req, res) => {
         COUNT(*) AS pageViews,
         COUNT(DISTINCT session_id) AS sessions
       FROM pageviews
-      WHERE created_at >= DATE_SUB(NOW(), INTERVAL 24 HOUR)
+      WHERE created_at >= DATE_SUB(NOW(), INTERVAL 24 HOUR) ${NOT_EVENT}
       GROUP BY DATE_FORMAT(created_at, '%H:00')
       ORDER BY hour ASC
     `);
@@ -499,26 +506,23 @@ router.get('/realtime', async (req, res) => {
 // GET /api/analytics/engagement ───────────────────────────────────────────────
 router.get('/engagement', async (req, res) => {
   try {
-    // Pages per session
-    const [[pps]] = await pool.query(`
-      SELECT AVG(page_count) AS avgPagesPerSession
-      FROM (
-        SELECT session_id, COUNT(*) AS page_count
-        FROM pageviews
-        WHERE created_at >= DATE_SUB(NOW(), INTERVAL 30 DAY)
-          AND session_id IS NOT NULL AND session_id != ''
-        GROUP BY session_id
-      ) s
-    `);
-    // Single-page sessions (bounce proxy)
-    const [[bounce]] = await pool.query(`
+    // Pages per session + bounce, from one pass over sessions. A session only
+    // counts as "bounced" if it has a single real page view AND never fired an
+    // interaction event (CTA click, video play, booking, etc. — see
+    // trackEvent() in lib/analytics.js). A visitor who stays on one URL but
+    // engages (e.g. this site's one-page homepage sections) is not a bounce.
+    const [[stats]] = await pool.query(`
       SELECT
-        COUNT(CASE WHEN page_count = 1 THEN 1 END) AS single,
+        AVG(page_count) AS avgPagesPerSession,
+        COUNT(CASE WHEN page_count = 1 AND event_count = 0 THEN 1 END) AS bounced,
         COUNT(*) AS total
       FROM (
-        SELECT session_id, COUNT(*) AS page_count
+        SELECT
+          session_id,
+          SUM(CASE WHEN page_path NOT LIKE '/event/%' THEN 1 ELSE 0 END) AS page_count,
+          SUM(CASE WHEN page_path LIKE '/event/%' THEN 1 ELSE 0 END) AS event_count
         FROM pageviews
-        WHERE created_at >= DATE_SUB(NOW(), INTERVAL 30 DAY)
+        WHERE created_at >= DATE_SUB(NOW(), INTERVAL 30 DAY) ${NOT_TEST}
           AND session_id IS NOT NULL AND session_id != ''
         GROUP BY session_id
       ) s
@@ -530,7 +534,7 @@ router.get('/engagement', async (req, res) => {
         DAYNAME(created_at) AS day_name,
         COUNT(*) AS pageViews
       FROM pageviews
-      WHERE created_at >= DATE_SUB(NOW(), INTERVAL 30 DAY)
+      WHERE created_at >= DATE_SUB(NOW(), INTERVAL 30 DAY) ${NOT_EVENT}
       GROUP BY DAYOFWEEK(created_at), DAYNAME(created_at)
       ORDER BY dow ASC
     `);
@@ -540,13 +544,13 @@ router.get('/engagement', async (req, res) => {
         HOUR(created_at) AS hour,
         COUNT(*) AS pageViews
       FROM pageviews
-      WHERE created_at >= DATE_SUB(NOW(), INTERVAL 30 DAY)
+      WHERE created_at >= DATE_SUB(NOW(), INTERVAL 30 DAY) ${NOT_EVENT}
       GROUP BY HOUR(created_at)
       ORDER BY hour ASC
     `);
-    const bounceRate = bounce.total > 0 ? ((bounce.single / bounce.total) * 100).toFixed(1) : 0;
+    const bounceRate = stats.total > 0 ? ((stats.bounced / stats.total) * 100).toFixed(1) : 0;
     res.json({
-      avgPagesPerSession: parseFloat(pps.avgPagesPerSession || 0).toFixed(1),
+      avgPagesPerSession: parseFloat(stats.avgPagesPerSession || 0).toFixed(1),
       bounceRate: parseFloat(bounceRate),
       byDow,
       byHour,

@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useGSAP } from '@gsap/react';
 import gsap from 'gsap';
 import { ChevronLeft, ChevronRight, Calendar, Clock, CheckCircle2, Loader2, AlertCircle, UserPlus } from 'lucide-react';
+import { trackEvent } from '@/lib/analytics.js';
 
 const API_BASE = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' 
   ? 'http://localhost:5000/api' 
@@ -425,6 +426,7 @@ function ConfirmForm({ selectedDate, selectedSlot, onBack, onSuccess }) {
         throw new Error(data.error || 'Booking failed');
       }
 
+      trackEvent('booking_confirmed', { service: form.service });
       onSuccess({ ...form, date: selectedDate, slot: selectedSlot, isGuest: !getLoggedInUserId() });
     } catch (err) {
       setError(err.message || 'Something went wrong. Please try again.');

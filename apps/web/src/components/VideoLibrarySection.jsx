@@ -6,6 +6,7 @@ import { Loader2 } from 'lucide-react';
 import useYouTubePlaylist from '@/hooks/useYouTubePlaylist.js';
 import VideoSlider from '@/components/VideoSlider.jsx';
 import VideoModal from '@/components/VideoModal.jsx';
+import { trackEvent } from '@/lib/analytics.js';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -232,7 +233,13 @@ export default function VideoLibrarySection() {
               <p className="text-gray-400 text-lg">No videos in this category yet.</p>
             </div>
           ) : (
-            <VideoSlider videos={filteredVideos} onVideoSelect={setSelectedVideoId} />
+            <VideoSlider
+              videos={filteredVideos}
+              onVideoSelect={(id) => {
+                trackEvent('video_play', { video_id: id });
+                setSelectedVideoId(id);
+              }}
+            />
           )}
         </div>
       </div>

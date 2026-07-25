@@ -23,12 +23,20 @@ import PaymentSuccessPage from '@/pages/PaymentSuccessPage.jsx';
 import NotFoundPage from '@/pages/NotFoundPage.jsx';
 import AccessibilityStatementPage from '@/pages/AccessibilityStatementPage.jsx';
 import BookConsultationPage from '@/pages/BookConsultationPage.jsx';
-import { trackPageView } from '@/lib/analytics.js';
+import { trackPageView, trackEvent } from '@/lib/analytics.js';
 
 function AnalyticsTracker() {
   const location = useLocation();
   useEffect(() => {
     trackPageView(location.pathname, document.title);
+    // GA4-style "engaged session" signal: 10s+ on a page counts as engaged
+    // even with no click, so scroll-and-read visitors on the one-page
+    // homepage aren't misclassified as bounces (see bounceRate calc in
+    // apps/api/src/routes/analytics.js).
+    const timer = setTimeout(() => {
+      trackEvent('engaged', { path: location.pathname });
+    }, 10000);
+    return () => clearTimeout(timer);
   }, [location.pathname]);
   return null;
 }
