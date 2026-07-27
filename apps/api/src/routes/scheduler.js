@@ -518,10 +518,46 @@ router.get('/debug-calendar', authenticateToken, async (req, res) => {
     const { GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET, GOOGLE_REFRESH_TOKEN, GOOGLE_CALENDAR_ID } = process.env;
     const hasCredentials = !!(GOOGLE_CLIENT_ID && GOOGLE_CLIENT_SECRET && GOOGLE_REFRESH_TOKEN);
 
+    // Fingerprint a secret without exposing it: length + last 4 chars is enough to tell
+    // two different tokens apart, and to spot stray whitespace/truncation.
+    const fingerprint = (val) => {
+      if (!val) return null;
+      return { length: val.length, endsWith: val.slice(-4), hasSurroundingWhitespace: val !== val.trim() };
+    };
+
+    // dotenv does NOT overwrite vars already present in the environment (e.g. ones injected by
+    // cPanel's Node.js app manager). If the .env file and the live process disagree, the .env
+    // edit is being silently ignored — which is the usual cause of "I updated the token but
+    // nothing changed".
+    let envFileComparison = null;
+    try {
+      const fs = require('fs');
+      const path = require('path');
+      const envPath = path.resolve(__dirname, '../../.env');
+      if (fs.existsSync(envPath)) {
+        const parsed = require('dotenv').parse(fs.readFileSync(envPath));
+        envFileComparison = {
+          envFileFound: true,
+          refreshTokenInFile: fingerprint(parsed.GOOGLE_REFRESH_TOKEN),
+          refreshTokenInProcess: fingerprint(GOOGLE_REFRESH_TOKEN),
+          valuesMatch: (parsed.GOOGLE_REFRESH_TOKEN || null) === (GOOGLE_REFRESH_TOKEN || null),
+          clientIdInFileMatchesProcess: (parsed.GOOGLE_CLIENT_ID || null) === (GOOGLE_CLIENT_ID || null),
+          clientSecretInFileMatchesProcess: (parsed.GOOGLE_CLIENT_SECRET || null) === (GOOGLE_CLIENT_SECRET || null),
+        };
+      } else {
+        envFileComparison = { envFileFound: false, refreshTokenInProcess: fingerprint(GOOGLE_REFRESH_TOKEN) };
+      }
+    } catch (envErr) {
+      envFileComparison = { error: envErr.message };
+    }
+
     const result = {
       date,
       calendarId: GOOGLE_CALENDAR_ID || 'primary',
       hasCredentials,
+      clientIdPrefix: GOOGLE_CLIENT_ID ? GOOGLE_CLIENT_ID.slice(0, 12) : null,
+      refreshTokenPrefix: GOOGLE_REFRESH_TOKEN ? GOOGLE_REFRESH_TOKEN.slice(0, 3) : null,
+      credentialSource: envFileComparison,
       busyIntervals: null,
       slotsBlockedByGoogle: [],
       error: null,
@@ -533,7 +569,12 @@ router.get('/debug-calendar', authenticateToken, async (req, res) => {
         result.busyIntervals = busyIntervals.map((b) => ({ start: b.start.toISOString(), end: b.end.toISOString() }));
         result.slotsBlockedByGoogle = TIME_SLOTS.filter((slot) => isSlotBusy(date, slot, SLOT_DURATION_MIN, busyIntervals));
       } catch (calErr) {
-        result.error = { message: calErr.message, code: calErr.code || null };
+        // Google's useful detail lives in the OAuth error_description, not err.message.
+        result.error = {
+          message: calErr.message,
+          code: calErr.code || null,
+          description: calErr.response?.data?.error_description || null,
+        };
       }
     }
 
