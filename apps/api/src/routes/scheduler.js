@@ -5,9 +5,13 @@ const { getEmailTemplate } = require('../utils/emailTemplate');
 const { Resend } = require('resend');
 const { createNotification, notifyAdmins } = require('../utils/notifications');
 const { authenticateToken } = require('../middleware/auth');
-const { createCalendarEvent, deleteCalendarEvent } = require('../utils/googleCalendar');
+const { createCalendarEvent, deleteCalendarEvent, getBusyIntervals, isSlotBusy } = require('../utils/googleCalendar');
 
 const getResend = () => new Resend(process.env.RESEND_API_KEY || 're_placeholder');
+
+// Office-hours slots offered by the scheduler — kept in sync with SchedulerWidget.jsx's TIME_SLOTS.
+const TIME_SLOTS = ['12:00 PM', '1:00 PM', '2:00 PM', '3:00 PM', '4:00 PM', '5:00 PM'];
+const SLOT_DURATION_MIN = 30;
 
 const generateICS = (dateStr, timeStr, duration, bookingType, clientName, meetLink, notes) => {
   const match = timeStr.match(/(\d+):(\d+)\s*(AM|PM)/i);
@@ -145,23 +149,28 @@ router.get('/booked-dates', async (req, res) => {
   const { year, month } = req.query;
   if (!year || !month) return res.status(400).json({ error: 'year and month are required' });
 
-  const TIME_SLOTS = ['12:00 PM', '1:00 PM', '2:00 PM', '3:00 PM', '4:00 PM', '5:00 PM'];
   const totalSlots = TIME_SLOTS.length;
 
   try {
     const pad = (n) => String(n).padStart(2, '0');
+    const daysInMonth = new Date(Number(year), Number(month), 0).getDate();
     const startDate = `${year}-${pad(month)}-01`;
-    const endDate = `${year}-${pad(month)}-31`;
+    const endDate = `${year}-${pad(month)}-${pad(daysInMonth)}`;
 
-    // Dates where all time slots are booked
-    const [bookedRows] = await pool.query(
-      `SELECT date, COUNT(*) as booked_count
-       FROM meetings
-       WHERE date >= ? AND date <= ? AND status != 'canceled'
-       GROUP BY date
-       HAVING booked_count >= ?`,
-      [startDate, endDate, totalSlots]
+    const normalize = (d) =>
+      d instanceof Date ? d.toISOString().slice(0, 10) : String(d).slice(0, 10);
+
+    // Booked times per date (need the actual times, not just counts, to merge with Google busy slots)
+    const [meetingRows] = await pool.query(
+      `SELECT date, time FROM meetings WHERE date >= ? AND date <= ? AND status != 'canceled'`,
+      [startDate, endDate]
     );
+    const bookedTimesByDate = new Map();
+    for (const row of meetingRows) {
+      const d = normalize(row.date);
+      if (!bookedTimesByDate.has(d)) bookedTimesByDate.set(d, new Set());
+      bookedTimesByDate.get(d).add(row.time);
+    }
 
     // Full-day blackout dates (time IS NULL)
     const [blackoutRows] = await pool.query(
@@ -169,13 +178,34 @@ router.get('/booked-dates', async (req, res) => {
       [startDate, endDate]
     );
 
-    const normalize = (d) =>
-      d instanceof Date ? d.toISOString().slice(0, 10) : String(d).slice(0, 10);
+    const dateSet = new Set(blackoutRows.map((r) => normalize(r.date)));
+    for (const [date, times] of bookedTimesByDate) {
+      if (times.size >= totalSlots) dateSet.add(date);
+    }
 
-    const dateSet = new Set([
-      ...bookedRows.map((r) => normalize(r.date)),
-      ...blackoutRows.map((r) => normalize(r.date)),
-    ]);
+    // Fold in Google Calendar busy time — a date becomes fully booked once DB bookings + Google
+    // busy blocks together cover every office-hours slot.
+    let busyIntervals = [];
+    try {
+      busyIntervals = await getBusyIntervals(startDate, endDate);
+    } catch (calErr) {
+      console.error('Google Calendar freebusy lookup failed (non-fatal):', calErr.message);
+    }
+
+    if (busyIntervals.length) {
+      for (let day = 1; day <= daysInMonth; day++) {
+        const dateStr = `${year}-${pad(month)}-${pad(day)}`;
+        if (dateSet.has(dateStr)) continue;
+
+        const bookedTimes = bookedTimesByDate.get(dateStr) || new Set();
+        const blockedCount = TIME_SLOTS.reduce((count, slot) => {
+          const blocked = bookedTimes.has(slot) || isSlotBusy(dateStr, slot, SLOT_DURATION_MIN, busyIntervals);
+          return count + (blocked ? 1 : 0);
+        }, 0);
+
+        if (blockedCount >= totalSlots) dateSet.add(dateStr);
+      }
+    }
 
     res.json([...dateSet]);
   } catch (error) {
@@ -192,7 +222,19 @@ router.get('/booked-slots', async (req, res) => {
 
   try {
     const [rows] = await pool.query('SELECT time FROM meetings WHERE date = ? AND status != ?', [date, 'canceled']);
-    res.json(rows.map(row => row.time));
+    const bookedSlots = new Set(rows.map((row) => row.time));
+
+    // Block any office-hours slot that Google Calendar shows as busy (e.g. a personal event).
+    try {
+      const busyIntervals = await getBusyIntervals(date, date);
+      for (const slot of TIME_SLOTS) {
+        if (isSlotBusy(date, slot, SLOT_DURATION_MIN, busyIntervals)) bookedSlots.add(slot);
+      }
+    } catch (calErr) {
+      console.error('Google Calendar freebusy lookup failed (non-fatal):', calErr.message);
+    }
+
+    res.json([...bookedSlots]);
   } catch (error) {
     console.error('Error fetching booked slots:', error);
     res.status(500).json({ error: 'Failed to fetch booked slots' });
