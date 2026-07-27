@@ -505,4 +505,43 @@ router.post('/sync-calendar', authenticateToken, async (req, res) => {
 });
 
 
+// Diagnose why a date's Google Calendar busy times aren't showing up (admin only)
+router.get('/debug-calendar', authenticateToken, async (req, res) => {
+  const { date } = req.query;
+  if (!date) return res.status(400).json({ error: 'date is required, e.g. ?date=2026-07-30' });
+
+  try {
+    const [userRows] = await pool.query('SELECT is_admin, email FROM users WHERE id = ?', [req.user.id]);
+    const isAdmin = userRows[0] && (userRows[0].is_admin == 1 || userRows[0].is_admin === true || userRows[0].email === 'ks@evobrand.net');
+    if (!isAdmin) return res.status(403).json({ error: 'Admin only' });
+
+    const { GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET, GOOGLE_REFRESH_TOKEN, GOOGLE_CALENDAR_ID } = process.env;
+    const hasCredentials = !!(GOOGLE_CLIENT_ID && GOOGLE_CLIENT_SECRET && GOOGLE_REFRESH_TOKEN);
+
+    const result = {
+      date,
+      calendarId: GOOGLE_CALENDAR_ID || 'primary',
+      hasCredentials,
+      busyIntervals: null,
+      slotsBlockedByGoogle: [],
+      error: null,
+    };
+
+    if (hasCredentials) {
+      try {
+        const busyIntervals = await getBusyIntervals(date, date);
+        result.busyIntervals = busyIntervals.map((b) => ({ start: b.start.toISOString(), end: b.end.toISOString() }));
+        result.slotsBlockedByGoogle = TIME_SLOTS.filter((slot) => isSlotBusy(date, slot, SLOT_DURATION_MIN, busyIntervals));
+      } catch (calErr) {
+        result.error = { message: calErr.message, code: calErr.code || null };
+      }
+    }
+
+    res.json(result);
+  } catch (error) {
+    console.error('Error in debug-calendar:', error);
+    res.status(500).json({ error: 'Failed to run calendar diagnostic' });
+  }
+});
+
 module.exports = router;
