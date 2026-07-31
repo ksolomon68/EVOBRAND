@@ -2,8 +2,10 @@ const express = require('express');
 const router = express.Router();
 const pool = require('../db/connection');
 const { authenticateToken } = require('../middleware/auth');
+const { notifyAdmins } = require('../utils/notifications');
 
 const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
+const ADMIN_NOTIFY_EMAIL = process.env.ADMIN_EMAIL || 'ks@evobrand.net';
 
 // Ensure payment_status columns exist on contracts and support_tickets
 const ensurePaymentColumns = async () => {
@@ -136,10 +138,37 @@ router.get('/verify-session', authenticateToken, async (req, res) => {
         [id, sessionId]
       );
     } else {
-      await pool.query(
+      const [result] = await pool.query(
         "UPDATE support_tickets SET is_paid = 1 WHERE id = ? AND stripe_session_id = ?",
         [id, sessionId]
       );
+
+      // Alert admins the first time this session marks the ticket paid —
+      // affectedRows is 0 on a re-verify of an already-paid ticket, so this
+      // fires once per payment rather than on every polling call.
+      if (result.affectedRows > 0) {
+        const [rows] = await pool.query(
+          'SELECT t.subject, u.name AS user_name, u.email AS user_email FROM support_tickets t LEFT JOIN users u ON t.user_id = u.id WHERE t.id = ?',
+          [id]
+        );
+        const ticket = rows[0] || {};
+        const amountPaid = typeof session.amount_total === 'number' ? (session.amount_total / 100).toFixed(2) : '';
+
+        await notifyAdmins(
+          'Ticket Payment Received',
+          `${ticket.user_name || ticket.user_email || 'A client'} paid $${amountPaid} for ticket #${id}: ${ticket.subject || ''}`,
+          '/client-portal',
+          'ticket'
+        );
+
+        getResend().emails.send({
+          from: `"EVOBRAND" <${process.env.RESEND_FROM_EMAIL || 'info@evobrand.net'}>`,
+          to: ADMIN_NOTIFY_EMAIL,
+          subject: `Payment Received: Ticket #${id}`,
+          html: getEmailTemplate('Payment Received', `<p><strong>${ticket.user_name || ticket.user_email || 'A client'}</strong> just paid <strong>$${amountPaid}</strong> for ticket #${id}: ${ticket.subject || ''}.</p>
+               <p>The ticket has been marked as <strong>Paid</strong> in the client portal.</p>`)
+        }).catch(err => console.error('Ticket payment admin email failed:', err));
+      }
     }
 
     res.json({ success: true, paymentStatus: session.payment_status });
