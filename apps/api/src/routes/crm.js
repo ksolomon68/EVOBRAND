@@ -117,6 +117,19 @@ const SITE_URL = process.env.SITE_URL || 'https://evobrandconcepts.com';
   }
 })();
 
+// Add block-editor columns if missing — blocks_json is the source of truth
+// for re-editing a campaign in the drag-and-drop composer; html_content
+// (already a column) stays the rendered output used for sending/preview.
+(async () => {
+  try {
+    await pool.query(`ALTER TABLE crm_campaigns ADD COLUMN IF NOT EXISTS blocks_json LONGTEXT DEFAULT NULL`);
+    await pool.query(`ALTER TABLE crm_campaigns ADD COLUMN IF NOT EXISTS accent_color VARCHAR(20) DEFAULT '#00bcd4'`);
+    await pool.query(`ALTER TABLE crm_campaigns ADD COLUMN IF NOT EXISTS heading_font VARCHAR(20) DEFAULT 'bebas'`);
+  } catch (err) {
+    console.error('Could not add block-editor columns:', err.message);
+  }
+})();
+
 // Ensure the tracking events table exists on startup
 (async () => {
   try {
@@ -345,15 +358,15 @@ router.get('/campaigns', async (req, res) => {
 
 // Create a new campaign (draft)
 router.post('/campaigns', async (req, res) => {
-  const { subject, html_content, target_list_ids } = req.body;
+  const { subject, html_content, target_list_ids, blocks_json, accent_color, heading_font } = req.body;
   const listIds = Array.isArray(target_list_ids) ? target_list_ids : [];
   if (!subject || !html_content || !listIds.length) {
     return res.status(400).json({ error: 'Subject, content, and at least one list are required' });
   }
   try {
     const [result] = await pool.query(
-      'INSERT INTO crm_campaigns (subject, html_content, list_id, target_list_ids, status) VALUES (?, ?, ?, ?, "draft")',
-      [subject, html_content, listIds[0], JSON.stringify(listIds)]
+      'INSERT INTO crm_campaigns (subject, html_content, list_id, target_list_ids, blocks_json, accent_color, heading_font, status) VALUES (?, ?, ?, ?, ?, ?, ?, "draft")',
+      [subject, html_content, listIds[0], JSON.stringify(listIds), blocks_json ? JSON.stringify(blocks_json) : null, accent_color || '#00bcd4', heading_font || 'bebas']
     );
     res.json({ success: true, id: result.insertId, message: 'Campaign saved as draft' });
   } catch (error) {
@@ -365,7 +378,7 @@ router.post('/campaigns', async (req, res) => {
 // Update a draft campaign
 router.put('/campaigns/:id', async (req, res) => {
   const { id } = req.params;
-  const { subject, html_content, target_list_ids } = req.body;
+  const { subject, html_content, target_list_ids, blocks_json, accent_color, heading_font } = req.body;
   const listIds = Array.isArray(target_list_ids) ? target_list_ids : [];
   if (!subject || !html_content || !listIds.length) {
     return res.status(400).json({ error: 'Subject, content, and at least one list are required' });
@@ -375,8 +388,8 @@ router.put('/campaigns/:id', async (req, res) => {
     if (!rows.length) return res.status(404).json({ error: 'Campaign not found' });
     if (rows[0].status !== 'draft') return res.status(400).json({ error: 'Only draft campaigns can be edited' });
     await pool.query(
-      'UPDATE crm_campaigns SET subject = ?, html_content = ?, list_id = ?, target_list_ids = ? WHERE id = ?',
-      [subject, html_content, listIds[0], JSON.stringify(listIds), id]
+      'UPDATE crm_campaigns SET subject = ?, html_content = ?, list_id = ?, target_list_ids = ?, blocks_json = ?, accent_color = ?, heading_font = ? WHERE id = ?',
+      [subject, html_content, listIds[0], JSON.stringify(listIds), blocks_json ? JSON.stringify(blocks_json) : null, accent_color || '#00bcd4', heading_font || 'bebas', id]
     );
     res.json({ success: true, message: 'Campaign updated' });
   } catch (error) {
@@ -435,7 +448,7 @@ router.post('/campaigns/:id/send', async (req, res) => {
         from: `"EVOBRAND" <${process.env.RESEND_FROM_EMAIL || 'info@evobrand.net'}>`,
         to: [email],
         subject: campaign.subject,
-        html: getEmailTemplate(campaign.subject, campaign.html_content, campaign.id, SITE_URL, email),
+        html: getEmailTemplate(campaign.subject, campaign.html_content, campaign.id, SITE_URL, email, campaign.accent_color, campaign.heading_font),
       }));
       await getResend().batch.send(batchPayload);
     }
@@ -468,7 +481,7 @@ router.post('/campaigns/:id/preview', async (req, res) => {
       from: `"EVOBRAND" <${process.env.RESEND_FROM_EMAIL || 'info@evobrand.net'}>`,
       to: [adminEmail],
       subject: `[PREVIEW] ${campaign.subject}`,
-      html: getEmailTemplate(`[PREVIEW] ${campaign.subject}`, campaign.html_content),
+      html: getEmailTemplate(`[PREVIEW] ${campaign.subject}`, campaign.html_content, null, SITE_URL, null, campaign.accent_color, campaign.heading_font),
     });
     
     // Status is NOT updated to 'sent'

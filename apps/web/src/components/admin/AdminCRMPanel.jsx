@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Users, Mail, Plus, Trash2, Send, CheckCircle2, AlertCircle, Loader2, Eye, MousePointerClick, Pencil, X, Check, FileText, Bold, Italic, Link2, List, Copy } from 'lucide-react';
+import { Users, Mail, Plus, Trash2, Send, CheckCircle2, AlertCircle, Loader2, Eye, MousePointerClick, Pencil, X, Check, FileText, Copy } from 'lucide-react';
+import CampaignBlockEditor, { createBlock, blocksToHtml } from './CampaignBlockEditor.jsx';
 
 const API_BASE = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' 
   ? 'http://localhost:5000' 
@@ -23,17 +24,18 @@ export default function AdminCRMPanel({ user }) {
   // State for Campaigns Tab
   const [campaigns, setCampaigns] = useState([]);
   const [loadingCampaigns, setLoadingCampaigns] = useState(false);
-  const [draft, setDraft] = useState({ subject: '', html_content: '' });
+  const [draft, setDraft] = useState({ subject: '' });
+  const [blocks, setBlocks] = useState([]);
+  const [accentColor, setAccentColor] = useState('#00bcd4');
+  const [headingFont, setHeadingFont] = useState('bebas');
   const [campaignListIds, setCampaignListIds] = useState([]);
   const [editingCampaignId, setEditingCampaignId] = useState(null);
-  const [showPreview, setShowPreview] = useState(false);
   const [sendConfirmId, setSendConfirmId] = useState(null);
   const [isSending, setIsSending] = useState(false);
   const [isSavingCampaign, setIsSavingCampaign] = useState(false);
   const [isPreviewing, setIsPreviewing] = useState(false);
   const [isDeletingCampaign, setIsDeletingCampaign] = useState(null);
   const [isDuplicatingCampaign, setIsDuplicatingCampaign] = useState(null);
-  const contentRef = useRef(null);
   
   // General State
   const [message, setMessage] = useState('');
@@ -186,20 +188,35 @@ export default function AdminCRMPanel({ user }) {
   };
 
   const resetDraft = () => {
-    setDraft({ subject: '', html_content: '' });
+    setDraft({ subject: '' });
+    setBlocks([]);
+    setAccentColor('#00bcd4');
+    setHeadingFont('bebas');
     setCampaignListIds([]);
     setEditingCampaignId(null);
-    setShowPreview(false);
   };
 
   const loadDraftForEdit = (campaign) => {
-    setDraft({ subject: campaign.subject, html_content: campaign.html_content });
+    setDraft({ subject: campaign.subject });
+    let hydratedBlocks = null;
+    if (campaign.blocks_json) {
+      try {
+        hydratedBlocks = JSON.parse(campaign.blocks_json);
+      } catch { /* fall through to raw-HTML fallback below */ }
+    }
+    // Older campaigns (or ones saved before the block editor existed) have
+    // no blocks_json — wrap their existing HTML in a single Text block so
+    // nothing is lost, even though it won't be visually deconstructed.
+    setBlocks(Array.isArray(hydratedBlocks) && hydratedBlocks.length
+      ? hydratedBlocks
+      : (campaign.html_content ? [{ ...createBlock('text'), content: campaign.html_content }] : []));
+    setAccentColor(campaign.accent_color || '#00bcd4');
+    setHeadingFont(campaign.heading_font || 'bebas');
     const ids = campaign.target_list_ids
       ? JSON.parse(campaign.target_list_ids).map(String)
       : [String(campaign.list_id)];
     setCampaignListIds(ids);
     setEditingCampaignId(campaign.id);
-    setShowPreview(false);
     setActiveTab('campaigns');
   };
 
@@ -210,24 +227,12 @@ export default function AdminCRMPanel({ user }) {
     );
   };
 
-  const insertTag = (open, close) => {
-    const ta = contentRef.current;
-    if (!ta) return;
-    const start = ta.selectionStart;
-    const end = ta.selectionEnd;
-    const selected = ta.value.substring(start, end) || 'text';
-    const inserted = `${open}${selected}${close}`;
-    const newVal = ta.value.substring(0, start) + inserted + ta.value.substring(end);
-    setDraft(prev => ({ ...prev, html_content: newVal }));
-    setTimeout(() => { ta.focus(); ta.setSelectionRange(start + inserted.length, start + inserted.length); }, 0);
-  };
-
   const handleSaveCampaign = async (e) => {
     e.preventDefault();
     setError('');
     setMessage('');
-    if (!draft.subject || !draft.html_content || !campaignListIds.length) {
-      setError('Subject, content, and at least one list are required.');
+    if (!draft.subject || !blocks.length || !campaignListIds.length) {
+      setError('Subject, at least one block, and at least one list are required.');
       return;
     }
     setIsSavingCampaign(true);
@@ -239,7 +244,14 @@ export default function AdminCRMPanel({ user }) {
       const res = await fetch(url, {
         method,
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ...draft, target_list_ids: campaignListIds }),
+        body: JSON.stringify({
+          subject: draft.subject,
+          html_content: blocksToHtml(blocks, accentColor),
+          target_list_ids: campaignListIds,
+          blocks_json: blocks,
+          accent_color: accentColor,
+          heading_font: headingFont,
+        }),
       });
       const data = await getJSONOrError(res);
       if (!res.ok) throw new Error(data.error || 'Failed to save campaign');
@@ -330,13 +342,26 @@ export default function AdminCRMPanel({ user }) {
           subject: `Copy of ${campaign.subject}`,
           html_content: campaign.html_content,
           target_list_ids: targetIds,
+          blocks_json: campaign.blocks_json ? JSON.parse(campaign.blocks_json) : null,
+          accent_color: campaign.accent_color,
+          heading_font: campaign.heading_font,
         }),
       });
       const data = await getJSONOrError(res);
       if (!res.ok) throw new Error(data.error || 'Failed to duplicate campaign');
       setMessage('Campaign duplicated as a new draft.');
       await fetchCampaigns();
-      if (data.id) loadDraftForEdit({ id: data.id, subject: `Copy of ${campaign.subject}`, html_content: campaign.html_content, target_list_ids: JSON.stringify(targetIds) });
+      if (data.id) {
+        loadDraftForEdit({
+          id: data.id,
+          subject: `Copy of ${campaign.subject}`,
+          html_content: campaign.html_content,
+          target_list_ids: JSON.stringify(targetIds),
+          blocks_json: campaign.blocks_json,
+          accent_color: campaign.accent_color,
+          heading_font: campaign.heading_font,
+        });
+      }
       setTimeout(() => setMessage(''), 3000);
     } catch (err) {
       setError(err.message);
@@ -685,7 +710,7 @@ export default function AdminCRMPanel({ user }) {
             );
           })()}
 
-          <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
+          <div className="space-y-6">
             {/* Compose Panel */}
             <div className="bg-[#0f1419] rounded-2xl border border-white/5 p-6">
               <div className="flex items-center justify-between mb-5">
@@ -700,114 +725,59 @@ export default function AdminCRMPanel({ user }) {
                 )}
               </div>
 
-              <form onSubmit={handleSaveCampaign} className="space-y-4">
-                {/* Subject */}
-                <div>
-                  <label className="block text-xs font-bold text-white/40 uppercase tracking-wider mb-2">Subject Line *</label>
-                  <input
-                    type="text"
-                    value={draft.subject}
-                    onChange={(e) => setDraft(prev => ({ ...prev, subject: e.target.value }))}
-                    className="w-full bg-[#1a2332] border border-white/10 rounded-xl p-3 text-white text-sm focus:outline-none focus:border-[#22c8e5]"
-                    placeholder="Monthly Newsletter: Top AI Trends"
-                  />
-                </div>
-
-                {/* List selection */}
-                <div>
-                  <label className="block text-xs font-bold text-white/40 uppercase tracking-wider mb-2">Target Lists *</label>
-                  <div className="bg-[#1a2332] rounded-xl border border-white/10 divide-y divide-white/5">
-                    {lists.map(list => {
-                      const checked = campaignListIds.includes(String(list.id));
-                      return (
-                        <label key={list.id} className={`flex items-center justify-between px-4 py-3 cursor-pointer hover:bg-white/5 transition-colors ${checked ? 'bg-[#22c8e5]/5' : ''}`}>
-                          <div className="flex items-center gap-3">
-                            <div className={`w-4 h-4 rounded border flex items-center justify-center flex-shrink-0 transition-colors ${checked ? 'bg-[#22c8e5] border-[#22c8e5]' : 'border-white/20'}`}>
-                              {checked && <Check size={10} className="text-[#003258]" />}
+              <form onSubmit={handleSaveCampaign} className="space-y-5">
+                {/* Subject + Lists */}
+                <div className="grid sm:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-xs font-bold text-white/40 uppercase tracking-wider mb-2">Subject Line *</label>
+                    <input
+                      type="text"
+                      value={draft.subject}
+                      onChange={(e) => setDraft(prev => ({ ...prev, subject: e.target.value }))}
+                      className="w-full bg-[#1a2332] border border-white/10 rounded-xl p-3 text-white text-sm focus:outline-none focus:border-[#22c8e5]"
+                      placeholder="Monthly Newsletter: Top AI Trends"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-bold text-white/40 uppercase tracking-wider mb-2">Target Lists *</label>
+                    <div className="bg-[#1a2332] rounded-xl border border-white/10 divide-y divide-white/5 max-h-40 overflow-y-auto">
+                      {lists.map(list => {
+                        const checked = campaignListIds.includes(String(list.id));
+                        return (
+                          <label key={list.id} className={`flex items-center justify-between px-3 py-2.5 cursor-pointer hover:bg-white/5 transition-colors ${checked ? 'bg-[#22c8e5]/5' : ''}`}>
+                            <div className="flex items-center gap-2.5">
+                              <div className={`w-4 h-4 rounded border flex items-center justify-center flex-shrink-0 transition-colors ${checked ? 'bg-[#22c8e5] border-[#22c8e5]' : 'border-white/20'}`}>
+                                {checked && <Check size={10} className="text-[#003258]" />}
+                              </div>
+                              <input type="checkbox" checked={checked} onChange={() => toggleListId(list.id)} className="sr-only focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#22c8e5]" />
+                              <span className="text-sm text-white">{list.name}</span>
                             </div>
-                            <input type="checkbox" checked={checked} onChange={() => toggleListId(list.id)} className="sr-only" />
-                            <span className="text-sm text-white">{list.name}</span>
-                          </div>
-                          <span className="text-xs text-white/40">{list.contact_count ?? 0} subscribers</span>
-                        </label>
-                      );
-                    })}
+                            <span className="text-xs text-white/40">{list.contact_count ?? 0}</span>
+                          </label>
+                        );
+                      })}
+                    </div>
                   </div>
                 </div>
 
-                {/* Toolbar + Content */}
+                {/* Drag-and-drop block editor */}
                 <div>
-                  <div className="flex items-center justify-between mb-2">
-                    <label className="text-xs font-bold text-white/40 uppercase tracking-wider">Email Content *</label>
-                    <button
-                      type="button"
-                      onClick={() => setShowPreview(p => !p)}
-                      className={`text-xs px-3 py-1 rounded-lg font-bold transition-colors flex items-center gap-1.5 ${showPreview ? 'bg-[#22c8e5] text-[#003258]' : 'text-white/40 hover:text-white border border-white/10'}`}
-                    >
-                      <Eye size={12} /> {showPreview ? 'Code' : 'Preview'}
-                    </button>
-                  </div>
-                  {!showPreview && (
-                    <div className="flex gap-1 mb-2 flex-wrap">
-                      {[
-                        { icon: <Bold size={13} />, title: 'Bold', open: '<strong>', close: '</strong>' },
-                        { icon: <Italic size={13} />, title: 'Italic', open: '<em>', close: '</em>' },
-                        { icon: <span className="text-xs font-bold">H2</span>, title: 'Heading', open: '<h2>', close: '</h2>' },
-                        { icon: <List size={13} />, title: 'List item', open: '<li>', close: '</li>' },
-                      ].map(btn => (
-                        <button
-                          key={btn.title}
-                          type="button"
-                          title={btn.title}
-                          onClick={() => insertTag(btn.open, btn.close)}
-                          className="px-2 py-1 bg-[#1a2332] border border-white/10 rounded-lg text-white/60 hover:text-white hover:border-white/30 transition-colors"
-                        >
-                          {btn.icon}
-                        </button>
-                      ))}
-                      <button
-                        type="button"
-                        title="Link"
-                        onClick={() => {
-                          const url = prompt('Enter URL:');
-                          if (!url) return;
-                          const ta = contentRef.current;
-                          if (!ta) return;
-                          const s = ta.selectionStart, e2 = ta.selectionEnd;
-                          const sel = ta.value.substring(s, e2) || 'link text';
-                          const ins = `<a href="${url}">${sel}</a>`;
-                          const nv = ta.value.substring(0, s) + ins + ta.value.substring(e2);
-                          setDraft(prev => ({ ...prev, html_content: nv }));
-                          setTimeout(() => { ta.focus(); ta.setSelectionRange(s + ins.length, s + ins.length); }, 0);
-                        }}
-                        className="px-2 py-1 bg-[#1a2332] border border-white/10 rounded-lg text-white/60 hover:text-white hover:border-white/30 transition-colors"
-                      >
-                        <Link2 size={13} />
-                      </button>
-                    </div>
-                  )}
-                  {showPreview ? (
-                    <div
-                      className="w-full bg-white rounded-xl p-4 min-h-[200px] text-[#111] text-sm overflow-auto"
-                      dangerouslySetInnerHTML={{ __html: draft.html_content || '<p class="text-gray-400">Nothing to preview yet.</p>' }}
-                    />
-                  ) : (
-                    <textarea
-                      ref={contentRef}
-                      rows={10}
-                      value={draft.html_content}
-                      onChange={(e) => setDraft(prev => ({ ...prev, html_content: e.target.value }))}
-                      className="w-full bg-[#1a2332] border border-white/10 rounded-xl p-4 text-white text-sm focus:outline-none focus:border-[#22c8e5] font-mono resize-y"
-                      placeholder="<h1>Hello!</h1><p>Welcome to our newsletter...</p>"
-                    />
-                  )}
+                  <label className="block text-xs font-bold text-white/40 uppercase tracking-wider mb-2">Email Content *</label>
+                  <CampaignBlockEditor
+                    blocks={blocks}
+                    setBlocks={setBlocks}
+                    accentColor={accentColor}
+                    setAccentColor={setAccentColor}
+                    headingFont={headingFont}
+                    setHeadingFont={setHeadingFont}
+                  />
                 </div>
 
                 {/* Checklist */}
                 <div className="flex gap-4 text-xs">
                   {[
                     { label: 'Subject', ok: !!draft.subject },
-                    { label: 'Content', ok: !!draft.html_content },
+                    { label: 'Content', ok: blocks.length > 0 },
                     { label: `Lists (${campaignListIds.length})`, ok: campaignListIds.length > 0 },
                   ].map(item => (
                     <span key={item.label} className={`flex items-center gap-1 font-bold ${item.ok ? 'text-emerald-400' : 'text-white/30'}`}>
@@ -830,7 +800,7 @@ export default function AdminCRMPanel({ user }) {
                     <button
                       type="button"
                       onClick={() => setSendConfirmId(editingCampaignId)}
-                      disabled={!draft.subject || !draft.html_content || !campaignListIds.length || isSavingCampaign}
+                      disabled={!draft.subject || !blocks.length || !campaignListIds.length || isSavingCampaign}
                       className="flex-1 bg-[#22c8e5] text-[#003258] py-3 rounded-2xl font-bold hover:bg-white transition-colors flex items-center justify-center gap-2 disabled:opacity-40 disabled:cursor-not-allowed"
                     >
                       <Send size={16} /> Send Now
