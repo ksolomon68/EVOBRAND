@@ -69,6 +69,7 @@ jobs:
           cp dist/apps/web/sitemap.xml deploy/sitemap.xml
 
       - name: Commit & push updated dist and deploy
+        id: commit_dist
         run: |
           git config user.name  "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
@@ -76,7 +77,19 @@ jobs:
           # Only commit if something actually changed
           if git diff --staged --quiet; then
             echo "No dist/deploy changes to commit."
+            echo "pushed=false" >> "$GITHUB_OUTPUT"
           else
             git commit -m "build: auto-rebuild dist and sync deploy [skip ci]"
             git push
+            echo "pushed=true" >> "$GITHUB_OUTPUT"
           fi
+
+      - name: Tell cPanel to pull the update (live site serves straight from this repo's deploy/ checkout)
+        # Only runs when we actually pushed a new commit above. Requires a
+        # CPANEL_API_TOKEN repo secret (cPanel → Security → Manage API
+        # Tokens). Host/username/repo path aren't secret, so they're inline.
+        if: steps.commit_dist.outputs.pushed == 'true'
+        run: |
+          curl -sS -f \
+            -H "Authorization: cpanel evobrandconcepts:${{ secrets.CPANEL_API_TOKEN }}" \
+            "https://evobrandconcepts.com:2083/execute/Git/update?repository_root=/home/evobrandconcepts/EVOBRAND"
