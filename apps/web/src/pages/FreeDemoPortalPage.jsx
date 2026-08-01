@@ -32,16 +32,18 @@ const STEPS = [
   { step: '03', title: 'You Review, Free', text: "We walk you through it. No cost, no pressure, no commitment." },
 ];
 
+const emptyForm = { name: '', business: '', email: '', phone: '', requirements: '', subscribeNewsletter: true, website: '' };
+
 function DemoPortalForm() {
-  const [form, setForm] = useState({ name: '', business: '', email: '', phone: '', requirements: '', website: '' });
+  const [form, setForm] = useState(emptyForm);
   const [logo, setLogo] = useState(null);
   const [status, setStatus] = useState('idle'); // idle | loading | success | error
   const [errorMsg, setErrorMsg] = useState('');
   const formRef = useRef(null);
 
   const handleChange = (e) => {
-    const { name, value } = e.target;
-    setForm((p) => ({ ...p, [name]: value }));
+    const { name, value, type, checked } = e.target;
+    setForm((p) => ({ ...p, [name]: type === 'checkbox' ? checked : value }));
     if (status === 'error') setStatus('idle');
   };
 
@@ -82,7 +84,7 @@ function DemoPortalForm() {
       body.append('subject', 'Custom AI Applications');
       body.append('message', message);
       body.append('requirements', form.requirements.trim());
-      body.append('subscribeNewsletter', false);
+      body.append('subscribeNewsletter', form.subscribeNewsletter);
       body.append('website', form.website);
       if (logo) body.append('logo', logo);
 
@@ -103,7 +105,7 @@ function DemoPortalForm() {
       }
 
       setStatus('success');
-      setForm({ name: '', business: '', email: '', phone: '', requirements: '', website: '' });
+      setForm(emptyForm);
       setLogo(null);
     } catch (err) {
       setStatus('error');
@@ -283,6 +285,23 @@ function DemoPortalForm() {
           onChange={handleLogoChange}
           className="sr-only"
         />
+      </div>
+
+      <div className="flex items-start gap-3 mt-4">
+        <div className="flex items-center h-5">
+          <input
+            id="dp-newsletter"
+            name="subscribeNewsletter"
+            type="checkbox"
+            checked={form.subscribeNewsletter}
+            onChange={handleChange}
+            className="w-4 h-4 rounded border-gray-600 focus:ring-[#22c8e5] text-[#22c8e5]"
+            style={{ background: 'rgba(10,22,40,0.7)', borderColor: 'rgba(34,200,229,0.3)' }}
+          />
+        </div>
+        <label htmlFor="dp-newsletter" className="text-sm cursor-pointer" style={{ color: 'rgba(255,255,255,0.7)' }}>
+          Subscribe to EVOBRAND newsletter for AI insights and updates.
+        </label>
       </div>
 
       {status === 'error' && (
