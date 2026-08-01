@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { Heading2, Type, MousePointerClick, Image as ImageIcon, Calendar, Minus, MoveVertical, GripVertical, Copy, Trash2 } from 'lucide-react';
+import React, { useRef, useState } from 'react';
+import { Heading2, Type, MousePointerClick, Image as ImageIcon, Calendar, Minus, MoveVertical, GripVertical, Copy, Trash2, Bold, Italic, Link2, List } from 'lucide-react';
 
 const ACCENT_SWATCHES = ['#00bcd4', '#2dd4a7', '#3b82f6', '#22c55e', '#a855f7'];
 
@@ -44,6 +44,18 @@ function hexToRgb(hex) {
   return { r: parseInt(clean.slice(0, 2), 16), g: parseInt(clean.slice(2, 4), 16), b: parseInt(clean.slice(4, 6), 16) };
 }
 
+// Text blocks carry admin-authored inline HTML (bold/italic/link, inserted
+// via the toolbar below) rather than escaped plain text — same trust level
+// as the old raw-HTML campaign editor this replaced. Shared by blocksToHtml
+// (the real send/save output) and the canvas preview so they stay identical.
+function renderTextContent(content = '') {
+  return content
+    .split(/\n{2,}/)
+    .filter(Boolean)
+    .map((para) => `<p>${para.replace(/\n/g, '<br>')}</p>`)
+    .join('\n');
+}
+
 /** Renders the block list into the HTML string stored as the campaign's html_content. */
 export function blocksToHtml(blocks, accentColor = '#00bcd4') {
   const rgb = hexToRgb(accentColor);
@@ -54,10 +66,7 @@ export function blocksToHtml(blocks, accentColor = '#00bcd4') {
       case 'heading':
         return `<h2>${escapeHtml(b.text)}</h2>`;
       case 'text':
-        return b.content
-          .split(/\n{2,}/)
-          .map((para) => `<p>${escapeHtml(para).replace(/\n/g, '<br>')}</p>`)
-          .join('\n');
+        return renderTextContent(b.content);
       case 'button':
         return `<div style="margin:8px 0 20px;"><a href="${escapeHtml(b.url)}" class="btn-${b.style === 'secondary' ? 'secondary' : 'primary'}">${escapeHtml(b.label)}</a></div>`;
       case 'image': {
@@ -84,6 +93,63 @@ export function blocksToHtml(blocks, accentColor = '#00bcd4') {
 
 const fieldClass = 'w-full bg-black/20 border border-white/10 rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:border-[#22c8e5] placeholder:text-white/25';
 const labelClass = 'block text-[10px] font-bold text-white/40 uppercase tracking-wider mb-1';
+const toolbarBtnClass = 'p-1.5 bg-black/20 border border-white/10 rounded-lg text-white/60 hover:text-white hover:border-white/30 transition-colors';
+
+/** Text block editor: a textarea plus a small toolbar that wraps the
+ * current selection in inline HTML tags (bold/italic/link/list item). */
+function TextBlockFields({ block, onChange }) {
+  const taRef = useRef(null);
+
+  const wrapSelection = (open, close, placeholder = 'text') => {
+    const ta = taRef.current;
+    if (!ta) return;
+    const start = ta.selectionStart;
+    const end = ta.selectionEnd;
+    const selected = ta.value.substring(start, end) || placeholder;
+    const inserted = `${open}${selected}${close}`;
+    const newValue = ta.value.substring(0, start) + inserted + ta.value.substring(end);
+    onChange({ ...block, content: newValue });
+    requestAnimationFrame(() => {
+      ta.focus();
+      ta.setSelectionRange(start + open.length, start + open.length + selected.length);
+    });
+  };
+
+  const insertLink = () => {
+    const ta = taRef.current;
+    if (!ta) return;
+    const url = window.prompt('Enter URL:');
+    if (!url) return;
+    wrapSelection(`<a href="${url}">`, '</a>', 'link text');
+  };
+
+  return (
+    <div>
+      <div className="flex gap-1 mb-1.5">
+        <button type="button" title="Bold" onClick={() => wrapSelection('<strong>', '</strong>')} className={toolbarBtnClass}>
+          <Bold size={13} />
+        </button>
+        <button type="button" title="Italic" onClick={() => wrapSelection('<em>', '</em>')} className={toolbarBtnClass}>
+          <Italic size={13} />
+        </button>
+        <button type="button" title="Link" onClick={insertLink} className={toolbarBtnClass}>
+          <Link2 size={13} />
+        </button>
+        <button type="button" title="List item" onClick={() => wrapSelection('<li>', '</li>')} className={toolbarBtnClass}>
+          <List size={13} />
+        </button>
+      </div>
+      <textarea
+        ref={taRef}
+        rows={4}
+        className={fieldClass}
+        value={block.content}
+        onChange={(e) => onChange({ ...block, content: e.target.value })}
+        placeholder="Write your message... select text and use the toolbar to format it"
+      />
+    </div>
+  );
+}
 
 function BlockFields({ block, onChange }) {
   const set = (patch) => onChange({ ...block, ...patch });
@@ -94,9 +160,7 @@ function BlockFields({ block, onChange }) {
         <input className={fieldClass} value={block.text} onChange={(e) => set({ text: e.target.value })} placeholder="Heading text" />
       );
     case 'text':
-      return (
-        <textarea rows={4} className={fieldClass} value={block.content} onChange={(e) => set({ content: e.target.value })} placeholder="Write your message..." />
-      );
+      return <TextBlockFields block={block} onChange={onChange} />;
     case 'button':
       return (
         <div className="grid sm:grid-cols-2 gap-3">
@@ -204,7 +268,12 @@ function BlockPreview({ block, accentColor }) {
     case 'heading':
       return <h3 className="text-white font-bold text-lg">{block.text || 'Heading'}</h3>;
     case 'text':
-      return <p className="text-white/70 text-sm whitespace-pre-wrap">{block.content}</p>;
+      return (
+        <div
+          className="text-white/70 text-sm [&_a]:underline [&_a]:text-[#22c8e5] [&_strong]:text-white [&_strong]:font-bold [&_em]:italic [&_li]:list-disc [&_li]:ml-4"
+          dangerouslySetInnerHTML={{ __html: renderTextContent(block.content) }}
+        />
+      );
     case 'button':
       return (
         <a
