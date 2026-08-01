@@ -12,6 +12,23 @@ function wrapLinks(html, campaignId, siteUrl) {
   });
 }
 
+// #rrggbb -> {r,g,b}, defaulting to the brand cyan on anything malformed
+// (custom hex from the campaign design panel is user input, not guaranteed valid).
+function hexToRgb(hex) {
+  const m = /^#?([0-9a-f]{6})$/i.exec(hex || '');
+  const clean = m ? m[1] : '00bcd4';
+  return {
+    r: parseInt(clean.slice(0, 2), 16),
+    g: parseInt(clean.slice(2, 4), 16),
+    b: parseInt(clean.slice(4, 6), 16),
+  };
+}
+
+const HEADING_FONTS = {
+  bebas: "'Bebas Neue', Impact, sans-serif",
+  playfair: "'Playfair Display', Georgia, serif",
+};
+
 /**
  * getEmailTemplate
  * Wraps any campaign content in the EVOBRAND branded email shell.
@@ -22,13 +39,26 @@ function wrapLinks(html, campaignId, siteUrl) {
  * @param {number|null} campaignId - When provided, injects open pixel + wraps links for tracking
  * @param {string} siteUrl      - Base URL for tracking endpoints (e.g. https://evobrandconcepts.com)
  * @param {string|null} subscriberEmail - When provided, builds a real unsubscribe link for this recipient
+ * @param {string} accentColor  - Campaign accent color (hex), from the design panel
+ * @param {string} headingFont  - 'bebas' (default) or 'playfair', from the design panel
  * @returns {string}            - Full HTML email string
  */
-const getEmailTemplate = (subject, content, campaignId = null, siteUrl = 'https://evobrandconcepts.com', subscriberEmail = null) => {
+const getEmailTemplate = (
+  subject,
+  content,
+  campaignId = null,
+  siteUrl = 'https://evobrandconcepts.com',
+  subscriberEmail = null,
+  accentColor = '#00bcd4',
+  headingFont = 'bebas'
+) => {
   const year = new Date().getFullYear();
   const unsubscribeUrl = subscriberEmail
     ? `${siteUrl}/api/newsletter/unsubscribe?email=${encodeURIComponent(subscriberEmail)}`
     : null;
+  const accentRgb = hexToRgb(accentColor);
+  const accentAlpha = (a) => `rgba(${accentRgb.r},${accentRgb.g},${accentRgb.b},${a})`;
+  const headingFontFamily = HEADING_FONTS[headingFont] || HEADING_FONTS.bebas;
 
   // Wrap links for click tracking (only for real sends)
   const trackedContent = wrapLinks(content, campaignId, siteUrl);
@@ -46,7 +76,7 @@ const getEmailTemplate = (subject, content, campaignId = null, siteUrl = 'https:
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <title>${subject}</title>
   <style>
-    @import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Playfair+Display:wght@600;700&family=DM+Sans:wght@300;400;500;600&display=swap');
 
     * { margin: 0; padding: 0; box-sizing: border-box; }
 
@@ -67,7 +97,7 @@ const getEmailTemplate = (subject, content, campaignId = null, siteUrl = 'https:
     .header {
       background: linear-gradient(135deg, #0b0f1a 0%, #0d1829 50%, #091520 100%);
       padding: 40px 40px 32px;
-      border-bottom: 1px solid rgba(0, 188, 212, 0.15);
+      border-bottom: 1px solid ${accentAlpha(0.15)};
       position: relative;
       overflow: hidden;
       text-align: left;
@@ -79,7 +109,7 @@ const getEmailTemplate = (subject, content, campaignId = null, siteUrl = 'https:
       top: -60px; right: -60px;
       width: 260px; height: 260px;
       border-radius: 50%;
-      background: radial-gradient(circle, rgba(0,188,212,0.08) 0%, transparent 70%);
+      background: radial-gradient(circle, ${accentAlpha(0.08)} 0%, transparent 70%);
       pointer-events: none;
     }
 
@@ -91,7 +121,7 @@ const getEmailTemplate = (subject, content, campaignId = null, siteUrl = 'https:
     }
 
     .logo-wordmark {
-      font-family: 'Bebas Neue', Impact, sans-serif;
+      font-family: ${headingFontFamily};
       font-size: 34px;
       letter-spacing: 4px;
       color: #ffffff;
@@ -100,7 +130,7 @@ const getEmailTemplate = (subject, content, campaignId = null, siteUrl = 'https:
     }
 
     .logo-wordmark span {
-      color: #00bcd4;
+      color: ${accentColor};
     }
 
     .logo-sub {
@@ -115,7 +145,7 @@ const getEmailTemplate = (subject, content, campaignId = null, siteUrl = 'https:
     .hero {
       background: linear-gradient(180deg, #0d1829 0%, #091217 100%);
       padding: 48px 40px 40px;
-      border-bottom: 1px solid rgba(0, 188, 212, 0.1);
+      border-bottom: 1px solid ${accentAlpha(0.1)};
     }
 
     .hero-label {
@@ -123,9 +153,9 @@ const getEmailTemplate = (subject, content, campaignId = null, siteUrl = 'https:
       font-size: 10px;
       letter-spacing: 3px;
       text-transform: uppercase;
-      color: #00bcd4;
-      background: rgba(0,188,212,0.08);
-      border: 1px solid rgba(0,188,212,0.2);
+      color: ${accentColor};
+      background: ${accentAlpha(0.08)};
+      border: 1px solid ${accentAlpha(0.2)};
       padding: 5px 14px;
       border-radius: 2px;
       margin-bottom: 22px;
@@ -133,7 +163,7 @@ const getEmailTemplate = (subject, content, campaignId = null, siteUrl = 'https:
     }
 
     .hero-headline {
-      font-family: 'Bebas Neue', Impact, sans-serif;
+      font-family: ${headingFontFamily};
       font-size: 46px;
       line-height: 1.05;
       letter-spacing: 2px;
@@ -142,13 +172,13 @@ const getEmailTemplate = (subject, content, campaignId = null, siteUrl = 'https:
     }
 
     .hero-headline .accent {
-      color: #00bcd4;
+      color: ${accentColor};
     }
 
     /* ─── DIVIDER ─────────────────────────────────── */
     .divider {
       height: 1px;
-      background: linear-gradient(90deg, transparent, rgba(0,188,212,0.3), transparent);
+      background: linear-gradient(90deg, transparent, ${accentAlpha(0.3)}, transparent);
       margin: 0 40px;
     }
 
@@ -160,7 +190,7 @@ const getEmailTemplate = (subject, content, campaignId = null, siteUrl = 'https:
 
     .content-section h1,
     .content-section h2 {
-      font-family: 'Bebas Neue', Impact, sans-serif;
+      font-family: ${headingFontFamily};
       font-size: 28px;
       letter-spacing: 1.5px;
       color: #ffffff;
@@ -169,10 +199,10 @@ const getEmailTemplate = (subject, content, campaignId = null, siteUrl = 'https:
     }
 
     .content-section h3 {
-      font-family: 'Bebas Neue', Impact, sans-serif;
+      font-family: ${headingFontFamily};
       font-size: 22px;
       letter-spacing: 1px;
-      color: #00bcd4;
+      color: ${accentColor};
       margin-bottom: 12px;
       line-height: 1.1;
     }
@@ -199,7 +229,7 @@ const getEmailTemplate = (subject, content, campaignId = null, siteUrl = 'https:
     }
 
     .content-section a {
-      color: #00bcd4;
+      color: ${accentColor};
       text-decoration: none;
     }
 
@@ -223,7 +253,7 @@ const getEmailTemplate = (subject, content, campaignId = null, siteUrl = 'https:
 
     .content-section li::before {
       content: '→';
-      color: #00bcd4;
+      color: ${accentColor};
       font-size: 12px;
       position: absolute;
       left: 0;
@@ -233,7 +263,7 @@ const getEmailTemplate = (subject, content, campaignId = null, siteUrl = 'https:
     /* ─── CTA BUTTON ──────────────────────────────── */
     .btn-primary {
       display: inline-block;
-      background: #00bcd4;
+      background: ${accentColor};
       color: #0b0f1a !important;
       font-family: 'DM Sans', Helvetica, Arial, sans-serif;
       font-size: 12px;
@@ -266,7 +296,7 @@ const getEmailTemplate = (subject, content, campaignId = null, siteUrl = 'https:
     /* ─── HIGHLIGHT BOX ───────────────────────────── */
     .highlight-box {
       background: linear-gradient(135deg, #071219 0%, #0d1e2a 100%);
-      border: 1px solid rgba(0,188,212,0.25);
+      border: 1px solid ${accentAlpha(0.25)};
       border-radius: 4px;
       padding: 28px 28px;
       margin: 28px 0;
@@ -279,7 +309,7 @@ const getEmailTemplate = (subject, content, campaignId = null, siteUrl = 'https:
       position: absolute;
       top: 0; left: 0; right: 0;
       height: 2px;
-      background: linear-gradient(90deg, transparent, #00bcd4, #c9a84c, transparent);
+      background: linear-gradient(90deg, transparent, ${accentColor}, #c9a84c, transparent);
     }
 
     /* ─── GOLD NOTICE BAR ─────────────────────────── */
@@ -300,7 +330,7 @@ const getEmailTemplate = (subject, content, campaignId = null, siteUrl = 'https:
     }
 
     .notice-bar h3 {
-      font-family: 'Bebas Neue', Impact, sans-serif;
+      font-family: ${headingFontFamily};
       font-size: 22px;
       letter-spacing: 1px;
       color: #ffffff;
@@ -315,7 +345,7 @@ const getEmailTemplate = (subject, content, campaignId = null, siteUrl = 'https:
     }
 
     .notice-bar a {
-      color: #00bcd4;
+      color: ${accentColor};
       text-decoration: none;
     }
 
@@ -326,7 +356,7 @@ const getEmailTemplate = (subject, content, campaignId = null, siteUrl = 'https:
     }
 
     .signature-section blockquote {
-      border-left: 3px solid #00bcd4;
+      border-left: 3px solid ${accentColor};
       padding-left: 20px;
       margin-bottom: 24px;
     }
@@ -354,7 +384,7 @@ const getEmailTemplate = (subject, content, campaignId = null, siteUrl = 'https:
     }
 
     .signature-title a {
-      color: rgba(0,188,212,0.7);
+      color: ${accentAlpha(0.7)};
       text-decoration: none;
     }
 
@@ -366,7 +396,7 @@ const getEmailTemplate = (subject, content, campaignId = null, siteUrl = 'https:
     }
 
     .footer-wordmark {
-      font-family: 'Bebas Neue', Impact, sans-serif;
+      font-family: ${headingFontFamily};
       font-size: 20px;
       letter-spacing: 3px;
       color: rgba(255,255,255,0.45);
@@ -381,7 +411,7 @@ const getEmailTemplate = (subject, content, campaignId = null, siteUrl = 'https:
     }
 
     .footer a {
-      color: rgba(0,188,212,0.55);
+      color: ${accentAlpha(0.55)};
       text-decoration: none;
     }
 
