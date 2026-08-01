@@ -1,14 +1,21 @@
 ## Pages
-- [About Us](/about): Learn about EVOBRAND
+- [404 — Page Not Found | EVOBRAND](/notfound): The page you
+- [About EVOBRAND | AI Agency Founded in Ellis County, TX](/about): Since 1999, EVOBRAND has evolved from a creative agency to a leading AI transformation partner. Led by Keisha Solomon, we deliver custom AI solutions, visual content, and intelligent automation to businesses nationwide.
+- [Accessibility Statement | EVOBRAND](/accessibilitystatement): EVOBRAND
+- [AI Portfolio & Case Studies | Client Work | EVOBRAND](/ourwork): Browse EVOBRAND
+- [AI Resources, Blog & Industry Guides | EVOBRAND](/resources): Free AI resources and expert articles from EVOBRAND. Explore enterprise AI, agentic AI, creative AI, ethics, and industry trends. Stay ahead of the AI revolution.
+- [AI Services & Pricing | Custom AI Apps, Video, Docs & More](/services): Explore EVOBRAND
+- [AI Solutions for Business Growth | Ellis County, TX](/home): EVOBRAND transforms businesses with custom AI applications, visual content creation, intelligent document generation, and AI video production. Ellis County-based agency serving clients nationwide.
 - [Audit Results](/auditorresults): View your personalized AI-powered brand audit report from EVOBRAND.
 - [Blog Post](/blogpost): No description available
+- [Book a Free AI Consultation | Contact EVOBRAND — Ellis County, TX](/contact): Ready to transform your business with AI? Contact EVOBRAND for a free 30-minute strategy call. Serving clients nationwide from Ellis County, TX. Call +1 214-531-4427 or email info@evobrand.net.
+- [Book a Free AI Strategy Consultation | EVOBRAND](/bookconsultation): Schedule a free 30-minute consultation with EVOBRAND to discuss your business automation, custom AI integrations, and digital transformation goals.
 - [Client Portal](/clientportal): EVOBRAND Client Portal - Secure access to your projects and meetings.
 - [Client Portal Login](/clientportallogin): Access your EVOBRAND client portal.
-- [Contact Us](/contact): Schedule a free AI consultation with EVOBRAND. Learn how our custom AI solutions can transform your business. Dallas based experts.
-- [Free Brand Audit](/auditor): Get an AI-powered brand audit in 4 minutes. Free. No fluff. Instant score, 5-category breakdown, and a personalized action plan from EVOBRAND.
-- [Home](/home): Transform your business with AI-powered solutions. Custom AI applications, visual content creation, intelligent document generation, and video production by EVOBRAND.
-- [How It Works](/howitworks): Discover our proven process for delivering AI solutions. From discovery to launch and ongoing optimization, we ensure your project success.
-- [Our Work](/ourwork): Explore our portfolio of successful AI projects. See real results, case studies, and client testimonials from businesses we
+- [Contract Customizer](/contractcustomizer): Build and customize your enterprise Services Agreement in real-time.
+- [Free AI Brand Audit Tool | Instant Score & Action Plan | EVOBRAND](/auditor): Get a free AI-powered brand audit in under 4 minutes. Score your brand across SEO, design, accessibility, social, and digital presence. Instant report + personalized action plan. No sign-up required.
+- [Free Custom Demo Portal | Custom AI Applications — EVOBRAND](/freedemoportal): Get a free, custom-built demo portal for your business. Share your requirements and logo, and EVOBRAND will build a live demo tailored to you — no cost, no obligation.
+- [How Our AI Process Works | Discovery to Launch | EVOBRAND](/howitworks): EVOBRAND
+- [Payment Success - EVOBRAND](/paymentsuccess): Thank you for your purchase. Your payment was verified successfully.
 - [Reset Password](/resetpassword): Reset your EVOBRAND client portal password.
-- [Resources & Blog](/resources): Explore AI trends, case studies, how-to guides, and industry insights. Stay updated with the latest in AI transformation.
-- [Services](/services): No description available
+- [WordPress Maintenance & Support Plans — EVOBRAND](/maintenanceplans): Keep your WordPress site secure, fast, and up to date with EVOBRAND
