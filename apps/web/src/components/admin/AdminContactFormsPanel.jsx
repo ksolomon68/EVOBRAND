@@ -163,7 +163,34 @@ export default function AdminContactFormsPanel({ user }) {
                   <div className="bg-white/10 border border-white/20 rounded-xl p-5 text-white whitespace-pre-wrap leading-relaxed text-base">
                     {selected.message}
                   </div>
-                  
+
+                  {selected.requirements && (
+                    <div className="mt-6">
+                      <p className="text-xs text-[#22c8e5] mb-2 uppercase tracking-wider font-bold">Demo Portal Requirements</p>
+                      <div className="bg-white/10 border border-white/20 rounded-xl p-5 text-white whitespace-pre-wrap leading-relaxed text-sm">
+                        {selected.requirements}
+                      </div>
+                    </div>
+                  )}
+
+                  {selected.logo_url && (
+                    <div className="mt-6">
+                      <p className="text-xs text-[#22c8e5] mb-2 uppercase tracking-wider font-bold">Business Logo</p>
+                      <a
+                        href={`${API_BASE}${selected.logo_url}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-block rounded-xl border border-white/20 bg-white/5 p-3 hover:border-[#22c8e5]/40 transition-colors"
+                      >
+                        <img
+                          src={`${API_BASE}${selected.logo_url}`}
+                          alt="Submitted business logo"
+                          className="max-h-32 max-w-[200px] rounded-lg object-contain"
+                        />
+                      </a>
+                    </div>
+                  )}
+
                   <div className="mt-8 pt-6 border-t border-white/10">
                     <p className="text-xs text-white/40 mb-3 uppercase tracking-wider font-bold">Quick Actions</p>
                     <a

@@ -1,5 +1,8 @@
 const express = require('express');
 const router = express.Router();
+const path = require('path');
+const fs = require('fs');
+const multer = require('multer');
 const pool = require('../db/connection');
 const { Resend } = require('resend');
 const { getEmailTemplate } = require('../utils/emailTemplate');
@@ -7,6 +10,27 @@ const { authenticateToken, requireAdmin } = require('../middleware/auth');
 const { notifyAdmins } = require('../utils/notifications');
 
 const getResend = () => new Resend(process.env.RESEND_API_KEY || 're_placeholder');
+
+// ── Logo upload setup (for "Custom AI Applications" demo portal requests) ──
+const UPLOADS_DIR = path.join(__dirname, '../../uploads');
+if (!fs.existsSync(UPLOADS_DIR)) fs.mkdirSync(UPLOADS_DIR, { recursive: true });
+
+const logoStorage = multer.diskStorage({
+  destination: (req, file, cb) => cb(null, UPLOADS_DIR),
+  filename: (req, file, cb) => {
+    const safe = file.originalname.replace(/[^a-zA-Z0-9._-]/g, '_');
+    cb(null, `logo-${Date.now()}-${safe}`);
+  },
+});
+const uploadLogo = multer({
+  storage: logoStorage,
+  limits: { fileSize: 5 * 1024 * 1024 }, // 5 MB
+  fileFilter: (req, file, cb) => {
+    const allowed = /jpeg|jpg|png|gif|svg|webp/;
+    const ext = path.extname(file.originalname).toLowerCase().replace('.', '');
+    allowed.test(ext) ? cb(null, true) : cb(new Error('Logo must be an image file (jpg, png, gif, svg, or webp)'));
+  },
+});
 
 // ─── Spam mitigation ───────────────────────────────────────────────────────
 // In-memory per-IP sliding window. Good enough for a single Node process;
@@ -33,16 +57,25 @@ const ensureTable = async () => {
       email VARCHAR(255) NOT NULL,
       service VARCHAR(255),
       message TEXT NOT NULL,
+      requirements TEXT,
+      logo_url VARCHAR(500),
       status ENUM('new', 'read', 'archived') DEFAULT 'new',
       created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     )
   `);
+  // Auto-migrate: add columns for pre-existing tables that predate the
+  // demo-portal request fields.
+  await pool.query('ALTER TABLE contact_submissions ADD COLUMN requirements TEXT').catch(() => {});
+  await pool.query('ALTER TABLE contact_submissions ADD COLUMN logo_url VARCHAR(500)').catch(() => {});
 };
 
 // @route POST /api/contacts/submit
-// @desc  Submit a public contact form
-router.post('/submit', async (req, res) => {
-  const { name, email, subject, message, subscribeNewsletter, website } = req.body;
+// @desc  Submit a public contact form. Accepts multipart/form-data so a
+//        "Custom AI Applications" inquiry can attach a logo for the free
+//        demo portal request; multer passes plain JSON/text-only submissions
+//        straight through when there's no file to parse.
+router.post('/submit', uploadLogo.single('logo'), async (req, res) => {
+  const { name, email, subject, message, requirements, subscribeNewsletter, website } = req.body;
 
   // Honeypot: a field named to tempt bots that real visitors never see or
   // fill in (hidden off-screen in the form). Pretend success so bots don't
@@ -63,10 +96,12 @@ router.post('/submit', async (req, res) => {
   try {
     await ensureTable();
 
+    const logoUrl = req.file ? `/uploads/${req.file.filename}` : null;
+
     // 1. Insert into contact_submissions
     const [result] = await pool.query(
-      'INSERT INTO contact_submissions (name, email, service, message) VALUES (?, ?, ?, ?)',
-      [name, email, subject || 'General Inquiry', message]
+      'INSERT INTO contact_submissions (name, email, service, message, requirements, logo_url) VALUES (?, ?, ?, ?, ?, ?)',
+      [name, email, subject || 'General Inquiry', message, requirements || null, logoUrl]
     );
 
     // 2. Handle Newsletter Opt-in
@@ -86,6 +121,12 @@ router.post('/submit', async (req, res) => {
 
     // 3. Send Email Notifications
     try {
+      const requirementsNote = requirements
+        ? `<p><strong>Project Requirements:</strong><br/>${String(requirements).replace(/\n/g, '<br/>')}</p>`
+        : '';
+      const logoNote = logoUrl
+        ? `<p><strong>Logo:</strong> <a href="https://evobrandconcepts.com/api${logoUrl}">${req.file.originalname}</a></p>`
+        : '';
       // To Admin
       await getResend().emails.send({
         from: `"EVOBRAND" <${process.env.RESEND_FROM_EMAIL || 'info@evobrand.net'}>`,
@@ -95,6 +136,8 @@ router.post('/submit', async (req, res) => {
           <p><strong>Name:</strong> ${name}</p>
           <p><strong>Email:</strong> ${email}</p>
           <p><strong>Message:</strong><br/>${message.replace(/\\n/g, '<br/>')}</p>
+          ${requirementsNote}
+          ${logoNote}
         `)
       });
       // To User
