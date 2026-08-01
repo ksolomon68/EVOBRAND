@@ -52,15 +52,31 @@ jobs:
           VITE_YOUTUBE_API_KEY: AIzaSyB7Akidw7RMlWPX5erpbxh_OJhTo4ch5Vg
           VITE_SITE_URL: https://evobrand.net
 
-      - name: Commit & push updated dist
+      - name: Sync deploy/ (the folder actually served at evobrandconcepts.com)
+        # deploy/ mirrors dist/apps/web's app shell — index.html, the hashed
+        # JS/CSS bundle, and the route-list files (llms.txt, robots.txt,
+        # sitemap.xml) — so a merge to main is always live, not just built.
+        # It intentionally does NOT mirror dist/ wholesale: deploy/ carries
+        # extra static/legacy files (favicon, fonts, PHP migration tools,
+        # project images) that aren't part of the Vite build and must not
+        # be deleted or overwritten by it.
+        run: |
+          rm -rf deploy/assets
+          cp -r dist/apps/web/assets deploy/assets
+          cp dist/apps/web/index.html deploy/index.html
+          cp dist/apps/web/llms.txt deploy/llms.txt
+          cp dist/apps/web/robots.txt deploy/robots.txt
+          cp dist/apps/web/sitemap.xml deploy/sitemap.xml
+
+      - name: Commit & push updated dist and deploy
         run: |
           git config user.name  "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add dist/
-          # Only commit if something actually changed in dist/
+          git add dist/ deploy/
+          # Only commit if something actually changed
           if git diff --staged --quiet; then
-            echo "No dist changes to commit."
+            echo "No dist/deploy changes to commit."
           else
-            git commit -m "build: auto-rebuild dist [skip ci]"
+            git commit -m "build: auto-rebuild dist and sync deploy [skip ci]"
             git push
           fi
