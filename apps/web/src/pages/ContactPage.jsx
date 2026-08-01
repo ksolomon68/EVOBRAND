@@ -1,5 +1,5 @@
 import React, { useState, useRef } from 'react';
-import { Mail, Phone, MapPin, Clock, Facebook, Youtube, Linkedin, Instagram, Send, Loader2, CheckCircle2, AlertCircle } from 'lucide-react';
+import { Mail, Phone, MapPin, Clock, Facebook, Youtube, Linkedin, Instagram, Send, Loader2, CheckCircle2, AlertCircle, Upload, X } from 'lucide-react';
 import { supabase } from '@/lib/supabase.js';
 import SchedulerWidget from '@/components/scheduler/SchedulerWidget.jsx';
 import SEO from '@/components/SEO.jsx';
@@ -46,15 +46,36 @@ const CONTACT_METHODS = [
 
 // ─── Contact Form ─────────────────────────────────────────────────────────────
 
+const CUSTOM_AI_SERVICE = 'Custom AI Applications';
+const MAX_LOGO_BYTES = 5 * 1024 * 1024; // 5 MB, matches server-side multer limit
+
+const emptyForm = { service: '', name: '', email: '', message: '', requirements: '', subscribeNewsletter: true, website: '' };
+
 function ContactForm() {
-  const [form, setForm] = useState({ service: '', name: '', email: '', message: '', subscribeNewsletter: true, website: '' });
+  const [form, setForm] = useState(emptyForm);
+  const [logo, setLogo] = useState(null);
   const [status, setStatus] = useState('idle'); // idle | loading | success | error
   const [errorMsg, setErrorMsg] = useState('');
   const formRef = useRef(null);
 
+  const isCustomAiRequest = form.service === CUSTOM_AI_SERVICE;
+
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
     setForm((p) => ({ ...p, [name]: type === 'checkbox' ? checked : value }));
+    if (status === 'error') setStatus('idle');
+  };
+
+  const handleLogoChange = (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (file.size > MAX_LOGO_BYTES) {
+      setStatus('error');
+      setErrorMsg('Logo file is too large — please choose one under 5 MB.');
+      e.target.value = '';
+      return;
+    }
+    setLogo(file);
     if (status === 'error') setStatus('idle');
   };
 
@@ -65,6 +86,11 @@ function ContactForm() {
       setErrorMsg('Please fill in all required fields.');
       return;
     }
+    if (isCustomAiRequest && !form.requirements.trim()) {
+      setStatus('error');
+      setErrorMsg('Please list your requirements for the demo portal.');
+      return;
+    }
 
     setStatus('loading');
     try {
@@ -73,20 +99,23 @@ function ContactForm() {
         : 'https://evobrandconcepts.com/api/contacts/submit';
       const controller = new AbortController();
       const timer = setTimeout(() => controller.abort(), 10000);
+
+      const body = new FormData();
+      body.append('name', form.name.trim());
+      body.append('email', form.email.trim());
+      body.append('subject', form.service || 'General Inquiry');
+      body.append('message', form.message.trim());
+      body.append('requirements', isCustomAiRequest ? form.requirements.trim() : '');
+      body.append('subscribeNewsletter', form.subscribeNewsletter);
+      body.append('website', form.website);
+      if (isCustomAiRequest && logo) body.append('logo', logo);
+
       let response;
       try {
         response = await fetch(API_URL, {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
           signal: controller.signal,
-          body: JSON.stringify({
-            name: form.name.trim(),
-            email: form.email.trim(),
-            subject: form.service || 'General Inquiry',
-            message: form.message.trim(),
-            subscribeNewsletter: form.subscribeNewsletter,
-            website: form.website,
-          }),
+          body,
         });
       } catch (fetchErr) {
         throw new Error(fetchErr.name === 'AbortError'
@@ -102,7 +131,8 @@ function ContactForm() {
       }
 
       setStatus('success');
-      setForm({ service: '', name: '', email: '', message: '', subscribeNewsletter: true, website: '' });
+      setForm(emptyForm);
+      setLogo(null);
     } catch (err) {
       setStatus('error');
       setErrorMsg(err.message || 'Failed to send your message. Please try again or email us directly.');
@@ -223,6 +253,77 @@ function ContactForm() {
           placeholder="Tell us about your project or goals..."
         />
       </div>
+
+      {isCustomAiRequest && (
+        <div
+          className="rounded-xl p-4 space-y-4"
+          style={{ background: 'rgba(34,200,229,0.05)', border: '1px solid rgba(34,200,229,0.2)' }}
+        >
+          <p className="text-xs font-bold uppercase tracking-widest" style={{ color: GOLD }}>
+            Free Custom Demo Portal
+          </p>
+          <p className="text-xs" style={{ color: 'rgba(255,255,255,0.55)' }}>
+            Tell us what you need and share your logo, and we'll build you a free customized demo portal for your business.
+          </p>
+
+          <div>
+            <label htmlFor="cf-requirements" className="block text-xs font-bold uppercase tracking-widest mb-1.5" style={{ color: GOLD }}>
+              Project Requirements <span aria-hidden="true">*</span>
+            </label>
+            <textarea
+              id="cf-requirements"
+              name="requirements"
+              value={form.requirements}
+              onChange={handleChange}
+              rows={4}
+              required={isCustomAiRequest}
+              className={inputClass}
+              style={inputStyle}
+              placeholder="List the features, pages, or workflows you'd like in your demo portal..."
+            />
+          </div>
+
+          <div>
+            <label htmlFor="cf-logo" className="block text-xs font-bold uppercase tracking-widest mb-1.5" style={{ color: GOLD }}>
+              Business Logo <span className="normal-case font-normal" style={{ color: 'rgba(255,255,255,0.4)' }}>(optional, max 5MB)</span>
+            </label>
+            {logo ? (
+              <div
+                className="flex items-center justify-between px-4 py-3 rounded-xl text-sm"
+                style={inputStyle}
+              >
+                <span className="truncate" style={{ color: BEIGE }}>{logo.name}</span>
+                <button
+                  type="button"
+                  onClick={() => setLogo(null)}
+                  aria-label="Remove selected logo"
+                  className="ml-2 flex-shrink-0 rounded focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#22c8e5]"
+                  style={{ color: 'rgba(255,255,255,0.5)' }}
+                >
+                  <X size={16} />
+                </button>
+              </div>
+            ) : (
+              <label
+                htmlFor="cf-logo"
+                className="flex items-center justify-center gap-2 px-4 py-3 rounded-xl text-sm cursor-pointer border border-dashed transition-colors hover:border-[#22c8e5]/50"
+                style={{ ...inputStyle, color: 'rgba(255,255,255,0.5)' }}
+              >
+                <Upload size={15} aria-hidden="true" />
+                <span>Upload logo (PNG, JPG, SVG, GIF, or WebP)</span>
+              </label>
+            )}
+            <input
+              id="cf-logo"
+              name="logo"
+              type="file"
+              accept="image/png,image/jpeg,image/gif,image/svg+xml,image/webp"
+              onChange={handleLogoChange}
+              className="sr-only"
+            />
+          </div>
+        </div>
+      )}
 
       <div className="flex items-start gap-3 mt-4">
         <div className="flex items-center h-5">
