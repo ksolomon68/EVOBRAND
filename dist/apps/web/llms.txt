@@ -14,6 +14,7 @@
 - [Client Portal Login](/clientportallogin): Access your EVOBRAND client portal.
 - [Contract Customizer](/contractcustomizer): Build and customize your enterprise Services Agreement in real-time.
 - [Free AI Brand Audit Tool | Instant Score & Action Plan | EVOBRAND](/auditor): Get a free AI-powered brand audit in under 4 minutes. Score your brand across SEO, design, accessibility, social, and digital presence. Instant report + personalized action plan. No sign-up required.
+- [Free Custom Demo Portal | Custom AI Applications — EVOBRAND](/freedemoportal): Get a free, custom-built demo portal for your business. Share your requirements and logo, and EVOBRAND will build a live demo tailored to you — no cost, no obligation.
 - [How Our AI Process Works | Discovery to Launch | EVOBRAND](/howitworks): EVOBRAND
 - [Payment Success - EVOBRAND](/paymentsuccess): Thank you for your purchase. Your payment was verified successfully.
 - [Reset Password](/resetpassword): Reset your EVOBRAND client portal password.
