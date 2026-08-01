@@ -17,6 +17,7 @@ import ServicesBuiltForScale from '@/components/sections/ServicesBuiltForScale.j
 import AICapabilities from '@/components/sections/AICapabilities.jsx';
 import SchedulerWidget from '@/components/scheduler/SchedulerWidget.jsx';
 import SEO from '@/components/SEO.jsx';
+import DemoPortalCTASlideIn from '@/components/DemoPortalCTASlideIn.jsx';
 
 /**
  * CountStat — number counts up while an SVG underline draws itself, both
@@ -138,6 +139,7 @@ const HomePage = () => {
 
   return (
     <>
+      <DemoPortalCTASlideIn />
       <SEO
         title="AI Solutions for Business Growth | Ellis County, TX"
         description="EVOBRAND transforms businesses with custom AI applications, visual content creation, intelligent document generation, and AI video production. Ellis County-based agency serving clients nationwide."
