@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Users, Mail, Plus, Trash2, Send, CheckCircle2, AlertCircle, Loader2, Eye, MousePointerClick, Pencil, X, Check, FileText, Bold, Italic, Link2, List } from 'lucide-react';
+import { Users, Mail, Plus, Trash2, Send, CheckCircle2, AlertCircle, Loader2, Eye, MousePointerClick, Pencil, X, Check, FileText, Bold, Italic, Link2, List, Copy } from 'lucide-react';
 
 const API_BASE = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' 
   ? 'http://localhost:5000' 
@@ -32,6 +32,7 @@ export default function AdminCRMPanel({ user }) {
   const [isSavingCampaign, setIsSavingCampaign] = useState(false);
   const [isPreviewing, setIsPreviewing] = useState(false);
   const [isDeletingCampaign, setIsDeletingCampaign] = useState(null);
+  const [isDuplicatingCampaign, setIsDuplicatingCampaign] = useState(null);
   const contentRef = useRef(null);
   
   // General State
@@ -311,6 +312,36 @@ export default function AdminCRMPanel({ user }) {
       setError(err.message);
     } finally {
       setIsDeletingCampaign(null);
+    }
+  };
+
+  const handleDuplicateCampaign = async (campaign) => {
+    setIsDuplicatingCampaign(campaign.id);
+    setError('');
+    setMessage('');
+    try {
+      const targetIds = campaign.target_list_ids
+        ? JSON.parse(campaign.target_list_ids)
+        : [campaign.list_id];
+      const res = await fetch(`${API_BASE}/api/crm/campaigns`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          subject: `Copy of ${campaign.subject}`,
+          html_content: campaign.html_content,
+          target_list_ids: targetIds,
+        }),
+      });
+      const data = await getJSONOrError(res);
+      if (!res.ok) throw new Error(data.error || 'Failed to duplicate campaign');
+      setMessage('Campaign duplicated as a new draft.');
+      await fetchCampaigns();
+      if (data.id) loadDraftForEdit({ id: data.id, subject: `Copy of ${campaign.subject}`, html_content: campaign.html_content, target_list_ids: JSON.stringify(targetIds) });
+      setTimeout(() => setMessage(''), 3000);
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setIsDuplicatingCampaign(null);
     }
   };
 
@@ -858,6 +889,14 @@ export default function AdminCRMPanel({ user }) {
                             <span className={`text-[10px] font-bold uppercase tracking-wider px-2 py-1 rounded-full ${campaign.status === 'sent' ? 'bg-emerald-500/20 text-emerald-400' : 'bg-amber-500/20 text-amber-400'}`}>
                               {campaign.status}
                             </span>
+                            <button
+                              onClick={() => handleDuplicateCampaign(campaign)}
+                              disabled={isDuplicatingCampaign === campaign.id}
+                              className="p-1.5 text-white/30 hover:text-[#22c8e5] hover:bg-[#22c8e5]/10 rounded-lg transition-colors disabled:opacity-40"
+                              title="Duplicate"
+                            >
+                              {isDuplicatingCampaign === campaign.id ? <Loader2 size={14} className="animate-spin" /> : <Copy size={14} />}
+                            </button>
                             <button
                               onClick={() => handleDeleteCampaign(campaign.id, campaign.subject)}
                               disabled={isDeletingCampaign === campaign.id}
