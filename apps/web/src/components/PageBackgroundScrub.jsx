@@ -18,33 +18,34 @@ import React, { useEffect, useRef } from 'react';
  */
 
 // ── Sequence config ──────────────────────────────────────────────────────────
+// Test sequence: 177 frames total, split across hero (1–88) and body (89–177).
 const HERO_CONFIG = {
-  BASE_URL: '/pagebg/',
+  BASE_URL: '/test-sequence/',
   PREFIX: 'ezgif-frame-',
   PAD: 3,
   EXT: '.jpg',
-  TOTAL: 271,
-  // The film completes at this fraction of total page scroll, so the final
-  // frames play inside the unobstructed reveal section rather than behind
-  // the opaque closing CTA and footer.
+  TOTAL: 88,          // frames 001–088
+  FRAME_OFFSET: 0,    // no offset — starts at frame 001
   COMPLETE_AT: 0.88,
 };
 
 const BODY_CONFIG = {
-  BASE_URL: '/body%20backround/',
+  BASE_URL: '/test-sequence/',
   PREFIX: 'ezgif-frame-',
   PAD: 3,
   EXT: '.jpg',
-  TOTAL: 214,
+  TOTAL: 89,          // frames 089–177
+  FRAME_OFFSET: 88,   // offset so index 1 → file 089
 };
 
 function heroFrameUrl(n) {
+  // n is 1-based within hero range (1..88) → files 001..088
   return `${HERO_CONFIG.BASE_URL}${HERO_CONFIG.PREFIX}${String(n).padStart(HERO_CONFIG.PAD, '0')}${HERO_CONFIG.EXT}`;
 }
 
 function bodyFrameUrl(n) {
-  // Offset n by 7 to map 1..214 to actual files 008..221
-  const actualFrameNumber = n + 7;
+  // n is 1-based within body range (1..89) → files 089..177
+  const actualFrameNumber = n + BODY_CONFIG.FRAME_OFFSET;
   return `${BODY_CONFIG.BASE_URL}${BODY_CONFIG.PREFIX}${String(actualFrameNumber).padStart(BODY_CONFIG.PAD, '0')}${BODY_CONFIG.EXT}`;
 }
 
