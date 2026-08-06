@@ -85,7 +85,7 @@ function StepIndicator({ step }) {
               >
                 {done ? <CheckCircle2 size={14} /> : n}
               </div>
-              <span className="text-[10px] font-semibold tracking-widest uppercase" style={{ color: active ? GOLD : 'rgba(255,255,255,0.35)' }}>
+              <span className="text-[11px] font-semibold tracking-widest uppercase" style={{ color: active ? GOLD : 'rgba(255,255,255,0.35)' }}>
                 {label}
               </span>
             </div>
@@ -218,7 +218,7 @@ function CalendarPicker({ selectedDate, onSelect, blackoutDates, fullyBookedDate
       {/* Day headers */}
       <div className="grid grid-cols-7 mb-2">
         {DAYS.map((d) => (
-          <div key={d} className="text-center text-[10px] font-bold tracking-widest uppercase" style={{ color: 'rgba(255,255,255,0.35)' }} aria-hidden="true">
+          <div key={d} className="text-center text-[11px] font-bold tracking-widest uppercase" style={{ color: 'rgba(255,255,255,0.35)' }} aria-hidden="true">
             {d}
           </div>
         ))}

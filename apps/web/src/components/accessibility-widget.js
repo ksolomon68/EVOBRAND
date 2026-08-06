@@ -10,7 +10,7 @@
 
   /* ── Icons (inline SVG strings) ─────────────────────────── */
   const IC = {
-    a11y:       `<svg viewBox="0 0 24 24" fill="white"><circle cx="12" cy="4" r="2"/><path d="M19 9H5a1 1 0 000 2h4.5l-1.6 7.4a1 1 0 001.96.4L11 13h2l1.14 5.84a1 1 0 001.96-.4L14.5 11H19a1 1 0 000-2z"/></svg>`,
+    a11y:       `<svg viewBox="0 0 24 24" fill="#003258"><circle cx="12" cy="4" r="2"/><path d="M19 9H5a1 1 0 000 2h4.5l-1.6 7.4a1 1 0 001.96.4L11 13h2l1.14 5.84a1 1 0 001.96-.4L14.5 11H19a1 1 0 000-2z"/></svg>`,
     wheelchair: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="5" r="2"/><path d="M8 9h3l1 5h4"/><path d="M10 14l-1 5"/><path d="M8 18a5 5 0 1 0 8 0"/></svg>`,
     eye:        `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>`,
     droplet:    `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z"/></svg>`,

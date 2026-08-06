@@ -219,7 +219,7 @@ const ScrubSection = () => {
               See Our Work
             </Link>
             <Link
-              to="/audit"
+              to="/auditor"
               style={{
                 display: 'inline-block',
                 padding: '13px 34px',

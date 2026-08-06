@@ -15,43 +15,53 @@ const Footer = () => {
   const [status, setStatus] = useState('idle'); // idle, loading, success, error
   const [message, setMessage] = useState('');
 
+  const isValidEmail = (value) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
+
   const handleNewsletterSubmit = async (e) => {
     e.preventDefault();
-    if (email) {
-      setStatus('loading');
-      try {
-        const response = await fetch(`${API_BASE}/api/newsletter/subscribe`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ name, email }),
-        });
+    if (!email) return;
+    if (!isValidEmail(email)) {
+      setStatus('error');
+      setMessage('Enter a valid email address');
+      setTimeout(() => {
+        setStatus('idle');
+        setMessage('');
+      }, 5000);
+      return;
+    }
+    setStatus('loading');
+    try {
+      const response = await fetch(`${API_BASE}/api/newsletter/subscribe`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name, email }),
+      });
 
-        if (response.ok) {
-          setStatus('success');
-          setMessage('Subscribed!');
-          setName('');
-          setEmail('');
-          setTimeout(() => {
-            setStatus('idle');
-            setMessage('');
-          }, 3000);
-        } else {
-          const errorData = await response.json();
-          setStatus('error');
-          setMessage(errorData.error || 'Failed to subscribe');
-          setTimeout(() => {
-            setStatus('idle');
-            setMessage('');
-          }, 5000);
-        }
-      } catch (err) {
+      if (response.ok) {
+        setStatus('success');
+        setMessage('Subscribed!');
+        setName('');
+        setEmail('');
+        setTimeout(() => {
+          setStatus('idle');
+          setMessage('');
+        }, 3000);
+      } else {
+        const errorData = await response.json();
         setStatus('error');
-        setMessage('Network error, try again later');
+        setMessage(errorData.error || 'Failed to subscribe');
         setTimeout(() => {
           setStatus('idle');
           setMessage('');
         }, 5000);
       }
+    } catch (err) {
+      setStatus('error');
+      setMessage('Network error, try again later');
+      setTimeout(() => {
+        setStatus('idle');
+        setMessage('');
+      }, 5000);
     }
   };
 
@@ -150,9 +160,9 @@ const Footer = () => {
               <button
                 type="submit"
                 disabled={status === 'loading'}
-                className={`w-full px-4 py-2 text-white rounded-2xl transition-colors text-sm font-medium ${status === 'success' ? 'bg-green-500 hover:bg-green-600' :
-                    status === 'error' ? 'bg-red-500 hover:bg-red-600' :
-                      'bg-[#22c8e5] hover:bg-[#1ba3c0]'
+                className={`w-full px-4 py-2 rounded-2xl transition-colors text-sm font-medium ${status === 'success' ? 'bg-green-500 hover:bg-green-600 text-white' :
+                    status === 'error' ? 'bg-red-500 hover:bg-red-600 text-white' :
+                      'bg-[#22c8e5] hover:bg-[#1ba3c0] text-[#003258]'
                   } disabled:opacity-50`}
               >
                 {status === 'loading' ? 'Subscribing...' :

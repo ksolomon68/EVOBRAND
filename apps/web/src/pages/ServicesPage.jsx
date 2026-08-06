@@ -367,8 +367,9 @@ const ServicesPage = () => {
         />
 
         {/* Final CTA */}
-        <section className="py-20 bg-gradient-to-br from-[#1a2332] to-[#22c8e5]">
-          <div className="container mx-auto px-4 text-center">
+        <section className="py-20 relative overflow-hidden bg-[#1a2332]">
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[700px] bg-[radial-gradient(circle,rgba(34,200,229,0.12)_0%,transparent_70%)] pointer-events-none"></div>
+          <div className="container mx-auto px-4 text-center relative">
             <h2 className="text-4xl font-bold text-white mb-6">Ready to Get Started?</h2>
             <p className="text-xl text-white/90 mb-8">Let's discuss how we can transform your business with AI</p>
             <a

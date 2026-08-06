@@ -33,7 +33,7 @@ const Header = () => {
             />
           </NavLink>
 
-          <nav className="hidden lg:flex items-center space-x-5">
+          <nav className="hidden xl:flex items-center space-x-4">
             {navLinks.map((link) => (
               <NavLink
                 key={link.to}
@@ -64,7 +64,7 @@ const Header = () => {
           {/* Mobile Menu Button */}
           <button
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            className="lg:hidden text-white hover:text-[#22c8e5] transition-colors p-2"
+            className="xl:hidden text-white hover:text-[#22c8e5] transition-colors p-2"
             aria-label={mobileMenuOpen ? 'Close navigation menu' : 'Open navigation menu'}
             aria-expanded={mobileMenuOpen}
             aria-controls="mobile-nav"
@@ -82,7 +82,7 @@ const Header = () => {
             animate={{ x: 0 }}
             exit={{ x: '100%' }}
             transition={{ type: 'tween', duration: 0.3 }}
-            className="fixed top-20 right-0 bottom-0 w-64 bg-[#1a2332] shadow-2xl lg:hidden"
+            className="fixed top-20 right-0 bottom-0 w-64 bg-[#1a2332] shadow-2xl xl:hidden"
             id="mobile-nav"
           >
             <nav className="flex flex-col p-6 space-y-4" aria-label="Mobile navigation">

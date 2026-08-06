@@ -153,9 +153,9 @@ const AboutPage = () => {
                       aria-hidden="true"
                       className="absolute -left-12 md:-left-16 top-1.5 flex h-3 w-3 translate-x-[0px] items-center justify-center"
                     >
-                      <span className="h-3 w-3 rounded-full border border-[#22c8e5] bg-[#0f1419] shadow-[0_0_8px_rgba(34,200,229,0.5)]" />
+                      <span className="h-3 w-3 rounded-full border border-white/40 bg-[#0f1419]" />
                     </span>
-                    <p className="text-[11px] font-bold uppercase tracking-[0.25em] text-[#22c8e5] mb-2">
+                    <p className="text-[11px] font-bold uppercase tracking-[0.25em] text-white/50 mb-2">
                       {beat.num} — {beat.era}
                     </p>
                     <p className="text-gray-300 leading-relaxed">{beat.body}</p>
@@ -164,7 +164,7 @@ const AboutPage = () => {
               </div>
 
               <Reveal delay={0.1}>
-                <p className="mt-14 rounded-2xl border border-[#22c8e5]/20 bg-[#1a2332] p-8 text-center font-semibold text-[#22c8e5]">
+                <p className="mt-14 rounded-2xl border border-[#22c8e5]/20 bg-[#1a2332] p-8 text-center font-semibold text-white">
                   Our legacy is built on decades of experience, but our future is driven by artificial intelligence. The AI revolution is here, and we're committed to ensuring your business doesn't just survive—it thrives.
                 </p>
               </Reveal>
@@ -217,8 +217,9 @@ const AboutPage = () => {
 
 
         {/* CTA */}
-        <section className="py-20 bg-gradient-to-br from-[#1a2332] to-[#22c8e5]">
-          <div className="container mx-auto px-4 text-center">
+        <section className="py-20 relative overflow-hidden bg-[#1a2332]">
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[700px] bg-[radial-gradient(circle,rgba(34,200,229,0.12)_0%,transparent_70%)] pointer-events-none"></div>
+          <div className="container mx-auto px-4 text-center relative">
             <h2 className="text-4xl font-bold text-white mb-6">Join Our Success Story</h2>
             <p className="text-xl text-white/90 mb-8">Let's transform your business together</p>
             <a

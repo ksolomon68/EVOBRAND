@@ -1,5 +1,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
+import { Code2, Bot, Sparkles, Palette, Film, Accessibility } from 'lucide-react';
 
 const ServicesBuiltForScale = () => {
   return (
@@ -10,7 +11,7 @@ const ServicesBuiltForScale = () => {
             initial={{ opacity: 0, y: 30 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            className="inline-block text-[#22c8e5] text-xs font-bold tracking-[0.15em] uppercase mb-4"
+            className="inline-block text-white/50 text-xs font-bold tracking-[0.15em] uppercase mb-4"
           >
             What We Do
           </motion.span>
@@ -45,7 +46,7 @@ const ServicesBuiltForScale = () => {
           >
             <div className="service-icon">
               <div className="service-icon-bg" style={{ background: '#22c8e5' }}></div>
-              <span>⚡</span>
+              <Code2 className="text-white relative" size={24} />
             </div>
             <h3 className="text-xl font-bold mb-3 text-white">Custom Application Development</h3>
             <p className="text-[#8892a4] text-sm leading-relaxed">Full-stack, cloud-native applications built for mission-critical workloads. Secure, scalable, and tailored to your operational requirements.</p>
@@ -61,7 +62,7 @@ const ServicesBuiltForScale = () => {
           >
             <div className="service-icon">
               <div className="service-icon-bg" style={{ background: '#22c8e5' }}></div>
-              <span>🤖</span>
+              <Bot className="text-white relative" size={24} />
             </div>
             <h3 className="text-xl font-bold mb-3 text-white">AI Integration & Automation</h3>
             <p className="text-[#8892a4] text-sm leading-relaxed">Deploy intelligent agents, automate workflows, and integrate large language models into your existing infrastructure with enterprise safeguards.</p>
@@ -77,7 +78,7 @@ const ServicesBuiltForScale = () => {
           >
             <div className="service-icon">
               <div className="service-icon-bg" style={{ background: '#22c8e5' }}></div>
-              <span>✨</span>
+              <Sparkles className="text-white relative" size={24} />
             </div>
             <h3 className="text-xl font-bold mb-3 text-white">AI Content Creation</h3>
             <p className="text-[#8892a4] text-sm leading-relaxed">Leverage generative AI to produce high-quality copy, imagery, and multimedia content at scale — aligned with your brand voice and compliance standards.</p>
@@ -93,7 +94,7 @@ const ServicesBuiltForScale = () => {
           >
             <div className="service-icon">
               <div className="service-icon-bg" style={{ background: '#22c8e5' }}></div>
-              <span>🎨</span>
+              <Palette className="text-white relative" size={24} />
             </div>
             <h3 className="text-xl font-bold mb-3 text-white">Branding & Identity</h3>
             <p className="text-[#8892a4] text-sm leading-relaxed">Strategic brand systems that communicate authority and trust. Visual identity, design language, and brand guidelines built for lasting impact.</p>
@@ -109,7 +110,7 @@ const ServicesBuiltForScale = () => {
           >
             <div className="service-icon">
               <div className="service-icon-bg" style={{ background: '#22c8e5' }}></div>
-              <span>🎬</span>
+              <Film className="text-white relative" size={24} />
             </div>
             <h3 className="text-xl font-bold mb-3 text-white">Animation & Motion Design</h3>
             <p className="text-[#8892a4] text-sm leading-relaxed">Cinematic motion graphics, UI micro-interactions, and explainer animations that transform complex ideas into compelling visual narratives.</p>
@@ -125,7 +126,7 @@ const ServicesBuiltForScale = () => {
           >
             <div className="service-icon">
               <div className="service-icon-bg" style={{ background: '#22c8e5' }}></div>
-              <span>🛡️</span>
+              <Accessibility className="text-white relative" size={24} />
             </div>
             <h3 className="text-xl font-bold mb-3 text-white">WCAG Accessibility</h3>
             <p className="text-[#8892a4] text-sm leading-relaxed">Ensure your digital experiences are universally accessible. We audit, remediate, and maintain your platforms to meet and exceed WCAG standards.</p>

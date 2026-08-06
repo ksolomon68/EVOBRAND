@@ -3,6 +3,7 @@ import { motion } from 'framer-motion';
 import { useInView } from 'react-intersection-observer';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import { ShieldCheck, Workflow, Satellite, Dna, ClipboardCheck } from 'lucide-react';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -38,7 +39,7 @@ const StatCounter = ({ target, label, suffix = '' }) => {
 
   return (
     <div ref={ref} className="stat-box bg-[rgba(255,255,255,0.04)] border border-[rgba(255,255,255,0.08)] rounded-xl p-6 text-center">
-      <div className="stat-number text-4xl font-extrabold text-[#22c8e5]">
+      <div className="stat-number text-4xl font-extrabold text-white">
         {count}{suffix}
       </div>
       <div className="stat-label text-[#8892a4] text-sm mt-1">{label}</div>
@@ -49,31 +50,31 @@ const StatCounter = ({ target, label, suffix = '' }) => {
 const FEATURES = [
   {
     num: '01',
-    icon: '🔒',
+    icon: ShieldCheck,
     title: 'FedRAMP-Ready AI Deployments',
     desc: 'On-premise, air-gapped, and govCloud AI solutions meeting the strictest federal security mandates.',
   },
   {
     num: '02',
-    icon: '⚙️',
+    icon: Workflow,
     title: 'Agentic Workflow Automation',
     desc: 'Multi-agent orchestration systems that autonomously handle complex, multi-step enterprise workflows.',
   },
   {
     num: '03',
-    icon: '📡',
+    icon: Satellite,
     title: 'Real-Time Intelligence Pipelines',
     desc: 'Streaming data architectures with embedded ML inference for sub-second decision support.',
   },
   {
     num: '04',
-    icon: '🧬',
+    icon: Dna,
     title: 'Custom Model Fine-Tuning',
     desc: 'Domain-specific LLM fine-tuning and RAG implementations trained on your proprietary data and context.',
   },
   {
     num: '05',
-    icon: '📋',
+    icon: ClipboardCheck,
     title: 'AI Governance & Compliance',
     desc: 'Explainable AI frameworks, audit trails, and responsible AI guardrails aligned with NIST AI RMF.',
   },
@@ -148,7 +149,7 @@ const AICapabilities = () => {
             viewport={{ once: true }}
             transition={{ duration: 0.6 }}
           >
-            <span className="inline-block text-[#22c8e5] text-xs font-bold tracking-[0.15em] uppercase mb-4">
+            <span className="inline-block text-white/50 text-xs font-bold tracking-[0.15em] uppercase mb-4">
               AI Capabilities
             </span>
             <h2 className="text-3xl md:text-5xl font-bold mb-4 text-white leading-tight">
@@ -172,10 +173,10 @@ const AICapabilities = () => {
                 className="ai-feature lg:w-[400px] lg:shrink-0 bg-[rgba(255,255,255,0.04)] border border-[rgba(255,255,255,0.08)] rounded-2xl p-6 lg:p-8 transition-colors hover:border-[rgba(34,200,229,0.4)]"
               >
                 <div className="flex items-center justify-between mb-5">
-                  <div className="w-11 h-11 rounded-lg bg-[rgba(34,200,229,0.15)] flex items-center justify-center text-xl" aria-hidden="true">
-                    {f.icon}
+                  <div className="w-11 h-11 rounded-lg bg-[rgba(34,200,229,0.15)] flex items-center justify-center" aria-hidden="true">
+                    <f.icon className="text-[#22c8e5]" size={22} />
                   </div>
-                  <span className="text-[11px] font-bold tracking-[0.25em] text-[#22c8e5]/70">
+                  <span className="text-[11px] font-bold tracking-[0.25em] text-white/40">
                     {f.num} — 05
                   </span>
                 </div>
@@ -199,6 +200,9 @@ const AICapabilities = () => {
 
         {/* Stats */}
         <div className="container mx-auto px-4 lg:max-w-[1200px] mt-12">
+          <p className="text-center text-xs md:text-sm font-semibold uppercase tracking-wider text-white/50 mb-4">
+            EVOBRAND by the numbers
+          </p>
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6">
             <StatCounter target={680} label="Clients Served" suffix="+" />
             <StatCounter target={975} label="Projects Delivered" suffix="+" />

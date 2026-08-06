@@ -71,7 +71,7 @@ const CountStat = ({ value, suffix, label, delay = 0 }) => {
 
   return (
     <div ref={rootRef}>
-      <p className="text-3xl font-bold text-[#22c8e5]" aria-label={`${value}${suffix} ${label}`}>
+      <p className="text-3xl font-bold text-white" aria-label={`${value}${suffix} ${label}`}>
         <span ref={numRef} aria-hidden="true">0{suffix}</span>
       </p>
       <svg
@@ -186,6 +186,9 @@ const HomePage = () => {
         {/* Stats Banner */}
         <section className="py-8" style={{ background: 'rgba(26,35,50,0.88)' }}>
           <div className="container mx-auto px-4">
+            <p className="text-center text-xs md:text-sm font-semibold uppercase tracking-wider text-white/50 mb-4">
+              Results our clients see
+            </p>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
               <CountStat value={10} suffix="x" label="Faster Production" />
               <CountStat value={80} suffix="%" label="Cost Reduction" delay={0.12} />
@@ -227,7 +230,7 @@ const HomePage = () => {
                 </Link>
                 <Link
                   to="/book-consultation"
-                  className="px-8 py-4 border-2 border-[#22c8e5] text-[#22c8e5] rounded-2xl font-bold hover:bg-[#22c8e5] hover:text-[#003258] transition-all text-center"
+                  className="px-8 py-4 border-2 border-white/30 text-white rounded-2xl font-bold hover:border-white/60 hover:bg-white/5 transition-all text-center"
                 >
                   Get Started Today
                 </Link>
@@ -250,7 +253,7 @@ const HomePage = () => {
         <section id="booking" className="py-20 relative z-10" style={{ background: 'rgba(13,13,24,0.88)' }}>
           <div className="container mx-auto px-4 max-w-xl">
             <div className="text-center mb-12">
-              <p className="text-[#22c8e5] text-xs font-bold tracking-[0.25em] uppercase mb-3">Schedule a Meeting</p>
+              <p className="text-white/50 text-xs font-bold tracking-[0.25em] uppercase mb-3">Schedule a Meeting</p>
               <h2 className="text-4xl md:text-5xl font-bold text-white mb-4">Book a Strategy Call</h2>
               <p className="text-[#8892a4] text-lg max-w-lg mx-auto">Select a date and time and let's start building your competitive advantage.</p>
             </div>
@@ -259,8 +262,9 @@ const HomePage = () => {
         </section>
 
         {/* Final CTA */}
-        <section className="py-20 bg-gradient-to-br from-[#1a2332] to-[#22c8e5]">
-          <div className="container mx-auto px-4 text-center">
+        <section className="py-20 relative overflow-hidden bg-[#1a2332]">
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[700px] bg-[radial-gradient(circle,rgba(34,200,229,0.12)_0%,transparent_70%)] pointer-events-none"></div>
+          <div className="container mx-auto px-4 text-center relative">
             <motion.div
               initial={{ opacity: 0, y: 30 }}
               whileInView={{ opacity: 1, y: 0 }}
@@ -290,7 +294,7 @@ const HomePage = () => {
                 </Link>
                 <Link
                   to="/our-work"
-                  className="px-8 py-4 border-2 border-[#22c8e5] text-[#22c8e5] rounded-2xl font-bold hover:bg-[#22c8e5] hover:text-[#003258] transition-all"
+                  className="px-8 py-4 border-2 border-white text-white rounded-2xl font-bold hover:bg-white hover:text-[#1a2332] transition-all"
                 >
                   Explore Our Work
                 </Link>
