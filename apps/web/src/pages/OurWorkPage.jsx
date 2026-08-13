@@ -4,7 +4,7 @@ import { useState, useRef, useEffect } from 'react';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { motion, MotionConfig } from 'framer-motion';
-import { Filter, TrendingUp, Clock, DollarSign, Star } from 'lucide-react';
+import { Filter, TrendingUp, Clock, DollarSign, Star, ExternalLink, LayoutDashboard } from 'lucide-react';
 import SEO from '@/components/SEO.jsx';
 import { PageHero, Reveal } from '@/components/motion/PageMotion.jsx';
 
@@ -49,7 +49,88 @@ const OurWorkPage = () => {
   }, []);
 
 
+  const dashboardDemos = [
+    {
+      id: 301,
+      title: 'Who Wanna Pho',
+      subtitle: 'Operations Hub & Management',
+      category: 'Dashboard Demo',
+      industry: 'Hospitality / Operations',
+      image: '/projects/whowannapho.png',
+      highlights: ['Shift Coverage', 'Reservations', 'Hookah Tracking', 'Revenue Analytics'],
+      description: 'All-in-one operations hub featuring live reservations, staff shift coverage, hookah tracking, kitchen display system, and automated revenue analytics.',
+      link: 'https://evobrandconcepts.com/whowannapho/'
+    },
+    {
+      id: 302,
+      title: 'Bull Headed Security',
+      subtitle: 'Officer Portal & Admin Console',
+      category: 'Dashboard Demo',
+      industry: 'Workforce & Security',
+      image: '/projects/bhs1.png',
+      highlights: ['Officer Portal', 'Admin Console', 'Duty Status & Timesheets', 'Incident Queue'],
+      description: 'Dual-portal workforce management system for field officers to clock in, complete checklists, log tickets, and leadership to oversee site coverage.',
+      link: 'https://evobrandconcepts.com/bhs1/'
+    },
+    {
+      id: 303,
+      title: 'The Walls Project',
+      subtitle: 'Community Reactivation Hub',
+      category: 'Dashboard Demo',
+      industry: 'Non-Profit / Community',
+      image: '/projects/walls1.png',
+      highlights: ['Public Art', 'Urban Farming', 'Youth Culture', 'Walls Connect'],
+      description: 'Dynamic platform driving community reactivation across 3 states — unifying public art initiatives, urban agriculture, youth culture programs, and neighborhood impact.',
+      link: 'https://evobrandconcepts.com/walls1/'
+    },
+    {
+      id: 304,
+      title: 'Renaissance Rehabilitation',
+      subtitle: 'Healthcare & Staff Portal',
+      category: 'Dashboard Demo',
+      industry: 'Healthcare & Operations',
+      image: '/projects/rehab.png',
+      highlights: ['24/7 Admissions', 'Public Site & Staff Portal', '6 Care Programs', 'Resident Care'],
+      description: 'Integrated healthcare and admissions portal providing 24/7 resident intake, care program management, staff portal access, and interdisciplinary workflow coordination.',
+      link: 'https://evobrandconcepts.com/rehab/'
+    },
+    {
+      id: 305,
+      title: 'RBCA Workforce Portal',
+      subtitle: 'Second Chance & Community Hub',
+      category: 'Dashboard Demo',
+      industry: 'Workforce & Education',
+      image: '/projects/rbca-portal.png',
+      highlights: ['Participant Database', 'Cohort Lifecycle', 'Grad Readiness', 'Stipend Tracker'],
+      description: 'All-in-one workforce operations hub tracking 5-week program lifecycles, participant databases, contractor networks, stipend disbursements, and job placement analytics.',
+      link: 'https://evobrandconcepts.com/rbca1/rbca-portal.html'
+    },
+    {
+      id: 306,
+      title: 'DFW Urban League Governance',
+      subtitle: 'Board & Leadership Resource Center',
+      category: 'Dashboard Demo',
+      industry: 'Governance & Non-Profit',
+      image: '/projects/dfwul.png',
+      highlights: ['Role-Based Access', 'Board Packets', 'Finance & Budgets', 'Program Impact Q2'],
+      description: 'Interactive governance hub allowing board members, finance officers, HR, and committee leads to access real-time board packets, financial oversight, and program impact metrics.',
+      link: 'https://evobrandconcepts.com/DFWUL/'
+    },
+    {
+      id: 307,
+      title: 'NOVA Transformation Portal',
+      subtitle: 'Employer & Digital Growth Hub',
+      category: 'Dashboard Demo',
+      industry: 'Business Growth & SaaS',
+      image: '/projects/nova.png',
+      highlights: ['Digital Audits', 'Transformation Roadmap', 'Virtual Coaching Room', 'Resource Matching'],
+      description: 'Small business portal providing automated digital audits, step-by-step transformation roadmaps, virtual 1-on-1 coaching integration, and priority growth resources.',
+      link: 'https://evobrand.net/nova/'
+    }
+  ];
+
   const portfolioItems = [
+    ...dashboardDemos,
     {
       id: 12,
       title: 'Pivotal Voice',
@@ -81,6 +162,16 @@ const OurWorkPage = () => {
       link: 'https://primereachgov.com/'
     },
     {
+      id: 20,
+      title: 'RBCA Community Development Corporation',
+      category: 'Web Development',
+      industry: 'Non-profit',
+      image: '/projects/rbcacdc.png',
+      highlights: ['Workforce Development', 'Second Chance', 'Career Placement'],
+      description: 'Building Careers. Rebuilding Lives. Strengthening Communities. A 5-week Second Chance Workforce Development Program equipping returning citizens with industry certifications, hands-on training, and real career placement support.',
+      link: 'https://rbcacdc.org'
+    },
+    {
       id: 104,
       title: 'VibeHyr',
       category: 'Web Development',
@@ -108,7 +199,7 @@ const OurWorkPage = () => {
       image: '/projects/cgm.png',
       highlights: ['Youth Mentorship', 'Faith-Based', 'Online Donations'],
       description: 'Where every child is celebrated for who they are. Serving at-risk children with faith, mentorship, and a safe place to grow.',
-      link: 'https://evobrand.net/cgm/'
+      link: 'https://cgmhachie.org'
     },
     {
       id: 5,
@@ -159,10 +250,7 @@ const OurWorkPage = () => {
       highlights: ['Since 1985', 'Online Quotes', 'Multi-Line Coverage'],
       description: 'Protecting What Matters Most Since 1985. Homeowners, Flood, Commercial, and Life insurance.',
       link: 'https://stiberinsuranceservices.com/'
-    }
-  ];
-
-  const newPortfolioItems = [
+    },
     {
       id: 18,
       title: 'The Star List',
@@ -184,16 +272,6 @@ const OurWorkPage = () => {
       link: 'https://evobrandconcepts.com/jewels/'
     },
     {
-      id: 20,
-      title: 'HAMPCO, Inc.',
-      category: 'Web Development',
-      industry: 'Non-profit',
-      image: '/projects/hampco.jpg',
-      highlights: ['400K+ Served', '30+ Years', '35+ Programs'],
-      description: 'Empowering Families. Building Stronger Communities. HAMPCO is dedicated to socioeconomic elevation, teen mentorship, healthcare outreach, and financial literacy across Northeast Louisiana.',
-      link: 'https://hampcoinc.org'
-    },
-    {
       id: 21,
       title: 'PulseOps',
       category: 'Web Development',
@@ -204,8 +282,6 @@ const OurWorkPage = () => {
       link: 'https://evobrandconcepts.com/html/pulseops.html'
     }
   ];
-
-  portfolioItems.push(...newPortfolioItems);
 
   const testimonials = [
     {
@@ -271,7 +347,7 @@ const OurWorkPage = () => {
                 ref={reelTrackRef}
                 className="flex flex-col lg:flex-row gap-6 container mx-auto px-4 lg:max-w-none lg:w-max lg:mx-0 lg:pl-[max(1rem,calc((100vw-1168px)/2))] lg:pr-[max(1rem,calc((100vw-1168px)/2))]"
               >
-                {[102, 103, 12, 21].map((id, i) => {
+                {[102, 103, 12, 20].map((id, i) => {
                   const item = portfolioItems.find((p) => p.id === id);
                   if (!item) return null;
                   return (
@@ -318,6 +394,99 @@ const OurWorkPage = () => {
                   />
                 </div>
               </div>
+            </div>
+          </div>
+        </section>
+
+        {/* Dashboard Demos */}
+        <section id="dashboard-demos" className="py-20 bg-[#111823] border-y border-white/10 relative overflow-hidden">
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[700px] bg-[#22c8e5]/5 rounded-full blur-3xl pointer-events-none" />
+
+          <div className="container mx-auto px-4 relative z-10">
+            <div className="max-w-3xl mb-12">
+              <Reveal>
+                <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#22c8e5]/10 border border-[#22c8e5]/25 text-[#22c8e5] text-xs font-bold uppercase tracking-widest mb-4">
+                  <LayoutDashboard className="w-4 h-4" />
+                  Live Applications & Portals
+                </div>
+                <h2 className="text-3xl md:text-5xl font-bold text-white mb-4">
+                  Dashboard <span className="text-[#22c8e5]">Demos</span>
+                </h2>
+                <p className="text-gray-300 text-base md:text-lg">
+                  Explore live custom portals, workforce management consoles, community hubs, and operations dashboards built by EVOBRAND.
+                </p>
+              </Reveal>
+            </div>
+
+            <div className="grid md:grid-cols-2 gap-8">
+              {dashboardDemos.map((demo, index) => (
+                <motion.div
+                  key={demo.id}
+                  initial={{ opacity: 0, y: 30 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true, margin: '-40px' }}
+                  transition={{ delay: index * 0.1, duration: 0.5 }}
+                  className="group relative rounded-2xl overflow-hidden bg-[#16202e] border border-white/10 hover:border-[#22c8e5]/40 transition-all duration-300 shadow-xl flex flex-col justify-between"
+                >
+                  <div>
+                    <div className="relative h-64 md:h-72 overflow-hidden bg-[#0f1419]">
+                      <img
+                        src={demo.image}
+                        alt={demo.title}
+                        className="w-full h-full object-cover object-top transition-transform duration-500 group-hover:scale-105"
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-[#16202e] via-transparent to-transparent opacity-90" />
+                      <div className="absolute top-4 left-4 flex flex-wrap items-center gap-2">
+                        <span className="px-3 py-1 rounded-full text-xs font-semibold bg-[#0f1419]/80 text-[#22c8e5] border border-[#22c8e5]/25 backdrop-blur-md">
+                          {demo.category}
+                        </span>
+                        <span className="flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 backdrop-blur-md">
+                          <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+                          Live Demo
+                        </span>
+                      </div>
+                    </div>
+
+                    <div className="p-6 md:p-8">
+                      <div className="mb-3">
+                        <h3 className="text-2xl font-bold text-white group-hover:text-[#22c8e5] transition-colors">
+                          {demo.title}
+                        </h3>
+                        <p className="text-xs font-semibold uppercase tracking-wider text-[#22c8e5]/80 mt-1">
+                          {demo.subtitle}
+                        </p>
+                      </div>
+
+                      <p className="text-gray-300 text-sm leading-relaxed mb-6">
+                        {demo.description}
+                      </p>
+
+                      <div className="flex flex-wrap gap-2 mb-6">
+                        {demo.highlights.map((h) => (
+                          <span
+                            key={h}
+                            className="text-[11px] font-semibold px-2.5 py-1 rounded-full bg-[#0f1419] border border-[#22c8e5]/20 text-gray-300"
+                          >
+                            {h}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="px-6 pb-6 md:px-8 md:pb-8 pt-0">
+                    <a
+                      href={demo.link}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center justify-center gap-2 w-full px-5 py-3.5 rounded-xl bg-[#22c8e5] text-[#003258] font-bold text-sm hover:bg-[#38d4ef] hover:shadow-[0_0_20px_rgba(34,200,229,0.4)] transition-all"
+                    >
+                      Launch Live Demo
+                      <ExternalLink className="w-4 h-4" />
+                    </a>
+                  </div>
+                </motion.div>
+              ))}
             </div>
           </div>
         </section>
