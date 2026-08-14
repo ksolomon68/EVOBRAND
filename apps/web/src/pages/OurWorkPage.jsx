@@ -49,6 +49,49 @@ const OurWorkPage = () => {
   }, []);
 
 
+  const flagshipItems = [
+    {
+      id: 102,
+      title: 'Chamber Core',
+      category: 'SaaS Platform',
+      industry: 'Business Solutions',
+      image: '/projects/chamberos.png',
+      highlights: ['Saves 12+ Hrs/Wk', '19 Modules', '$0 Setup'],
+      description: 'Stop running your chamber on spreadsheets. The all-in-one platform built to automate dues, events, governance, advocacy, and member engagement.',
+      link: 'https://evobrand.net/chambercore'
+    },
+    {
+      id: 103,
+      title: 'PrimeReach',
+      category: 'SaaS Platform',
+      industry: 'Government',
+      image: '/projects/primereach.png',
+      highlights: ['White-Label', 'State DOT Ready', 'SBE Matching'],
+      description: 'Connect your prime contractors with qualified small businesses. A turnkey, white-label government contracting platform built for transportation and infrastructure agencies.',
+      link: 'https://primereachgov.com/'
+    },
+    {
+      id: 12,
+      title: 'Pivotal Voice',
+      category: 'Web Development',
+      industry: 'Government',
+      image: '/projects/pivotal-voice.jpg',
+      highlights: ['Civic Engagement', 'Ellis County', 'Public Platform'],
+      description: 'The comprehensive civic engagement platform connecting Ellis County residents with democracy.',
+      link: 'https://pivotalvoice.org/'
+    },
+    {
+      id: 21,
+      title: 'PulseOps',
+      category: 'Web Development',
+      industry: 'Industrial IoT',
+      image: '/projects/pulseops.jpg',
+      highlights: ['99.97% Uptime', 'Real-Time Ops', '6× Faster MTTR'],
+      description: 'Zero Downtime Starts Here. PulseOps unifies operational technology and IT infrastructure into a single real-time command surface for industrial teams.',
+      link: 'https://evobrandconcepts.com/html/pulseops.html'
+    }
+  ];
+
   const dashboardDemos = [
     {
       id: 301,
@@ -129,38 +172,7 @@ const OurWorkPage = () => {
     }
   ];
 
-  const portfolioItems = [
-    ...dashboardDemos,
-    {
-      id: 12,
-      title: 'Pivotal Voice',
-      category: 'Web Development',
-      industry: 'Government',
-      image: '/projects/pivotal-voice.jpg',
-      highlights: ['Civic Engagement', 'Ellis County', 'Public Platform'],
-      description: 'The comprehensive civic engagement platform connecting Ellis County residents with democracy.',
-      link: 'https://pivotalvoice.org/'
-    },
-    {
-      id: 102,
-      title: 'Chamber Core',
-      category: 'SaaS Platform',
-      industry: 'Business Solutions',
-      image: '/projects/chamberos.png',
-      highlights: ['Saves 12+ Hrs/Wk', '19 Modules', '$0 Setup'],
-      description: 'Stop running your chamber on spreadsheets. The all-in-one platform built to automate dues, events, governance, advocacy, and member engagement.',
-      link: 'https://evobrand.net/chambercore'
-    },
-    {
-      id: 103,
-      title: 'PrimeReach',
-      category: 'SaaS Platform',
-      industry: 'Government',
-      image: '/projects/primereach.png',
-      highlights: ['White-Label', 'State DOT Ready', 'SBE Matching'],
-      description: 'Connect your prime contractors with qualified small businesses. A turnkey, white-label government contracting platform built for transportation and infrastructure agencies.',
-      link: 'https://primereachgov.com/'
-    },
+  const recentLaunches = [
     {
       id: 20,
       title: 'RBCA Community Development Corporation',
@@ -270,16 +282,6 @@ const OurWorkPage = () => {
       highlights: ['11 Chapters', 'Debutante Gala', 'Legacy Event'],
       description: 'The inaugural debutante presentation by the 11 chapters of the Dallas Center of Excellence within Jack and Jill of America — celebrating young women of extraordinary character.',
       link: 'https://evobrandconcepts.com/jewels/'
-    },
-    {
-      id: 21,
-      title: 'PulseOps',
-      category: 'Web Development',
-      industry: 'Industrial IoT',
-      image: '/projects/pulseops.jpg',
-      highlights: ['99.97% Uptime', 'Real-Time Ops', '6× Faster MTTR'],
-      description: 'Zero Downtime Starts Here. PulseOps unifies operational technology and IT infrastructure into a single real-time command surface for industrial teams.',
-      link: 'https://evobrandconcepts.com/html/pulseops.html'
     }
   ];
 
@@ -347,42 +349,38 @@ const OurWorkPage = () => {
                 ref={reelTrackRef}
                 className="flex flex-col lg:flex-row gap-6 container mx-auto px-4 lg:max-w-none lg:w-max lg:mx-0 lg:pl-[max(1rem,calc((100vw-1168px)/2))] lg:pr-[max(1rem,calc((100vw-1168px)/2))]"
               >
-                {[102, 103, 12, 20].map((id, i) => {
-                  const item = portfolioItems.find((p) => p.id === id);
-                  if (!item) return null;
-                  return (
-                    <a
-                      key={id}
-                      href={item.link}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="group lg:w-[620px] lg:shrink-0 rounded-2xl overflow-hidden border border-white/5 bg-[#141d2b] hover:border-[#22c8e5]/40 transition-colors block"
-                    >
-                      <div className="relative h-56 lg:h-72 overflow-hidden">
-                        <img
-                          src={item.image}
-                          alt={item.title}
-                          className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-                        />
-                        <div className="absolute inset-0 bg-gradient-to-t from-[#141d2b] via-transparent to-transparent" />
-                        <span className="absolute top-4 left-4 text-[11px] font-bold tracking-[0.25em] text-[#22c8e5] bg-[#0f1419]/80 px-3 py-1.5 rounded-full border border-[#22c8e5]/20">
-                          {String(i + 1).padStart(2, '0')} / 04
-                        </span>
+                {flagshipItems.map((item, i) => (
+                  <a
+                    key={item.id}
+                    href={item.link}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="group lg:w-[620px] lg:shrink-0 rounded-2xl overflow-hidden border border-white/5 bg-[#141d2b] hover:border-[#22c8e5]/40 transition-colors block"
+                  >
+                    <div className="relative h-56 lg:h-72 overflow-hidden">
+                      <img
+                        src={item.image}
+                        alt={item.title}
+                        className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-[#141d2b] via-transparent to-transparent" />
+                      <span className="absolute top-4 left-4 text-[11px] font-bold tracking-[0.25em] text-[#22c8e5] bg-[#0f1419]/80 px-3 py-1.5 rounded-full border border-[#22c8e5]/20">
+                        {String(i + 1).padStart(2, '0')} / {String(flagshipItems.length).padStart(2, '0')}
+                      </span>
+                    </div>
+                    <div className="p-6 lg:p-8">
+                      <h3 className="text-2xl font-bold text-white mb-2">{item.title}</h3>
+                      <p className="text-gray-400 text-sm mb-4 line-clamp-2">{item.description}</p>
+                      <div className="flex flex-wrap gap-2">
+                        {item.highlights.map((h) => (
+                          <span key={h} className="text-[11px] font-semibold px-2.5 py-1 rounded-full bg-[#0f1419] border border-[#22c8e5]/15 text-[#22c8e5]">
+                            {h}
+                          </span>
+                        ))}
                       </div>
-                      <div className="p-6 lg:p-8">
-                        <h3 className="text-2xl font-bold text-white mb-2">{item.title}</h3>
-                        <p className="text-gray-400 text-sm mb-4 line-clamp-2">{item.description}</p>
-                        <div className="flex flex-wrap gap-2">
-                          {item.highlights.map((h) => (
-                            <span key={h} className="text-[11px] font-semibold px-2.5 py-1 rounded-full bg-[#0f1419] border border-[#22c8e5]/15 text-[#22c8e5]">
-                              {h}
-                            </span>
-                          ))}
-                        </div>
-                      </div>
-                    </a>
-                  );
-                })}
+                    </div>
+                  </a>
+                ))}
               </div>
 
               <div className="hidden lg:block container mx-auto px-4 mt-8">
@@ -491,11 +489,25 @@ const OurWorkPage = () => {
           </div>
         </section>
 
-        {/* Portfolio Grid */}
-        <section className="py-20 bg-[#0f1419]">
+        {/* Recent Launches */}
+        <section id="recent-launches" className="py-20 bg-[#0f1419]">
           <div className="container mx-auto px-4">
+            <div className="max-w-3xl mb-12">
+              <Reveal>
+                <p className="text-[11px] font-bold uppercase tracking-[0.25em] text-[#22c8e5] mb-3">
+                  Portfolio & Client Solutions
+                </p>
+                <h2 className="text-3xl md:text-5xl font-bold text-white mb-4">
+                  Recent <span className="text-[#22c8e5]">Launches</span>
+                </h2>
+                <p className="text-gray-300 text-base md:text-lg">
+                  Explore our latest custom websites, non-profit portals, e-commerce platforms, and specialized digital solutions.
+                </p>
+              </Reveal>
+            </div>
+
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-              {portfolioItems.map((item, index) => {
+              {recentLaunches.map((item, index) => {
                 const cardProps = {
                   key: item.id,
                   initial: { opacity: 0, y: 30 },
