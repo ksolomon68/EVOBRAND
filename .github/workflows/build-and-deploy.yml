@@ -70,9 +70,9 @@ jobs:
           rm -rf deploy/assets
           cp -r dist/apps/web/assets deploy/assets
           cp dist/apps/web/index.html deploy/index.html
-          cp dist/apps/web/llms.txt deploy/llms.txt
-          cp dist/apps/web/robots.txt deploy/robots.txt
-          cp dist/apps/web/sitemap.xml deploy/sitemap.xml
+          [ -f dist/apps/web/llms.txt ]    && cp dist/apps/web/llms.txt    deploy/llms.txt    || true
+          [ -f dist/apps/web/robots.txt ]  && cp dist/apps/web/robots.txt  deploy/robots.txt  || true
+          [ -f dist/apps/web/sitemap.xml ] && cp dist/apps/web/sitemap.xml deploy/sitemap.xml || true
 
       - name: Commit & push updated dist and deploy
         id: commit_dist
