@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Layers, CheckCircle2, Clock, Circle, ChevronDown, ChevronUp, Loader2 } from 'lucide-react';
+import { Layers, CheckCircle2, Clock, Circle, ChevronDown, ChevronUp, Loader2, Check } from 'lucide-react';
 
 const API_BASE = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
   ? 'http://localhost:5000/api'
@@ -37,14 +37,19 @@ function ProgressBar({ milestones }) {
   );
 }
 
-function ProjectCard({ project }) {
+function ProjectCard({ project, schedules }) {
   const [expanded, setExpanded] = useState(false);
-
-  const milestones = Array.isArray(project.milestones)
+ 
+  const milestones = (Array.isArray(project.milestones)
     ? project.milestones
     : typeof project.milestones === 'string'
     ? JSON.parse(project.milestones)
-    : [];
+    : []
+  ).sort((a, b) => {
+    if (!a.due_date) return 1;
+    if (!b.due_date) return -1;
+    return new Date(a.due_date) - new Date(b.due_date);
+  });
 
   const pct = milestones.length === 0 ? 0
     : Math.round((milestones.filter(m => m.status === 'done').length / milestones.length) * 100);
@@ -100,20 +105,27 @@ function ProjectCard({ project }) {
               ) : (
                 <div>
                   {milestones.map((m, i) => {
-                    const cfg = statusConfig[m.status] || statusConfig.pending;
-                    const StatusIcon = cfg.Icon;
+                    const isDone = m.status === 'done';
                     return (
                       <div
                         key={m.id || i}
                         className="flex items-center gap-3 py-2.5 border-b last:border-b-0"
                         style={{ borderColor: 'rgba(255,255,255,0.05)' }}
                       >
-                        <StatusIcon size={15} style={{ color: cfg.color, flexShrink: 0 }} />
+                        <div
+                          className="flex-shrink-0 w-5 h-5 rounded border flex items-center justify-center"
+                          style={{
+                            borderColor: isDone ? '#34d399' : 'rgba(255,255,255,0.2)',
+                            background: isDone ? 'rgba(52,211,153,0.1)' : 'transparent',
+                          }}
+                        >
+                          {isDone && <Check size={12} className="text-[#34d399]" />}
+                        </div>
                         <span
                           className="flex-1 text-sm"
                           style={{
-                            color: m.status === 'done' ? 'rgba(255,255,255,0.4)' : 'white',
-                            textDecoration: m.status === 'done' ? 'line-through' : 'none',
+                            color: isDone ? 'rgba(255,255,255,0.4)' : 'white',
+                            textDecoration: isDone ? 'line-through' : 'none',
                           }}
                         >
                           {m.name || '(unnamed)'}
@@ -126,17 +138,51 @@ function ProjectCard({ project }) {
                         <span
                           className="text-[10px] font-bold px-2 py-0.5 rounded-full flex-shrink-0"
                           style={{
-                            background: m.status === 'done' ? 'rgba(52,211,153,0.12)'
+                            background: isDone ? 'rgba(52,211,153,0.12)'
                               : m.status === 'in_progress' ? 'rgba(250,204,21,0.12)'
                               : 'rgba(255,255,255,0.05)',
-                            color: cfg.color,
+                            color: isDone ? '#34d399' : m.status === 'in_progress' ? '#facc15' : 'rgba(255,255,255,0.4)',
                           }}
                         >
-                          {cfg.label}
+                          {isDone ? 'Done' : m.status === 'in_progress' ? 'In Progress' : 'Pending'}
                         </span>
                       </div>
                     );
                   })}
+                </div>
+              )}
+
+              {/* Linked Schedule Files */}
+              {schedules && schedules.length > 0 && (
+                <div className="mt-6 pt-4 border-t border-[rgba(255,255,255,0.06)]">
+                  <h4 className="text-white text-xs font-bold uppercase tracking-widest mb-3" style={{ color: GOLD }}>Project Schedule Files</h4>
+                  <div className="space-y-2">
+                    {schedules.map(s => (
+                      <div key={s.id} className="flex items-center justify-between p-3 rounded-lg bg-white/5 border border-white/10 text-xs">
+                        <span className="text-white font-medium truncate">{s.title} ({s.original_name})</span>
+                        <button
+                          onClick={() => {
+                            fetch(`${API_BASE}/schedules/${s.id}/download`, {
+                              headers: { Authorization: `Bearer ${localStorage.getItem('evobrand_token')}` }
+                            })
+                            .then(r => r.blob())
+                            .then(blob => {
+                              const url = URL.createObjectURL(blob);
+                              const a = document.createElement('a');
+                              a.href = url;
+                              a.download = s.original_name;
+                              document.body.appendChild(a);
+                              a.click();
+                              document.body.removeChild(a);
+                            });
+                          }}
+                          className="text-[#22c8e5] hover:underline"
+                        >
+                          Download
+                        </button>
+                      </div>
+                    ))}
+                  </div>
                 </div>
               )}
             </div>
@@ -149,16 +195,25 @@ function ProjectCard({ project }) {
 
 export default function MyProjectsPanel() {
   const [projects, setProjects] = useState([]);
+  const [schedules, setSchedules] = useState([]);
   const [loading, setLoading] = useState(true);
-
+ 
   useEffect(() => {
     (async () => {
       try {
-        const res = await fetch(`${API_BASE}/projects`, {
-          headers: { Authorization: `Bearer ${localStorage.getItem('evobrand_token')}` },
-        });
-        const data = await res.json();
-        if (res.ok) setProjects(data.projects || []);
+        const token = localStorage.getItem('evobrand_token');
+        const [projRes, schedRes] = await Promise.all([
+          fetch(`${API_BASE}/projects`, { headers: { Authorization: `Bearer ${token}` } }),
+          fetch(`${API_BASE}/schedules`, { headers: { Authorization: `Bearer ${token}` } })
+        ]);
+        if (projRes.ok) {
+          const pData = await projRes.json();
+          setProjects(pData.projects || []);
+        }
+        if (schedRes.ok) {
+          const sData = await schedRes.json();
+          setSchedules(sData.schedules || []);
+        }
       } catch (err) {
         console.error(err);
       } finally {
@@ -193,7 +248,13 @@ export default function MyProjectsPanel() {
         </div>
       ) : (
         <div className="space-y-4 max-w-3xl">
-          {projects.map(p => <ProjectCard key={p.id} project={p} />)}
+          {projects.map(p => (
+            <ProjectCard
+              key={p.id}
+              project={p}
+              schedules={schedules.filter(s => s.client_email === p.client_email)}
+            />
+          ))}
         </div>
       )}
     </>
