@@ -232,6 +232,20 @@ if (analyticsRoutes) app.use('/t', analyticsRoutes);
 if (schedulesRoutes) app.use('/schedules', schedulesRoutes);
 if (projectsRoutes) app.use('/projects', projectsRoutes);
 
+// Catch-all JSON error handler — must be registered after every route. Without
+// this, an error thrown in middleware (e.g. multer rejecting a file type/size
+// before a route handler even runs) falls through to Express's default HTML
+// error page, which breaks every frontend fetch() call expecting res.json().
+app.use((err, req, res, next) => {
+  if (res.headersSent) return next(err);
+  const multer = require('multer');
+  if (err instanceof multer.MulterError) {
+    return res.status(400).json({ error: err.message });
+  }
+  console.error('Unhandled error:', err);
+  res.status(err.status || 500).json({ error: err.message || 'Server error' });
+});
+
 // Scheduled Tasks
 // Run every 6 hours to auto-close inactive tickets
 setInterval(async () => {

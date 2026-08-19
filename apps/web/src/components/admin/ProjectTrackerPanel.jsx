@@ -316,10 +316,10 @@ function ProjectCard({ project, contracts, onUpdated, onDeleted }) {
                     style={{ color: GOLD, border: `1px solid rgba(34,200,229,0.25)` }}
                   >
                     {importing ? <Loader2 size={13} className="animate-spin" /> : <FileUp size={13} />}
-                    {importing ? 'Importing…' : 'Import from Word Doc'}
+                    {importing ? 'Importing…' : 'Import Schedule (Word/PDF)'}
                     <input
                       type="file"
-                      accept=".docx"
+                      accept=".docx,.doc,.pdf"
                       className="hidden"
                       onChange={e => { handleImportDocx(e.target.files?.[0]); e.target.value = ''; }}
                       disabled={importing}
@@ -616,10 +616,10 @@ export default function ProjectTrackerPanel() {
                     style={{ color: GOLD, border: `1px solid rgba(34,200,229,0.25)` }}
                   >
                     {importing ? <Loader2 size={13} className="animate-spin" /> : <FileUp size={13} />}
-                    {importing ? 'Importing…' : 'Import from Word Doc'}
+                    {importing ? 'Importing…' : 'Import Schedule (Word/PDF)'}
                     <input
                       type="file"
-                      accept=".docx"
+                      accept=".docx,.doc,.pdf"
                       className="hidden"
                       onChange={e => { handleImportDocx(e.target.files?.[0]); e.target.value = ''; }}
                       disabled={importing}

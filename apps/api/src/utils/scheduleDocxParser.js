@@ -1,5 +1,7 @@
 const AdmZip = require('adm-zip');
 const { XMLParser } = require('fast-xml-parser');
+const { PDFParse } = require('pdf-parse');
+const WordExtractor = require('word-extractor');
 
 const MONTHS = {
   january: 1, jan: 1, february: 2, feb: 2, march: 3, mar: 3, april: 4, apr: 4,
@@ -9,8 +11,9 @@ const MONTHS = {
 };
 
 const DATE_RE = /([A-Za-z]+)\.?\s+(\d{1,2}),?\s+(\d{4})/;
+const PHASE_RE = /^phase\s*\d+/i;
 
-const parser = new XMLParser({
+const xmlParser = new XMLParser({
   ignoreAttributes: true,
   trimValues: false, // preserve significant spaces Word splits across adjacent <w:r> runs
   isArray: (name) => ['w:tr', 'w:tc', 'w:p', 'w:r', 'w:tbl'].includes(name),
@@ -46,16 +49,15 @@ function parseDate(text) {
 }
 
 /**
- * Parses a "Phase N: ... / What / Who / When" style project schedule table
- * (the format used in EVOBRAND's client schedule docs) into a suggested
- * project name and a milestones array matching the client_projects schema.
+ * Parses the "Phase N: ... / What / Who / When" table structure directly out
+ * of a .docx's XML — the most reliable path, since cell boundaries are exact.
  */
-function parseScheduleDocx(buffer) {
+function parseDocxTable(buffer) {
   const zip = new AdmZip(buffer);
   const entry = zip.getEntry('word/document.xml');
   if (!entry) throw new Error('Not a valid .docx file');
   const xml = entry.getData().toString('utf-8');
-  const doc = parser.parse(xml);
+  const doc = xmlParser.parse(xml);
 
   const body = doc?.['w:document']?.['w:body'];
   if (!body) throw new Error('Could not read document body');
@@ -76,7 +78,7 @@ function parseScheduleDocx(buffer) {
 
       if (texts.length !== 3) {
         const heading = texts.join(' ').trim();
-        if (/^phase\s*\d+/i.test(heading)) currentPhase = heading;
+        if (PHASE_RE.test(heading)) currentPhase = heading;
         continue;
       }
 
@@ -99,7 +101,84 @@ function parseScheduleDocx(buffer) {
     }
   }
 
+  return { name: suggestedName, milestones, tableFound: tables.length > 0 };
+}
+
+/**
+ * Best-effort fallback for plain text extracted from a .doc or .pdf, where
+ * table cell boundaries aren't available. Looks for "Phase N" heading lines
+ * and, on other lines, strips a trailing date if present — whatever's left
+ * becomes the milestone name. Assignee isn't recoverable from flat text, so
+ * it's left blank rather than guessed.
+ */
+function parseScheduleText(rawText) {
+  const lines = rawText.split(/\r?\n/).map(l => l.replace(/\s+/g, ' ').trim()).filter(Boolean);
+  const suggestedName = lines[0] || 'Imported Project';
+
+  const milestones = [];
+  let currentPhase = null;
+  let idCounter = Date.now();
+
+  for (const line of lines.slice(1)) {
+    if (PHASE_RE.test(line)) {
+      currentPhase = line;
+      continue;
+    }
+    if (/^(what|who|when)$/i.test(line)) continue;
+
+    const dateMatch = line.match(DATE_RE);
+    if (!dateMatch) continue; // a line with no date is too ambiguous to treat as a milestone row
+
+    const due_date = parseDate(dateMatch[0]);
+    const name = (line.slice(0, dateMatch.index) + line.slice(dateMatch.index + dateMatch[0].length))
+      .replace(/[|•·\-–—]+$/, '')
+      .replace(/\s+/g, ' ')
+      .trim();
+    if (!name) continue;
+
+    milestones.push({
+      id: idCounter++,
+      name,
+      status: 'pending',
+      due_date: due_date || '',
+      phase: currentPhase || undefined,
+      notes: due_date ? undefined : dateMatch[0],
+    });
+  }
+
   return { name: suggestedName, milestones };
 }
 
-module.exports = { parseScheduleDocx };
+async function parseScheduleDoc(buffer, originalName) {
+  const ext = (originalName.split('.').pop() || '').toLowerCase();
+
+  if (ext === 'docx') {
+    const result = parseDocxTable(buffer);
+    if (result.milestones.length > 0) return { name: result.name, milestones: result.milestones };
+    // No table found (unusual doc) — fall back to plain text extraction of the same file.
+    const zip = new AdmZip(buffer);
+    const entry = zip.getEntry('word/document.xml');
+    const xml = entry ? entry.getData().toString('utf-8') : '';
+    const text = xml.replace(/<[^>]+>/g, '\n');
+    return parseScheduleText(text);
+  }
+
+  if (ext === 'doc') {
+    const doc = await new WordExtractor().extract(buffer);
+    return parseScheduleText(doc.getBody());
+  }
+
+  if (ext === 'pdf') {
+    const parser = new PDFParse({ data: buffer });
+    try {
+      const result = await parser.getText();
+      return parseScheduleText(result.text);
+    } finally {
+      await parser.destroy();
+    }
+  }
+
+  throw new Error('Unsupported file type. Please upload a .docx, .doc, or .pdf file.');
+}
+
+module.exports = { parseScheduleDoc };

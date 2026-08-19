@@ -3,15 +3,19 @@ const router = express.Router();
 const pool = require('../db/connection');
 const multer = require('multer');
 const { authenticateToken, requireAdmin } = require('../middleware/auth');
-const { parseScheduleDocx } = require('../utils/scheduleDocxParser');
+const { parseScheduleDoc } = require('../utils/scheduleDocxParser');
+
+const SCHEDULE_DOC_EXTENSIONS = ['.docx', '.doc', '.pdf'];
 
 const docxUpload = multer({
   storage: multer.memoryStorage(),
   limits: { fileSize: 15 * 1024 * 1024 },
   fileFilter: (req, file, cb) => {
-    const ok = file.originalname.toLowerCase().endsWith('.docx');
+    const ok = SCHEDULE_DOC_EXTENSIONS.some(ext => file.originalname.toLowerCase().endsWith(ext));
     if (ok) return cb(null, true);
-    cb(new Error('Only .docx files are supported'));
+    const err = new Error('Only .docx, .doc, or .pdf files are supported');
+    err.status = 400;
+    cb(err);
   },
 });
 
@@ -48,17 +52,17 @@ const deriveStatus = (milestones, fallback) => {
 // gets back a suggested project name + milestones array (nothing is saved).
 // The frontend stages this into the create/edit form so the admin can review
 // and adjust before it's actually written to a project.
-router.post('/parse-schedule-docx', authenticateToken, requireAdmin, docxUpload.single('file'), (req, res) => {
+router.post('/parse-schedule-docx', authenticateToken, requireAdmin, docxUpload.single('file'), async (req, res) => {
   if (!req.file) return res.status(400).json({ error: 'No file uploaded' });
   try {
-    const result = parseScheduleDocx(req.file.buffer);
+    const result = await parseScheduleDoc(req.file.buffer, req.file.originalname);
     if (result.milestones.length === 0) {
       return res.status(422).json({ error: 'No milestone rows found in this document' });
     }
     res.json(result);
   } catch (err) {
-    console.error('Parse schedule docx error:', err);
-    res.status(400).json({ error: 'Could not read that document. Is it a valid .docx file?' });
+    console.error('Parse schedule doc error:', err);
+    res.status(400).json({ error: err.message || 'Could not read that document.' });
   }
 });
 
