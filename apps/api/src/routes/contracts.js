@@ -3,10 +3,8 @@ const router = express.Router();
 const pool = require('../db/connection');
 const { authenticateToken, requireAdmin } = require('../middleware/auth');
 const { addToCustomersList } = require('../utils/crmHelpers');
-const { Resend } = require('resend');
 const { getEmailTemplate } = require('../utils/emailTemplate');
-
-const getResend = () => new Resend(process.env.RESEND_API_KEY || 're_placeholder');
+const { sendEmail } = require('../utils/mailer');
 
 
 const ensureTable = async () => {
@@ -95,7 +93,7 @@ router.post('/', authenticateToken, requireAdmin, async (req, res) => {
           <p>If you don't have an active password yet, you can set one using the <strong>Forgot Password</strong> link on the login page.</p>
         `;
 
-        await getResend().emails.send({
+        await sendEmail({
           from: `"EVOBRAND" <${process.env.RESEND_FROM_EMAIL || 'info@evobrand.net'}>`,
           to: [clientEmail, 'ks@evobrand.net'],
           subject: `New Contract Prepared: ${title}`,
@@ -159,7 +157,7 @@ router.put('/:id', authenticateToken, requireAdmin, async (req, res) => {
           <p>If you don't have an active password yet, you can set one using the <strong>Forgot Password</strong> link on the login page.</p>
         `;
 
-        await getResend().emails.send({
+        await sendEmail({
           from: `"EVOBRAND" <${process.env.RESEND_FROM_EMAIL || 'info@evobrand.net'}>`,
           to: [clientEmail, 'ks@evobrand.net'],
           subject: `Updated Contract Prepared: ${title}`,
@@ -265,19 +263,19 @@ router.post('/:id/sign', authenticateToken, async (req, res) => {
     await addToCustomersList(req.user.email, { firstName: nameParts[0], lastName: nameParts.slice(1).join(' ') || null });
 
     try {
-      await getResend().emails.send({
-        from: `"EVOBRAND" <${process.env.RESEND_FROM_EMAIL || 'info@evobrand.net'}>`,
-        to: ['info@evobrand.net', 'ksolomon68@gmail.com'],
-        subject: `Contract Signed: ${contract.title}`,
-        html: `
-          <div style="font-family: sans-serif; color: #333;">
-            <h2>Contract Signed</h2>
-            <p><strong>${req.user.name || req.user.email || 'A client'}</strong> has successfully signed the contract: <strong>${contract.title}</strong>.</p>
-            <p><strong>Signature string:</strong> ${signature.trim()}</p>
-            <p>Log in to your admin dashboard to view the signed contract.</p>
-          </div>
-        `
-      });
+        await sendEmail({
+          from: `"EVOBRAND" <${process.env.RESEND_FROM_EMAIL || 'info@evobrand.net'}>`,
+          to: ['info@evobrand.net', 'ksolomon68@gmail.com'],
+          subject: `Contract Signed: ${contract.title}`,
+          html: `
+            <div style="font-family: sans-serif; color: #333;">
+              <h2>Contract Signed</h2>
+              <p><strong>${req.user.name || req.user.email || 'A client'}</strong> has successfully signed the contract: <strong>${contract.title}</strong>.</p>
+              <p><strong>Signature string:</strong> ${signature.trim()}</p>
+              <p>Log in to your admin dashboard to view the signed contract.</p>
+            </div>
+          `
+        });
     } catch (emailErr) {
       console.error('Failed to send contract signed email:', emailErr);
     }

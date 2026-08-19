@@ -5,10 +5,8 @@ const { authenticateToken, requireAdmin } = require('../middleware/auth');
 const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
-const { Resend } = require('resend');
 const { getEmailTemplate } = require('../utils/emailTemplate');
-
-const getResend = () => new Resend(process.env.RESEND_API_KEY || 're_placeholder');
+const { sendEmail } = require('../utils/mailer');
 
 const schedulesDir = path.join(__dirname, '../../uploads/schedules');
 if (!fs.existsSync(schedulesDir)) fs.mkdirSync(schedulesDir, { recursive: true });
@@ -89,7 +87,7 @@ router.post('/upload', authenticateToken, requireAdmin, upload.single('file'), a
           <p><a href="https://evobrandconcepts.com/login" style="color: #22c8e5; font-weight: bold; text-decoration: none;">Go to Client Portal</a></p>
         `;
 
-        await getResend().emails.send({
+        await sendEmail({
           from: `"EVOBRAND" <${process.env.RESEND_FROM_EMAIL || 'info@evobrand.net'}>`,
           to: [clientEmail, 'ks@evobrand.net'],
           subject: `New Project Document Shared: ${title}`,
