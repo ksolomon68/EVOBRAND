@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { FileText, X, Download, Clock, CheckCircle2, Send, CreditCard } from 'lucide-react';
+import { FileText, X, Download, Clock, CheckCircle2, Send, CreditCard, Copy } from 'lucide-react';
 import PaymentModal from './PaymentModal';
 
 const API_BASE = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
@@ -193,7 +193,7 @@ function ContractModal({ contract, onClose, onSign, isAdmin, onEditContract }) {
   );
 }
 
-export default function MyContractsPanel({ user, onEditContract }) {
+export default function MyContractsPanel({ user, onEditContract, onDuplicateContract }) {
   const isAdmin = user?.is_admin === 1 || user?.is_admin === true;
   const [contracts, setContracts] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -319,21 +319,39 @@ export default function MyContractsPanel({ user, onEditContract }) {
                 </div>
                 <div className="flex items-center gap-3 flex-shrink-0">
                   {isAdmin && (
-                    <button
-                      onClick={async (e) => {
-                        e.stopPropagation();
-                        const full = await fetch(`${API_BASE}/contracts/${c.id}`, {
-                          headers: { 'Authorization': `Bearer ${localStorage.getItem('evobrand_token')}` },
-                        }).then(r => r.json()).catch(() => null);
-                        if (full?.contract) {
-                          onEditContract(full.contract);
-                        }
-                      }}
-                      className="px-3 py-1.5 rounded-lg text-[10px] font-bold uppercase tracking-wider transition-all hover:bg-white/10"
-                      style={{ background: 'rgba(255,255,255,0.06)', color: 'rgba(255,255,255,0.8)', border: '1px solid rgba(255,255,255,0.12)' }}
-                    >
-                      Edit &amp; Resend
-                    </button>
+                    <>
+                      <button
+                        onClick={async (e) => {
+                          e.stopPropagation();
+                          const full = await fetch(`${API_BASE}/contracts/${c.id}`, {
+                            headers: { 'Authorization': `Bearer ${localStorage.getItem('evobrand_token')}` },
+                          }).then(r => r.json()).catch(() => null);
+                          if (full?.contract) {
+                            onEditContract(full.contract);
+                          }
+                        }}
+                        className="px-3 py-1.5 rounded-lg text-[10px] font-bold uppercase tracking-wider transition-all hover:bg-white/10"
+                        style={{ background: 'rgba(255,255,255,0.06)', color: 'rgba(255,255,255,0.8)', border: '1px solid rgba(255,255,255,0.12)' }}
+                      >
+                        Edit &amp; Resend
+                      </button>
+                      <button
+                        title="Duplicate to new draft"
+                        onClick={async (e) => {
+                          e.stopPropagation();
+                          const full = await fetch(`${API_BASE}/contracts/${c.id}`, {
+                            headers: { 'Authorization': `Bearer ${localStorage.getItem('evobrand_token')}` },
+                          }).then(r => r.json()).catch(() => null);
+                          if (full?.contract && onDuplicateContract) {
+                            onDuplicateContract(full.contract);
+                          }
+                        }}
+                        className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[10px] font-bold uppercase tracking-wider transition-all hover:bg-white/10"
+                        style={{ background: 'rgba(34,200,229,0.08)', color: '#22c8e5', border: '1px solid rgba(34,200,229,0.2)' }}
+                      >
+                        <Copy size={11} /> Duplicate
+                      </button>
+                    </>
                   )}
                   {isSignedUnpaid && (
                     <button

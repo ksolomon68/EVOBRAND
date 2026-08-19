@@ -138,7 +138,7 @@ app.get('/api/email-health', async (req, res) => {
 });
 
 // Import Routes
-let supportRoutes, newsletterRoutes, schedulerRoutes, auditorRoutes, authRoutes, crmRoutes, contractRoutes, notificationRoutes, contactsRoutes, paymentsRoutes, analyticsRoutes;
+let supportRoutes, newsletterRoutes, schedulerRoutes, auditorRoutes, authRoutes, crmRoutes, contractRoutes, notificationRoutes, contactsRoutes, paymentsRoutes, analyticsRoutes, schedulesRoutes, projectsRoutes;
 
 const loadRoute = (name, path) => {
   try {
@@ -165,6 +165,8 @@ notificationRoutes = loadRoute('notifications', './routes/notifications');
 contactsRoutes = loadRoute('contacts', './routes/contacts');
 paymentsRoutes = loadRoute('payments', './routes/payments');
 analyticsRoutes = loadRoute('analytics', './routes/analytics');
+schedulesRoutes = loadRoute('schedules', './routes/schedules');
+projectsRoutes = loadRoute('projects', './routes/projects');
 
 app.get('/api/install', (req, res) => {
   try {
@@ -206,6 +208,8 @@ if (contractRoutes) app.use('/api/contracts', contractRoutes);
 if (notificationRoutes) app.use('/api/notifications', notificationRoutes);
 if (paymentsRoutes) app.use('/api/payments', paymentsRoutes);
 if (analyticsRoutes) app.use('/api/analytics', analyticsRoutes);
+if (schedulesRoutes) app.use('/api/schedules', schedulesRoutes);
+if (projectsRoutes) app.use('/api/projects', projectsRoutes);
 // Ad-blocker-safe alias for the tracking endpoint — EasyPrivacy-style
 // filter lists block request paths containing "analytics", which silently
 // drops pageview beacons from visitors running content blockers.
@@ -225,6 +229,8 @@ if (notificationRoutes) app.use('/notifications', notificationRoutes);
 if (paymentsRoutes) app.use('/payments', paymentsRoutes);
 if (analyticsRoutes) app.use('/analytics', analyticsRoutes);
 if (analyticsRoutes) app.use('/t', analyticsRoutes);
+if (schedulesRoutes) app.use('/schedules', schedulesRoutes);
+if (projectsRoutes) app.use('/projects', projectsRoutes);
 
 // Scheduled Tasks
 // Run every 6 hours to auto-close inactive tickets

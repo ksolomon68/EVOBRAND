@@ -47,7 +47,7 @@ const inputClass = 'w-full bg-[rgba(255,255,255,0.04)] border border-[rgba(255,2
 const labelClass = 'block text-[0.8rem] font-semibold text-[#8892a4] mb-2 uppercase';
 const sectionHeadClass = 'text-[#22c8e5] text-[0.75rem] font-bold uppercase tracking-[0.1em] mb-4 pb-2 border-b border-[rgba(255,255,255,0.08)]';
 
-export default function ContractBuilderPanel({ editingContract, onClear }) {
+export default function ContractBuilderPanel({ editingContract, duplicatingContract, onClear }) {
   const agency = { name: 'EVOBRAND Concepts LLC', address: 'Ellis County, Texas 75165', email: 'info@evobrand.net' };
 
   const [clientInfo, setClientInfo] = useState({ companyName: '', repName: '', title: '', email: '', address: '', phone: '' });
@@ -68,18 +68,26 @@ export default function ContractBuilderPanel({ editingContract, onClear }) {
   const [saved, setSaved] = useState(false);
   const [saveError, setSaveError] = useState('');
 
+  const sourceContract = editingContract || duplicatingContract;
+
   useEffect(() => {
-    if (editingContract) {
-      const data = typeof editingContract.contract_data === 'string'
-        ? JSON.parse(editingContract.contract_data)
-        : editingContract.contract_data;
+    if (sourceContract) {
+      const data = typeof sourceContract.contract_data === 'string'
+        ? JSON.parse(sourceContract.contract_data)
+        : sourceContract.contract_data;
       if (data) {
         setClientInfo(data.clientInfo || { companyName: '', repName: '', title: '', email: '', address: '', phone: '' });
         setProject(data.project || { description: '', startDate: todayISO(), completion: '8 weeks from start', fee: 5000, payment: '50% upfront, 50% on delivery', revisions: '3', state: 'Texas', dispute: 'Binding Arbitration (AAA)' });
         setSelectedServices(data.selectedServices || ['ai-app']);
         setClauses(data.clauses || { nda: true, ip: false, sla: true, wcag_clause: true, ai_ethics: true, liability: true, indemnification: true, termination: true, force_majeure: true, late_payment: true });
-        setSignature(editingContract.client_signature || '');
-        setClientDate(editingContract.client_signed_at ? editingContract.client_signed_at.slice(0, 10) : todayISO());
+        // When duplicating, do NOT carry over the signature
+        if (editingContract) {
+          setSignature(sourceContract.client_signature || '');
+          setClientDate(sourceContract.client_signed_at ? sourceContract.client_signed_at.slice(0, 10) : todayISO());
+        } else {
+          setSignature('');
+          setClientDate(todayISO());
+        }
       }
     } else {
       setClientInfo({ companyName: '', repName: '', title: '', email: '', address: '', phone: '' });
@@ -89,7 +97,7 @@ export default function ContractBuilderPanel({ editingContract, onClear }) {
       setSignature('');
       setClientDate(todayISO());
     }
-  }, [editingContract]);
+  }, [sourceContract]);
 
   const toggleClause = (key) => setClauses(prev => ({ ...prev, [key]: !prev[key] }));
   const toggleService = (id) => setSelectedServices(prev => prev.includes(id) ? prev.filter(s => s !== id) : [...prev, id]);
@@ -155,8 +163,16 @@ export default function ContractBuilderPanel({ editingContract, onClear }) {
   return (
     <>
       <div className="no-print mb-8">
-        <h1 className="text-3xl font-bold text-white mb-1">Contract Builder</h1>
-        <p className="text-white/40">Build a Services Agreement and send it to a client account.</p>
+        {duplicatingContract && (
+          <div className="mb-5 px-4 py-3 rounded-xl text-sm font-semibold flex items-center gap-2"
+            style={{ background: 'rgba(34,200,229,0.1)', border: '1px solid rgba(34,200,229,0.25)', color: '#22c8e5' }}>
+            <span>📋</span> You are editing a <strong>copy</strong> of an existing contract. Saving will create a new contract.
+          </div>
+        )}
+        <h1 className="text-3xl font-bold text-white mb-1">
+          {editingContract ? 'Edit Contract' : duplicatingContract ? 'New Contract (from copy)' : 'Contract Builder'}
+        </h1>
+        <p className="text-white/40">{editingContract ? 'Update and resend this agreement.' : 'Build a Services Agreement and send it to a client account.'}</p>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-[1.2fr_1fr] gap-8 items-start">
