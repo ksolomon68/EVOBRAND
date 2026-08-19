@@ -5,6 +5,10 @@ const { authenticateToken, requireAdmin } = require('../middleware/auth');
 const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
+const { Resend } = require('resend');
+const { getEmailTemplate } = require('../utils/emailTemplate');
+
+const getResend = () => new Resend(process.env.RESEND_API_KEY || 're_placeholder');
 
 const schedulesDir = path.join(__dirname, '../../uploads/schedules');
 if (!fs.existsSync(schedulesDir)) fs.mkdirSync(schedulesDir, { recursive: true });
@@ -69,6 +73,33 @@ router.post('/upload', authenticateToken, requireAdmin, upload.single('file'), a
       [title, description || '', clientEmail || null, clientUserId,
        req.file.filename, req.file.originalname, req.file.size, req.file.mimetype, req.user.id, projectId || null]
     );
+
+    // Send email notification to client and copy to admin
+    if (clientEmail && clientEmail.includes('@')) {
+      try {
+        const emailBody = `
+          <p>Hi,</p>
+          <p>A new project document / schedule file (<strong>${title}</strong>) has been uploaded and shared with you by <strong>EVOBRAND Concepts LLC</strong>.</p>
+          <p><strong>File Details:</strong></p>
+          <ul>
+            <li><strong>File Name:</strong> ${req.file.originalname}</li>
+            <li><strong>Description:</strong> ${description || 'No description provided.'}</li>
+          </ul>
+          <p>Please log in to your EVOBRAND Client Portal to review and download the file:</p>
+          <p><a href="https://evobrandconcepts.com/login" style="color: #22c8e5; font-weight: bold; text-decoration: none;">Go to Client Portal</a></p>
+        `;
+
+        await getResend().emails.send({
+          from: `"EVOBRAND" <${process.env.RESEND_FROM_EMAIL || 'info@evobrand.net'}>`,
+          to: [clientEmail, 'ks@evobrand.net'],
+          subject: `New Project Document Shared: ${title}`,
+          html: getEmailTemplate(`New Document Shared`, emailBody)
+        });
+      } catch (emailErr) {
+        console.error('Failed to send schedule email notification:', emailErr);
+      }
+    }
+
     res.status(201).json({ success: true, id: result.insertId });
   } catch (err) {
     try { fs.unlinkSync(req.file.path); } catch (_) {}
