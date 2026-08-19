@@ -17,6 +17,9 @@ on:
       - 'apps/web/tools/**'
       # API has no build step, but it still needs cPanel to pull + restart it
       - 'apps/api/**'
+      # .cpanel.yml IS the deployment script cPanel runs — a change here needs
+      # to reach the server the same way, or it never actually takes effect
+      - '.cpanel.yml'
 
 jobs:
   build:
