@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Check, Download, FileText, Send, Loader2, CheckCircle2 } from 'lucide-react';
+import { Check, Download, FileText, Send, Loader2, CheckCircle2, Trash2 } from 'lucide-react';
 
 const API_BASE = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
   ? 'http://localhost:5000/api'
@@ -150,6 +150,22 @@ export default function ContractBuilderPanel({ editingContract, duplicatingContr
     }
   };
 
+  const handleDelete = async () => {
+    if (!editingContract) return;
+    if (!window.confirm(`Delete "${editingContract.title || 'this contract'}"? This cannot be undone.`)) return;
+    try {
+      const token = localStorage.getItem('evobrand_token');
+      const res = await fetch(`${API_BASE}/contracts/${editingContract.id}`, {
+        method: 'DELETE',
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (!res.ok) throw new Error('Delete failed');
+      if (onClear) onClear();
+    } catch (err) {
+      alert(`Failed to delete contract: ${err.message}`);
+    }
+  };
+
   const sidebarClauses = [
     { key: 'nda', title: 'Mutual NDA (Strict)', desc: 'Bi-directional non-disclosure with strict data handling and destruction policies.' },
     { key: 'ip', title: 'Full IP Transfer', desc: 'Client retains 100% ownership of custom source code, models, and assets upon final payment.' },
@@ -188,18 +204,28 @@ export default function ContractBuilderPanel({ editingContract, duplicatingContr
           className="no-print bg-[rgba(255,255,255,0.04)] border border-[rgba(255,255,255,0.08)] rounded-[20px] p-8 h-fit max-h-[78vh] overflow-y-auto"
         >
           {editingContract && (
-            <div className="mb-6 bg-[rgba(34,200,229,0.1)] border border-[#22c8e5] rounded-xl p-4 flex items-center justify-between">
-              <div>
+            <div className="mb-6 bg-[rgba(34,200,229,0.1)] border border-[#22c8e5] rounded-xl p-4 flex items-center justify-between gap-3">
+              <div className="min-w-0">
                 <p className="text-white text-sm font-bold">Edit Mode</p>
-                <p className="text-[#8892a4] text-xs">Modifying contract ID #{editingContract.id}</p>
+                <p className="text-[#8892a4] text-xs truncate">Modifying contract ID #{editingContract.id}</p>
               </div>
-              <button
-                type="button"
-                onClick={onClear}
-                className="px-3 py-1.5 bg-white/5 border border-white/10 rounded-lg text-xs font-bold text-white hover:bg-white/10 transition-colors"
-              >
-                Cancel
-              </button>
+              <div className="flex items-center gap-2 shrink-0">
+                <button
+                  type="button"
+                  onClick={handleDelete}
+                  title="Delete this contract"
+                  className="px-3 py-1.5 bg-red-500/10 border border-red-500/30 rounded-lg text-xs font-bold text-red-400 hover:bg-red-500/20 transition-colors flex items-center gap-1"
+                >
+                  <Trash2 size={12} /> Delete
+                </button>
+                <button
+                  type="button"
+                  onClick={onClear}
+                  className="px-3 py-1.5 bg-white/5 border border-white/10 rounded-lg text-xs font-bold text-white hover:bg-white/10 transition-colors"
+                >
+                  Cancel
+                </button>
+              </div>
             </div>
           )}
           <div className="flex items-center justify-between mb-8">
@@ -360,6 +386,19 @@ export default function ContractBuilderPanel({ editingContract, duplicatingContr
                 {saving ? 'Saving…' : savedStatus === 'sent' ? 'Contract Sent!' : 'Save & Send'}
               </button>
             </div>
+
+            {/* Delete — only shown when editing an existing contract */}
+            {editingContract && (
+              <div className="mt-4 pt-4 border-t border-white/5">
+                <button
+                  type="button"
+                  onClick={handleDelete}
+                  className="w-full flex items-center justify-center gap-2 py-2.5 rounded-2xl font-bold text-sm text-red-400 border border-red-500/20 hover:bg-red-500/10 transition-all"
+                >
+                  <Trash2 size={15} /> Delete This Contract
+                </button>
+              </div>
+            )}
           </div>
         </motion.div>
 
