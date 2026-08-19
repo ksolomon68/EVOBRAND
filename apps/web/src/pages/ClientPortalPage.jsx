@@ -4,7 +4,7 @@ import SEO from '@/components/SEO.jsx';
 import {
   LayoutDashboard, Plus, LogOut, Ticket, Bell,
   Loader2, Calendar, ShieldCheck, Users, FileText, Menu, X, CheckCircle2, AlertCircle, BarChart2,
-  FolderOpen, Layers,
+  Layers,
 } from 'lucide-react';
 import TicketList from '../components/portal/TicketList';
 import NewTicketForm from '../components/portal/NewTicketForm';
@@ -18,11 +18,9 @@ import ContractBuilderPanel from '../components/admin/ContractBuilderPanel';
 import AdminBlackoutPanel from '../components/admin/AdminBlackoutPanel';
 import AdminContactFormsPanel from '../components/admin/AdminContactFormsPanel';
 import MyContractsPanel from '../components/portal/MyContractsPanel';
-import MySchedulesPanel from '../components/portal/MySchedulesPanel';
 import MyProjectsPanel from '../components/portal/MyProjectsPanel';
 import AdminAnalyticsPanel from '../components/admin/AdminAnalyticsPanel';
 import AdminDashboard from '../components/admin/AdminDashboard';
-import ProjectSchedulesPanel from '../components/admin/ProjectSchedulesPanel';
 import ProjectTrackerPanel from '../components/admin/ProjectTrackerPanel';
 import { useAuth } from '../hooks/useAuth.jsx';
 import { useNavigate, useLocation } from 'react-router-dom';
@@ -71,8 +69,7 @@ function Sidebar({ user, view, setView, setSelectedTicket, openTicketCount, hand
     { key: 'dashboard', icon: LayoutDashboard, label: 'Dashboard', badge: openTicketCount },
     { key: 'meetings', icon: Calendar, label: 'My Meetings' },
     { key: 'my-contracts', icon: FileText, label: 'My Contracts' },
-    { key: 'my-schedules', icon: FolderOpen, label: 'My Schedules' },
-    { key: 'my-projects', icon: Layers, label: 'My Projects' },
+    { key: 'my-projects', icon: Layers, label: 'My Schedule' },
     ...(isAdmin ? [
       { key: 'analytics', icon: BarChart2, label: 'Analytics' },
       { key: 'admin', icon: ShieldCheck, label: 'Support Tickets' },
@@ -81,8 +78,7 @@ function Sidebar({ user, view, setView, setSelectedTicket, openTicketCount, hand
       { key: 'scheduler-admin', icon: Calendar, label: 'Availability Controls' },
       { key: 'crm', icon: Users, label: 'CRM & Campaigns' },
       { key: 'contract-builder', icon: FileText, label: 'Contract Builder' },
-      { key: 'project-schedules', icon: FolderOpen, label: 'Project Schedules' },
-      { key: 'project-tracker', icon: Layers, label: 'Project Tracker' },
+      { key: 'project-tracker', icon: Layers, label: 'Project Schedule' },
     ] : []),
   ];
 
@@ -175,7 +171,7 @@ const ClientPortalPage = () => {
   const isAdmin = user?.is_admin === 1 || user?.is_admin === true;
   const navigate = useNavigate();
   const location = useLocation();
-  const VALID_VIEWS = ['dashboard','meetings','analytics','admin','client-plans','contact-forms','scheduler-admin','crm','contracts','my-tickets','blackout','my-contracts','contract-builder','project-schedules','project-tracker','my-schedules','my-projects'];
+  const VALID_VIEWS = ['dashboard','meetings','analytics','admin','client-plans','contact-forms','scheduler-admin','crm','contracts','my-tickets','blackout','my-contracts','contract-builder','project-tracker','my-projects'];
   const [view, setView] = useState(() => {
     const hash = window.location.hash.replace('#', '');
     return VALID_VIEWS.includes(hash) ? hash : 'dashboard';
@@ -421,16 +417,14 @@ const ClientPortalPage = () => {
     detail: 'Ticket Details',
     meetings: 'My Meetings',
     'my-contracts': 'My Contracts',
-    'my-schedules': 'My Schedules',
-    'my-projects': 'My Projects',
+    'my-projects': 'My Schedule',
     admin: 'Support Tickets',
     'client-plans': 'Client Plans',
     'contact-forms': 'Contact Forms',
     'scheduler-admin': 'Availability Controls',
     crm: 'CRM & Campaigns',
     'contract-builder': 'Contract Builder',
-    'project-schedules': 'Project Schedules',
-    'project-tracker': 'Project Tracker',
+    'project-tracker': 'Project Schedule',
   }[view] ?? 'Dashboard';
 
   if (authLoading || loading) {
@@ -773,20 +767,7 @@ const ClientPortalPage = () => {
                     />
                   </motion.div>
                 )}
-                {/* ── My Schedules (client) ── */}
-                {view === 'my-schedules' && (
-                  <motion.div
-                    key="my-schedules"
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: -10 }}
-                    transition={{ duration: 0.2 }}
-                  >
-                    <MySchedulesPanel />
-                  </motion.div>
-                )}
-
-                {/* ── My Projects (client) ── */}
+                {/* ── My Schedule (client) ── */}
                 {view === 'my-projects' && (
                   <motion.div
                     key="my-projects"
@@ -799,20 +780,7 @@ const ClientPortalPage = () => {
                   </motion.div>
                 )}
 
-                {/* ── Project Schedules (admin) ── */}
-                {view === 'project-schedules' && isAdmin && (
-                  <motion.div
-                    key="project-schedules"
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: -10 }}
-                    transition={{ duration: 0.2 }}
-                  >
-                    <ProjectSchedulesPanel />
-                  </motion.div>
-                )}
-
-                {/* ── Project Tracker (admin) ── */}
+                {/* ── Project Schedule (admin) ── */}
                 {view === 'project-tracker' && isAdmin && (
                   <motion.div
                     key="project-tracker"

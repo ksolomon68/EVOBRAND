@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   Layers, Plus, Trash2, X, Loader2, CheckCircle2, Check,
-  AlertCircle, Circle, Clock, ChevronDown, ChevronUp, Edit3, Save,
+  AlertCircle, ChevronDown, ChevronUp, Save, Paperclip, FileText,
 } from 'lucide-react';
 
 const API_BASE = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
@@ -14,12 +14,6 @@ const GOLD = '#22c8e5';
 function authHeaders() {
   return { 'Content-Type': 'application/json', Authorization: `Bearer ${localStorage.getItem('evobrand_token')}` };
 }
-
-const statusConfig = {
-  pending:     { label: 'Pending',     color: 'rgba(255,255,255,0.4)',  bg: 'rgba(255,255,255,0.06)',  Icon: Circle },
-  in_progress: { label: 'In Progress', color: '#facc15',               bg: 'rgba(250,204,21,0.12)',   Icon: Clock },
-  done:        { label: 'Done',        color: '#34d399',               bg: 'rgba(52,211,153,0.12)',   Icon: CheckCircle2 },
-};
 
 function ProgressBar({ milestones }) {
   const total = milestones.length;
@@ -87,12 +81,13 @@ function MilestoneRow({ m, onChange, onDelete }) {
   );
 }
 
-function ProjectCard({ project, onUpdated, onDeleted }) {
+function ProjectCard({ project, contracts, onUpdated, onDeleted }) {
   const [expanded, setExpanded] = useState(false);
   const [milestones, setMilestones] = useState([]);
   const [editing, setEditing] = useState(false);
   const [saving, setSaving] = useState(false);
   const [deleting, setDeleting] = useState(false);
+  const [uploading, setUploading] = useState(false);
 
   useEffect(() => {
     const raw = Array.isArray(project.milestones)
@@ -153,8 +148,33 @@ function ProjectCard({ project, onUpdated, onDeleted }) {
     }
   };
 
+  const handleAttach = async (file) => {
+    if (!file) return;
+    setUploading(true);
+    try {
+      const form = new FormData();
+      form.append('file', file);
+      form.append('title', file.name);
+      form.append('projectId', project.id);
+      if (project.client_email) form.append('clientEmail', project.client_email);
+      const res = await fetch(`${API_BASE}/schedules/upload`, {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${localStorage.getItem('evobrand_token')}` },
+        body: form,
+      });
+      if (!res.ok) throw new Error('Upload failed');
+      onUpdated && onUpdated();
+    } catch (err) {
+      alert(err.message);
+    } finally {
+      setUploading(false);
+    }
+  };
+
   const done = milestones.filter(m => m.status === 'done').length;
   const pct = milestones.length === 0 ? 0 : Math.round((done / milestones.length) * 100);
+  const contractLabel = project.contract_title
+    || (contracts.find(c => c.id === project.contract_id)?.title);
 
   return (
     <motion.div
@@ -166,7 +186,17 @@ function ProjectCard({ project, onUpdated, onDeleted }) {
       {/* Header */}
       <div className="flex items-center gap-4 px-6 py-4">
         <div className="flex-1 min-w-0">
-          <p className="text-white font-bold truncate">{project.name}</p>
+          <div className="flex items-center gap-2 flex-wrap">
+            <p className="text-white font-bold truncate">{project.name}</p>
+            {contractLabel && (
+              <span
+                className="text-[10px] font-bold px-2 py-0.5 rounded-full flex-shrink-0"
+                style={{ background: 'rgba(34,200,229,0.1)', color: GOLD }}
+              >
+                {contractLabel}
+              </span>
+            )}
+          </div>
           <p className="text-white/40 text-xs mt-0.5">
             {project.client_email || 'No client linked'}
             {project.description && ` · ${project.description}`}
@@ -181,7 +211,7 @@ function ProjectCard({ project, onUpdated, onDeleted }) {
               color: pct === 100 ? '#34d399' : GOLD,
             }}
           >
-            {pct}%
+            {pct === 100 ? '✓ Complete' : `${pct}%`}
           </div>
 
           <button
@@ -259,19 +289,22 @@ function ProjectCard({ project, onUpdated, onDeleted }) {
                   )}
                 </div>
 
-                {/* Linked Schedule Files */}
-                {project.schedules && project.schedules.length > 0 && (
-                  <div className="mt-6 pt-4 border-t border-[rgba(255,255,255,0.06)]">
-                    <h4 className="text-white text-xs font-bold uppercase tracking-widest mb-3" style={{ color: GOLD }}>Linked Schedule Files</h4>
-                    <div className="space-y-2">
-                      {project.schedules.map(s => (
-                        <div key={s.id} className="flex items-center justify-between p-3 rounded-lg bg-white/5 border border-white/10 text-xs">
-                          <span className="text-white font-medium truncate">{s.title} ({s.original_name})</span>
-                          <button
-                            onClick={() => {
-                              fetch(`${API_BASE}/schedules/${s.id}/download`, {
-                                headers: { Authorization: `Bearer ${localStorage.getItem('evobrand_token')}` }
-                              })
+                {/* Attachments */}
+                <div className="mt-6 pt-4 border-t border-[rgba(255,255,255,0.06)]">
+                  <h4 className="text-white text-xs font-bold uppercase tracking-widest mb-3" style={{ color: GOLD }}>Attachments</h4>
+                  <div className="space-y-2">
+                    {(project.schedules || []).map(s => (
+                      <div key={s.id} className="flex items-center justify-between p-3 rounded-lg bg-white/5 border border-white/10 text-xs">
+                        <span className="text-white font-medium truncate flex items-center gap-2">
+                          <FileText size={13} style={{ color: GOLD }} /> {s.title} ({s.original_name})
+                        </span>
+                        <a
+                          href="#"
+                          onClick={e => {
+                            e.preventDefault();
+                            fetch(`${API_BASE}/schedules/${s.id}/download`, {
+                              headers: { Authorization: `Bearer ${localStorage.getItem('evobrand_token')}` }
+                            })
                               .then(r => r.blob())
                               .then(blob => {
                                 const url = URL.createObjectURL(blob);
@@ -282,16 +315,28 @@ function ProjectCard({ project, onUpdated, onDeleted }) {
                                 a.click();
                                 document.body.removeChild(a);
                               });
-                            }}
-                            className="text-[#22c8e5] hover:underline"
-                          >
-                            Download
-                          </button>
-                        </div>
-                      ))}
-                    </div>
+                          }}
+                          className="text-[#22c8e5] hover:underline"
+                        >
+                          Download
+                        </a>
+                      </div>
+                    ))}
+                    <label
+                      className="flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-colors hover:bg-white/10 cursor-pointer w-fit"
+                      style={{ color: GOLD, border: `1px solid rgba(34,200,229,0.25)` }}
+                    >
+                      {uploading ? <Loader2 size={13} className="animate-spin" /> : <Paperclip size={13} />}
+                      {uploading ? 'Uploading…' : 'Attach File'}
+                      <input
+                        type="file"
+                        className="hidden"
+                        onChange={e => handleAttach(e.target.files?.[0])}
+                        disabled={uploading}
+                      />
+                    </label>
                   </div>
-                )}
+                </div>
               </div>
             </div>
           </motion.div>
@@ -303,12 +348,12 @@ function ProjectCard({ project, onUpdated, onDeleted }) {
 
 export default function ProjectTrackerPanel() {
   const [projects, setProjects] = useState([]);
-  const [schedules, setSchedules] = useState([]);
+  const [contracts, setContracts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
   const [creating, setCreating] = useState(false);
   const [toast, setToast] = useState(null);
-  const [form, setForm] = useState({ name: '', description: '', clientEmail: '' });
+  const [form, setForm] = useState({ name: '', description: '', clientEmail: '', contractId: '' });
 
   const showToast = (type, msg) => {
     setToast({ type, msg });
@@ -318,17 +363,17 @@ export default function ProjectTrackerPanel() {
   const load = async () => {
     try {
       const token = localStorage.getItem('evobrand_token');
-      const [projRes, schedRes] = await Promise.all([
+      const [projRes, contractRes] = await Promise.all([
         fetch(`${API_BASE}/projects`, { headers: { Authorization: `Bearer ${token}` } }),
-        fetch(`${API_BASE}/schedules`, { headers: { Authorization: `Bearer ${token}` } })
+        fetch(`${API_BASE}/contracts`, { headers: { Authorization: `Bearer ${token}` } }),
       ]);
       if (projRes.ok) {
         const pData = await projRes.json();
         setProjects(pData.projects || []);
       }
-      if (schedRes.ok) {
-        const sData = await schedRes.json();
-        setSchedules(sData.schedules || []);
+      if (contractRes.ok) {
+        const cData = await contractRes.json();
+        setContracts(cData.contracts || []);
       }
     } catch (err) {
       console.error(err);
@@ -339,6 +384,16 @@ export default function ProjectTrackerPanel() {
 
   useEffect(() => { load(); }, []);
 
+  const handleContractSelect = (contractId) => {
+    const contract = contracts.find(c => String(c.id) === String(contractId));
+    setForm(f => ({
+      ...f,
+      contractId,
+      clientEmail: contract ? contract.client_email : f.clientEmail,
+      name: !f.name && contract ? contract.title : f.name,
+    }));
+  };
+
   const handleCreate = async (e) => {
     e.preventDefault();
     if (!form.name) return;
@@ -347,12 +402,17 @@ export default function ProjectTrackerPanel() {
       const res = await fetch(`${API_BASE}/projects`, {
         method: 'POST',
         headers: authHeaders(),
-        body: JSON.stringify({ name: form.name, description: form.description, clientEmail: form.clientEmail }),
+        body: JSON.stringify({
+          name: form.name,
+          description: form.description,
+          clientEmail: form.clientEmail,
+          contractId: form.contractId || null,
+        }),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || 'Create failed');
-      showToast('success', 'Project tracker created!');
-      setForm({ name: '', description: '', clientEmail: '' });
+      showToast('success', 'Project schedule created!');
+      setForm({ name: '', description: '', clientEmail: '', contractId: '' });
       setShowForm(false);
       await load();
     } catch (err) {
@@ -390,9 +450,9 @@ export default function ProjectTrackerPanel() {
         <div>
           <h1 className="text-3xl font-bold text-white mb-1 flex items-center gap-3">
             <Layers size={28} style={{ color: GOLD }} />
-            Project Tracker
+            Project Schedule
           </h1>
-          <p className="text-white/40">Create and manage project milestones for each client.</p>
+          <p className="text-white/40">Live milestone schedules for each client — auto-updates, no downloads required.</p>
         </div>
         <button
           onClick={() => setShowForm(v => !v)}
@@ -418,8 +478,23 @@ export default function ProjectTrackerPanel() {
               className="rounded-[20px] p-8"
               style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)' }}
             >
-              <h3 className="text-white font-bold text-lg mb-6">Create New Project</h3>
+              <h3 className="text-white font-bold text-lg mb-6">Create New Project Schedule</h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-5 mb-6">
+                <div className="md:col-span-2">
+                  <label className="block text-xs font-bold uppercase tracking-widest text-white/40 mb-2">Link Contract (optional)</label>
+                  <select
+                    className="w-full bg-white/5 border border-white/10 text-white px-4 py-3 rounded-xl text-sm focus:outline-none focus:border-[#22c8e5]"
+                    value={form.contractId}
+                    onChange={e => handleContractSelect(e.target.value)}
+                  >
+                    <option value="" className="bg-[#003258]">No contract — enter client manually</option>
+                    {contracts.map(c => (
+                      <option key={c.id} value={c.id} className="bg-[#003258]">
+                        {c.title} — {c.client_email || 'no email'}
+                      </option>
+                    ))}
+                  </select>
+                </div>
                 <div>
                   <label className="block text-xs font-bold uppercase tracking-widest text-white/40 mb-2">Project Name *</label>
                   <input
@@ -431,13 +506,14 @@ export default function ProjectTrackerPanel() {
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-bold uppercase tracking-widest text-white/40 mb-2">Client Email (optional)</label>
+                  <label className="block text-xs font-bold uppercase tracking-widest text-white/40 mb-2">Client Email</label>
                   <input
                     type="email"
-                    className="w-full bg-white/5 border border-white/10 text-white px-4 py-3 rounded-xl text-sm focus:outline-none focus:border-[#22c8e5]"
+                    className="w-full bg-white/5 border border-white/10 text-white px-4 py-3 rounded-xl text-sm focus:outline-none focus:border-[#22c8e5] disabled:opacity-50"
                     placeholder="client@company.com"
                     value={form.clientEmail}
                     onChange={e => setForm(f => ({ ...f, clientEmail: e.target.value }))}
+                    disabled={!!form.contractId}
                   />
                 </div>
                 <div className="md:col-span-2">
@@ -477,17 +553,15 @@ export default function ProjectTrackerPanel() {
             <Layers size={28} style={{ color: GOLD }} />
           </div>
           <h3 className="text-white font-bold text-lg mb-2">No projects yet</h3>
-          <p className="text-white/40 text-sm">Create a project tracker and add milestones to track client work.</p>
+          <p className="text-white/40 text-sm">Create a project schedule and add milestones to track client work.</p>
         </div>
       ) : (
         <div className="space-y-4">
           {projects.map(p => (
             <ProjectCard
               key={p.id}
-              project={{
-                ...p,
-                schedules: schedules.filter(s => s.client_email === p.client_email)
-              }}
+              project={p}
+              contracts={contracts}
               onUpdated={load}
               onDeleted={id => setProjects(prev => prev.filter(x => x.id !== id))}
             />

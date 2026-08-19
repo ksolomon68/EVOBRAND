@@ -41,15 +41,19 @@ const ensureTable = async () => {
       file_size INT,
       mime_type VARCHAR(100),
       uploaded_by INT,
+      project_id INT NULL,
       created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     )
   `);
+  try {
+    await pool.query('ALTER TABLE project_schedules ADD COLUMN project_id INT NULL');
+  } catch (e) {} // Ignore if column already exists
 };
 
-// POST /api/schedules/upload
+// POST /api/schedules/upload — attaches a reference file to a project schedule
 router.post('/upload', authenticateToken, requireAdmin, upload.single('file'), async (req, res) => {
   if (!req.file) return res.status(400).json({ error: 'No file uploaded' });
-  const { title, description, clientEmail } = req.body;
+  const { title, description, clientEmail, projectId } = req.body;
   if (!title) return res.status(400).json({ error: 'Title is required' });
   try {
     await ensureTable();
@@ -60,10 +64,10 @@ router.post('/upload', authenticateToken, requireAdmin, upload.single('file'), a
     }
     const [result] = await pool.query(
       `INSERT INTO project_schedules
-        (title, description, client_email, client_user_id, filename, original_name, file_size, mime_type, uploaded_by)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        (title, description, client_email, client_user_id, filename, original_name, file_size, mime_type, uploaded_by, project_id)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       [title, description || '', clientEmail || null, clientUserId,
-       req.file.filename, req.file.originalname, req.file.size, req.file.mimetype, req.user.id]
+       req.file.filename, req.file.originalname, req.file.size, req.file.mimetype, req.user.id, projectId || null]
     );
     res.status(201).json({ success: true, id: result.insertId });
   } catch (err) {

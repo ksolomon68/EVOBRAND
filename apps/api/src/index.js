@@ -251,6 +251,65 @@ setInterval(async () => {
   }
 }, 6 * 60 * 60 * 1000);
 
+// Run every 6 hours: notify clients + admins of milestones due within 3 days
+setInterval(async () => {
+  try {
+    const pool = require('./db/connection');
+    const [projects] = await pool.query(
+      `SELECT id, name, client_user_id, milestones FROM client_projects WHERE status != 'completed'`
+    );
+    if (projects.length === 0) return;
+
+    const [admins] = await pool.query('SELECT id FROM users WHERE is_admin = 1');
+
+    for (const project of projects) {
+      const milestones = typeof project.milestones === 'string'
+        ? JSON.parse(project.milestones)
+        : (project.milestones || []);
+
+      let changed = false;
+      const dueSoon = [];
+
+      const updated = milestones.map(m => {
+        if (m.status === 'done' || !m.due_date || m.reminded) return m;
+        const dueDate = new Date(`${m.due_date}T00:00:00`);
+        const threshold = new Date();
+        threshold.setDate(threshold.getDate() + 3);
+        if (dueDate <= threshold) {
+          dueSoon.push(m);
+          changed = true;
+          return { ...m, reminded: true };
+        }
+        return m;
+      });
+
+      if (!changed) continue;
+
+      for (const m of dueSoon) {
+        const title = 'Milestone due soon';
+        const message = `"${m.name || 'Milestone'}" on project "${project.name}" is due ${m.due_date}.`;
+
+        if (project.client_user_id) {
+          await pool.query(
+            'INSERT INTO notifications (user_id, title, message, type, link) VALUES (?, ?, ?, ?, ?)',
+            [project.client_user_id, title, message, 'milestone', '#my-projects']
+          );
+        }
+        for (const admin of admins) {
+          await pool.query(
+            'INSERT INTO notifications (user_id, title, message, type, link) VALUES (?, ?, ?, ?, ?)',
+            [admin.id, title, message, 'milestone', '#project-tracker']
+          );
+        }
+      }
+
+      await pool.query('UPDATE client_projects SET milestones = ? WHERE id = ?', [JSON.stringify(updated), project.id]);
+    }
+  } catch (err) {
+    console.error('Error sending milestone reminders:', err);
+  }
+}, 6 * 60 * 60 * 1000);
+
 // Initialize DB tables on startup, then start server
 const { initializeDatabase } = require('./db/init');
 initializeDatabase()

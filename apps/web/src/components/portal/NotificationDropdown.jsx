@@ -77,6 +77,7 @@ export default function NotificationDropdown({ onNavigate }) {
     if (notif.link && onNavigate) {
       if (notif.link.includes('ticket')) onNavigate('dashboard');
       if (notif.link.includes('contract')) onNavigate('my-contracts');
+      if (notif.link.includes('project')) onNavigate(notif.link.replace('#', ''));
       setIsOpen(false);
     }
   };
