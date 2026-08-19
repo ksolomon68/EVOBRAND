@@ -14,11 +14,18 @@ deployment:
     # (new deps like adm-zip/pdf-parse) are otherwise silently never installed here
     # — the API then throws MODULE_NOT_FOUND on boot for anything that imports them,
     # loadRoute() in index.js swallows that error, and the affected route(s) just
-    # 404 instead of loading. Source the cPanel Node.js Selector's virtualenv for
-    # this app if one exists, so npm/node resolve to the version cPanel assigned it.
-    # Hard-capped with `timeout` — a hung or slow npm install must never be able to
-    # block the deployment task (and everything queued behind it) indefinitely.
-    - timeout 240 bash -c 'source $(ls -d /home/evobrandconcepts/nodevenv/EVOBRAND/apps/api/*/bin/activate 2>/dev/null | head -1) 2>/dev/null; cd /home/evobrandconcepts/EVOBRAND/apps/api && npm install --omit=dev --no-audit --no-fund' >> /home/evobrandconcepts/public_html/deploy.log 2>&1 || echo "npm install timed out or failed — see deploy.log" >> /home/evobrandconcepts/public_html/deploy.log
+    # 404 instead of loading. Uses `npm ci` against the committed
+    # apps/api/package-lock.json, NOT `npm install` — apps/api has no lockfile of
+    # its own inside the monorepo workspace, so a plain install here re-resolves
+    # every ^-range dependency fresh with nothing pinning it, which silently
+    # upgraded resend/stripe/mysql2/express server-side the one time this ran and
+    # broke outbound contract/notification emails. `npm ci` installs exactly what's
+    # in the lockfile, matching what's actually been tested, or fails loudly if the
+    # lockfile and package.json ever drift out of sync. Source the cPanel Node.js
+    # Selector's virtualenv for this app if one exists, so npm/node resolve to the
+    # version cPanel assigned it. Hard-capped with `timeout` — a hung or slow
+    # install must never be able to block the deployment task indefinitely.
+    - timeout 240 bash -c 'source $(ls -d /home/evobrandconcepts/nodevenv/EVOBRAND/apps/api/*/bin/activate 2>/dev/null | head -1) 2>/dev/null; cd /home/evobrandconcepts/EVOBRAND/apps/api && npm ci --omit=dev --no-audit --no-fund' >> /home/evobrandconcepts/public_html/deploy.log 2>&1 || echo "npm ci timed out or failed — see deploy.log" >> /home/evobrandconcepts/public_html/deploy.log
 
     # Force-kill stale LiteSpeed Node (lsnode) process — LiteSpeed ignores restart.txt
     # and caches the running process indefinitely. Killing it forces a clean respawn
