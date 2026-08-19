@@ -67,6 +67,7 @@ export default function ContractBuilderPanel({ editingContract, duplicatingContr
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
   const [saveError, setSaveError] = useState('');
+  const [contractTitle, setContractTitle] = useState('');
 
   const sourceContract = editingContract || duplicatingContract;
 
@@ -84,9 +85,11 @@ export default function ContractBuilderPanel({ editingContract, duplicatingContr
         if (editingContract) {
           setSignature(sourceContract.client_signature || '');
           setClientDate(sourceContract.client_signed_at ? sourceContract.client_signed_at.slice(0, 10) : todayISO());
+          setContractTitle(sourceContract.title || '');
         } else {
           setSignature('');
           setClientDate(todayISO());
+          setContractTitle(sourceContract.title ? `${sourceContract.title} (Copy)` : '');
         }
       }
     } else {
@@ -96,6 +99,7 @@ export default function ContractBuilderPanel({ editingContract, duplicatingContr
       setClauses({ nda: true, ip: false, sla: true, wcag_clause: true, ai_ethics: true, liability: true, indemnification: true, termination: true, force_majeure: true, late_payment: true });
       setSignature('');
       setClientDate(todayISO());
+      setContractTitle('');
     }
   }, [sourceContract]);
 
@@ -111,7 +115,7 @@ export default function ContractBuilderPanel({ editingContract, duplicatingContr
     setSaveError('');
     try {
       const token = localStorage.getItem('evobrand_token');
-      const title = `Agreement — ${clientInfo.companyName || clientInfo.email} — ${formatDate(project.startDate)}`;
+      const title = contractTitle.trim() || `Agreement — ${clientInfo.companyName || clientInfo.email} — ${formatDate(project.startDate)}`;
       const url = editingContract 
         ? `${API_BASE}/contracts/${editingContract.id}`
         : `${API_BASE}/contracts`;
@@ -203,6 +207,21 @@ export default function ContractBuilderPanel({ editingContract, duplicatingContr
             <button onClick={handlePrint} className="flex items-center gap-2 bg-[rgba(255,255,255,0.08)] text-white px-4 py-2 rounded-2xl font-bold hover:bg-[rgba(255,255,255,0.12)] transition-colors text-sm">
               <Download size={15} /> Print PDF
             </button>
+          </div>
+
+          {/* Contract Title */}
+          <div className="mb-8">
+            <div className={sectionHeadClass}>Contract Title</div>
+            <div>
+              <label className={labelClass}>Display Name / Recognition Title</label>
+              <input
+                className={inputClass}
+                placeholder="e.g. Acme Corp Web Development Agreement"
+                value={contractTitle}
+                onChange={e => setContractTitle(e.target.value)}
+              />
+              <p className="text-[#8892a4] text-xs mt-1">Used to identify this contract in dashboard lists. Defaults if left blank.</p>
+            </div>
           </div>
 
           {/* Agency read-only */}
