@@ -90,6 +90,8 @@ function MilestoneRow({ m, onChange, onDelete }) {
 function ProjectCard({ project, contracts, onUpdated, onDeleted }) {
   const [expanded, setExpanded] = useState(false);
   const [milestones, setMilestones] = useState([]);
+  const [name, setName] = useState(project.name);
+  const [description, setDescription] = useState(project.description || '');
   const [editing, setEditing] = useState(false);
   const [saving, setSaving] = useState(false);
   const [deleting, setDeleting] = useState(false);
@@ -108,7 +110,9 @@ function ProjectCard({ project, contracts, onUpdated, onDeleted }) {
       return new Date(a.due_date) - new Date(b.due_date);
     });
     setMilestones(sorted);
-  }, [project.milestones]);
+    setName(project.name);
+    setDescription(project.description || '');
+  }, [project.milestones, project.name, project.description]);
 
   const addMilestone = () => {
     setMilestones(prev => [...prev, { id: Date.now(), name: '', status: 'pending', due_date: '' }]);
@@ -126,7 +130,7 @@ function ProjectCard({ project, contracts, onUpdated, onDeleted }) {
       const res = await fetch(`${API_BASE}/projects/${project.id}`, {
         method: 'PUT',
         headers: authHeaders(),
-        body: JSON.stringify({ milestones: sorted }),
+        body: JSON.stringify({ name, description, milestones: sorted }),
       });
       if (!res.ok) throw new Error('Save failed');
       setEditing(false);
@@ -223,7 +227,12 @@ function ProjectCard({ project, contracts, onUpdated, onDeleted }) {
       <div className="flex items-center gap-4 px-6 py-4">
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2 flex-wrap">
-            <p className="text-white font-bold truncate">{project.name}</p>
+            <input
+              className="flex-1 min-w-[160px] bg-transparent text-white font-bold text-base outline-none border-b border-transparent hover:border-white/10 focus:border-[#22c8e5] transition-colors"
+              value={name}
+              onChange={e => { setName(e.target.value); setEditing(true); }}
+              placeholder="Project name…"
+            />
             {contractLabel && (
               <span
                 className="text-[10px] font-bold px-2 py-0.5 rounded-full flex-shrink-0"
@@ -233,10 +242,15 @@ function ProjectCard({ project, contracts, onUpdated, onDeleted }) {
               </span>
             )}
           </div>
-          <p className="text-white/40 text-xs mt-0.5">
-            {project.client_email || 'No client linked'}
-            {project.description && ` · ${project.description}`}
-          </p>
+          <div className="flex items-center gap-1 mt-0.5">
+            <span className="text-white/40 text-xs flex-shrink-0">{project.client_email || 'No client linked'} ·</span>
+            <input
+              className="flex-1 min-w-0 bg-transparent text-white/40 text-xs outline-none border-b border-transparent hover:border-white/10 focus:border-[#22c8e5] focus:text-white/70 transition-colors"
+              value={description}
+              onChange={e => { setDescription(e.target.value); setEditing(true); }}
+              placeholder="Add a short description…"
+            />
+          </div>
         </div>
 
         <div className="flex items-center gap-2 flex-shrink-0">
@@ -249,6 +263,19 @@ function ProjectCard({ project, contracts, onUpdated, onDeleted }) {
           >
             {pct === 100 ? '✓ Complete' : `${pct}%`}
           </div>
+
+          {editing && (
+            <button
+              onClick={save}
+              disabled={saving || !name.trim()}
+              title="Save changes"
+              className="flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-bold transition-all disabled:opacity-50"
+              style={{ background: GOLD, color: '#003258' }}
+            >
+              {saving ? <Loader2 size={13} className="animate-spin" /> : <Save size={13} />}
+              Save
+            </button>
+          )}
 
           <button
             onClick={handleDelete}
@@ -326,18 +353,6 @@ function ProjectCard({ project, contracts, onUpdated, onDeleted }) {
                     />
                   </label>
 
-                  {editing && (
-                    <button
-                      type="button"
-                      onClick={save}
-                      disabled={saving}
-                      className="flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all"
-                      style={{ background: GOLD, color: '#003258' }}
-                    >
-                      {saving ? <Loader2 size={13} className="animate-spin" /> : <Save size={13} />}
-                      {saving ? 'Saving…' : 'Save Changes'}
-                    </button>
-                  )}
                 </div>
 
                 {/* Attachments */}
