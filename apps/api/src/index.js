@@ -232,6 +232,15 @@ if (analyticsRoutes) app.use('/t', analyticsRoutes);
 if (schedulesRoutes) app.use('/schedules', schedulesRoutes);
 if (projectsRoutes) app.use('/projects', projectsRoutes);
 
+// Catch-all JSON 404 for unmatched /api/* requests — most commonly hit when a
+// route module failed to load (see loadRoute() above and crash.log), so the
+// whole route group is silently unmounted. Without this, Express falls back
+// to its default HTML 404 page, which breaks every frontend fetch() expecting
+// res.json() the same way an unhandled error would.
+app.use('/api', (req, res) => {
+  res.status(404).json({ error: `No API route for ${req.method} ${req.originalUrl}. Check crash.log for a route that failed to load.` });
+});
+
 // Catch-all JSON error handler — must be registered after every route. Without
 // this, an error thrown in middleware (e.g. multer rejecting a file type/size
 // before a route handler even runs) falls through to Express's default HTML

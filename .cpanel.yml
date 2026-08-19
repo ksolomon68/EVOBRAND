@@ -9,6 +9,15 @@ deployment:
     # Deploy API source files
     - mkdir -p /home/evobrandconcepts/EVOBRAND/apps/api && /usr/bin/rsync -a --exclude 'node_modules' apps/api/ /home/evobrandconcepts/EVOBRAND/apps/api/ > /home/evobrandconcepts/public_html/deploy.log 2>&1
 
+    # Install any new/updated apps/api dependencies. node_modules is excluded from
+    # the rsync above (it's huge and machine-specific), so package.json changes
+    # (new deps like adm-zip/pdf-parse) are otherwise silently never installed here
+    # — the API then throws MODULE_NOT_FOUND on boot for anything that imports them,
+    # loadRoute() in index.js swallows that error, and the affected route(s) just
+    # 404 instead of loading. Source the cPanel Node.js Selector's virtualenv for
+    # this app if one exists, so npm/node resolve to the version cPanel assigned it.
+    - bash -c 'source $(ls -d /home/evobrandconcepts/nodevenv/EVOBRAND/apps/api/*/bin/activate 2>/dev/null | head -1) 2>/dev/null; cd /home/evobrandconcepts/EVOBRAND/apps/api && npm install --omit=dev --no-audit --no-fund' >> /home/evobrandconcepts/public_html/deploy.log 2>&1
+
     # Force-kill stale LiteSpeed Node (lsnode) process — LiteSpeed ignores restart.txt
     # and caches the running process indefinitely. Killing it forces a clean respawn
     # from the updated files on the next request.
