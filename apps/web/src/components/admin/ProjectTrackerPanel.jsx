@@ -211,6 +211,20 @@ function ProjectCard({ project, contracts, onUpdated, onDeleted }) {
     }
   };
 
+  const handleDeleteAttachment = async (schedule) => {
+    if (!window.confirm(`Delete attachment "${schedule.title}"?`)) return;
+    try {
+      const res = await fetch(`${API_BASE}/schedules/${schedule.id}`, {
+        method: 'DELETE',
+        headers: { Authorization: `Bearer ${localStorage.getItem('evobrand_token')}` },
+      });
+      if (!res.ok) throw new Error('Delete failed');
+      onUpdated && onUpdated();
+    } catch (err) {
+      alert(err.message);
+    }
+  };
+
   const done = milestones.filter(m => m.status === 'done').length;
   const pct = milestones.length === 0 ? 0 : Math.round((done / milestones.length) * 100);
   const contractLabel = project.contract_title
@@ -364,28 +378,38 @@ function ProjectCard({ project, contracts, onUpdated, onDeleted }) {
                         <span className="text-white font-medium truncate flex items-center gap-2">
                           <FileText size={13} style={{ color: GOLD }} /> {s.title} ({s.original_name})
                         </span>
-                        <a
-                          href="#"
-                          onClick={e => {
-                            e.preventDefault();
-                            fetch(`${API_BASE}/schedules/${s.id}/download`, {
-                              headers: { Authorization: `Bearer ${localStorage.getItem('evobrand_token')}` }
-                            })
-                              .then(r => r.blob())
-                              .then(blob => {
-                                const url = URL.createObjectURL(blob);
-                                const a = document.createElement('a');
-                                a.href = url;
-                                a.download = s.original_name;
-                                document.body.appendChild(a);
-                                a.click();
-                                document.body.removeChild(a);
-                              });
-                          }}
-                          className="text-[#22c8e5] hover:underline"
-                        >
-                          Download
-                        </a>
+                        <span className="flex items-center gap-3 flex-shrink-0">
+                          <a
+                            href="#"
+                            onClick={e => {
+                              e.preventDefault();
+                              fetch(`${API_BASE}/schedules/${s.id}/download`, {
+                                headers: { Authorization: `Bearer ${localStorage.getItem('evobrand_token')}` }
+                              })
+                                .then(r => r.blob())
+                                .then(blob => {
+                                  const url = URL.createObjectURL(blob);
+                                  const a = document.createElement('a');
+                                  a.href = url;
+                                  a.download = s.original_name;
+                                  document.body.appendChild(a);
+                                  a.click();
+                                  document.body.removeChild(a);
+                                });
+                            }}
+                            className="text-[#22c8e5] hover:underline"
+                          >
+                            Download
+                          </a>
+                          <button
+                            type="button"
+                            onClick={() => handleDeleteAttachment(s)}
+                            className="text-white/20 hover:text-red-400 transition-colors"
+                            title="Delete attachment"
+                          >
+                            <Trash2 size={13} />
+                          </button>
+                        </span>
                       </div>
                     ))}
                     <label
