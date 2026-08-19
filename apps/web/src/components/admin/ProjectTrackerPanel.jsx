@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   Layers, Plus, Trash2, X, Loader2, CheckCircle2, Check,
-  AlertCircle, ChevronDown, ChevronUp, Save, Paperclip, FileText,
+  AlertCircle, ChevronDown, ChevronUp, Save, Paperclip, FileText, FileUp,
 } from 'lucide-react';
 
 const API_BASE = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
@@ -40,43 +40,49 @@ function ProgressBar({ milestones }) {
 
 function MilestoneRow({ m, onChange, onDelete }) {
   const isDone = m.status === 'done';
+  const meta = [m.phase, m.assignee && `Assigned: ${m.assignee}`, m.notes].filter(Boolean);
   return (
-    <div className="flex items-center gap-3 py-2.5 border-b last:border-b-0" style={{ borderColor: 'rgba(255,255,255,0.05)' }}>
-      <button
-        type="button"
-        onClick={() => onChange({ ...m, status: isDone ? 'pending' : 'done' })}
-        className="flex-shrink-0 w-5 h-5 rounded border flex items-center justify-center transition-all focus:outline-none"
-        style={{
-          borderColor: isDone ? '#34d399' : 'rgba(255,255,255,0.2)',
-          background: isDone ? 'rgba(52,211,153,0.1)' : 'transparent',
-        }}
-        title={isDone ? "Mark incomplete" : "Mark complete"}
-      >
-        {isDone && <Check size={12} className="text-[#34d399]" />}
-      </button>
-      <input
-        className="flex-1 bg-transparent text-white text-sm outline-none placeholder-white/20"
-        value={m.name}
-        placeholder="Milestone name…"
-        onChange={e => onChange({ ...m, name: e.target.value })}
-        style={{
-          textDecoration: isDone ? 'line-through' : 'none',
-          color: isDone ? 'rgba(255,255,255,0.4)' : 'white'
-        }}
-      />
-      <input
-        type="date"
-        className="bg-transparent text-white/40 text-xs outline-none border-0"
-        value={m.due_date || ''}
-        onChange={e => onChange({ ...m, due_date: e.target.value })}
-      />
-      <button
-        type="button"
-        onClick={onDelete}
-        className="flex-shrink-0 p-1 rounded-lg text-white/20 hover:text-red-400 transition-colors"
-      >
-        <X size={14} />
-      </button>
+    <div className="py-2.5 border-b last:border-b-0" style={{ borderColor: 'rgba(255,255,255,0.05)' }}>
+      <div className="flex items-center gap-3">
+        <button
+          type="button"
+          onClick={() => onChange({ ...m, status: isDone ? 'pending' : 'done' })}
+          className="flex-shrink-0 w-5 h-5 rounded border flex items-center justify-center transition-all focus:outline-none"
+          style={{
+            borderColor: isDone ? '#34d399' : 'rgba(255,255,255,0.2)',
+            background: isDone ? 'rgba(52,211,153,0.1)' : 'transparent',
+          }}
+          title={isDone ? "Mark incomplete" : "Mark complete"}
+        >
+          {isDone && <Check size={12} className="text-[#34d399]" />}
+        </button>
+        <input
+          className="flex-1 bg-transparent text-white text-sm outline-none placeholder-white/20"
+          value={m.name}
+          placeholder="Milestone name…"
+          onChange={e => onChange({ ...m, name: e.target.value })}
+          style={{
+            textDecoration: isDone ? 'line-through' : 'none',
+            color: isDone ? 'rgba(255,255,255,0.4)' : 'white'
+          }}
+        />
+        <input
+          type="date"
+          className="bg-transparent text-white/40 text-xs outline-none border-0"
+          value={m.due_date || ''}
+          onChange={e => onChange({ ...m, due_date: e.target.value })}
+        />
+        <button
+          type="button"
+          onClick={onDelete}
+          className="flex-shrink-0 p-1 rounded-lg text-white/20 hover:text-red-400 transition-colors"
+        >
+          <X size={14} />
+        </button>
+      </div>
+      {meta.length > 0 && (
+        <p className="text-white/25 text-[11px] pl-8 mt-0.5 truncate">{meta.join(' · ')}</p>
+      )}
     </div>
   );
 }
@@ -88,6 +94,7 @@ function ProjectCard({ project, contracts, onUpdated, onDeleted }) {
   const [saving, setSaving] = useState(false);
   const [deleting, setDeleting] = useState(false);
   const [uploading, setUploading] = useState(false);
+  const [importing, setImporting] = useState(false);
 
   useEffect(() => {
     const raw = Array.isArray(project.milestones)
@@ -145,6 +152,35 @@ function ProjectCard({ project, contracts, onUpdated, onDeleted }) {
     } catch (err) {
       alert(err.message);
       setDeleting(false);
+    }
+  };
+
+  const handleImportDocx = async (file) => {
+    if (!file) return;
+    setImporting(true);
+    try {
+      const body = new FormData();
+      body.append('file', file);
+      const res = await fetch(`${API_BASE}/projects/parse-schedule-docx`, {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${localStorage.getItem('evobrand_token')}` },
+        body,
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Import failed');
+
+      const existingKeys = new Set(milestones.map(m => `${m.name}|${m.due_date}`));
+      const toAdd = data.milestones.filter(m => !existingKeys.has(`${m.name}|${m.due_date}`));
+      if (toAdd.length === 0) {
+        alert('Every milestone in that doc is already on this project.');
+        return;
+      }
+      setMilestones(prev => [...prev, ...toAdd]);
+      setEditing(true);
+    } catch (err) {
+      alert(err.message);
+    } finally {
+      setImporting(false);
     }
   };
 
@@ -265,7 +301,7 @@ function ProjectCard({ project, contracts, onUpdated, onDeleted }) {
                   />
                 ))}
 
-                <div className="flex items-center gap-3 mt-4">
+                <div className="flex items-center gap-3 mt-4 flex-wrap">
                   <button
                     type="button"
                     onClick={addMilestone}
@@ -274,6 +310,21 @@ function ProjectCard({ project, contracts, onUpdated, onDeleted }) {
                   >
                     <Plus size={13} /> Add Milestone
                   </button>
+
+                  <label
+                    className="flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-colors hover:bg-white/10 cursor-pointer"
+                    style={{ color: GOLD, border: `1px solid rgba(34,200,229,0.25)` }}
+                  >
+                    {importing ? <Loader2 size={13} className="animate-spin" /> : <FileUp size={13} />}
+                    {importing ? 'Importing…' : 'Import from Word Doc'}
+                    <input
+                      type="file"
+                      accept=".docx"
+                      className="hidden"
+                      onChange={e => { handleImportDocx(e.target.files?.[0]); e.target.value = ''; }}
+                      disabled={importing}
+                    />
+                  </label>
 
                   {editing && (
                     <button
@@ -353,7 +404,8 @@ export default function ProjectTrackerPanel() {
   const [showForm, setShowForm] = useState(false);
   const [creating, setCreating] = useState(false);
   const [toast, setToast] = useState(null);
-  const [form, setForm] = useState({ name: '', description: '', clientEmail: '', contractId: '' });
+  const [form, setForm] = useState({ name: '', description: '', clientEmail: '', contractId: '', milestones: [] });
+  const [importing, setImporting] = useState(false);
 
   const showToast = (type, msg) => {
     setToast({ type, msg });
@@ -407,18 +459,45 @@ export default function ProjectTrackerPanel() {
           description: form.description,
           clientEmail: form.clientEmail,
           contractId: form.contractId || null,
+          milestones: form.milestones,
         }),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || 'Create failed');
       showToast('success', 'Project schedule created!');
-      setForm({ name: '', description: '', clientEmail: '', contractId: '' });
+      setForm({ name: '', description: '', clientEmail: '', contractId: '', milestones: [] });
       setShowForm(false);
       await load();
     } catch (err) {
       showToast('error', err.message);
     } finally {
       setCreating(false);
+    }
+  };
+
+  const handleImportDocx = async (file) => {
+    if (!file) return;
+    setImporting(true);
+    try {
+      const body = new FormData();
+      body.append('file', file);
+      const res = await fetch(`${API_BASE}/projects/parse-schedule-docx`, {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${localStorage.getItem('evobrand_token')}` },
+        body,
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Import failed');
+      setForm(f => ({
+        ...f,
+        name: f.name || data.name,
+        milestones: [...f.milestones, ...data.milestones],
+      }));
+      showToast('success', `Imported ${data.milestones.length} milestones — review dates below before creating.`);
+    } catch (err) {
+      showToast('error', err.message);
+    } finally {
+      setImporting(false);
     }
   };
 
@@ -526,6 +605,62 @@ export default function ProjectTrackerPanel() {
                   />
                 </div>
               </div>
+
+              <div className="pt-2 pb-6 border-t" style={{ borderColor: 'rgba(255,255,255,0.06)' }}>
+                <div className="flex items-center justify-between mt-4 mb-3">
+                  <label className="text-xs font-bold uppercase tracking-widest text-white/40">
+                    Milestones {form.milestones.length > 0 && `(${form.milestones.length})`}
+                  </label>
+                  <label
+                    className="flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-colors hover:bg-white/10 cursor-pointer"
+                    style={{ color: GOLD, border: `1px solid rgba(34,200,229,0.25)` }}
+                  >
+                    {importing ? <Loader2 size={13} className="animate-spin" /> : <FileUp size={13} />}
+                    {importing ? 'Importing…' : 'Import from Word Doc'}
+                    <input
+                      type="file"
+                      accept=".docx"
+                      className="hidden"
+                      onChange={e => { handleImportDocx(e.target.files?.[0]); e.target.value = ''; }}
+                      disabled={importing}
+                    />
+                  </label>
+                </div>
+
+                {form.milestones.length === 0 ? (
+                  <p className="text-white/25 text-sm">
+                    No milestones yet — add them manually below or import a schedule doc (Phase / What / Who / When table format).
+                  </p>
+                ) : (
+                  form.milestones.map((m, i) => (
+                    <MilestoneRow
+                      key={m.id || i}
+                      m={m}
+                      onChange={updated => setForm(f => ({
+                        ...f,
+                        milestones: f.milestones.map((x, xi) => xi === i ? updated : x),
+                      }))}
+                      onDelete={() => setForm(f => ({
+                        ...f,
+                        milestones: f.milestones.filter((_, xi) => xi !== i),
+                      }))}
+                    />
+                  ))
+                )}
+
+                <button
+                  type="button"
+                  onClick={() => setForm(f => ({
+                    ...f,
+                    milestones: [...f.milestones, { id: Date.now(), name: '', status: 'pending', due_date: '' }],
+                  }))}
+                  className="flex items-center gap-2 px-4 py-2 mt-3 rounded-xl text-xs font-bold transition-colors hover:bg-white/10"
+                  style={{ color: GOLD, border: `1px solid rgba(34,200,229,0.25)` }}
+                >
+                  <Plus size={13} /> Add Milestone
+                </button>
+              </div>
+
               <button
                 type="submit"
                 disabled={creating || !form.name}

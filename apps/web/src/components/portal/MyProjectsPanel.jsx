@@ -37,11 +37,10 @@ function ProgressBar({ milestones }) {
 
 function MilestoneRow({ m, onToggle, saving }) {
   const isDone = m.status === 'done';
+  const meta = [m.phase, m.assignee && `Assigned: ${m.assignee}`, m.notes].filter(Boolean);
   return (
-    <div
-      className="flex items-center gap-3 py-2.5 border-b last:border-b-0"
-      style={{ borderColor: 'rgba(255,255,255,0.05)' }}
-    >
+    <div className="py-2.5 border-b last:border-b-0" style={{ borderColor: 'rgba(255,255,255,0.05)' }}>
+      <div className="flex items-center gap-3">
       <button
         type="button"
         onClick={onToggle}
@@ -80,6 +79,10 @@ function MilestoneRow({ m, onToggle, saving }) {
       >
         {isDone ? 'Done' : m.status === 'in_progress' ? 'In Progress' : 'Pending'}
       </span>
+      </div>
+      {meta.length > 0 && (
+        <p className="text-white/25 text-[11px] pl-8 mt-0.5 truncate">{meta.join(' · ')}</p>
+      )}
     </div>
   );
 }
