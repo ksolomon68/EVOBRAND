@@ -4,12 +4,11 @@ const path = require('path');
 const fs = require('fs');
 const multer = require('multer');
 const pool = require('../db/connection');
-const { Resend } = require('resend');
+const { sendEmail } = require('../utils/mailer');
 const { getEmailTemplate } = require('../utils/emailTemplate');
 const { authenticateToken, requireAdmin } = require('../middleware/auth');
 const { notifyAdmins } = require('../utils/notifications');
 
-const getResend = () => new Resend(process.env.RESEND_API_KEY || 're_placeholder');
 
 // ── Logo upload setup (for "Custom AI Applications" demo portal requests) ──
 const UPLOADS_DIR = path.join(__dirname, '../../uploads');
@@ -128,7 +127,7 @@ router.post('/submit', uploadLogo.single('logo'), async (req, res) => {
         ? `<p><strong>Logo:</strong> <a href="https://evobrandconcepts.com/api${logoUrl}">${req.file.originalname}</a></p>`
         : '';
       // To Admin
-      await getResend().emails.send({
+      await sendEmail({
         from: `"EVOBRAND" <${process.env.RESEND_FROM_EMAIL || 'info@evobrand.net'}>`,
         to: ['info@evobrand.net', 'ksolomon68@gmail.com'],
         subject: `New Contact Form: ${subject || 'General Inquiry'}`,
@@ -141,7 +140,7 @@ router.post('/submit', uploadLogo.single('logo'), async (req, res) => {
         `)
       });
       // To User
-      await getResend().emails.send({
+      await sendEmail({
         from: `"EVOBRAND" <${process.env.RESEND_FROM_EMAIL || 'info@evobrand.net'}>`,
         to: email,
         subject: `We received your message`,

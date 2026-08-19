@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const pool = require('../db/connection');
 const { Resend } = require('resend');
+const { sendEmail } = require('../utils/mailer');
 const getResend = () => new Resend(process.env.RESEND_API_KEY || process.env.EMAIL_API_KEY || 're_placeholder');
 const { getEmailTemplate } = require('../utils/emailTemplate');
 
@@ -477,7 +478,7 @@ router.post('/campaigns/:id/preview', async (req, res) => {
     const adminEmail = process.env.RESEND_FROM_EMAIL || process.env.ADMIN_EMAIL || 'info@evobrand.net';
 
     // 2. Send email only to the admin — no tracking pixel on preview
-    await getResend().emails.send({
+    await sendEmail({
       from: `"EVOBRAND" <${process.env.RESEND_FROM_EMAIL || 'info@evobrand.net'}>`,
       to: [adminEmail],
       subject: `[PREVIEW] ${campaign.subject}`,
@@ -493,3 +494,4 @@ router.post('/campaigns/:id/preview', async (req, res) => {
 });
 
 module.exports = router;
+

@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const pool = require('../db/connection');
 // lazy load resend
-const { Resend } = require('resend');
+const { sendEmail } = require('../utils/mailer');
 const { getEmailTemplate } = require('../utils/emailTemplate');
 
 // @route POST /api/newsletter/subscribe
@@ -55,7 +55,7 @@ router.post('/subscribe', async (req, res) => {
     }
 
     // Send Welcome Email via Resend
-    await new Resend(process.env.RESEND_API_KEY || process.env.EMAIL_API_KEY).emails.send({
+    await sendEmail({
       from: `"EVOBRAND" <${process.env.RESEND_FROM_EMAIL || process.env.EMAIL_FROM || 'info@evobrand.net'}>`,
       to: email,
       subject: 'Welcome to EVOBRAND Insider!',
@@ -127,3 +127,4 @@ router.get('/unsubscribe', async (req, res) => {
 });
 
 module.exports = router;
+

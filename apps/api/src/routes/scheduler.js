@@ -2,12 +2,10 @@ const express = require('express');
 const router = express.Router();
 const pool = require('../db/connection');
 const { getEmailTemplate } = require('../utils/emailTemplate');
-const { Resend } = require('resend');
+const { sendEmail } = require('../utils/mailer');
 const { createNotification, notifyAdmins } = require('../utils/notifications');
 const { authenticateToken } = require('../middleware/auth');
 const { createCalendarEvent, deleteCalendarEvent, getBusyIntervals, isSlotBusy } = require('../utils/googleCalendar');
-
-const getResend = () => new Resend(process.env.RESEND_API_KEY || 're_placeholder');
 
 // Office-hours slots offered by the scheduler — kept in sync with SchedulerWidget.jsx's TIME_SLOTS.
 const TIME_SLOTS = ['12:00 PM', '1:00 PM', '2:00 PM', '3:00 PM', '4:00 PM', '5:00 PM'];
@@ -293,7 +291,7 @@ router.post('/book', async (req, res) => {
       const attachments = icsString ? [{ filename: 'invite.ics', content: Buffer.from(icsString).toString('base64'), contentType: 'text/calendar' }] : undefined;
 
       if (finalEmail) {
-        await getResend().emails.send({
+        await sendEmail({
           from: `"EVOBRAND Scheduling" <${process.env.RESEND_FROM_EMAIL || 'info@evobrand.net'}>`,
           to: finalEmail,
           subject: 'Appointment Confirmed',
@@ -307,7 +305,7 @@ router.post('/book', async (req, res) => {
         });
       }
 
-      await getResend().emails.send({
+      await sendEmail({
         from: `"EVOBRAND Scheduling" <${process.env.RESEND_FROM_EMAIL || 'info@evobrand.net'}>`,
         to: ['info@evobrand.net', 'ksolomon68@gmail.com'],
         subject: `New Booking: ${finalName || finalEmail}`,
@@ -394,7 +392,7 @@ router.post('/meetings/:id/cancel', async (req, res) => {
       const meeting = meetings[0];
       try {
         if (meeting.user_email) {
-          await getResend().emails.send({
+          await sendEmail({
             from: `"EVOBRAND Scheduling" <${process.env.RESEND_FROM_EMAIL || 'info@evobrand.net'}>`,
             to: meeting.user_email,
             subject: 'Appointment Cancelled',
@@ -404,7 +402,7 @@ router.post('/meetings/:id/cancel', async (req, res) => {
             `)
           });
         }
-        await getResend().emails.send({
+        await sendEmail({
           from: `"EVOBRAND Scheduling" <${process.env.RESEND_FROM_EMAIL || 'info@evobrand.net'}>`,
           to: 'info@evobrand.net',
           subject: `Booking Cancelled: ${meeting.date} at ${meeting.time}`,
@@ -586,3 +584,4 @@ router.get('/debug-calendar', authenticateToken, async (req, res) => {
 });
 
 module.exports = router;
+

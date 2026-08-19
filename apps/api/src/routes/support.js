@@ -9,6 +9,7 @@ const { getEmailTemplate } = require('../utils/emailTemplate');
 const { Resend } = require('resend');
 const { authenticateToken, requireAdmin } = require('../middleware/auth');
 const { createNotification, notifyAdmins } = require('../utils/notifications');
+const { sendEmail } = require('../utils/mailer');
 
 // ── File upload setup ─────────────────────────────────────────────────────────
 const UPLOADS_DIR = path.join(__dirname, '../../uploads');
@@ -39,7 +40,7 @@ const ensureSupportPlan = pool.query(
   "ALTER TABLE users ADD COLUMN support_plan ENUM('basic','pro','elite') DEFAULT NULL"
 ).catch(() => {});
 
-const getResend = () => new Resend(process.env.RESEND_API_KEY || 're_placeholder');
+
 
 // Ticket notification emails ("New Ticket", "New Reply", etc.) go here.
 // Must match the admin identity used elsewhere in the app (auth.js,
@@ -255,7 +256,7 @@ router.post('/ticket', upload.single('file'), async (req, res) => {
       const overQuotaNote = overQuota
         ? `<p style="color:#b45309;"><strong>⚠️ Plan limit reached</strong> — this client's ${supportPlan} plan includes ${PLAN_TICKET_QUOTAS[supportPlan]} tickets/month and that's already used up this cycle. This ticket is billable — set a quoted price (Basic overage rate: $85/hr).</p>`
         : '';
-      getResend().emails.send({
+      sendEmail({
         from: `"EVOBRAND" <${process.env.RESEND_FROM_EMAIL || 'info@evobrand.net'}>`,
         to: ADMIN_NOTIFY_EMAIL,
         subject: `${overQuota ? '[Billable] ' : ''}New Ticket: ${subject}`,
@@ -266,7 +267,7 @@ router.post('/ticket', upload.single('file'), async (req, res) => {
                <p><strong>Message:</strong><br/>${message}</p>${attachmentNote}`)
       }).catch(err => console.error('New-ticket admin email failed:', err));
 
-      getResend().emails.send({
+      sendEmail({
         from: `"EVOBRAND" <${process.env.RESEND_FROM_EMAIL || 'info@evobrand.net'}>`,
         to: email,
         subject: `Ticket Received: ${subject}`,
@@ -335,7 +336,7 @@ router.post('/tickets/:id/reply', authenticateToken, upload.single('file'), asyn
       await notifyAdmins('New Ticket Reply', `Client replied to ticket #${ticketId}`, '/client-portal', 'ticket');
 
       // Email Admin
-      await getResend().emails.send({
+      await sendEmail({
         from: `"EVOBRAND" <${process.env.RESEND_FROM_EMAIL || 'info@evobrand.net'}>`,
         to: ADMIN_NOTIFY_EMAIL,
         subject: `New Reply: Ticket #${ticketId}`,
@@ -349,7 +350,7 @@ router.post('/tickets/:id/reply', authenticateToken, upload.single('file'), asyn
 
       // Email User
       if (currentTicket.user_email) {
-        await getResend().emails.send({
+        await sendEmail({
           from: `"EVOBRAND" <${process.env.RESEND_FROM_EMAIL || 'info@evobrand.net'}>`,
           to: currentTicket.user_email,
           subject: `New Reply on Ticket: ${currentTicket.subject}`,
@@ -405,7 +406,7 @@ router.put('/tickets/:id', authenticateToken, async (req, res) => {
       
       // Email User
       if (currentTicket.user_email) {
-        await getResend().emails.send({
+        await sendEmail({
           from: `"EVOBRAND" <${process.env.RESEND_FROM_EMAIL || 'info@evobrand.net'}>`,
           to: currentTicket.user_email,
           subject: `Ticket Status Updated: ${currentTicket.subject}`,
@@ -416,7 +417,7 @@ router.put('/tickets/:id', authenticateToken, async (req, res) => {
       }
       
       // Email Admin
-      await getResend().emails.send({
+      await sendEmail({
         from: `"EVOBRAND" <${process.env.RESEND_FROM_EMAIL || 'info@evobrand.net'}>`,
         to: ADMIN_NOTIFY_EMAIL,
         subject: `Ticket Status Changed: #${ticketId}`,
@@ -452,7 +453,7 @@ router.post('/tickets/:id/close', authenticateToken, async (req, res) => {
     if (currentTicket.status !== 'closed') {
       // Email User
       if (currentTicket.user_email) {
-        await getResend().emails.send({
+        await sendEmail({
           from: `"EVOBRAND" <${process.env.RESEND_FROM_EMAIL || 'info@evobrand.net'}>`,
           to: currentTicket.user_email,
           subject: `Ticket Closed: ${currentTicket.subject}`,
@@ -462,7 +463,7 @@ router.post('/tickets/:id/close', authenticateToken, async (req, res) => {
       }
       
       // Email Admin
-      await getResend().emails.send({
+      await sendEmail({
         from: `"EVOBRAND" <${process.env.RESEND_FROM_EMAIL || 'info@evobrand.net'}>`,
         to: ADMIN_NOTIFY_EMAIL,
         subject: `Ticket Closed by Client: #${ticketId}`,
@@ -600,7 +601,7 @@ router.post('/users', authenticateToken, async (req, res) => {
 
     // Send Welcome Email
     try {
-      await getResend().emails.send({
+      await sendEmail({
         from: `"EVOBRAND" <${process.env.RESEND_FROM_EMAIL || 'info@evobrand.net'}>`,
         to: email,
         subject: `Welcome to EVOBRAND Client Portal`,
@@ -623,3 +624,4 @@ router.post('/users', authenticateToken, async (req, res) => {
 });
 
 module.exports = router;
+

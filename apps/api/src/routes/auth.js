@@ -5,11 +5,10 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const crypto = require('crypto');
 const { authenticateToken } = require('../middleware/auth');
-const { Resend } = require('resend');
+const { sendEmail } = require('../utils/mailer');
 const { getEmailTemplate } = require('../utils/emailTemplate');
 
 const JWT_SECRET = process.env.JWT_SECRET || 'fallback_secret';
-const getResend = () => new Resend(process.env.RESEND_API_KEY || 're_placeholder');
 
 // Auto-migrate: add password reset columns if missing
 pool.query("ALTER TABLE users ADD COLUMN reset_token VARCHAR(255) DEFAULT NULL").catch(() => {});
@@ -176,7 +175,7 @@ router.post('/forgot-password', async (req, res) => {
     const resetLink = `${appUrl}/reset-password?token=${token}`;
 
     try {
-      await getResend().emails.send({
+      await sendEmail({
         from: `"EVOBRAND" <${process.env.RESEND_FROM_EMAIL || 'info@evobrand.net'}>`,
         to: email,
         subject: 'Reset Your EVOBRAND Password',

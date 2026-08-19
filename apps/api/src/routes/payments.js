@@ -161,7 +161,7 @@ router.get('/verify-session', authenticateToken, async (req, res) => {
           'ticket'
         );
 
-        getResend().emails.send({
+        sendEmail({
           from: `"EVOBRAND" <${process.env.RESEND_FROM_EMAIL || 'info@evobrand.net'}>`,
           to: ADMIN_NOTIFY_EMAIL,
           subject: `Payment Received: Ticket #${id}`,
@@ -205,8 +205,7 @@ const PUBLIC_PLANS = {
   'maintenance-elite': { name: 'WordPress Maintenance - Elite Plan', price: 749, type: 'recurring' }
 };
 
-const { Resend } = require('resend');
-const getResend = () => new Resend(process.env.RESEND_API_KEY || process.env.EMAIL_API_KEY || 're_placeholder');
+const { sendEmail } = require('../utils/mailer');
 const { getEmailTemplate } = require('../utils/emailTemplate');
 const crypto = require('crypto');
 const bcrypt = require('bcryptjs');
@@ -370,7 +369,7 @@ router.post('/verify-public-session', async (req, res) => {
           <p><a href="https://evobrandconcepts.com/client-portal" style="color: #22c8e5; font-weight: bold; text-decoration: none;">Go to Client Portal</a></p>`;
       }
 
-      await getResend().emails.send({
+      await sendEmail({
         from: `"EVOBRAND" <${process.env.RESEND_FROM_EMAIL || 'info@evobrand.net'}>`,
         to: email,
         subject: `Your EVOBRAND Order Confirmation`,
@@ -382,7 +381,7 @@ router.post('/verify-public-session', async (req, res) => {
 
     // To Admin
     try {
-      await getResend().emails.send({
+      await sendEmail({
         from: `"EVOBRAND" <${process.env.RESEND_FROM_EMAIL || 'info@evobrand.net'}>`,
         to: 'info@evobrand.net',
         subject: `New Public Sale: ${plan.name}`,
@@ -414,3 +413,4 @@ router.post('/verify-public-session', async (req, res) => {
 });
 
 module.exports = router;
+
