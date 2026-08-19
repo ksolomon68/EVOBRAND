@@ -81,14 +81,14 @@ const OurWorkPage = () => {
       link: 'https://pivotalvoice.org/'
     },
     {
-      id: 21,
-      title: 'PulseOps',
+      id: 104,
+      title: 'VibeHyr',
       category: 'Web Development',
-      industry: 'Industrial IoT',
-      image: '/projects/pulseops.jpg',
-      highlights: ['99.97% Uptime', 'Real-Time Ops', '6× Faster MTTR'],
-      description: 'Zero Downtime Starts Here. PulseOps unifies operational technology and IT infrastructure into a single real-time command surface for industrial teams.',
-      link: 'https://evobrandconcepts.com/html/pulseops.html'
+      industry: 'Education',
+      image: '/projects/vibehyr.png',
+      highlights: ['4 Core Courses', 'Daily Journaling', 'Community'],
+      description: 'Build your reality. Where neuroscience meets Neville Goddard. Master your internal state through structured courses, daily journaling, and community.',
+      link: 'https://vibehyr.com/'
     }
   ];
 
@@ -184,14 +184,14 @@ const OurWorkPage = () => {
       link: 'https://rbcacdc.org'
     },
     {
-      id: 104,
-      title: 'VibeHyr',
+      id: 105,
+      title: "Big Al's Down The Hatch",
       category: 'Web Development',
-      industry: 'Education',
-      image: '/projects/vibehyr.png',
-      highlights: ['4 Core Courses', 'Daily Journaling', 'Community'],
-      description: 'Build your reality. Where neuroscience meets Neville Goddard. Master your internal state through structured courses, daily journaling, and community.',
-      link: 'https://vibehyr.com/'
+      industry: 'Hospitality',
+      image: '/projects/bigals.png',
+      highlights: ['Menu', 'Karaoke', 'Catering'],
+      description: 'Pizza, wings and more from the pit behind the bar. Karaoke that gets loud, brunch that runs till 2, and a party trailer Big Al will drive straight to your backyard.',
+      link: 'https://evobrandconcepts.com/bigals'
     },
     {
       id: 11,
