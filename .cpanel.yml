@@ -16,7 +16,9 @@ deployment:
     # loadRoute() in index.js swallows that error, and the affected route(s) just
     # 404 instead of loading. Source the cPanel Node.js Selector's virtualenv for
     # this app if one exists, so npm/node resolve to the version cPanel assigned it.
-    - bash -c 'source $(ls -d /home/evobrandconcepts/nodevenv/EVOBRAND/apps/api/*/bin/activate 2>/dev/null | head -1) 2>/dev/null; cd /home/evobrandconcepts/EVOBRAND/apps/api && npm install --omit=dev --no-audit --no-fund' >> /home/evobrandconcepts/public_html/deploy.log 2>&1
+    # Hard-capped with `timeout` — a hung or slow npm install must never be able to
+    # block the deployment task (and everything queued behind it) indefinitely.
+    - timeout 240 bash -c 'source $(ls -d /home/evobrandconcepts/nodevenv/EVOBRAND/apps/api/*/bin/activate 2>/dev/null | head -1) 2>/dev/null; cd /home/evobrandconcepts/EVOBRAND/apps/api && npm install --omit=dev --no-audit --no-fund' >> /home/evobrandconcepts/public_html/deploy.log 2>&1 || echo "npm install timed out or failed — see deploy.log" >> /home/evobrandconcepts/public_html/deploy.log
 
     # Force-kill stale LiteSpeed Node (lsnode) process — LiteSpeed ignores restart.txt
     # and caches the running process indefinitely. Killing it forces a clean respawn
