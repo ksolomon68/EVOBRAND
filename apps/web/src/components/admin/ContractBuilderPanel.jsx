@@ -65,7 +65,7 @@ export default function ContractBuilderPanel({ editingContract, duplicatingContr
   });
 
   const [saving, setSaving] = useState(false);
-  const [saved, setSaved] = useState(false);
+  const [savedStatus, setSavedStatus] = useState(''); // '', 'draft', 'sent'
   const [saveError, setSaveError] = useState('');
   const [contractTitle, setContractTitle] = useState('');
 
@@ -109,10 +109,11 @@ export default function ContractBuilderPanel({ editingContract, duplicatingContr
 
   const handlePrint = () => window.print();
 
-  const handleSave = async () => {
-    if (!clientInfo.email) { setSaveError('Client email is required to send the contract.'); return; }
+  const handleSave = async (status = 'sent') => {
+    if (!clientInfo.email) { setSaveError('Client email is required to save the contract.'); return; }
     setSaving(true);
     setSaveError('');
+    setSavedStatus('');
     try {
       const token = localStorage.getItem('evobrand_token');
       const title = contractTitle.trim() || `Agreement — ${clientInfo.companyName || clientInfo.email} — ${formatDate(project.startDate)}`;
@@ -128,18 +129,19 @@ export default function ContractBuilderPanel({ editingContract, duplicatingContr
           title,
           clientEmail: clientInfo.email,
           contractData: { clientInfo, project, selectedServices, clauses },
+          status,
         }),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || 'Save failed');
-      setSaved(true);
+      setSavedStatus(status);
       if (editingContract && onClear) {
         setTimeout(() => {
-          setSaved(false);
+          setSavedStatus('');
           onClear();
         }, 1500);
       } else {
-        setTimeout(() => setSaved(false), 4000);
+        setTimeout(() => setSavedStatus(''), 4000);
       }
     } catch (err) {
       setSaveError(err.message);
@@ -321,18 +323,43 @@ export default function ContractBuilderPanel({ editingContract, duplicatingContr
             ))}
           </div>
 
-          {/* Save & Send */}
+          {/* Save Options */}
           <div className="border-t border-[rgba(255,255,255,0.08)] pt-6">
-            <div className={sectionHeadClass}>Send to Client</div>
-            <p className="text-[#8892a4] text-sm mb-4">This saves the contract and makes it visible in the client's portal under "My Contracts". The client email above must match their registered account.</p>
+            <div className={sectionHeadClass}>Save Options</div>
+            <p className="text-[#8892a4] text-xs mb-4">
+              <strong>Save as Draft:</strong> Saves without notifying the client or showing it in their portal.<br />
+              <strong>Save &amp; Send:</strong> Saves and instantly emails the client notification to review and sign.
+            </p>
             {saveError && <p className="text-red-400 text-sm mb-3">{saveError}</p>}
-            <button onClick={handleSave} disabled={saving || saved}
-              className="w-full flex items-center justify-center gap-2 py-3 rounded-2xl font-bold text-sm transition-all disabled:opacity-60"
-              style={{ background: saved ? '#34d399' : '#22c8e5', color: '#003258' }}
-            >
-              {saving ? <Loader2 size={16} className="animate-spin" /> : saved ? <CheckCircle2 size={16} /> : <Send size={16} />}
-              {saving ? 'Saving…' : saved ? 'Contract Sent!' : 'Save & Send to Client'}
-            </button>
+            
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <button 
+                onClick={() => handleSave('draft')} 
+                disabled={saving || savedStatus}
+                className="w-full flex items-center justify-center gap-2 py-3 rounded-2xl font-bold text-sm transition-all border border-white/10 hover:bg-white/5 disabled:opacity-60"
+                style={{ 
+                  background: savedStatus === 'draft' ? '#34d399' : 'rgba(255,255,255,0.04)', 
+                  color: savedStatus === 'draft' ? '#003258' : '#fff',
+                  borderColor: savedStatus === 'draft' ? '#34d399' : 'rgba(255,255,255,0.1)'
+                }}
+              >
+                {saving ? <Loader2 size={16} className="animate-spin" /> : savedStatus === 'draft' ? <CheckCircle2 size={16} /> : null}
+                {saving ? 'Saving…' : savedStatus === 'draft' ? 'Draft Saved!' : 'Save as Draft'}
+              </button>
+              
+              <button 
+                onClick={() => handleSave('sent')} 
+                disabled={saving || savedStatus}
+                className="w-full flex items-center justify-center gap-2 py-3 rounded-2xl font-bold text-sm transition-all disabled:opacity-60"
+                style={{ 
+                  background: savedStatus === 'sent' ? '#34d399' : '#22c8e5', 
+                  color: '#003258' 
+                }}
+              >
+                {saving ? <Loader2 size={16} className="animate-spin" /> : savedStatus === 'sent' ? <CheckCircle2 size={16} /> : <Send size={16} />}
+                {saving ? 'Saving…' : savedStatus === 'sent' ? 'Contract Sent!' : 'Save & Send'}
+              </button>
+            </div>
           </div>
         </motion.div>
 

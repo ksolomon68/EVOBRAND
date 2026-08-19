@@ -52,7 +52,7 @@ const ensureTable = async () => {
 
 // @route POST /api/contracts — admin saves a contract and associates it with a client
 router.post('/', authenticateToken, requireAdmin, async (req, res) => {
-  const { title, clientEmail, contractData } = req.body;
+  const { title, clientEmail, contractData, status } = req.body;
   if (!title || !contractData) {
     return res.status(400).json({ error: 'Title and contract data are required' });
   }
@@ -67,13 +67,14 @@ router.post('/', authenticateToken, requireAdmin, async (req, res) => {
       if (users.length > 0) clientUserId = users[0].id;
     }
 
+    const contractStatus = status || 'sent';
     const [result] = await pool.query(
       'INSERT INTO contracts (title, client_email, client_user_id, contract_data, created_by, status) VALUES (?, ?, ?, ?, ?, ?)',
-      [title, clientEmail || null, clientUserId, JSON.stringify(contractData), req.user.id, 'sent']
+      [title, clientEmail || null, clientUserId, JSON.stringify(contractData), req.user.id, contractStatus]
     );
 
     // Send email notification to client and copy to admin
-    if (clientEmail && clientEmail.includes('@')) {
+    if (contractStatus !== 'draft' && clientEmail && clientEmail.includes('@')) {
       try {
         const clientInfo = contractData.clientInfo || {};
         const project = contractData.project || {};
@@ -114,7 +115,7 @@ router.post('/', authenticateToken, requireAdmin, async (req, res) => {
 
 // @route PUT /api/contracts/:id — admin updates a contract and resends notification
 router.put('/:id', authenticateToken, requireAdmin, async (req, res) => {
-  const { title, clientEmail, contractData } = req.body;
+  const { title, clientEmail, contractData, status } = req.body;
   if (!title || !contractData) {
     return res.status(400).json({ error: 'Title and contract data are required' });
   }
@@ -130,13 +131,14 @@ router.put('/:id', authenticateToken, requireAdmin, async (req, res) => {
     }
 
     // Update contract in database
+    const contractStatus = status || 'sent';
     await pool.query(
-      'UPDATE contracts SET title = ?, client_email = ?, client_user_id = ?, contract_data = ? WHERE id = ?',
-      [title, clientEmail || null, clientUserId, JSON.stringify(contractData), req.params.id]
+      'UPDATE contracts SET title = ?, client_email = ?, client_user_id = ?, contract_data = ?, status = ? WHERE id = ?',
+      [title, clientEmail || null, clientUserId, JSON.stringify(contractData), contractStatus, req.params.id]
     );
 
     // Send email notification to the updated client email and copy to admin
-    if (clientEmail && clientEmail.includes('@')) {
+    if (contractStatus !== 'draft' && clientEmail && clientEmail.includes('@')) {
       try {
         const clientInfo = contractData.clientInfo || {};
         const project = contractData.project || {};
@@ -187,7 +189,7 @@ router.get('/', authenticateToken, async (req, res) => {
       );
     } else {
       [rows] = await pool.query(
-        'SELECT id, title, client_email, status, created_at FROM contracts WHERE client_user_id = ? OR client_email = ? ORDER BY created_at DESC',
+        'SELECT id, title, client_email, status, created_at FROM contracts WHERE (client_user_id = ? OR client_email = ?) AND status != \'draft\' ORDER BY created_at DESC',
         [req.user.id, req.user.email]
       );
     }
