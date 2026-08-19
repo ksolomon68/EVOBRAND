@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { FileText, X, Download, Clock, CheckCircle2, Send, CreditCard, Copy } from 'lucide-react';
+import { FileText, X, Download, Clock, CheckCircle2, Send, CreditCard, Copy, Trash2, Loader2 } from 'lucide-react';
 import PaymentModal from './PaymentModal';
 
 const API_BASE = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
@@ -199,6 +199,7 @@ export default function MyContractsPanel({ user, onEditContract, onDuplicateCont
   const [loading, setLoading] = useState(true);
   const [selected, setSelected] = useState(null);
   const [paymentModal, setPaymentModal] = useState(null); // { type, id, amount, description }
+  const [deletingId, setDeletingId] = useState(null);
 
   useEffect(() => {
     const fetchContracts = async () => {
@@ -228,6 +229,23 @@ export default function MyContractsPanel({ user, onEditContract, onDuplicateCont
       if (res.ok) setSelected(data.contract);
     } catch (err) {
       console.error('Failed to fetch contract:', err);
+    }
+  };
+
+  const handleDeleteContract = async (contract) => {
+    if (!window.confirm(`Delete contract "${contract.title}"? This cannot be undone.`)) return;
+    setDeletingId(contract.id);
+    try {
+      const res = await fetch(`${API_BASE}/contracts/${contract.id}`, {
+        method: 'DELETE',
+        headers: { Authorization: `Bearer ${localStorage.getItem('evobrand_token')}` },
+      });
+      if (!res.ok) throw new Error('Delete failed');
+      setContracts(prev => prev.filter(c => c.id !== contract.id));
+    } catch (err) {
+      alert(err.message);
+    } finally {
+      setDeletingId(null);
     }
   };
 
@@ -350,6 +368,14 @@ export default function MyContractsPanel({ user, onEditContract, onDuplicateCont
                         style={{ background: 'rgba(34,200,229,0.08)', color: '#22c8e5', border: '1px solid rgba(34,200,229,0.2)' }}
                       >
                         <Copy size={11} /> Duplicate
+                      </button>
+                      <button
+                        title="Delete contract"
+                        onClick={(e) => { e.stopPropagation(); handleDeleteContract(c); }}
+                        disabled={deletingId === c.id}
+                        className="p-1.5 rounded-lg text-white/20 hover:text-red-400 transition-colors disabled:opacity-50"
+                      >
+                        {deletingId === c.id ? <Loader2 size={13} className="animate-spin" /> : <Trash2 size={13} />}
                       </button>
                     </>
                   )}

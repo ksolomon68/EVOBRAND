@@ -289,4 +289,24 @@ router.post('/:id/sign', authenticateToken, async (req, res) => {
   }
 });
 
+// @route DELETE /api/contracts/:id — admin deletes a contract
+router.delete('/:id', authenticateToken, requireAdmin, async (req, res) => {
+  try {
+    const [rows] = await pool.query('SELECT id FROM contracts WHERE id = ?', [req.params.id]);
+    if (rows.length === 0) return res.status(404).json({ error: 'Contract not found' });
+
+    // Unlink any project schedule pointing at this contract so it doesn't
+    // dangle — client_projects.contract_id has no DB-level FK to enforce this.
+    try {
+      await pool.query('UPDATE client_projects SET contract_id = NULL WHERE contract_id = ?', [req.params.id]);
+    } catch (e) {} // Ignore if client_projects table doesn't exist yet
+
+    await pool.query('DELETE FROM contracts WHERE id = ?', [req.params.id]);
+    res.json({ success: true });
+  } catch (error) {
+    console.error('Delete contract error:', error);
+    res.status(500).json({ error: 'Server error deleting contract' });
+  }
+});
+
 module.exports = router;
