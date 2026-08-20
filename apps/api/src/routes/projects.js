@@ -326,8 +326,8 @@ router.put('/:id', authenticateToken, async (req, res) => {
               <tbody>${milestoneRows}</tbody>
             </table>
             ${paymentButtonHtml}
-            <p style="margin-top:20px;">Log in to your client portal to view the full project details.</p>
-            <p><a href="https://evobrandconcepts.com/portal" style="color:#22c8e5;font-weight:bold;">Go to Client Portal →</a></p>
+            <p style="margin-top:20px;">Please remember you can log in to your EVOBRAND Client Portal at any time to view your contracts, check invoice payments, and track your overall project progress.</p>
+            <p><a href="https://evobrandconcepts.com/client-portal" style="color:#22c8e5;font-weight:bold;">Go to Client Portal →</a></p>
           `;
 
           const adminBody = `
