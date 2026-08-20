@@ -4,6 +4,8 @@ const pool = require('../db/connection');
 const multer = require('multer');
 const { authenticateToken, requireAdmin } = require('../middleware/auth');
 const { parseScheduleDoc } = require('../utils/scheduleDocxParser');
+const { sendEmail } = require('../utils/mailer');
+const { getEmailTemplate } = require('../utils/emailTemplate');
 
 const SCHEDULE_DOC_EXTENSIONS = ['.docx', '.doc', '.pdf'];
 
@@ -195,6 +197,98 @@ router.put('/:id', authenticateToken, async (req, res) => {
 
     values.push(req.params.id);
     await pool.query(`UPDATE client_projects SET ${fields.join(', ')} WHERE id = ?`, values);
+
+    // ── Milestone update notifications ──────────────────────────────────────
+    // Only fire when milestones were part of this update and the project has
+    // a client email address to notify.
+    if (milestones !== undefined && project.client_email) {
+      try {
+        const prevMilestones = typeof project.milestones === 'string'
+          ? JSON.parse(project.milestones)
+          : (project.milestones || []);
+
+        // Find which milestones actually changed status
+        const changed = milestones.filter((m, i) => {
+          const prev = prevMilestones.find(p => p.id === m.id) || prevMilestones[i];
+          return prev && prev.status !== m.status;
+        });
+
+        if (changed.length > 0) {
+          const projectName = name || project.name;
+          const FROM = `"EVOBRAND" <${process.env.RESEND_FROM_EMAIL || 'info@evobrand.net'}>`;
+          const ADMIN_TO = [process.env.ADMIN_EMAIL || 'ks@evobrand.net', 'ksolomon68@gmail.com'];
+
+          const statusLabel = s => s === 'done' ? '✅ Complete' : s === 'in_progress' ? '🔄 In Progress' : '⏳ Pending';
+
+          // Full milestone list for the email body
+          const milestoneRows = milestones.map(m =>
+            `<tr>
+              <td style="padding:8px 12px;border-bottom:1px solid rgba(255,255,255,0.06);">${m.title || m.name || 'Milestone'}</td>
+              <td style="padding:8px 12px;border-bottom:1px solid rgba(255,255,255,0.06);text-align:center;">${statusLabel(m.status)}</td>
+              <td style="padding:8px 12px;border-bottom:1px solid rgba(255,255,255,0.06);color:rgba(232,221,208,0.5);">${m.due_date || m.dueDate || ''}</td>
+            </tr>`
+          ).join('');
+
+          const changedList = changed.map(m =>
+            `<li><strong>${m.title || m.name || 'Milestone'}</strong> → ${statusLabel(m.status)}</li>`
+          ).join('');
+
+          const clientBody = `
+            <p>Hi there,</p>
+            <p>A milestone on your project <strong>${projectName}</strong> has been updated:</p>
+            <ul style="margin:12px 0;padding-left:20px;">${changedList}</ul>
+            <table style="width:100%;border-collapse:collapse;margin-top:16px;">
+              <thead>
+                <tr style="background:rgba(34,200,229,0.1);">
+                  <th style="padding:8px 12px;text-align:left;color:#22c8e5;font-size:12px;text-transform:uppercase;">Milestone</th>
+                  <th style="padding:8px 12px;text-align:center;color:#22c8e5;font-size:12px;text-transform:uppercase;">Status</th>
+                  <th style="padding:8px 12px;text-align:left;color:#22c8e5;font-size:12px;text-transform:uppercase;">Due</th>
+                </tr>
+              </thead>
+              <tbody>${milestoneRows}</tbody>
+            </table>
+            <p style="margin-top:20px;">Log in to your client portal to view the full project details.</p>
+            <p><a href="https://evobrandconcepts.com/portal" style="color:#22c8e5;font-weight:bold;">Go to Client Portal →</a></p>
+          `;
+
+          const adminBody = `
+            <p>Milestone update on project <strong>${projectName}</strong> (client: ${project.client_email}):</p>
+            <ul style="margin:12px 0;padding-left:20px;">${changedList}</ul>
+            <table style="width:100%;border-collapse:collapse;margin-top:16px;">
+              <thead>
+                <tr style="background:rgba(34,200,229,0.1);">
+                  <th style="padding:8px 12px;text-align:left;color:#22c8e5;font-size:12px;text-transform:uppercase;">Milestone</th>
+                  <th style="padding:8px 12px;text-align:center;color:#22c8e5;font-size:12px;text-transform:uppercase;">Status</th>
+                  <th style="padding:8px 12px;text-align:left;color:#22c8e5;font-size:12px;text-transform:uppercase;">Due</th>
+                </tr>
+              </thead>
+              <tbody>${milestoneRows}</tbody>
+            </table>
+          `;
+
+          // Send to client and admin in parallel
+          await Promise.allSettled([
+            sendEmail({
+              from: FROM,
+              to: project.client_email,
+              subject: `Project Update: ${projectName}`,
+              html: getEmailTemplate(`Project Update: ${projectName}`, clientBody),
+            }),
+            sendEmail({
+              from: FROM,
+              to: ADMIN_TO,
+              subject: `[Admin] Milestone Update — ${projectName}`,
+              html: getEmailTemplate(`Milestone Update — ${projectName}`, adminBody),
+            }),
+          ]);
+
+          console.log(`[projects] Milestone notification sent for project ${req.params.id} (${changed.length} changes)`);
+        }
+      } catch (emailErr) {
+        // Never let email failure block the API response
+        console.error('[projects] Milestone email failed:', emailErr.message);
+      }
+    }
 
     res.json({ success: true });
   } catch (err) {
