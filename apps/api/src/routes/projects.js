@@ -115,7 +115,8 @@ router.get('/', authenticateToken, async (req, res) => {
 
     const baseSelect = `
       SELECT p.id, p.name, p.description, p.client_email, p.milestones, p.status,
-             p.contract_id, c.title AS contract_title, p.created_at, p.updated_at
+             p.contract_id, c.title AS contract_title, c.payment_status AS contract_payment_status,
+             c.contract_data AS contract_data, p.created_at, p.updated_at
       FROM client_projects p
       LEFT JOIN contracts c ON c.id = p.contract_id
     `;
@@ -140,11 +141,22 @@ router.get('/', authenticateToken, async (req, res) => {
       schedules = scheduleRows || [];
     }
 
-    rows = rows.map(r => ({
-      ...r,
-      milestones: typeof r.milestones === 'string' ? JSON.parse(r.milestones) : (r.milestones || []),
-      schedules: schedules.filter(s => s.project_id === r.id),
-    }));
+    rows = rows.map(r => {
+      let fee = 0;
+      if (r.contract_data) {
+        try {
+          const cData = typeof r.contract_data === 'string' ? JSON.parse(r.contract_data) : r.contract_data;
+          fee = parseFloat(cData?.project?.fee || '0');
+        } catch (e) {}
+      }
+      return {
+        ...r,
+        contract_fee: fee,
+        contract_payment_status: r.contract_payment_status || 'unpaid',
+        milestones: typeof r.milestones === 'string' ? JSON.parse(r.milestones) : (r.milestones || []),
+        schedules: schedules.filter(s => s.project_id === r.id),
+      };
+    });
 
     res.json({ projects: rows });
   } catch (err) {
@@ -207,6 +219,9 @@ router.put('/:id', authenticateToken, async (req, res) => {
           ? JSON.parse(project.milestones)
           : (project.milestones || []);
 
+        const oldStatus = project.status;
+        const newStatus = deriveStatus(milestones, req.user.is_admin && status !== undefined ? status : project.status);
+
         // Find which milestones actually changed status
         const changed = milestones.filter((m, i) => {
           const prev = prevMilestones.find(p => p.id === m.id) || prevMilestones[i];
@@ -219,6 +234,69 @@ router.put('/:id', authenticateToken, async (req, res) => {
           const ADMIN_TO = [process.env.ADMIN_EMAIL || 'ks@evobrand.net', 'ksolomon68@gmail.com'];
 
           const statusLabel = s => s === 'done' ? '✅ Complete' : s === 'in_progress' ? '🔄 In Progress' : '⏳ Pending';
+
+          // Generate dynamic Stripe payment button if project is newly completed and has an unpaid contract
+          let paymentButtonHtml = '';
+          if (oldStatus !== 'completed' && newStatus === 'completed' && project.contract_id) {
+            const [contractRows] = await pool.query(
+              'SELECT title, payment_status, contract_data FROM contracts WHERE id = ?',
+              [project.contract_id]
+            );
+            if (contractRows.length > 0 && contractRows[0].payment_status !== 'paid') {
+              try {
+                const contract = contractRows[0];
+                const cData = typeof contract.contract_data === 'string'
+                  ? JSON.parse(contract.contract_data)
+                  : contract.contract_data;
+                const fee = parseFloat(cData?.project?.fee || '0');
+                if (fee > 0) {
+                  const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
+                  const origin = process.env.APP_URL || 'https://evobrandconcepts.com';
+                  const amountCents = Math.round(fee * 100);
+
+                  const session = await stripe.checkout.sessions.create({
+                    payment_method_types: ['card'],
+                    mode: 'payment',
+                    customer_email: project.client_email,
+                    line_items: [
+                      {
+                        price_data: {
+                          currency: 'usd',
+                          product_data: {
+                            name: contract.title || `Contract #${project.contract_id}`,
+                            description: `EVOBRAND Concepts LLC — Contract final payment`,
+                            images: [`${origin}/logo.png`],
+                          },
+                          unit_amount: amountCents,
+                        },
+                        quantity: 1,
+                      },
+                    ],
+                    metadata: { type: 'contract', id: String(project.contract_id), userId: String(project.client_user_id || '') },
+                    success_url: `${origin}/client-portal?payment=success&type=contract&id=${project.contract_id}&sessionId={CHECKOUT_SESSION_ID}`,
+                    cancel_url: `${origin}/client-portal?payment=cancelled`,
+                  });
+
+                  // Store the session ID in the contract
+                  await pool.query('UPDATE contracts SET stripe_session_id = ? WHERE id = ?', [session.id, project.contract_id]);
+
+                  paymentButtonHtml = `
+                    <div style="margin: 24px 0; padding: 20px; background: rgba(34, 200, 229, 0.05); border: 1px solid rgba(34, 200, 229, 0.2); border-radius: 8px; text-align: center;">
+                      <p style="margin: 0 0 12px 0; color: #22c8e5; font-size: 15px; font-weight: bold; uppercase; tracking-wider;">
+                        Project Completed!
+                      </p>
+                      <p style="margin: 0 0 16px 0; color: #E8DDD0; font-size: 14px;">
+                        The balance of <strong>$${fee.toFixed(2)}</strong> is now due. Please use the button below to pay securely via Stripe.
+                      </p>
+                      <a href="${session.url}" style="display: inline-block; background-color: #22c8e5; color: #003258; font-weight: bold; text-decoration: none; padding: 14px 28px; border-radius: 12px; font-size: 14px; letter-spacing: 0.05em; text-transform: uppercase;">Pay Contract Balance</a>
+                    </div>
+                  `;
+                }
+              } catch (stripeErr) {
+                console.error('[projects] Failed to generate completion payment session:', stripeErr);
+              }
+            }
+          }
 
           // Full milestone list for the email body
           const milestoneRows = milestones.map(m =>
@@ -247,6 +325,7 @@ router.put('/:id', authenticateToken, async (req, res) => {
               </thead>
               <tbody>${milestoneRows}</tbody>
             </table>
+            ${paymentButtonHtml}
             <p style="margin-top:20px;">Log in to your client portal to view the full project details.</p>
             <p><a href="https://evobrandconcepts.com/portal" style="color:#22c8e5;font-weight:bold;">Go to Client Portal →</a></p>
           `;

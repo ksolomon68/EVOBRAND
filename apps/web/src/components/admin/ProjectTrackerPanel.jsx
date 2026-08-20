@@ -39,8 +39,10 @@ function ProgressBar({ milestones }) {
 }
 
 function MilestoneRow({ m, onChange, onDelete }) {
+  const [showDetails, setShowDetails] = useState(false);
   const isDone = m.status === 'done';
   const meta = [m.phase, m.assignee && `Assigned: ${m.assignee}`, m.notes].filter(Boolean);
+
   return (
     <div className="py-2.5 border-b last:border-b-0" style={{ borderColor: 'rgba(255,255,255,0.05)' }}>
       <div className="flex items-center gap-3">
@@ -56,9 +58,10 @@ function MilestoneRow({ m, onChange, onDelete }) {
         >
           {isDone && <Check size={12} className="text-[#34d399]" />}
         </button>
+
         <input
           className="flex-1 bg-transparent text-white text-sm outline-none placeholder-white/20"
-          value={m.name}
+          value={m.name || ''}
           placeholder="Milestone name…"
           onChange={e => onChange({ ...m, name: e.target.value })}
           style={{
@@ -66,12 +69,35 @@ function MilestoneRow({ m, onChange, onDelete }) {
             color: isDone ? 'rgba(255,255,255,0.4)' : 'white'
           }}
         />
+
+        <select
+          value={m.status || 'pending'}
+          onChange={e => onChange({ ...m, status: e.target.value })}
+          className="bg-[#0a1628] text-white/70 text-[10px] outline-none border border-white/10 rounded px-1.5 py-0.5"
+          style={{
+            borderColor: m.status === 'done' ? '#34d399' : m.status === 'in_progress' ? '#facc15' : 'rgba(255,255,255,0.1)'
+          }}
+        >
+          <option value="pending" className="bg-[#0a1628]">Pending</option>
+          <option value="in_progress" className="bg-[#0a1628]">In Progress</option>
+          <option value="done" className="bg-[#0a1628]">Done</option>
+        </select>
+
         <input
           type="date"
           className="bg-transparent text-white/40 text-xs outline-none border-0"
           value={m.due_date || ''}
           onChange={e => onChange({ ...m, due_date: e.target.value })}
         />
+
+        <button
+          type="button"
+          onClick={() => setShowDetails(!showDetails)}
+          className="text-[10px] font-bold uppercase tracking-wider text-[#22c8e5] hover:underline"
+        >
+          {showDetails ? 'Close' : 'Details'}
+        </button>
+
         <button
           type="button"
           onClick={onDelete}
@@ -80,7 +106,43 @@ function MilestoneRow({ m, onChange, onDelete }) {
           <X size={14} />
         </button>
       </div>
-      {meta.length > 0 && (
+
+      {showDetails && (
+        <div className="pl-8 pr-4 py-2 mt-2 rounded bg-white/5 space-y-2 text-xs">
+          <div className="grid grid-cols-2 gap-2">
+            <div>
+              <label className="text-white/40 block text-[9px] uppercase font-bold mb-1">Phase</label>
+              <input
+                className="w-full bg-white/5 border border-white/10 text-white rounded p-1 outline-none focus:border-[#22c8e5]"
+                value={m.phase || ''}
+                onChange={e => onChange({ ...m, phase: e.target.value })}
+                placeholder="e.g. Phase 1"
+              />
+            </div>
+            <div>
+              <label className="text-white/40 block text-[9px] uppercase font-bold mb-1">Assignee</label>
+              <input
+                className="w-full bg-white/5 border border-white/10 text-white rounded p-1 outline-none focus:border-[#22c8e5]"
+                value={m.assignee || ''}
+                onChange={e => onChange({ ...m, assignee: e.target.value })}
+                placeholder="e.g. Developer"
+              />
+            </div>
+          </div>
+          <div>
+            <label className="text-white/40 block text-[9px] uppercase font-bold mb-1">Notes</label>
+            <textarea
+              className="w-full bg-white/5 border border-white/10 text-white rounded p-1 outline-none focus:border-[#22c8e5]"
+              value={m.notes || ''}
+              onChange={e => onChange({ ...m, notes: e.target.value })}
+              placeholder="Milestone details/requirements..."
+              rows={2}
+            />
+          </div>
+        </div>
+      )}
+
+      {!showDetails && meta.length > 0 && (
         <p className="text-white/25 text-[11px] pl-8 mt-0.5 truncate">{meta.join(' · ')}</p>
       )}
     </div>
@@ -248,12 +310,25 @@ function ProjectCard({ project, contracts, onUpdated, onDeleted }) {
               placeholder="Project name…"
             />
             {contractLabel && (
-              <span
-                className="text-[10px] font-bold px-2 py-0.5 rounded-full flex-shrink-0"
-                style={{ background: 'rgba(34,200,229,0.1)', color: GOLD }}
-              >
-                {contractLabel}
-              </span>
+              <div className="flex items-center gap-1.5 flex-shrink-0">
+                <span
+                  className="text-[10px] font-bold px-2 py-0.5 rounded-full"
+                  style={{ background: 'rgba(34,200,229,0.1)', color: GOLD }}
+                >
+                  {contractLabel}
+                </span>
+                {project.contract_fee > 0 && (
+                  <span
+                    className="text-[10px] font-bold px-2 py-0.5 rounded-full"
+                    style={{
+                      background: project.contract_payment_status === 'paid' ? 'rgba(52,211,153,0.1)' : 'rgba(250,204,21,0.08)',
+                      color: project.contract_payment_status === 'paid' ? '#34d399' : '#facc15'
+                    }}
+                  >
+                    ${Number(project.contract_fee).toLocaleString()} ({project.contract_payment_status === 'paid' ? 'Paid' : 'Unpaid'})
+                  </span>
+                )}
+              </div>
             )}
           </div>
           <div className="flex items-center gap-1 mt-0.5">

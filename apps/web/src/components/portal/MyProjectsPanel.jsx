@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Layers, ChevronDown, ChevronUp, Loader2, Check, FileText } from 'lucide-react';
+import { Layers, ChevronDown, ChevronUp, Loader2, Check, FileText, CreditCard } from 'lucide-react';
+import PaymentModal from './PaymentModal';
 
 const API_BASE = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
   ? 'http://localhost:5000/api'
@@ -90,6 +91,7 @@ function MilestoneRow({ m, onToggle, saving }) {
 function ProjectCard({ project, onUpdated }) {
   const [expanded, setExpanded] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [showPayment, setShowPayment] = useState(false);
 
   const milestones = (Array.isArray(project.milestones)
     ? project.milestones
@@ -146,11 +148,35 @@ function ProjectCard({ project, onUpdated }) {
                 {project.contract_title}
               </span>
             )}
+            {project.contract_fee > 0 && (
+              <span
+                className="text-[10px] font-bold px-2 py-0.5 rounded-full flex-shrink-0"
+                style={{
+                  background: project.contract_payment_status === 'paid' ? 'rgba(52,211,153,0.12)' : 'rgba(250,204,21,0.08)',
+                  color: project.contract_payment_status === 'paid' ? '#34d399' : '#facc15'
+                }}
+              >
+                ${Number(project.contract_fee).toLocaleString()} ({project.contract_payment_status === 'paid' ? 'Paid' : 'Unpaid'})
+              </span>
+            )}
           </div>
           {project.description && (
             <p className="text-white/40 text-xs mt-0.5 truncate">{project.description}</p>
           )}
         </div>
+
+        {pct === 100 && project.contract_fee > 0 && project.contract_payment_status !== 'paid' && (
+          <button
+            onClick={() => setShowPayment(true)}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold uppercase tracking-wider transition-all flex-shrink-0"
+            style={{ background: 'rgba(34,200,229,0.12)', color: GOLD, border: '1px solid rgba(34,200,229,0.25)' }}
+            onMouseEnter={e => e.currentTarget.style.background = 'rgba(34,200,229,0.22)'}
+            onMouseLeave={e => e.currentTarget.style.background = 'rgba(34,200,229,0.12)'}
+          >
+            <CreditCard size={13} /> Pay Balance
+          </button>
+        )}
+
         <div
           className="text-xs font-bold px-2.5 py-1 rounded-full flex-shrink-0"
           style={{
@@ -232,6 +258,19 @@ function ProjectCard({ project, onUpdated }) {
           </motion.div>
         )}
       </AnimatePresence>
+
+      {showPayment && (
+        <PaymentModal
+          type="contract"
+          id={project.contract_id}
+          amount={project.contract_fee}
+          description={`Contract: ${project.contract_title || project.name}`}
+          onClose={() => {
+            setShowPayment(false);
+            onUpdated && onUpdated();
+          }}
+        />
+      )}
     </motion.div>
   );
 }
