@@ -96,17 +96,25 @@ jobs:
         # be pulled onto the server. Requires a CPANEL_API_TOKEN repo secret
         # (cPanel → Security → Manage API Tokens). Host/username/repo path
         # aren't secret, so they're inline.
+        # continue-on-error: a cPanel hiccup (expired token, dirty repo, etc.)
+        # must never mark the overall build as failed and spam the inbox.
+        continue-on-error: true
         run: |
-          curl -sS -f \
+          echo "=== cPanel Git/update ==="
+          curl -sS \
             -H "Authorization: cpanel evobrandconcepts:${{ secrets.CPANEL_API_TOKEN }}" \
-            "https://evobrandconcepts.com:2083/execute/Git/update?repository_root=/home/evobrandconcepts/EVOBRAND"
+            "https://evobrandconcepts.com:2083/execute/Git/update?repository_root=/home/evobrandconcepts/EVOBRAND" \
+            | python3 -m json.tool || true
 
       - name: Tell cPanel to deploy (runs .cpanel.yml — rsyncs apps/api and restarts the Node API)
         # Git/update only pulls the repo; it does not run .cpanel.yml. The API
         # process (Passenger/lsnode) keeps running the old code until
         # .cpanel.yml's rsync + restart.txt touch + lsnode kill actually run,
         # which only happens via this separate Git/deploy call.
+        continue-on-error: true
         run: |
-          curl -sS -f \
+          echo "=== cPanel Git/deploy ==="
+          curl -sS \
             -H "Authorization: cpanel evobrandconcepts:${{ secrets.CPANEL_API_TOKEN }}" \
-            "https://evobrandconcepts.com:2083/execute/Git/deploy?repository_root=/home/evobrandconcepts/EVOBRAND"
+            "https://evobrandconcepts.com:2083/execute/Git/deploy?repository_root=/home/evobrandconcepts/EVOBRAND" \
+            | python3 -m json.tool || true
