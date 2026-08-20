@@ -440,23 +440,43 @@ router.post('/campaigns/:id/send', async (req, res) => {
     }
 
     const emails = contacts.map(c => c.email);
+    const FROM = `"EVOBRAND" <${process.env.RESEND_FROM_EMAIL || 'info@evobrand.net'}>`;
 
-    // Send via Resend Batch API — up to 100 per request, individual sends per subscriber
-    const batchSize = 100;
-    for (let i = 0; i < emails.length; i += batchSize) {
-      const emailChunk = emails.slice(i, i + batchSize);
-      const batchPayload = emailChunk.map(email => ({
-        from: `"EVOBRAND" <${process.env.RESEND_FROM_EMAIL || 'info@evobrand.net'}>`,
-        to: [email],
-        subject: campaign.subject,
-        html: getEmailTemplate(campaign.subject, campaign.html_content, campaign.id, SITE_URL, email, campaign.accent_color, campaign.heading_font),
-      }));
-      await getResend().batch.send(batchPayload);
+    // Send in parallel chunks of 20 so we don't open hundreds of SMTP
+    // connections at once. Promise.allSettled means one bad address never
+    // aborts the rest of the campaign.
+    const CHUNK = 20;
+    let sent = 0;
+    let failed = 0;
+    for (let i = 0; i < emails.length; i += CHUNK) {
+      const chunk = emails.slice(i, i + CHUNK);
+      const results = await Promise.allSettled(
+        chunk.map(email =>
+          sendEmail({
+            from: FROM,
+            to: [email],
+            subject: campaign.subject,
+            html: getEmailTemplate(campaign.subject, campaign.html_content, campaign.id, SITE_URL, email, campaign.accent_color, campaign.heading_font),
+          })
+        )
+      );
+      results.forEach((r, idx) => {
+        if (r.status === 'fulfilled') {
+          sent++;
+        } else {
+          failed++;
+          console.error(`[crm] Campaign ${id} failed for ${chunk[idx]}:`, r.reason?.message);
+        }
+      });
     }
 
     await pool.query('UPDATE crm_campaigns SET status = "sent", sent_at = CURRENT_TIMESTAMP WHERE id = ?', [id]);
 
-    res.json({ success: true, message: `Campaign sent successfully to ${emails.length} subscriber${emails.length !== 1 ? 's' : ''}` });
+    const summary = failed > 0
+      ? `Sent to ${sent} subscriber${sent !== 1 ? 's' : ''}. ${failed} failed (see server log).`
+      : `Campaign sent successfully to ${sent} subscriber${sent !== 1 ? 's' : ''}`;
+
+    res.json({ success: true, message: summary });
   } catch (error) {
     console.error('Error sending CRM campaign:', error);
     res.status(500).json({ error: 'Failed to send campaign', details: error.message });
