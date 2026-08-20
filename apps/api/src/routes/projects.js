@@ -301,8 +301,8 @@ router.put('/:id', authenticateToken, async (req, res) => {
           // Full milestone list for the email body
           const milestoneRows = milestones.map(m =>
             `<tr>
-              <td style="padding:8px 12px;border-bottom:1px solid rgba(255,255,255,0.06);">${m.title || m.name || 'Milestone'}</td>
-              <td style="padding:8px 12px;border-bottom:1px solid rgba(255,255,255,0.06);text-align:center;">${statusLabel(m.status)}</td>
+              <td style="padding:8px 12px;border-bottom:1px solid rgba(255,255,255,0.06);color:#e8eaf0;">${m.title || m.name || 'Milestone'}</td>
+              <td style="padding:8px 12px;border-bottom:1px solid rgba(255,255,255,0.06);text-align:center;color:#e8eaf0;">${statusLabel(m.status)}</td>
               <td style="padding:8px 12px;border-bottom:1px solid rgba(255,255,255,0.06);color:rgba(232,221,208,0.5);">${m.due_date || m.dueDate || ''}</td>
             </tr>`
           ).join('');
