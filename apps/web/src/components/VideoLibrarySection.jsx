@@ -12,12 +12,29 @@ gsap.registerPlugin(ScrollTrigger);
 
 const CATEGORIES = ['All', 'Branding', 'Automation', 'AI Solutions', 'Business Growth'];
 
+// Ordered by priority: a video is assigned to the first category it matches,
+// so each video lives in exactly one row instead of repeating across several.
 const KEYWORDS = {
-  Branding: ['brand', 'identity', 'logo', 'design', 'visual', 'creative', 'art'],
-  Automation: ['automation', 'workflow', 'bot', 'process', 'system', 'efficient', 'auto'],
-  'AI Solutions': ['ai', 'intelligence', 'gpt', 'llm', 'model', 'machine learning', 'tech', 'chatgpt'],
-  'Business Growth': ['growth', 'scale', 'marketing', 'sales', 'strategy', 'revenue', 'business', 'profit'],
+  Branding: ['brand', 'branding', 'branded', 'identity', 'logo', 'design', 'visual', 'creative', 'creativity'],
+  Automation: ['automation', 'automate', 'automating', 'workflow', 'process', 'system', 'systems', 'efficient', 'efficiency', 'paperwork'],
+  'AI Solutions': ['ai', 'artificial intelligence', 'intelligence', 'gpt', 'llm', 'chatgpt', 'machine learning', 'technology'],
+  'Business Growth': ['growth', 'growing', 'scale', 'scaling', 'scalable', 'marketing', 'sales', 'strategy', 'revenue', 'business', 'profit'],
 };
+
+const escapeRegExp = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+
+const matchesKeyword = (text, keyword) => new RegExp(`\\b${escapeRegExp(keyword)}\\b`, 'i').test(text);
+
+const categorize = (video) => {
+  const text = `${video.title} ${video.description}`;
+  for (const cat of CATEGORIES) {
+    if (cat === 'All') continue;
+    if (KEYWORDS[cat].some((k) => matchesKeyword(text, k))) return cat;
+  }
+  return null;
+};
+
+const ROW_LIMIT = 10;
 
 export default function VideoLibrarySection() {
   const { videos, loading, error } = useYouTubePlaylist('PLE-KllGUkEz7CBo120L5G3NWoYKHNkWuo');
@@ -40,21 +57,21 @@ export default function VideoLibrarySection() {
     return new Set(sortedVideos.filter((v) => new Date(v.publishedAt).getTime() >= threshold).map((v) => v.id));
   }, [sortedVideos, latestVideo]);
 
-  const filterByCategory = useCallback(
-    (cat) => {
-      const kw = KEYWORDS[cat] ?? [];
-      return sortedVideos.filter((v) => {
-        const text = `${v.title} ${v.description}`.toLowerCase();
-        return kw.some((k) => text.includes(k));
-      });
-    },
+  // Each video is assigned to exactly one category, so it never repeats across rows.
+  const categorizedVideos = useMemo(
+    () => sortedVideos.map((v) => ({ ...v, category: categorize(v) })),
     [sortedVideos]
+  );
+
+  const filterByCategory = useCallback(
+    (cat) => categorizedVideos.filter((v) => v.category === cat),
+    [categorizedVideos]
   );
 
   const categoryRows = useMemo(
     () =>
       CATEGORIES.filter((c) => c !== 'All')
-        .map((cat) => ({ cat, videos: filterByCategory(cat) }))
+        .map((cat) => ({ cat, videos: filterByCategory(cat).slice(0, ROW_LIMIT) }))
         .filter((row) => row.videos.length > 0),
     [filterByCategory]
   );
@@ -265,7 +282,7 @@ export default function VideoLibrarySection() {
               {latestVideo && <VideoHero video={latestVideo} onPlay={setSelectedVideoId} />}
               <div className="space-y-14">
                 <VideoSlider
-                  videos={sortedVideos.slice(0, 10)}
+                  videos={sortedVideos.slice(0, ROW_LIMIT)}
                   onVideoSelect={setSelectedVideoId}
                   newVideoIds={newVideoIds}
                   title="New Releases"
