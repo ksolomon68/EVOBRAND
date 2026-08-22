@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useRef, useEffect } from 'react';
+import React, { useState, useMemo, useCallback, useRef, useEffect } from 'react';
 import { useGSAP } from '@gsap/react';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
@@ -6,6 +6,7 @@ import { Loader2 } from 'lucide-react';
 import useYouTubePlaylist from '@/hooks/useYouTubePlaylist.js';
 import VideoSlider from '@/components/VideoSlider.jsx';
 import VideoModal from '@/components/VideoModal.jsx';
+import VideoHero from '@/components/VideoHero.jsx';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -26,14 +27,42 @@ export default function VideoLibrarySection() {
   const headingRef = useRef(null);
   const canvasRef = useRef(null);
 
+  const sortedVideos = useMemo(
+    () => videos.slice().sort((a, b) => new Date(b.publishedAt).getTime() - new Date(a.publishedAt).getTime()),
+    [videos]
+  );
+
+  const latestVideo = sortedVideos[0] ?? null;
+
+  const newVideoIds = useMemo(() => {
+    if (!latestVideo) return new Set();
+    const threshold = new Date(latestVideo.publishedAt).getTime() - 1000 * 60 * 60 * 24 * 21; // 21-day window
+    return new Set(sortedVideos.filter((v) => new Date(v.publishedAt).getTime() >= threshold).map((v) => v.id));
+  }, [sortedVideos, latestVideo]);
+
+  const filterByCategory = useCallback(
+    (cat) => {
+      const kw = KEYWORDS[cat] ?? [];
+      return sortedVideos.filter((v) => {
+        const text = `${v.title} ${v.description}`.toLowerCase();
+        return kw.some((k) => text.includes(k));
+      });
+    },
+    [sortedVideos]
+  );
+
+  const categoryRows = useMemo(
+    () =>
+      CATEGORIES.filter((c) => c !== 'All')
+        .map((cat) => ({ cat, videos: filterByCategory(cat) }))
+        .filter((row) => row.videos.length > 0),
+    [filterByCategory]
+  );
+
   const filteredVideos = useMemo(() => {
-    if (selectedCategory === 'All') return videos;
-    const kw = KEYWORDS[selectedCategory] ?? [];
-    return videos.filter((v) => {
-      const text = `${v.title} ${v.description}`.toLowerCase();
-      return kw.some((k) => text.includes(k));
-    });
-  }, [videos, selectedCategory]);
+    if (selectedCategory === 'All') return sortedVideos;
+    return filterByCategory(selectedCategory);
+  }, [sortedVideos, selectedCategory, filterByCategory]);
 
       // Canvas animated background
   useEffect(() => {
@@ -172,7 +201,7 @@ export default function VideoLibrarySection() {
             Video Library
           </h2>
           <p className="text-gray-300 max-w-xl mx-auto">
-            Explore our library of AI transformations, tutorials, and client success stories.
+            Fresh drops every week — AI transformations, tutorials, and client success stories.
           </p>
           <div className="w-12 h-0.5 mx-auto mt-5" style={{ background: '#22c8e5' }} />
         </div>
@@ -231,8 +260,34 @@ export default function VideoLibrarySection() {
             <div className="flex flex-col items-center justify-center py-24 text-center">
               <p className="text-gray-400 text-lg">No videos in this category yet.</p>
             </div>
+          ) : selectedCategory === 'All' ? (
+            <>
+              {latestVideo && <VideoHero video={latestVideo} onPlay={setSelectedVideoId} />}
+              <div className="space-y-14">
+                <VideoSlider
+                  videos={sortedVideos.slice(0, 10)}
+                  onVideoSelect={setSelectedVideoId}
+                  newVideoIds={newVideoIds}
+                  title="New Releases"
+                />
+                {categoryRows.map(({ cat, videos: rowVideos }) => (
+                  <VideoSlider
+                    key={cat}
+                    videos={rowVideos}
+                    onVideoSelect={setSelectedVideoId}
+                    newVideoIds={newVideoIds}
+                    title={cat}
+                  />
+                ))}
+              </div>
+            </>
           ) : (
-            <VideoSlider videos={filteredVideos} onVideoSelect={setSelectedVideoId} />
+            <VideoSlider
+              videos={filteredVideos}
+              onVideoSelect={setSelectedVideoId}
+              newVideoIds={newVideoIds}
+              title={selectedCategory}
+            />
           )}
         </div>
       </div>

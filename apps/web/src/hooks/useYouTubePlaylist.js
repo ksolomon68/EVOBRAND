@@ -189,6 +189,14 @@ const FALLBACK_VIDEOS = [
   }
 ];
 
+const withFallbackDates = () =>
+  FALLBACK_VIDEOS.map((video, i) => {
+    const publishedAt = new Date(Date.now() - i * 4 * 24 * 60 * 60 * 1000).toISOString();
+    return { ...video, publishedAt };
+  });
+
+const byNewestFirst = (a, b) => new Date(b.publishedAt).getTime() - new Date(a.publishedAt).getTime();
+
 const useYouTubePlaylist = (playlistId) => {
   const [videos, setVideos] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -201,7 +209,7 @@ const useYouTubePlaylist = (playlistId) => {
 
       if (!apiKey) {
         console.warn('VITE_YOUTUBE_API_KEY is missing in .env file. Using fallback videos.');
-        setVideos(FALLBACK_VIDEOS);
+        setVideos(withFallbackDates());
         setLoading(false);
         return;
       }
@@ -241,21 +249,23 @@ const useYouTubePlaylist = (playlistId) => {
             publishedAt: item.snippet.publishedAt,
           }));
 
+        const sortedVideos = formattedVideos.slice().sort(byNewestFirst);
+
         // Save to cache
         try {
           sessionStorage.setItem(cacheKey, JSON.stringify({
             timestamp: Date.now(),
-            videos: formattedVideos
+            videos: sortedVideos
           }));
         } catch (e) {
           // Ignore cache write errors
         }
 
-        setVideos(formattedVideos);
+        setVideos(sortedVideos);
         setLoading(false);
       } catch (err) {
         console.error('Error fetching YouTube videos, using fallback:', err);
-        setVideos(FALLBACK_VIDEOS);
+        setVideos(withFallbackDates());
         setLoading(false);
       }
     };

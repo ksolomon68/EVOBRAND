@@ -7,7 +7,7 @@ const CARD_W = 300;
 const CARD_GAP = 16;
 const PEEK = 40;
 
-export default function VideoSlider({ videos = [], onVideoSelect }) {
+export default function VideoSlider({ videos = [], onVideoSelect, title, newVideoIds }) {
   const containerRef = useRef(null);
   const trackRef = useRef(null);
   const posRef = useRef(0);
@@ -124,6 +124,9 @@ export default function VideoSlider({ videos = [], onVideoSelect }) {
 
   return (
     <div className="relative px-10">
+      {title && (
+        <h3 className="text-white text-xl md:text-2xl font-bold mb-4 px-0">{title}</h3>
+      )}
       {/* Prev arrow */}
       <button
         onClick={() => slide(-1)}
@@ -185,15 +188,30 @@ export default function VideoSlider({ videos = [], onVideoSelect }) {
               {/* Persistent dark gradient at bottom */}
               <div className="absolute inset-0 bg-gradient-to-t from-[#0A1628]/80 via-transparent to-transparent pointer-events-none" aria-hidden="true" />
 
+              {/* New badge */}
+              {newVideoIds?.has(video.id) && (
+                <span
+                  className="absolute top-2 left-2 z-10 px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-widest pointer-events-none"
+                  style={{ background: '#22c8e5', color: '#003258' }}
+                >
+                  New
+                </span>
+              )}
+
               {/* Hover overlay */}
-              <div className="vs-overlay absolute inset-0 bg-[#0A1628]/60 opacity-0 flex flex-col items-center justify-center pointer-events-none" aria-hidden="true">
+              <div className="vs-overlay absolute inset-0 bg-[#0A1628]/70 opacity-0 flex flex-col items-center justify-center px-4 pointer-events-none" aria-hidden="true">
                 <div
                   className="w-14 h-14 rounded-full flex items-center justify-center mb-3 shadow-xl"
                   style={{ background: 'linear-gradient(135deg, #22c8e5, #1ba3c0)' }}
                 >
                   <Play size={22} fill="#003258" className="text-[#003258] ml-1" />
                 </div>
-                <div className="w-8 h-px bg-[#22c8e5]" />
+                <div className="w-8 h-px bg-[#22c8e5] mb-2" />
+                {video.description && (
+                  <p className="text-gray-300 text-[11px] text-center leading-snug line-clamp-2">
+                    {video.description}
+                  </p>
+                )}
               </div>
 
               {/* Title — always shown, animates on hover */}
