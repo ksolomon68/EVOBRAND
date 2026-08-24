@@ -31,7 +31,7 @@ const ServicesBuiltForScale = () => {
             transition={{ delay: 0.2 }}
             className="text-[#8892a4] text-lg max-w-[600px] mx-auto leading-relaxed"
           >
-            From intelligent automation to immersive brand experiences — every solution is engineered to perform at enterprise scale.
+            Web and mobile builds, AI-powered automation, brand identity, and accessibility compliance — every deliverable engineered to perform at enterprise and government scale.
           </motion.p>
         </div>
 
@@ -48,8 +48,8 @@ const ServicesBuiltForScale = () => {
               <div className="service-icon-bg" style={{ background: '#22c8e5' }}></div>
               <Code2 className="text-white relative" size={24} />
             </div>
-            <h3 className="text-xl font-bold mb-3 text-white">Custom Application Development</h3>
-            <p className="text-[#8892a4] text-sm leading-relaxed">Full-stack, cloud-native applications built for mission-critical workloads. Secure, scalable, and tailored to your operational requirements.</p>
+            <h3 className="text-xl font-bold mb-3 text-white">WordPress & Web Development</h3>
+            <p className="text-[#8892a4] text-sm leading-relaxed">Custom WordPress builds, plugin configuration, e-commerce integration, and performance and security hardening — plus ongoing maintenance after launch.</p>
 
           </motion.div>
 
@@ -65,7 +65,7 @@ const ServicesBuiltForScale = () => {
               <Bot className="text-white relative" size={24} />
             </div>
             <h3 className="text-xl font-bold mb-3 text-white">AI Integration & Automation</h3>
-            <p className="text-[#8892a4] text-sm leading-relaxed">Deploy intelligent agents, automate workflows, and integrate large language models into your existing infrastructure with enterprise safeguards.</p>
+            <p className="text-[#8892a4] text-sm leading-relaxed">Custom LLM integrations, automated workflows, and AI-powered document processing deployed directly into your CRM, inbox, and internal systems.</p>
 
           </motion.div>
 
@@ -81,7 +81,7 @@ const ServicesBuiltForScale = () => {
               <Sparkles className="text-white relative" size={24} />
             </div>
             <h3 className="text-xl font-bold mb-3 text-white">AI Content Creation</h3>
-            <p className="text-[#8892a4] text-sm leading-relaxed">Leverage generative AI to produce high-quality copy, imagery, and multimedia content at scale — aligned with your brand voice and compliance standards.</p>
+            <p className="text-[#8892a4] text-sm leading-relaxed">AI-generated product visuals, marketing graphics, and social content — matched to your brand's colors and style guide, delivered in days, not weeks.</p>
 
           </motion.div>
 
@@ -97,7 +97,7 @@ const ServicesBuiltForScale = () => {
               <Palette className="text-white relative" size={24} />
             </div>
             <h3 className="text-xl font-bold mb-3 text-white">Branding & Identity</h3>
-            <p className="text-[#8892a4] text-sm leading-relaxed">Strategic brand systems that communicate authority and trust. Visual identity, design language, and brand guidelines built for lasting impact.</p>
+            <p className="text-[#8892a4] text-sm leading-relaxed">Logo design, color systems, typography, and full brand guideline documentation — the foundational identity work behind every touchpoint you own.</p>
 
           </motion.div>
 
@@ -112,8 +112,8 @@ const ServicesBuiltForScale = () => {
               <div className="service-icon-bg" style={{ background: '#22c8e5' }}></div>
               <Film className="text-white relative" size={24} />
             </div>
-            <h3 className="text-xl font-bold mb-3 text-white">Animation & Motion Design</h3>
-            <p className="text-[#8892a4] text-sm leading-relaxed">Cinematic motion graphics, UI micro-interactions, and explainer animations that transform complex ideas into compelling visual narratives.</p>
+            <h3 className="text-xl font-bold mb-3 text-white">AI Video & Motion Design</h3>
+            <p className="text-[#8892a4] text-sm leading-relaxed">AI-assisted script and voiceover generation, explainer videos, social media motion graphics, and UI micro-interactions — produced end-to-end.</p>
 
           </motion.div>
 
@@ -129,7 +129,7 @@ const ServicesBuiltForScale = () => {
               <Accessibility className="text-white relative" size={24} />
             </div>
             <h3 className="text-xl font-bold mb-3 text-white">WCAG Accessibility</h3>
-            <p className="text-[#8892a4] text-sm leading-relaxed">Ensure your digital experiences are universally accessible. We audit, remediate, and maintain your platforms to meet and exceed WCAG standards.</p>
+            <p className="text-[#8892a4] text-sm leading-relaxed">Full accessibility audits, remediation, and ADA/Section 508 compliance documentation — critical for government contracts and enterprise procurement.</p>
 
           </motion.div>
 
