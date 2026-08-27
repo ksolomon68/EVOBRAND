@@ -389,9 +389,11 @@ function buildMockReport(data) {
     grade,
     headline: `Solid foundation in ${data.industry}, but consistency needs work.`,
     categories: {
-      visual: { label: 'Visual Identity', score: Math.min(100, overall_score + 5), insight: 'Needs a unified style guide.' },
-      messaging: { label: 'Messaging', score: Math.max(0, overall_score - 5), insight: 'Target audience needs more clarity.' },
-      digital: { label: 'Digital Presence', score: overall_score, insight: 'Website performance is average.' },
+      visual_identity: { label: 'Visual Identity', score: Math.min(100, overall_score + 5), insight: 'Needs a unified style guide.' },
+      digital_presence: { label: 'Digital Presence', score: overall_score, insight: 'Website performance is average.' },
+      brand_clarity: { label: 'Brand Clarity', score: Math.max(0, overall_score - 5), insight: 'Target audience needs more clarity.' },
+      audience_alignment: { label: 'Audience Alignment', score: Math.max(0, overall_score - 8), insight: 'Messaging could speak more directly to your ideal client.' },
+      competitive_position: { label: 'Competitive Position', score: Math.min(100, overall_score + 2), insight: 'Standing out from competitors needs sharper differentiation.' },
     },
     strengths: ['Industry experience', 'Clear understanding of challenges'],
     gaps: (Array.isArray(data.challenges) && data.challenges.length > 0)

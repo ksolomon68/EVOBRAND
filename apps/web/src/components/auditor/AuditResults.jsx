@@ -462,9 +462,11 @@ const normalizeReport = (report) => {
     categories: (() => {
       const score = Number.isFinite(Number(report.overall_score ?? report.score)) ? Number(report.overall_score ?? report.score) : 60;
       const DEFAULT_CATS = {
-        visual: { label: 'Visual Identity', score: Math.min(100, score + 5), insight: 'Visual consistency needs attention.' },
-        messaging: { label: 'Messaging', score: Math.max(0, score - 5), insight: 'Brand voice could be sharper.' },
-        digital: { label: 'Digital Presence', score: score, insight: 'Online footprint is average.' },
+        visual_identity: { label: 'Visual Identity', score: Math.min(100, score + 5), insight: 'Visual consistency needs attention.' },
+        digital_presence: { label: 'Digital Presence', score, insight: 'Online footprint is average.' },
+        brand_clarity: { label: 'Brand Clarity', score: Math.max(0, score - 5), insight: 'Brand voice could be sharper.' },
+        audience_alignment: { label: 'Audience Alignment', score: Math.max(0, score - 8), insight: 'Messaging could speak more directly to your ideal client.' },
+        competitive_position: { label: 'Competitive Position', score: Math.min(100, score + 2), insight: 'Standing out from competitors needs sharper differentiation.' },
       };
       if (!report.categories) return DEFAULT_CATS;
       if (Array.isArray(report.categories)) {
