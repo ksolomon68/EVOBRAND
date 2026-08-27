@@ -14,6 +14,7 @@
 - [Client Portal](/clientportal): EVOBRAND Client Portal - Secure access to your projects and meetings.
 - [Client Portal Login](/clientportallogin): Access your EVOBRAND client portal.
 - [Contract Customizer](/contractcustomizer): Build and customize your enterprise Services Agreement in real-time.
+- [Free AI Auditors | Brand & Accessibility Scans | EVOBRAND](/auditors): Two free, AI-powered audit tools from EVOBRAND: a brand auditor that scores your digital presence, and an accessibility checker that scans your site against WCAG 2.1. Instant results, no sign-up.
 - [Free AI Brand Audit Tool | Instant Score & Action Plan | EVOBRAND](/auditor): Get a free AI-powered brand audit in under 4 minutes. Score your brand across SEO, design, accessibility, social, and digital presence. Instant report + personalized action plan. No sign-up required.
 - [Free Custom Demo Portal | Custom AI Applications — EVOBRAND](/freedemoportal): Get a free, custom-built demo portal for your business. Share your requirements and logo, and EVOBRAND will build a live demo tailored to you — no cost, no obligation.
 - [Free Website Accessibility Checker | WCAG Scan & Report | EVOBRAND](/accessibilitychecker): Scan your website for WCAG 2.1 accessibility issues in under a minute. Real Lighthouse audit data, prioritized fixes, and a 90-day remediation plan — free.
