@@ -27,6 +27,40 @@ interface WebsiteScanResult {
   hasGoogleAnalytics: boolean;
   hasOpenGraph: boolean;
   pagespeed: { performance: number; seo: number; accessibility: number } | null;
+  headings: string[];
+  contentSample: string;
+  wordCount: number;
+}
+
+function stripTags(html: string): string {
+  return html
+    .replace(/<!--[\s\S]*?-->/g, " ")
+    .replace(/<[^>]+>/g, " ")
+    .replace(/&nbsp;/g, " ")
+    .replace(/&amp;/g, "&")
+    .replace(/&quot;/g, '"')
+    .replace(/&#39;/g, "'")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+function extractContent(html: string): { headings: string[]; contentSample: string; wordCount: number } {
+  const headings = [
+    ...[...html.matchAll(/<h1[^>]*>([\s\S]*?)<\/h1>/gi)].map((m) => stripTags(m[1])),
+    ...[...html.matchAll(/<h2[^>]*>([\s\S]*?)<\/h2>/gi)].map((m) => stripTags(m[1])),
+  ].filter(Boolean).slice(0, 6);
+
+  const bodyMatch = html.match(/<body[^>]*>([\s\S]*)<\/body>/i);
+  const bodyHtml = (bodyMatch?.[1] ?? html)
+    .replace(/<script[\s\S]*?<\/script>/gi, " ")
+    .replace(/<style[\s\S]*?<\/style>/gi, " ")
+    .replace(/<nav[\s\S]*?<\/nav>/gi, " ")
+    .replace(/<footer[\s\S]*?<\/footer>/gi, " ");
+
+  const bodyText = stripTags(bodyHtml);
+  const wordCount = bodyText ? bodyText.split(/\s+/).filter(Boolean).length : 0;
+
+  return { headings, contentSample: bodyText.slice(0, 1200), wordCount };
 }
 
 interface SearchScanResult {
@@ -38,9 +72,16 @@ interface SearchScanResult {
   snippets: string[];
 }
 
+interface CompetitorPresence {
+  name: string;
+  website: WebsiteScanResult | null;
+  search: SearchScanResult | null;
+}
+
 interface PresenceData {
   website: WebsiteScanResult | null;
   search: SearchScanResult | null;
+  competitor: CompetitorPresence | null;
   scannedAt: string;
 }
 
@@ -50,6 +91,7 @@ async function scanWebsite(url: string): Promise<WebsiteScanResult> {
     isLive: false, hasSSL: false, responseTimeMs: 0,
     title: "", metaDescription: "", hasGoogleAnalytics: false,
     hasOpenGraph: false, pagespeed: null,
+    headings: [], contentSample: "", wordCount: 0,
   };
 
   try {
@@ -79,6 +121,12 @@ async function scanWebsite(url: string): Promise<WebsiteScanResult> {
       // Analytics & OG
       result.hasGoogleAnalytics = /gtag|google-analytics|UA-\d|G-[A-Z0-9]/i.test(html);
       result.hasOpenGraph = /property=["']og:/i.test(html);
+
+      // Real page content — headings & body copy, for genuine messaging critique
+      const content = extractContent(html);
+      result.headings = content.headings;
+      result.contentSample = content.contentSample;
+      result.wordCount = content.wordCount;
     }
   } catch (_) {
     result.responseTimeMs = Date.now() - start;
@@ -143,18 +191,28 @@ async function scanGooglePresence(businessName: string, industry: string): Promi
 }
 
 async function scanOnlinePresence(formData: Record<string, unknown>): Promise<PresenceData> {
-  const { websiteUrl, businessName, industry } = formData as {
+  const { websiteUrl, businessName, industry, competitor, competitorUrl } = formData as {
     websiteUrl: string; businessName: string; industry: string;
+    competitor?: string; competitorUrl?: string;
   };
 
-  const [website, search] = await Promise.allSettled([
+  const hasCompetitor = !!(competitor?.trim() || competitorUrl?.trim());
+
+  const [website, search, competitorWebsite, competitorSearch] = await Promise.allSettled([
     websiteUrl?.trim() ? scanWebsite(websiteUrl.trim()) : Promise.resolve(null),
     scanGooglePresence(businessName, industry),
+    hasCompetitor && competitorUrl?.trim() ? scanWebsite(competitorUrl.trim()) : Promise.resolve(null),
+    hasCompetitor ? scanGooglePresence(competitor?.trim() || competitorUrl?.trim() || "", industry) : Promise.resolve(null),
   ]);
 
   return {
     website: website.status === "fulfilled" ? website.value : null,
     search: search.status === "fulfilled" ? search.value : null,
+    competitor: hasCompetitor ? {
+      name: competitor?.trim() || competitorUrl?.trim() || "Competitor",
+      website: competitorWebsite.status === "fulfilled" ? competitorWebsite.value : null,
+      search: competitorSearch.status === "fulfilled" ? competitorSearch.value : null,
+    } : null,
     scannedAt: new Date().toISOString(),
   };
 }
@@ -180,6 +238,14 @@ function buildPresenceContext(presence: PresenceData): string {
       lines.push(`    SEO: ${w.pagespeed.seo}/100 ${w.pagespeed.seo < 70 ? "(POOR)" : "(GOOD)"}`);
       lines.push(`    Accessibility: ${w.pagespeed.accessibility}/100`);
     }
+    if (w.headings.length) {
+      lines.push(`  Actual page headings found: ${w.headings.map((h) => `"${h}"`).join(", ")}`);
+    }
+    if (w.contentSample) {
+      lines.push(`  Word count on homepage: ${w.wordCount} ${w.wordCount < 150 ? "(THIN — likely hurts SEO and looks unfinished)" : ""}`);
+      lines.push(`  Actual homepage copy (verbatim excerpt, use this to critique real messaging/voice — do not invent messaging they don't have):`);
+      lines.push(`    "${w.contentSample.slice(0, 900)}"`);
+    }
   } else {
     lines.push(`\nWEBSITE SCAN: No website URL provided — cannot assess web presence directly.`);
   }
@@ -197,7 +263,26 @@ function buildPresenceContext(presence: PresenceData): string {
     }
   }
 
-  lines.push(`\nIMPORTANT: Use this REAL scan data to calibrate your scores. Do NOT rely only on self-reported ratings. If the website is slow, missing meta tags, or not ranking — score those categories accordingly. If Google Analytics is missing, that's a gap. If no Knowledge Panel, that affects competitive position.`);
+  if (presence.competitor) {
+    const c = presence.competitor;
+    lines.push(`\nCOMPETITOR SCAN — ${c.name}:`);
+    if (c.website) {
+      lines.push(`  Live: ${c.website.isLive ? "YES" : "NO"}  |  SSL: ${c.website.hasSSL ? "YES" : "NO"}  |  Response time: ${c.website.responseTimeMs}ms`);
+      if (c.website.pagespeed) {
+        lines.push(`  PageSpeed — Performance: ${c.website.pagespeed.performance}/100, SEO: ${c.website.pagespeed.seo}/100, Accessibility: ${c.website.pagespeed.accessibility}/100`);
+      }
+      lines.push(`  Title: ${c.website.title || "MISSING"}`);
+      if (c.website.headings.length) lines.push(`  Headings: ${c.website.headings.slice(0, 3).map((h) => `"${h}"`).join(", ")}`);
+    } else {
+      lines.push(`  No competitor URL provided — could not scan their site directly.`);
+    }
+    if (c.search) {
+      lines.push(`  Appears in Google: ${c.search.appearsInSearch ? "YES" : "NO"}  |  Knowledge Panel: ${c.search.knowledgePanel ? "YES" : "NO"}  |  Reviews: ${c.search.hasReviews ? "YES" : "NO"}`);
+    }
+    lines.push(`  Use this to build a head-to-head comparison — be specific about where the client is ahead or behind THIS competitor, not generic industry advice.`);
+  }
+
+  lines.push(`\nIMPORTANT: Use this REAL scan data to calibrate your scores. Do NOT rely only on self-reported ratings. If the website is slow, missing meta tags, or not ranking — score those categories accordingly. If Google Analytics is missing, that's a gap. If no Knowledge Panel, that affects competitive position. Use the verbatim homepage copy to give a genuine, specific critique of their actual messaging — quote or paraphrase it directly rather than speaking generically.`);
   lines.push("=== END SCAN DATA ===");
 
   return lines.join("\n");
@@ -225,7 +310,7 @@ async function callAnthropic(
 
   const systemPrompt = `You are an expert brand strategist with 15 years of experience working with EVOBRAND Concepts (Dallas, TX, CEO: Keisha Solomon). You generate brand audit reports that are honest, data-driven, and actionable.
 
-You will receive BOTH self-reported data AND live internet scan results. The live scan data is ground truth — prioritize it when scoring. If their website is slow or missing SEO tags, reflect that. If they don't appear in Google search, score digital presence accordingly.
+You will receive BOTH self-reported data AND live internet scan results. The live scan data is ground truth — prioritize it when scoring. If their website is slow or missing SEO tags, reflect that. If they don't appear in Google search, score digital presence accordingly. When a homepage copy excerpt is included, critique their ACTUAL messaging specifically (quote or paraphrase real phrases) rather than giving generic advice — this is what makes the report feel personal instead of templated.
 
 Return a JSON object ONLY — no markdown, no preamble.
 
@@ -237,19 +322,33 @@ Exact structure:
   "categories": {
     "visual_identity": { "score": <0-100>, "label": "Visual Identity", "insight": <2 sentences based on available data> },
     "digital_presence": { "score": <0-100>, "label": "Digital Presence", "insight": <2 sentences citing real scan data if available> },
-    "brand_clarity": { "score": <0-100>, "label": "Brand Clarity", "insight": <2 sentences> },
+    "brand_clarity": { "score": <0-100>, "label": "Brand Clarity", "insight": <2 sentences, reference their actual homepage copy/headings if provided> },
     "audience_alignment": { "score": <0-100>, "label": "Audience Alignment", "insight": <2 sentences> },
     "competitive_position": { "score": <0-100>, "label": "Competitive Position", "insight": <2 sentences citing search data if available> }
   },
-  "strengths": [<3 specific strengths>],
-  "gaps": [<3 specific gaps, reference real data where possible>],
+  "strengths": [<3 specific strengths, grounded in real data/copy where possible>],
+  "gaps": [<3 specific gaps, reference real data or actual copy where possible>],
   "recommendations": [
-    { "priority": 1, "title": <action title>, "detail": <2-3 sentences>, "impact": <"High"|"Medium"|"Low">, "effort": <"High"|"Medium"|"Low"> },
-    { "priority": 2, "title": "", "detail": "", "impact": "", "effort": "" },
-    { "priority": 3, "title": "", "detail": "", "impact": "", "effort": "" }
+    { "priority": 1, "title": <action title>, "detail": <2-3 sentences, specific to this business — reference their real copy, competitor, or scan data>, "impact": <"High"|"Medium"|"Low">, "effort": <"High"|"Medium"|"Low">, "roi_note": <one sentence tying this fix to their stated avg client value or lead volume in realistic, directional terms — no fabricated precise stats> },
+    { "priority": 2, "title": "", "detail": "", "impact": "", "effort": "", "roi_note": "" },
+    { "priority": 3, "title": "", "detail": "", "impact": "", "effort": "", "roi_note": "" }
   ],
+  "roadmap": [
+    { "phase": "Days 1-30", "focus": <short theme, e.g. "Fix the leaks">, "actions": [<3 concrete, specific actions for this business>] },
+    { "phase": "Days 31-60", "focus": <short theme>, "actions": [<3 actions>] },
+    { "phase": "Days 61-90", "focus": <short theme>, "actions": [<3 actions>] }
+  ],
+  "competitive_comparison": {
+    "available": <true only if competitor scan data was provided in the scan results, otherwise false>,
+    "competitor_name": <string, "" if not available>,
+    "summary": <1-2 sentence honest comparison of the two brands' online position>,
+    "rows": [
+      { "factor": <e.g. "Website Speed", "SEO", "Search Visibility", "Messaging Clarity", "Reviews/Trust">, "you": <short assessment>, "them": <short assessment>, "edge": <"you"|"them"|"tie"> }
+    ]
+  },
   "cta": <personalized sentence inviting them to book a call with Keisha>
-}`;
+}
+If no competitor data was provided, still return the "competitive_comparison" key with "available": false and empty "rows".`;
 
   const presenceContext = buildPresenceContext(presence);
 
@@ -274,7 +373,7 @@ ${presenceContext}`;
     },
     body: JSON.stringify({
       model: "claude-3-5-sonnet-latest",
-      max_tokens: 2000,
+      max_tokens: 3200,
       system: systemPrompt,
       messages: [{ role: "user", content: userMessage }],
     }),
@@ -362,6 +461,7 @@ async function sendEmails(
     ${presence.website ? `<tr><td style="padding:9px;border-bottom:1px solid #e5e7eb;color:#6b7280;">Website Live</td><td style="padding:9px;border-bottom:1px solid #e5e7eb;">${presence.website.isLive ? "✅ Yes" : "❌ No"}</td></tr>` : ""}
     ${presence.website?.pagespeed ? `<tr><td style="padding:9px;border-bottom:1px solid #e5e7eb;color:#6b7280;">PageSpeed SEO</td><td style="padding:9px;border-bottom:1px solid #e5e7eb;">${presence.website.pagespeed.seo}/100</td></tr>` : ""}
     ${presence.search ? `<tr><td style="padding:9px;border-bottom:1px solid #e5e7eb;color:#6b7280;">Google Presence</td><td style="padding:9px;border-bottom:1px solid #e5e7eb;">${presence.search.appearsInSearch ? "✅ Found" : "❌ Not found"}</td></tr>` : ""}
+    ${presence.competitor ? `<tr><td style="padding:9px;border-bottom:1px solid #e5e7eb;color:#6b7280;">Competitor Scanned</td><td style="padding:9px;border-bottom:1px solid #e5e7eb;">${presence.competitor.name}</td></tr>` : ""}
   </table>
   <p style="margin:16px 0 6px;color:#374151;font-size:13px;"><a href="${resultsUrl}" style="color:#22C8E5;">View Client Report →</a></p>
   <p style="margin:0;color:#374151;font-size:13px;"><a href="https://supabase.com/dashboard/project/hllrpfnfusvaiwjknjge/editor" style="color:#22C8E5;">View in Supabase →</a></p>

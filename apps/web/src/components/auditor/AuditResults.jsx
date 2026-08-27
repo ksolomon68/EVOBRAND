@@ -312,8 +312,95 @@ const RecommendationCard = ({ rec, delay }) => (
     </div>
     <h3 className="font-bold text-white text-xl mb-3">{rec.title}</h3>
     <p className="text-white/60 text-sm leading-relaxed">{rec.detail}</p>
+    {rec.roiNote && (
+      <p className="text-[#22C8E5]/80 text-xs leading-relaxed mt-4 pt-4 border-t border-white/10 flex items-start gap-2">
+        <TrendingUp size={13} className="flex-shrink-0 mt-0.5" />
+        {rec.roiNote}
+      </p>
+    )}
   </motion.div>
 );
+
+const RoadmapSection = ({ roadmap }) => {
+  if (!roadmap || roadmap.length === 0) return null;
+  return (
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.5, delay: 1.35 }}
+      className="mb-16"
+    >
+      <h3 className="font-bold text-white text-2xl md:text-3xl mb-6">Your 90-Day Roadmap</h3>
+      <div className="grid md:grid-cols-3 gap-5">
+        {roadmap.map((phase, i) => (
+          <motion.div
+            key={i}
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 1.35 + i * 0.1 }}
+            className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-6"
+          >
+            <p className="text-[#22C8E5] text-xs font-bold uppercase tracking-widest mb-2">{phase.phase}</p>
+            <h4 className="font-bold text-white text-lg mb-4">{phase.focus}</h4>
+            <ul className="space-y-2.5">
+              {phase.actions.map((a, j) => (
+                <li key={j} className="flex items-start gap-2.5 text-white/60 text-sm leading-relaxed">
+                  <span className="w-1.5 h-1.5 bg-[#22C8E5] rounded-full mt-1.5 flex-shrink-0" />
+                  {a}
+                </li>
+              ))}
+            </ul>
+          </motion.div>
+        ))}
+      </div>
+    </motion.div>
+  );
+};
+
+const EDGE_STYLES = {
+  you: 'text-green-400',
+  them: 'text-red-400',
+  tie: 'text-white/40',
+};
+
+const CompetitiveComparisonSection = ({ comparison, businessName }) => {
+  if (!comparison) return null;
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 30 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.7, delay: 1.0 }}
+      className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-6 mb-16"
+    >
+      <h3 className="font-bold text-white text-xl mb-2">
+        You vs. {comparison.competitor_name || 'Your Competitor'}
+      </h3>
+      {comparison.summary && (
+        <p className="text-white/50 text-sm leading-relaxed mb-6">{comparison.summary}</p>
+      )}
+      <div className="overflow-x-auto">
+        <table className="w-full text-sm min-w-[420px]">
+          <thead>
+            <tr className="border-b border-white/10">
+              <th className="text-left text-white/40 font-semibold uppercase text-xs tracking-wider py-2 pr-4">Factor</th>
+              <th className="text-left text-white/40 font-semibold uppercase text-xs tracking-wider py-2 pr-4">{businessName || 'You'}</th>
+              <th className="text-left text-white/40 font-semibold uppercase text-xs tracking-wider py-2">{comparison.competitor_name || 'Them'}</th>
+            </tr>
+          </thead>
+          <tbody>
+            {comparison.rows.map((row, i) => (
+              <tr key={i} className="border-b border-white/5 last:border-0">
+                <td className="py-3 pr-4 text-white/70 font-medium">{row.factor}</td>
+                <td className={`py-3 pr-4 ${row.edge === 'you' ? 'text-green-400 font-semibold' : 'text-white/60'}`}>{row.you}</td>
+                <td className={`py-3 ${row.edge === 'them' ? 'text-red-400 font-semibold' : 'text-white/60'}`}>{row.them}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </motion.div>
+  );
+};
 
 const normalizeRecs = (raw) => {
   let arr = raw;
@@ -331,6 +418,18 @@ const normalizeRecs = (raw) => {
       effort: r.effort || r.effort_level || r.effortLevel || 'Medium',
       title: r.title || r.name || r.recommendation || r.action || r.summary || `Recommendation ${i + 1}`,
       detail: r.detail || r.description || r.details || r.body || '',
+      roiNote: r.roi_note || r.roiNote || '',
+    }));
+};
+
+const normalizeRoadmap = (raw) => {
+  if (!Array.isArray(raw)) return [];
+  return raw
+    .filter((p) => p && typeof p === 'object' && (p.phase || p.focus))
+    .map((p) => ({
+      phase: p.phase || '',
+      focus: p.focus || '',
+      actions: Array.isArray(p.actions) ? p.actions.filter(Boolean) : [],
     }));
 };
 
@@ -356,6 +455,10 @@ const normalizeReport = (report) => {
       : (Array.isArray(report.positives) && report.positives.length > 0 ? report.positives : ['Industry experience', 'Clear understanding of your challenges']),
     gaps: gaps.length > 0 ? gaps : ['Inconsistent visual identity', 'Limited digital presence', 'Undefined target audience'],
     recommendations: recs.length > 0 ? recs : DEFAULT_RECS,
+    roadmap: normalizeRoadmap(report.roadmap),
+    competitiveComparison: (report.competitive_comparison && report.competitive_comparison.available && Array.isArray(report.competitive_comparison.rows) && report.competitive_comparison.rows.length > 0)
+      ? report.competitive_comparison
+      : null,
     categories: (() => {
       const score = Number.isFinite(Number(report.overall_score ?? report.score)) ? Number(report.overall_score ?? report.score) : 60;
       const DEFAULT_CATS = {
@@ -469,6 +572,9 @@ const AuditResults = ({ report, onDownloadPDF, isLoading, hasWebsite, prefillEma
           </div>
         </motion.div>
 
+        {/* Competitive Comparison */}
+        <CompetitiveComparisonSection comparison={normalized.competitiveComparison} businessName={normalized.businessName} />
+
         {/* Recommendations */}
         <motion.div
           initial={{ opacity: 0 }}
@@ -485,6 +591,9 @@ const AuditResults = ({ report, onDownloadPDF, isLoading, hasWebsite, prefillEma
             ))}
           </div>
         </motion.div>
+
+        {/* 90-Day Roadmap */}
+        <RoadmapSection roadmap={normalized.roadmap} />
 
         {/* CTA Strip */}
         <motion.div

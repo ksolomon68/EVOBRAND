@@ -54,9 +54,23 @@ function normalizePDFReport(report) {
       effort: r.effort || 'Medium',
       title: r.title || r.name || r.recommendation || DEFAULT_RECS[i]?.title || `Recommendation ${i + 1}`,
       detail: r.detail || r.description || r.details || DEFAULT_RECS[i]?.detail || '',
+      roiNote: r.roi_note || r.roiNote || '',
     }));
     if (recs.every((r) => !r.title || r.title.startsWith('Recommendation'))) recs = DEFAULT_RECS;
   }
+
+  const roadmap = Array.isArray(report.roadmap)
+    ? report.roadmap.filter((p) => p && (p.phase || p.focus)).map((p) => ({
+        phase: p.phase || '',
+        focus: p.focus || '',
+        actions: Array.isArray(p.actions) ? p.actions.filter(Boolean) : [],
+      }))
+    : [];
+
+  const competitiveComparison = (report.competitive_comparison && report.competitive_comparison.available
+    && Array.isArray(report.competitive_comparison.rows) && report.competitive_comparison.rows.length > 0)
+    ? report.competitive_comparison
+    : null;
 
   return {
     ...report,
@@ -69,6 +83,8 @@ function normalizePDFReport(report) {
     gaps: Array.isArray(report.gaps) && report.gaps.length > 0
       ? report.gaps : ['Inconsistent visual identity', 'Limited digital presence', 'Undefined target audience'],
     recommendations: recs,
+    roadmap,
+    competitiveComparison,
     cta: report.cta || 'Ready to take your brand to the next level? Let\'s build something great together.',
   };
 }
@@ -116,10 +132,11 @@ function buildPrintHTML(rawReport, businessName, date) {
           <div style="flex:1;">
             <div style="font-size:15px;font-weight:700;color:${BRAND_BLUE};margin-bottom:6px;">${rec.title}</div>
             <div style="font-size:12px;color:#4b5563;line-height:1.7;margin-bottom:10px;">${rec.detail}</div>
-            <div>
+            <div style="margin-bottom:10px;">
               <span style="font-size:10px;font-weight:700;${impactStyle};padding:3px 10px;border-radius:99px;margin-right:6px;">${rec.impact} Impact</span>
               <span style="font-size:10px;font-weight:700;background:#f1f5f9;color:#64748b;padding:3px 10px;border-radius:99px;">${rec.effort} Effort</span>
             </div>
+            ${rec.roiNote ? `<div style="font-size:11px;color:${BRAND_BLUE};font-weight:600;border-top:1px solid #f1f5f9;padding-top:8px;">${rec.roiNote}</div>` : ''}
           </div>
         </div>
       </div>
@@ -127,6 +144,26 @@ function buildPrintHTML(rawReport, businessName, date) {
   }).join('');
 
   const categoryBars = buildCategoryBars(categories);
+
+  const roadmap = report.roadmap || [];
+  const roadmapCards = roadmap.map((phase) => `
+    <div style="background:white;border:1px solid #e2e8f0;border-radius:12px;padding:20px;margin-bottom:14px;break-inside:avoid;">
+      <div style="font-size:10px;font-weight:700;color:${BRAND_CYAN};text-transform:uppercase;letter-spacing:1.5px;margin-bottom:4px;">${phase.phase}</div>
+      <div style="font-size:15px;font-weight:700;color:${BRAND_BLUE};margin-bottom:10px;">${phase.focus}</div>
+      <ul>
+        ${phase.actions.map((a) => `<li style="font-size:12px;color:#4b5563;line-height:1.9;">• ${a}</li>`).join('')}
+      </ul>
+    </div>
+  `).join('');
+
+  const comparison = report.competitiveComparison;
+  const comparisonRows = comparison ? comparison.rows.map((row) => `
+    <tr>
+      <td style="padding:10px 12px;font-size:12px;color:#374151;font-weight:600;border-bottom:1px solid #f1f5f9;">${row.factor}</td>
+      <td style="padding:10px 12px;font-size:12px;border-bottom:1px solid #f1f5f9;color:${row.edge === 'you' ? '#16a34a' : '#4b5563'};font-weight:${row.edge === 'you' ? '700' : '400'};">${row.you}</td>
+      <td style="padding:10px 12px;font-size:12px;border-bottom:1px solid #f1f5f9;color:${row.edge === 'them' ? '#dc2626' : '#4b5563'};font-weight:${row.edge === 'them' ? '700' : '400'};">${row.them}</td>
+    </tr>
+  `).join('') : '';
 
   return `<!DOCTYPE html>
 <html lang="en">
@@ -294,6 +331,28 @@ function buildPrintHTML(rawReport, businessName, date) {
     </div>
   </div>
 
+  ${comparison ? `
+  <!-- ── Competitive Comparison ── -->
+  <div class="page">
+    <div class="page-header">
+      <div class="page-title">Competitive Position</div>
+      <img class="page-logo" src="${window.location.origin}/logo.png" alt="EVOBRAND" onerror="this.style.display='none'" />
+    </div>
+    <div class="section-label">Head-to-Head</div>
+    <div class="section-heading">You vs. ${comparison.competitor_name || 'Your Competitor'}</div>
+    ${comparison.summary ? `<p style="font-size:13px;color:#4b5563;line-height:1.7;margin-bottom:20px;">${comparison.summary}</p>` : ''}
+    <table style="width:100%;border-collapse:collapse;">
+      <thead>
+        <tr style="border-bottom:2px solid #e2e8f0;">
+          <th style="text-align:left;padding:8px 12px;font-size:10px;color:#94a3b8;text-transform:uppercase;letter-spacing:1px;">Factor</th>
+          <th style="text-align:left;padding:8px 12px;font-size:10px;color:#94a3b8;text-transform:uppercase;letter-spacing:1px;">${businessName}</th>
+          <th style="text-align:left;padding:8px 12px;font-size:10px;color:#94a3b8;text-transform:uppercase;letter-spacing:1px;">${comparison.competitor_name || 'Them'}</th>
+        </tr>
+      </thead>
+      <tbody>${comparisonRows}</tbody>
+    </table>
+  </div>` : ''}
+
   <!-- ── Action Plan ── -->
   <div class="page">
     <div class="page-header">
@@ -303,6 +362,17 @@ function buildPrintHTML(rawReport, businessName, date) {
     <div class="section-label">Prioritized Recommendations</div>
     <div style="margin-top:16px;">${recCards}</div>
   </div>
+
+  ${roadmap.length > 0 ? `
+  <!-- ── 90-Day Roadmap ── -->
+  <div class="page">
+    <div class="page-header">
+      <div class="page-title">90-Day Roadmap</div>
+      <img class="page-logo" src="${window.location.origin}/logo.png" alt="EVOBRAND" onerror="this.style.display='none'" />
+    </div>
+    <div class="section-label">Your Path Forward</div>
+    <div style="margin-top:16px;">${roadmapCards}</div>
+  </div>` : ''}
 
   <!-- ── CTA ── -->
   <div class="cta-page">
