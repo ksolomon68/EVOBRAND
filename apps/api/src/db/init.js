@@ -200,6 +200,25 @@ async function initializeDatabase() {
       )
     `);
 
+    // Create BrandAudits table
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS brand_audits (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        business_name VARCHAR(255) NOT NULL,
+        industry VARCHAR(100),
+        email VARCHAR(255) NOT NULL,
+        first_name VARCHAR(100),
+        phone VARCHAR(50),
+        wants_call BOOLEAN DEFAULT FALSE,
+        form_answers JSON,
+        overall_score INT,
+        grade VARCHAR(2),
+        full_report JSON,
+        status VARCHAR(30) DEFAULT 'completed',
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      )
+    `);
+
     console.log('Database initialization complete.');
   } catch (error) {
     console.error('Error initializing database:', error.message);

@@ -1,6 +1,5 @@
 import React, { useState, useRef } from 'react';
 import { Mail, Phone, MapPin, Clock, Facebook, Youtube, Linkedin, Instagram, Send, Loader2, CheckCircle2, AlertCircle, Upload, X } from 'lucide-react';
-import { supabase } from '@/lib/supabase.js';
 import SchedulerWidget from '@/components/scheduler/SchedulerWidget.jsx';
 import SEO from '@/components/SEO.jsx';
 import { PageHero, Reveal, TiltCard } from '@/components/motion/PageMotion.jsx';

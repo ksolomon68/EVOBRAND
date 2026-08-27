@@ -1,9 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { supabase } from '@/lib/supabase';
 import SEO from '@/components/SEO.jsx';
 import AuditResults from '@/components/auditor/AuditResults';
 import { downloadAuditPDF } from '@/components/auditor/AuditPDF';
+
+const API_BASE = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+  ? 'http://localhost:5000'
+  : window.location.origin;
 
 const AuditorResultsPage = () => {
   const { id } = useParams();
@@ -14,16 +17,13 @@ const AuditorResultsPage = () => {
   useEffect(() => {
     const fetchAudit = async () => {
       try {
-        const { data, error: sbErr } = await supabase
-          .from('brand_audits')
-          .select('*')
-          .eq('id', id)
-          .single();
-
-        if (sbErr) throw sbErr;
-        if (!data) throw new Error('Audit not found');
-
-        setReport({ ...data.full_report, id: data.id, businessName: data.business_name });
+        const res = await fetch(`${API_BASE}/api/auditor/audit/${id}`);
+        if (!res.ok) {
+          const errData = await res.json().catch(() => ({}));
+          throw new Error(errData.error || 'Audit not found');
+        }
+        const data = await res.json();
+        setReport(data);
       } catch (err) {
         setError(err.message || 'Could not load this audit report.');
       } finally {

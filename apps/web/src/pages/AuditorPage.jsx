@@ -48,7 +48,7 @@ const API_BASE = window.location.hostname === 'localhost' || window.location.hos
   ? 'http://localhost:5000' 
   : window.location.origin;
 
-const SUPABASE_FUNCTION_URL = `${API_BASE}/api/auditor/audit`;
+const AUDIT_API_URL = `${API_BASE}/api/auditor/audit`;
 
 const AuditorPage = () => {
   const navigate = useNavigate();
@@ -86,7 +86,7 @@ const AuditorPage = () => {
     sessionStorage.removeItem('evo_audit_prefill');
 
     try {
-      const res = await fetch(SUPABASE_FUNCTION_URL, {
+      const res = await fetch(AUDIT_API_URL, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(formData),
@@ -100,7 +100,9 @@ const AuditorPage = () => {
       const data = await res.json();
       setReport(data);
       setPhase('results');
-      // Intentionally not navigating to /auditor/results/:id because backend doesn't persist audits yet
+      if (data.id) {
+        window.history.replaceState(null, '', `/auditor/results/${data.id}`);
+      }
     } catch (err) {
       console.error('Audit error:', err);
       setError(err.message || 'Something went wrong. Please try again.');

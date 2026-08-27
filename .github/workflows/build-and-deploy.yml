@@ -53,8 +53,6 @@ jobs:
         run: npm run build
         working-directory: apps/web
         env:
-          VITE_SUPABASE_URL: https://hllrpfnfusvaiwjknjge.supabase.co
-          VITE_SUPABASE_ANON_KEY: sb_publishable_UnLqwMLyLGgVnU6ly0bFRQ__u3_GjQs
           VITE_YOUTUBE_API_KEY: AIzaSyB7Akidw7RMlWPX5erpbxh_OJhTo4ch5Vg
           VITE_SITE_URL: https://evobrand.net
 
