@@ -83,17 +83,17 @@ const Footer = () => {
             <p className="text-gray-400 text-sm mb-4">
               AI Transformation Partner - Empowering businesses with cutting-edge AI solutions, custom applications, and intelligent automation.
             </p>
-            <div className="flex space-x-4">
-              <a href="http://facebook.com/evobrandconcepts" target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-[#22c8e5] transition-colors" aria-label="EVOBRAND on Facebook (opens in new tab)">
+            <div className="flex -m-2">
+              <a href="http://facebook.com/evobrandconcepts" target="_blank" rel="noopener noreferrer" className="p-2 text-gray-400 hover:text-[#22c8e5] transition-colors" aria-label="EVOBRAND on Facebook (opens in new tab)">
                 <Facebook size={20} aria-hidden="true" />
               </a>
-              <a href="https://www.linkedin.com/company/evobrand-concepts/" target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-[#22c8e5] transition-colors" aria-label="EVOBRAND on LinkedIn (opens in new tab)">
+              <a href="https://www.linkedin.com/company/evobrand-concepts/" target="_blank" rel="noopener noreferrer" className="p-2 text-gray-400 hover:text-[#22c8e5] transition-colors" aria-label="EVOBRAND on LinkedIn (opens in new tab)">
                 <Linkedin size={20} aria-hidden="true" />
               </a>
-              <a href="https://www.instagram.com/evobrandconcepts" target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-[#22c8e5] transition-colors" aria-label="EVOBRAND on Instagram (opens in new tab)">
+              <a href="https://www.instagram.com/evobrandconcepts" target="_blank" rel="noopener noreferrer" className="p-2 text-gray-400 hover:text-[#22c8e5] transition-colors" aria-label="EVOBRAND on Instagram (opens in new tab)">
                 <Instagram size={20} aria-hidden="true" />
               </a>
-              <a href="https://www.youtube.com/channel/UC8z66n8_seQVY5PjBEDMM7w" target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-[#22c8e5] transition-colors" aria-label="EVOBRAND on YouTube (opens in new tab)">
+              <a href="https://www.youtube.com/channel/UC8z66n8_seQVY5PjBEDMM7w" target="_blank" rel="noopener noreferrer" className="p-2 text-gray-400 hover:text-[#22c8e5] transition-colors" aria-label="EVOBRAND on YouTube (opens in new tab)">
                 <Youtube size={20} aria-hidden="true" />
               </a>
             </div>

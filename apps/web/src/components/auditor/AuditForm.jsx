@@ -467,8 +467,15 @@ const AuditForm = ({ onComplete, prefillData }) => {
                     ${form.wantsCall ? 'bg-[#22C8E5] border-[#22C8E5]' : 'border-white/30 group-hover:border-[#22C8E5]'}
                   `}
                     onClick={() => set('wantsCall', !form.wantsCall)}
+                    onKeyDown={(e) => {
+                      if (e.key === ' ' || e.key === 'Enter') {
+                        e.preventDefault();
+                        set('wantsCall', !form.wantsCall);
+                      }
+                    }}
                     role="checkbox"
                     aria-checked={form.wantsCall}
+                    tabIndex={0}
                     id="audit-wants-call"
                   >
                     {form.wantsCall && (

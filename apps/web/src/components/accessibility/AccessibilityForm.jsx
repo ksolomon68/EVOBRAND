@@ -156,8 +156,15 @@ const AccessibilityForm = ({ onComplete }) => {
             ${form.wantsCall ? 'bg-[#22C8E5] border-[#22C8E5]' : 'border-white/30 group-hover:border-[#22C8E5]'}
           `}
           onClick={() => set('wantsCall', !form.wantsCall)}
+          onKeyDown={(e) => {
+            if (e.key === ' ' || e.key === 'Enter') {
+              e.preventDefault();
+              set('wantsCall', !form.wantsCall);
+            }
+          }}
           role="checkbox"
           aria-checked={form.wantsCall}
+          tabIndex={0}
         >
           {form.wantsCall && (
             <svg className="w-3 h-3 text-[#003258]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>

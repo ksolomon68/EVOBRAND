@@ -231,10 +231,15 @@ export default function VideoSlider({ videos = [], onVideoSelect, title, newVide
             aria-pressed={i === activeIndex}
             aria-label={`Go to video ${i + 1}`}
             onClick={() => snapToIndex(i)}
-            className={`h-1 rounded-full transition-all duration-300 focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#22c8e5] ${
-              i === activeIndex ? 'w-6 bg-[#22c8e5]' : 'w-1.5 bg-white/20 hover:bg-white/40'
-            }`}
-          />
+            className="relative -m-2.5 flex items-center justify-center p-2.5 focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#22c8e5]"
+          >
+            <span
+              aria-hidden="true"
+              className={`block h-1 rounded-full transition-all duration-300 ${
+                i === activeIndex ? 'w-6 bg-[#22c8e5]' : 'w-1.5 bg-white/20 hover:bg-white/40'
+              }`}
+            />
+          </button>
         ))}
       </div>
     </div>

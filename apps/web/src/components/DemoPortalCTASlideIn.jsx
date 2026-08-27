@@ -69,7 +69,7 @@ export default function DemoPortalCTASlideIn() {
             <button
               onClick={dismiss}
               aria-label="Dismiss free demo portal offer"
-              className="absolute top-3 right-3 rounded p-1 text-white/40 hover:text-white/80 transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#22c8e5]"
+              className="absolute top-1 right-1 rounded p-2.5 text-white/40 hover:text-white/80 transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#22c8e5]"
             >
               <X size={16} />
             </button>

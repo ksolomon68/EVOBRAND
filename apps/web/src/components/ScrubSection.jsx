@@ -152,7 +152,7 @@ const ScrubSection = () => {
         {/* Gradient overlays for readability */}
         <div aria-hidden="true" style={{
           position: 'absolute', inset: 0, zIndex: 1, pointerEvents: 'none',
-          background: 'rgba(15,20,25,0.52)',
+          background: 'rgba(15,20,25,0.6)',
         }} />
         <div aria-hidden="true" style={{
           position: 'absolute', inset: 0, zIndex: 1, pointerEvents: 'none',
@@ -274,8 +274,9 @@ const ScrubSection = () => {
               </h2>
               <p style={{
                 fontSize: 'clamp(14px, 1.6vw, 17px)',
-                color: 'rgba(255,255,255,0.6)', lineHeight: 1.75,
+                color: 'rgba(255,255,255,0.92)', lineHeight: 1.75,
                 maxWidth: '520px', margin: '0 auto',
+                textShadow: '0 2px 14px rgba(0,0,0,0.7), 0 1px 3px rgba(0,0,0,0.9)',
               }}>
                 {ch.body}
               </p>

@@ -176,11 +176,11 @@ const AICapabilities = () => {
                   <div className="w-11 h-11 rounded-lg bg-[rgba(34,200,229,0.15)] flex items-center justify-center" aria-hidden="true">
                     <f.icon className="text-[#22c8e5]" size={22} />
                   </div>
-                  <span className="text-[11px] font-bold tracking-[0.25em] text-white/40">
+                  <span className="text-[11px] font-bold tracking-[0.25em] text-white/60">
                     {f.num} — 05
                   </span>
                 </div>
-                <h4 className="text-white text-lg font-semibold mb-2">{f.title}</h4>
+                <h3 className="text-white text-lg font-semibold mb-2">{f.title}</h3>
                 <p className="text-[#8892a4] text-sm leading-relaxed">{f.desc}</p>
               </div>
             ))}
