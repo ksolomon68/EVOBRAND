@@ -7,7 +7,12 @@ const { addToLeadsIfNew } = require('../utils/crmHelpers');
 
 const GEMINI_KEY = process.env.GEMINI_API_KEY || process.env.GOOGLE_AI_API_KEY || '';
 const SERPER_API_KEY = process.env.SERPER_API_KEY || '';
+const PAGESPEED_API_KEY = process.env.PAGESPEED_API_KEY || '';
 const SITE_URL = process.env.APP_URL || 'https://evobrandconcepts.com';
+
+if (!GEMINI_KEY) {
+  console.warn('[Audit] GEMINI_API_KEY / GOOGLE_AI_API_KEY not set — reports will use the scan-only mock instead of an AI-written report.');
+}
 
 // ─── Internet Presence Scanner ───────────────────────────────────────────────
 
@@ -81,16 +86,23 @@ async function scanWebsite(url) {
       result.contentSample = content.contentSample;
       result.wordCount = content.wordCount;
     }
-  } catch (_) {
+  } catch (err) {
     result.responseTimeMs = Date.now() - start;
+    console.error(`[Audit] Direct site fetch failed for ${url}:`, err.message);
   }
 
   try {
     const normalised = url.startsWith('http') ? url : `https://${url}`;
-    const psUrl = `https://www.googleapis.com/pagespeedonline/v5/runPagespeed?url=${encodeURIComponent(normalised)}&strategy=mobile&category=performance&category=seo&category=accessibility`;
-    const psRes = await fetch(psUrl, { signal: AbortSignal.timeout(12000) });
+    let psUrl = `https://www.googleapis.com/pagespeedonline/v5/runPagespeed?url=${encodeURIComponent(normalised)}&strategy=mobile&category=performance&category=seo&category=accessibility`;
+    if (PAGESPEED_API_KEY) psUrl += `&key=${PAGESPEED_API_KEY}`;
+    const psRes = await fetch(psUrl, { signal: AbortSignal.timeout(25000) });
+    if (!psRes.ok) {
+      const bodyText = await psRes.text().catch(() => '');
+      console.error(`[Audit] PageSpeed API returned ${psRes.status} for ${normalised}: ${bodyText.slice(0, 300)}`);
+    }
     if (psRes.ok) {
       const ps = await psRes.json();
+      if (ps.error) console.error(`[Audit] PageSpeed API error for ${normalised}:`, ps.error.message || ps.error);
       const cats = ps.lighthouseResult && ps.lighthouseResult.categories;
       result.pagespeed = {
         performance: Math.round(((cats && cats.performance && cats.performance.score) || 0) * 100),
@@ -98,7 +110,9 @@ async function scanWebsite(url) {
         accessibility: Math.round(((cats && cats.accessibility && cats.accessibility.score) || 0) * 100),
       };
     }
-  } catch (_) { /* PageSpeed optional */ }
+  } catch (err) {
+    console.error(`[Audit] PageSpeed scan threw for ${url}:`, err.message);
+  }
 
   return result;
 }

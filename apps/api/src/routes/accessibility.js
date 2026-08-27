@@ -6,7 +6,12 @@ const { sendEmail } = require('../utils/mailer');
 const { addToLeadsIfNew } = require('../utils/crmHelpers');
 
 const GEMINI_KEY = process.env.GEMINI_API_KEY || process.env.GOOGLE_AI_API_KEY || '';
+const PAGESPEED_API_KEY = process.env.PAGESPEED_API_KEY || '';
 const SITE_URL = process.env.APP_URL || 'https://evobrandconcepts.com';
+
+if (!GEMINI_KEY) {
+  console.warn('[Accessibility] GEMINI_API_KEY / GOOGLE_AI_API_KEY not set — reports will use the scan-only fallback instead of an AI-written report.');
+}
 
 // Maps common Lighthouse/axe-core accessibility audit ids to the WCAG 2.1
 // success criterion they correspond to, so the report can cite something
@@ -113,13 +118,25 @@ async function scanLighthouseAccessibility(url) {
   const result = { score: null, failingAudits: [], fetched: false };
   try {
     const normalised = url.startsWith('http') ? url : `https://${url}`;
-    const psUrl = `https://www.googleapis.com/pagespeedonline/v5/runPagespeed?url=${encodeURIComponent(normalised)}&strategy=mobile&category=accessibility`;
-    const res = await fetch(psUrl, { signal: AbortSignal.timeout(20000) });
-    if (!res.ok) return result;
+    let psUrl = `https://www.googleapis.com/pagespeedonline/v5/runPagespeed?url=${encodeURIComponent(normalised)}&strategy=mobile&category=accessibility`;
+    if (PAGESPEED_API_KEY) psUrl += `&key=${PAGESPEED_API_KEY}`;
+    const res = await fetch(psUrl, { signal: AbortSignal.timeout(25000) });
+    if (!res.ok) {
+      const bodyText = await res.text().catch(() => '');
+      console.error(`[Accessibility] PageSpeed API returned ${res.status} for ${normalised}: ${bodyText.slice(0, 300)}`);
+      return result;
+    }
     const data = await res.json();
+    if (data.error) {
+      console.error(`[Accessibility] PageSpeed API error for ${normalised}:`, data.error.message || data.error);
+      return result;
+    }
     const category = data.lighthouseResult && data.lighthouseResult.categories && data.lighthouseResult.categories.accessibility;
     const audits = (data.lighthouseResult && data.lighthouseResult.audits) || {};
-    if (!category) return result;
+    if (!category) {
+      console.error(`[Accessibility] PageSpeed response for ${normalised} had no accessibility category`);
+      return result;
+    }
 
     result.fetched = true;
     result.score = Math.round((category.score || 0) * 100);
@@ -135,7 +152,9 @@ async function scanLighthouseAccessibility(url) {
         affectedCount: (a.details && Array.isArray(a.details.items)) ? a.details.items.length : null,
         wcag: WCAG_MAP[a.id] || null,
       }));
-  } catch (_) { /* PageSpeed optional — falls back to static heuristics only */ }
+  } catch (err) {
+    console.error(`[Accessibility] PageSpeed scan threw for ${url}:`, err.message);
+  }
   return result;
 }
 
@@ -150,7 +169,9 @@ async function scanAccessibility(url) {
     });
     isLive = res.ok;
     if (res.ok) html = await res.text();
-  } catch (_) { /* site fetch optional — Lighthouse scan may still succeed */ }
+  } catch (err) {
+    console.error(`[Accessibility] Direct site fetch failed for ${normalised} (Lighthouse scan may still succeed independently):`, err.message);
+  }
 
   const [lighthouse, heuristics] = await Promise.all([
     scanLighthouseAccessibility(url),
@@ -266,33 +287,114 @@ function normalizeReport(raw) {
   };
 }
 
+// Turns the static HTML heuristics into real findings + a real score, so the
+// scan-only fallback still has something honest to say when Lighthouse can't
+// be reached (rather than a hardcoded, made-up 60/D that looks precise but
+// isn't grounded in anything).
+function heuristicFindings(h) {
+  if (!h) return null;
+  let score = 100;
+  const issues = [];
+
+  if (!h.hasLang) {
+    score -= 10;
+    issues.push({ title: 'Page is missing an <html lang> attribute', wcag: '3.1.1 Language of Page (Level A)', severity: 'Serious', detail: 'Screen readers can\'t reliably choose the right pronunciation/voice without a declared page language.', fix: 'Add a lang attribute (e.g. lang="en") to the <html> tag.' });
+  }
+  if (h.imgsMissingAlt > 0) {
+    score -= Math.min(25, h.imgsMissingAlt * 4);
+    issues.push({ title: `${h.imgsMissingAlt} image(s) missing alt text`, wcag: '1.1.1 Non-text Content (Level A)', severity: 'Serious', detail: 'Screen reader users get no description of these images, or hear the filename instead.', fix: 'Add descriptive alt text to every meaningful image, or alt="" for purely decorative ones.' });
+  }
+  if (h.inputsMissingLabel > 0) {
+    score -= Math.min(25, h.inputsMissingLabel * 5);
+    issues.push({ title: `${h.inputsMissingLabel} form field(s) missing a label`, wcag: '4.1.2 Name, Role, Value (Level A)', severity: 'Serious', detail: 'Screen reader and voice-control users can\'t tell what these fields are for.', fix: 'Associate each input with a <label for="..."> or an aria-label.' });
+  }
+  if (h.headingsSkipLevel) {
+    score -= 8;
+    issues.push({ title: 'Heading levels skip (e.g. H2 straight to H4)', wcag: '1.3.1 Info and Relationships (Level A)', severity: 'Moderate', detail: 'Assistive tech users navigate by heading structure — skipped levels break that outline.', fix: 'Use heading levels in order, without skipping.' });
+  }
+  if (!h.hasH1) {
+    score -= 5;
+    issues.push({ title: 'Page has no H1', wcag: '1.3.1 Info and Relationships (Level A)', severity: 'Moderate', detail: 'An H1 gives assistive tech users an immediate sense of the page\'s topic.', fix: 'Add a single, descriptive H1 to the page.' });
+  } else if (h.multipleH1) {
+    issues.push({ title: 'Multiple H1s found on the page', wcag: '1.3.1 Info and Relationships (Level A)', severity: 'Minor', detail: 'Multiple top-level headings can confuse the page outline assistive tech relies on.', fix: 'Use one H1 per page for the main title.' });
+  }
+  if (h.hasViewportZoomDisabled) {
+    score -= 10;
+    issues.push({ title: 'Pinch-zoom is disabled', wcag: '1.4.4 Resize Text (Level AA)', severity: 'Serious', detail: 'Low-vision users who rely on zooming to read content are blocked from doing so.', fix: 'Remove user-scalable=no and maximum-scale=1 from the viewport meta tag.' });
+  }
+  if (!h.hasSkipLink) {
+    score -= 5;
+    issues.push({ title: 'No skip-to-content link detected', wcag: '2.4.1 Bypass Blocks (Level A)', severity: 'Minor', detail: 'Keyboard users have to tab through the entire header/nav on every page.', fix: 'Add a "Skip to main content" link as the first focusable element.' });
+  }
+
+  return { score: Math.max(0, Math.min(100, score)), issues };
+}
+
 function buildMockReport(data, scan) {
-  const lhScore = scan.lighthouse.fetched ? scan.lighthouse.score : 60;
+  const heuristics = heuristicFindings(scan.heuristics);
+  const hasAnyData = scan.lighthouse.fetched || !!heuristics;
+
+  let score;
+  let issues;
+  if (scan.lighthouse.fetched) {
+    score = scan.lighthouse.score;
+    issues = (scan.lighthouse.failingAudits || []).slice(0, 6).map((a) => ({
+      title: a.title,
+      wcag: a.wcag || '',
+      severity: 'Serious',
+      detail: a.description,
+      fix: 'Review and remediate the flagged elements to meet the cited WCAG success criterion.',
+    }));
+    // Lighthouse doesn't catch everything our static checks do (e.g. duplicate
+    // H1s) — fold those in too rather than dropping that signal on the floor.
+    if (heuristics) issues = issues.concat(heuristics.issues).slice(0, 6);
+  } else if (heuristics) {
+    score = heuristics.score;
+    issues = heuristics.issues.slice(0, 6);
+  } else {
+    score = null;
+    issues = [];
+  }
+
+  if (!hasAnyData) {
+    return {
+      overall_score: 0,
+      grade: 'F',
+      risk_level: 'Moderate',
+      headline: 'We couldn\'t complete an automated scan of this site — the URL may be unreachable, blocking automated requests, or took too long to respond.',
+      pour: {
+        perceivable: { label: 'Perceivable', score: 0, insight: 'No data — scan could not complete.' },
+        operable: { label: 'Operable', score: 0, insight: 'No data — scan could not complete.' },
+        understandable: { label: 'Understandable', score: 0, insight: 'No data — scan could not complete.' },
+        robust: { label: 'Robust', score: 0, insight: 'No data — scan could not complete.' },
+      },
+      critical_issues: [],
+      quick_wins: [],
+      roadmap: [],
+      disclaimer: 'This scan could not reach the site to gather any data. Double-check the URL is correct and publicly accessible, then try again — or contact us for a manual review.',
+      cta: 'Want a human to take a look instead? Book a free strategy call with Keisha.',
+    };
+  }
+
   let grade = 'C';
-  if (lhScore >= 90) grade = 'A';
-  else if (lhScore >= 80) grade = 'B';
-  else if (lhScore >= 70) grade = 'C';
-  else if (lhScore >= 60) grade = 'D';
+  if (score >= 90) grade = 'A';
+  else if (score >= 80) grade = 'B';
+  else if (score >= 70) grade = 'C';
+  else if (score >= 60) grade = 'D';
   else grade = 'F';
 
-  const issues = (scan.lighthouse.failingAudits || []).slice(0, 6).map((a) => ({
-    title: a.title,
-    wcag: a.wcag || '',
-    severity: 'Serious',
-    detail: a.description,
-    fix: 'Review and remediate the flagged elements to meet the cited WCAG success criterion.',
-  }));
-
   return {
-    overall_score: lhScore,
+    overall_score: score,
     grade,
-    risk_level: lhScore < 60 ? 'High' : lhScore < 80 ? 'Moderate' : 'Low',
-    headline: `Automated scan found ${issues.length} issue area(s) to address.`,
+    risk_level: score < 60 ? 'High' : score < 80 ? 'Moderate' : 'Low',
+    headline: issues.length > 0
+      ? `Automated scan found ${issues.length} issue area(s) to address.`
+      : 'No automated issues detected — automated tools only catch a subset of WCAG, so a manual review is still worthwhile.',
     pour: {
-      perceivable: { label: 'Perceivable', score: lhScore, insight: 'Based on automated scan results.' },
-      operable: { label: 'Operable', score: lhScore, insight: 'Based on automated scan results.' },
-      understandable: { label: 'Understandable', score: lhScore, insight: 'Based on automated scan results.' },
-      robust: { label: 'Robust', score: lhScore, insight: 'Based on automated scan results.' },
+      perceivable: { label: 'Perceivable', score, insight: 'Based on automated scan results.' },
+      operable: { label: 'Operable', score, insight: 'Based on automated scan results.' },
+      understandable: { label: 'Understandable', score, insight: 'Based on automated scan results.' },
+      robust: { label: 'Robust', score, insight: 'Based on automated scan results.' },
     },
     critical_issues: issues,
     quick_wins: issues.slice(0, 3).map((i) => i.title),
