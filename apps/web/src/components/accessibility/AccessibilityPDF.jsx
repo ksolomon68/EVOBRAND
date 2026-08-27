@@ -1,0 +1,244 @@
+const BRAND_CYAN = '#22C8E5';
+const BRAND_BLUE = '#003258';
+const BRAND_BLACK = '#04080f';
+
+const SEVERITY_BADGE = {
+  Critical: 'background:#fee2e2;color:#dc2626',
+  Serious: 'background:#ffedd5;color:#ea580c',
+  Moderate: 'background:#fef9c3;color:#ca8a04',
+  Minor: 'background:#f1f5f9;color:#64748b',
+};
+
+const RISK_BADGE = {
+  Low: 'background:#dcfce7;color:#16a34a',
+  Moderate: 'background:#fef9c3;color:#ca8a04',
+  High: 'background:#ffedd5;color:#ea580c',
+  Critical: 'background:#fee2e2;color:#dc2626',
+};
+
+function normalizePDFReport(report) {
+  const score = Number.isFinite(Number(report.overall_score)) ? Number(report.overall_score) : 60;
+  const pourEntries = report.pour && typeof report.pour === 'object' ? Object.values(report.pour) : [];
+  return {
+    ...report,
+    overall_score: score,
+    grade: report.grade || 'C',
+    risk_level: report.risk_level || 'Moderate',
+    headline: report.headline || 'Your accessibility scan is complete.',
+    pour: pourEntries.length > 0 ? pourEntries : [
+      { label: 'Perceivable', score, insight: 'Based on automated scan results.' },
+      { label: 'Operable', score, insight: 'Based on automated scan results.' },
+      { label: 'Understandable', score, insight: 'Based on automated scan results.' },
+      { label: 'Robust', score, insight: 'Based on automated scan results.' },
+    ],
+    critical_issues: Array.isArray(report.critical_issues) ? report.critical_issues : [],
+    quick_wins: Array.isArray(report.quick_wins) ? report.quick_wins : [],
+    roadmap: Array.isArray(report.roadmap) ? report.roadmap : [],
+    disclaimer: report.disclaimer || 'This is an automated and heuristic scan, not a substitute for a full manual WCAG audit or legal advice.',
+    cta: report.cta || 'Ready to make your site accessible to everyone?',
+  };
+}
+
+function buildPourBars(pour) {
+  return pour.map((cat) => {
+    const pct = Math.min(100, Math.max(0, cat.score || 0));
+    const barColor = pct >= 75 ? '#22d3a0' : pct >= 50 ? BRAND_CYAN : '#f59e0b';
+    return `
+      <div style="margin-bottom:20px;">
+        <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:6px;">
+          <span style="font-size:13px;font-weight:600;color:#1e293b;">${cat.label}</span>
+          <span style="font-size:18px;font-weight:800;color:${BRAND_BLUE};">${pct}</span>
+        </div>
+        <div style="height:8px;background:#e2e8f0;border-radius:99px;overflow:hidden;">
+          <div style="height:8px;background:${barColor};border-radius:99px;width:${pct}%;"></div>
+        </div>
+        <p style="font-size:11px;color:#64748b;margin-top:4px;">${cat.insight || ''}</p>
+      </div>
+    `;
+  }).join('');
+}
+
+function buildPrintHTML(rawReport, businessName, date) {
+  const report = normalizePDFReport(rawReport);
+  const gradeColor = report.grade === 'A' ? '#22d3a0'
+    : report.grade === 'B' ? '#4ade80'
+    : report.grade === 'C' ? '#facc15'
+    : report.grade === 'D' ? '#fb923c'
+    : '#f87171';
+  const gradeLabel = { A: 'Excellent', B: 'Good', C: 'Average', D: 'Needs Work', F: 'Critical' }[report.grade] || '';
+  const riskStyle = RISK_BADGE[report.risk_level] || RISK_BADGE.Moderate;
+
+  const issueCards = report.critical_issues.map((issue) => {
+    const sevStyle = SEVERITY_BADGE[issue.severity] || SEVERITY_BADGE.Moderate;
+    return `
+      <div style="background:white;border-radius:12px;padding:20px 24px;margin-bottom:16px;border:1px solid #e2e8f0;border-left:4px solid ${BRAND_CYAN};break-inside:avoid;box-shadow:0 1px 3px rgba(0,0,0,0.06);">
+        <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:8px;">
+          <div style="font-size:15px;font-weight:700;color:${BRAND_BLUE};">${issue.title}</div>
+          <span style="font-size:10px;font-weight:700;${sevStyle};padding:3px 10px;border-radius:99px;white-space:nowrap;">${issue.severity}</span>
+        </div>
+        ${issue.wcag ? `<div style="font-size:11px;color:${BRAND_CYAN};font-family:monospace;margin-bottom:8px;">WCAG ${issue.wcag}</div>` : ''}
+        <div style="font-size:12px;color:#4b5563;line-height:1.7;margin-bottom:8px;">${issue.detail}</div>
+        <div style="font-size:12px;color:#374151;line-height:1.7;"><strong>Fix:</strong> ${issue.fix}</div>
+      </div>
+    `;
+  }).join('');
+
+  const quickWinsList = report.quick_wins.map((w) => `
+    <div style="display:flex;align-items:flex-start;gap:10px;margin-bottom:12px;">
+      <div style="flex-shrink:0;width:20px;height:20px;border-radius:50%;background:#dcfce7;display:flex;align-items:center;justify-content:center;margin-top:1px;">
+        <span style="color:#16a34a;font-size:11px;font-weight:700;">✓</span>
+      </div>
+      <span style="font-size:13px;color:#374151;line-height:1.6;">${w}</span>
+    </div>
+  `).join('');
+
+  const roadmapCards = report.roadmap.map((phase) => `
+    <div style="background:white;border:1px solid #e2e8f0;border-radius:12px;padding:20px;margin-bottom:14px;break-inside:avoid;">
+      <div style="font-size:10px;font-weight:700;color:${BRAND_CYAN};text-transform:uppercase;letter-spacing:1.5px;margin-bottom:4px;">${phase.phase}</div>
+      <div style="font-size:15px;font-weight:700;color:${BRAND_BLUE};margin-bottom:10px;">${phase.focus}</div>
+      <ul>${(phase.actions || []).map((a) => `<li style="font-size:12px;color:#4b5563;line-height:1.9;">• ${a}</li>`).join('')}</ul>
+    </div>
+  `).join('');
+
+  const pourBars = buildPourBars(report.pour);
+
+  return `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>EVOBRAND Accessibility Report — ${businessName}</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Rajdhani:wght@600;700&family=Inter:wght@400;500;600;700;900&display=swap');
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Inter', Arial, sans-serif; color: #111827; background: white; }
+    .cover { background: ${BRAND_BLACK}; color: white; min-height: 100vh; display: flex; flex-direction: column; page-break-after: always; position: relative; overflow: hidden; }
+    .cover-accent { position: absolute; top: -120px; right: -120px; width: 500px; height: 500px; border-radius: 50%; background: radial-gradient(circle, rgba(34,200,229,0.12) 0%, transparent 70%); pointer-events: none; }
+    .cover-inner { padding: 56px 56px 40px; flex: 1; display: flex; flex-direction: column; justify-content: space-between; position: relative; z-index: 1; }
+    .cover-logo-img { height: 40px; margin-bottom: 60px; display: block; }
+    .cover-eyebrow { font-size: 10px; color: ${BRAND_CYAN}; letter-spacing: 3px; text-transform: uppercase; font-weight: 600; margin-bottom: 12px; }
+    .cover-business { font-family: 'Rajdhani', sans-serif; font-size: 44px; color: white; font-weight: 700; line-height: 1.05; max-width: 520px; }
+    .cover-date { font-size: 12px; color: rgba(255,255,255,0.35); margin-top: 10px; }
+    .cover-score-row { display: flex; align-items: stretch; gap: 16px; margin-top: 48px; flex-wrap: wrap; }
+    .score-card { background: ${BRAND_BLUE}; border-radius: 16px; padding: 28px 32px; flex: 1; min-width: 200px; display: flex; flex-direction: column; justify-content: center; }
+    .score-card-label { font-size: 9px; color: rgba(255,255,255,0.4); letter-spacing: 2.5px; text-transform: uppercase; margin-bottom: 8px; }
+    .big-score { font-family: 'Rajdhani', sans-serif; font-size: 72px; color: ${BRAND_CYAN}; font-weight: 700; line-height: 1; }
+    .grade-card { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.08); border-radius: 16px; padding: 28px 32px; display: flex; flex-direction: column; align-items: center; justify-content: center; min-width: 120px; }
+    .grade-ring { width: 70px; height: 70px; border-radius: 50%; border: 3px solid ${gradeColor}; display: flex; align-items: center; justify-content: center; margin-bottom: 8px; }
+    .grade-letter { font-family: 'Rajdhani', sans-serif; font-size: 34px; color: ${gradeColor}; font-weight: 700; line-height: 1; }
+    .grade-sub { font-size: 10px; color: rgba(255,255,255,0.35); letter-spacing: 1px; text-transform: uppercase; }
+    .risk-card { border-radius: 16px; padding: 28px 24px; display: flex; flex-direction: column; align-items: center; justify-content: center; min-width: 140px; ${riskStyle}; }
+    .risk-label { font-size: 10px; letter-spacing: 2px; text-transform: uppercase; opacity: 0.7; margin-bottom: 6px; }
+    .risk-value { font-family: 'Rajdhani', sans-serif; font-size: 24px; font-weight: 700; }
+    .cover-headline { font-size: 14px; color: rgba(255,255,255,0.6); margin-top: 24px; line-height: 1.7; max-width: 540px; font-style: italic; }
+    .cover-footer { font-size: 10px; color: rgba(255,255,255,0.2); border-top: 1px solid rgba(255,255,255,0.07); padding-top: 16px; }
+    .page { padding: 52px 56px; page-break-before: always; }
+    .page-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 36px; padding-bottom: 16px; border-bottom: 2px solid #f1f5f9; }
+    .page-logo { height: 28px; opacity: 0.5; }
+    .page-title { font-family: 'Rajdhani', sans-serif; font-size: 24px; font-weight: 700; color: ${BRAND_BLUE}; }
+    .section-label { font-size: 9px; font-weight: 700; color: ${BRAND_CYAN}; letter-spacing: 2.5px; text-transform: uppercase; margin-bottom: 6px; }
+    .section-heading { font-family: 'Rajdhani', sans-serif; font-size: 20px; font-weight: 700; color: ${BRAND_BLUE}; margin-bottom: 20px; }
+    ul { list-style: none; }
+    .disclaimer { margin-top: 24px; padding: 16px 20px; background: #f8fafc; border-radius: 10px; font-size: 11px; color: #64748b; line-height: 1.6; }
+    .cta-page { background: linear-gradient(135deg, ${BRAND_BLACK} 0%, ${BRAND_BLUE} 100%); color: white; padding: 80px 60px; text-align: center; min-height: 100vh; display: flex; flex-direction: column; justify-content: center; align-items: center; page-break-before: always; }
+    .cta-eyebrow { font-size: 10px; color: ${BRAND_CYAN}; letter-spacing: 3px; text-transform: uppercase; font-weight: 600; margin-bottom: 16px; }
+    .cta-title { font-family: 'Rajdhani', sans-serif; font-size: 36px; color: white; margin-bottom: 20px; line-height: 1.2; }
+    .cta-text { font-size: 15px; color: rgba(255,255,255,0.7); line-height: 1.8; max-width: 480px; margin-bottom: 36px; }
+    .cta-pill { display: inline-block; background: ${BRAND_CYAN}; color: ${BRAND_BLUE}; font-family: 'Rajdhani', sans-serif; font-size: 18px; font-weight: 700; padding: 12px 32px; border-radius: 99px; margin-bottom: 36px; }
+    .cta-contact { font-size: 11px; color: rgba(255,255,255,0.3); line-height: 1.8; }
+    @media print { body { -webkit-print-color-adjust: exact; print-color-adjust: exact; } .page { page-break-before: always; } }
+  </style>
+</head>
+<body>
+
+  <div class="cover">
+    <div class="cover-accent"></div>
+    <div class="cover-inner">
+      <div>
+        <img class="cover-logo-img" src="${window.location.origin}/logo.png" alt="EVOBRAND" onerror="this.style.display='none'" />
+        <div class="cover-eyebrow">Accessibility Report · Confidential</div>
+        <div class="cover-business">${businessName}</div>
+        <div class="cover-date">Generated ${date}</div>
+        <div class="cover-score-row">
+          <div class="score-card">
+            <div class="score-card-label">Accessibility Score</div>
+            <div class="big-score">${report.overall_score}<span style="font-size:28px;color:rgba(34,200,229,0.5)">/100</span></div>
+          </div>
+          <div class="grade-card">
+            <div class="grade-ring"><span class="grade-letter">${report.grade}</span></div>
+            <div class="grade-sub">${gradeLabel}</div>
+          </div>
+          <div class="risk-card">
+            <div class="risk-label">Risk Level</div>
+            <div class="risk-value">${report.risk_level}</div>
+          </div>
+        </div>
+        <div class="cover-headline">"${report.headline}"</div>
+      </div>
+      <div class="cover-footer">Confidential · EVOBRAND Concepts · evobrand.net</div>
+    </div>
+  </div>
+
+  <div class="page">
+    <div class="page-header">
+      <div class="page-title">WCAG Performance Breakdown</div>
+      <img class="page-logo" src="${window.location.origin}/logo.png" alt="EVOBRAND" onerror="this.style.display='none'" />
+    </div>
+    <div class="section-label">Score by POUR Principle</div>
+    <div style="margin-top:8px;">${pourBars}</div>
+  </div>
+
+  ${issueCards ? `
+  <div class="page">
+    <div class="page-header">
+      <div class="page-title">Issues Found</div>
+      <img class="page-logo" src="${window.location.origin}/logo.png" alt="EVOBRAND" onerror="this.style.display='none'" />
+    </div>
+    <div class="section-label">Evidence-Based Findings</div>
+    <div style="margin-top:16px;">${issueCards}</div>
+  </div>` : ''}
+
+  <div class="page">
+    <div class="page-header">
+      <div class="page-title">Quick Wins &amp; Roadmap</div>
+      <img class="page-logo" src="${window.location.origin}/logo.png" alt="EVOBRAND" onerror="this.style.display='none'" />
+    </div>
+    ${quickWinsList ? `<div class="section-label">Quick Wins</div><div style="margin-bottom:28px;">${quickWinsList}</div>` : ''}
+    ${roadmapCards ? `<div class="section-label">90-Day Remediation Plan</div><div style="margin-top:12px;">${roadmapCards}</div>` : ''}
+    <div class="disclaimer">${report.disclaimer}</div>
+  </div>
+
+  <div class="cta-page">
+    <div class="cta-eyebrow">Next Steps</div>
+    <div class="cta-title">Make Your Site<br/>Accessible to Everyone</div>
+    <div class="cta-text">${report.cta}</div>
+    <div class="cta-pill">evobrand.net</div>
+    <div class="cta-contact">
+      Keisha Solomon · CEO, EVOBRAND Concepts<br/>
+      info@evobrand.net
+    </div>
+  </div>
+
+</body>
+</html>`;
+}
+
+export const downloadAccessibilityPDF = (report, businessName) => {
+  const date = new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+  const html = buildPrintHTML(report, businessName, date);
+  const printWindow = window.open('', '_blank', 'width=900,height=700');
+  if (!printWindow) {
+    alert('Please allow popups to download the PDF report.');
+    return;
+  }
+  printWindow.document.open();
+  printWindow.document.write(html);
+  printWindow.document.close();
+  printWindow.onload = () => {
+    setTimeout(() => {
+      printWindow.focus();
+      printWindow.print();
+    }, 500);
+  };
+};
+
+export default null;
