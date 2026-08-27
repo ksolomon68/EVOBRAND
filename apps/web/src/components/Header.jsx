@@ -1,12 +1,13 @@
 
 import React from 'react';
 import { useState } from 'react';
-import { NavLink } from 'react-router-dom';
+import { NavLink, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Menu, X } from 'lucide-react';
 
 const Header = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const location = useLocation();
 
   const navLinks = [
     { to: '/', label: 'Home' },
@@ -14,10 +15,13 @@ const Header = () => {
     { to: '/services', label: 'Services' },
     { to: '/our-work', label: 'Our Work' },
     { to: '/how-it-works', label: 'How It Works' },
-    { to: '/auditor', label: 'Brand Auditor' },
-    { to: '/accessibility-checker', label: 'Accessibility Checker' },
+    // Also highlighted when on either tool page underneath this parent link
+    { to: '/auditors', label: 'Auditors', matchPrefixes: ['/auditor', '/accessibility-checker'] },
     { to: '/contact', label: 'Contact' },
   ];
+
+  const isLinkActive = (link) =>
+    location.pathname === link.to || (link.matchPrefixes || []).some((p) => location.pathname.startsWith(p));
 
   return (
     <header className="sticky top-0 z-50 bg-[#1a2332] shadow-lg">
@@ -39,9 +43,9 @@ const Header = () => {
               <NavLink
                 key={link.to}
                 to={link.to}
-                className={({ isActive }) =>
+                className={() =>
                   `text-sm font-medium transition-colors hover:text-[#22c8e5] ${
-                    isActive ? 'text-[#22c8e5]' : 'text-white'
+                    isLinkActive(link) ? 'text-[#22c8e5]' : 'text-white'
                   }`
                 }
               >
@@ -92,9 +96,9 @@ const Header = () => {
                   key={link.to}
                   to={link.to}
                   onClick={() => setMobileMenuOpen(false)}
-                  className={({ isActive }) =>
+                  className={() =>
                     `text-lg font-medium transition-colors hover:text-[#22c8e5] ${
-                      isActive ? 'text-[#22c8e5]' : 'text-white'
+                      isLinkActive(link) ? 'text-[#22c8e5]' : 'text-white'
                     }`
                   }
                 >
