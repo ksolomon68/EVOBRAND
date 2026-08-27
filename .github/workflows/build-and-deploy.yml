@@ -27,6 +27,7 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: write
+      issues: write
 
     steps:
       - name: Checkout repo
@@ -95,24 +96,93 @@ jobs:
         # (cPanel → Security → Manage API Tokens). Host/username/repo path
         # aren't secret, so they're inline.
         # continue-on-error: a cPanel hiccup (expired token, dirty repo, etc.)
-        # must never mark the overall build as failed and spam the inbox.
+        # must never mark the overall build as failed — but it must also not
+        # go unnoticed, so success/failure is captured and reported below.
+        id: cpanel_update
         continue-on-error: true
         run: |
           echo "=== cPanel Git/update ==="
-          curl -sS \
+          resp=$(curl -sS \
             -H "Authorization: cpanel evobrandconcepts:${{ secrets.CPANEL_API_TOKEN }}" \
-            "https://evobrandconcepts.com:2083/execute/Git/update?repository_root=/home/evobrandconcepts/EVOBRAND" \
-            | python3 -m json.tool || true
+            "https://evobrandconcepts.com:2083/execute/Git/update?repository_root=/home/evobrandconcepts/EVOBRAND")
+          echo "$resp" | python3 -m json.tool || echo "$resp"
+          ok=$(echo "$resp" | python3 -c "import json,sys; d=json.load(sys.stdin); print('true' if not d.get('errors') else 'false')" 2>/dev/null || echo false)
+          echo "ok=$ok" >> "$GITHUB_OUTPUT"
+          {
+            echo "resp<<CPANEL_EOF"
+            echo "$resp"
+            echo "CPANEL_EOF"
+          } >> "$GITHUB_OUTPUT"
 
       - name: Tell cPanel to deploy (runs .cpanel.yml — rsyncs apps/api and restarts the Node API)
         # Git/update only pulls the repo; it does not run .cpanel.yml. The API
         # process (Passenger/lsnode) keeps running the old code until
         # .cpanel.yml's rsync + restart.txt touch + lsnode kill actually run,
         # which only happens via this separate Git/deploy call.
+        id: cpanel_deploy
         continue-on-error: true
         run: |
           echo "=== cPanel Git/deploy ==="
-          curl -sS \
+          resp=$(curl -sS \
             -H "Authorization: cpanel evobrandconcepts:${{ secrets.CPANEL_API_TOKEN }}" \
-            "https://evobrandconcepts.com:2083/execute/Git/deploy?repository_root=/home/evobrandconcepts/EVOBRAND" \
-            | python3 -m json.tool || true
+            "https://evobrandconcepts.com:2083/execute/Git/deploy?repository_root=/home/evobrandconcepts/EVOBRAND")
+          echo "$resp" | python3 -m json.tool || echo "$resp"
+          ok=$(echo "$resp" | python3 -c "import json,sys; d=json.load(sys.stdin); print('true' if not d.get('errors') else 'false')" 2>/dev/null || echo false)
+          echo "ok=$ok" >> "$GITHUB_OUTPUT"
+          {
+            echo "resp<<CPANEL_EOF"
+            echo "$resp"
+            echo "CPANEL_EOF"
+          } >> "$GITHUB_OUTPUT"
+
+      - name: Report cPanel deploy status (open/comment or close a tracking issue)
+        # Neither cPanel step above is allowed to fail the build, so this is the
+        # only place a broken deploy actually surfaces. Keeps ONE issue open
+        # (labeled cpanel-deploy-broken) instead of filing a new one per push —
+        # comments on it while still broken, closes it once both calls succeed.
+        if: always()
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          UPDATE_OK: ${{ steps.cpanel_update.outputs.ok }}
+          DEPLOY_OK: ${{ steps.cpanel_deploy.outputs.ok }}
+          UPDATE_RESP: ${{ steps.cpanel_update.outputs.resp }}
+          DEPLOY_RESP: ${{ steps.cpanel_deploy.outputs.resp }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+          SHA: ${{ github.sha }}
+        run: |
+          gh label create cpanel-deploy-broken --color "d73a4a" --description "cPanel Git/update or Git/deploy API call is failing" --force -R "${{ github.repository }}" 2>/dev/null || true
+          existing=$(gh issue list -R "${{ github.repository }}" --label cpanel-deploy-broken --state open --json number --jq '.[0].number // empty')
+
+          if [ "$UPDATE_OK" = "true" ] && [ "$DEPLOY_OK" = "true" ]; then
+            echo "cPanel deploy calls succeeded."
+            if [ -n "$existing" ]; then
+              gh issue comment "$existing" -R "${{ github.repository }}" --body "✅ Recovered — both \`Git/update\` and \`Git/deploy\` succeeded on commit \`${SHA:0:7}\`. See $RUN_URL."
+              gh issue close "$existing" -R "${{ github.repository }}"
+            fi
+          else
+            echo "cPanel deploy call(s) failed."
+            body=$(printf '%s\n' \
+              "The automated cPanel deploy step in \`build-and-deploy.yml\` failed on commit \`${SHA:0:7}\`, meaning **this push was NOT deployed to evobrandconcepts.com**." \
+              "" \
+              "- \`Git/update\`: ${UPDATE_OK}" \
+              "- \`Git/deploy\`: ${DEPLOY_OK}" \
+              "" \
+              "**Git/update response:**" \
+              '```json' \
+              "${UPDATE_RESP}" \
+              '```' \
+              "" \
+              "**Git/deploy response:**" \
+              '```json' \
+              "${DEPLOY_RESP}" \
+              '```' \
+              "" \
+              "Workflow run: ${RUN_URL}" \
+              "" \
+              "**To deploy this manually right now:** cPanel → Git Version Control → EVOBRAND repo → \"Update from Remote\", then \"Deploy HEAD Commit\".")
+            if [ -n "$existing" ]; then
+              gh issue comment "$existing" -R "${{ github.repository }}" --body "Still failing as of commit \`${SHA:0:7}\`. See $RUN_URL."
+            else
+              gh issue create -R "${{ github.repository }}" --title "cPanel auto-deploy is failing" --label cpanel-deploy-broken --body "$body"
+            fi
+          fi
