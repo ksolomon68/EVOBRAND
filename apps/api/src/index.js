@@ -138,7 +138,7 @@ app.get('/api/email-health', async (req, res) => {
 });
 
 // Import Routes
-let supportRoutes, newsletterRoutes, schedulerRoutes, auditorRoutes, authRoutes, crmRoutes, contractRoutes, notificationRoutes, contactsRoutes, paymentsRoutes, analyticsRoutes, schedulesRoutes, projectsRoutes;
+let supportRoutes, newsletterRoutes, schedulerRoutes, auditorRoutes, accessibilityRoutes, authRoutes, crmRoutes, contractRoutes, notificationRoutes, contactsRoutes, paymentsRoutes, analyticsRoutes, schedulesRoutes, projectsRoutes;
 
 const loadRoute = (name, path) => {
   try {
@@ -159,6 +159,7 @@ newsletterRoutes = loadRoute('newsletter', './routes/newsletter');
 authRoutes = loadRoute('auth', './routes/auth');
 schedulerRoutes = loadRoute('scheduler', './routes/scheduler');
 auditorRoutes = loadRoute('auditor', './routes/auditor');
+accessibilityRoutes = loadRoute('accessibility', './routes/accessibility');
 crmRoutes = loadRoute('crm', './routes/crm');
 contractRoutes = loadRoute('contracts', './routes/contracts');
 notificationRoutes = loadRoute('notifications', './routes/notifications');
@@ -204,6 +205,7 @@ if (contactsRoutes) app.use('/api/contacts', contactsRoutes);
 if (authRoutes) app.use('/api/auth', authRoutes);
 if (schedulerRoutes) app.use('/api/scheduler', schedulerRoutes);
 if (auditorRoutes) app.use('/api/auditor', auditorRoutes);
+if (accessibilityRoutes) app.use('/api/accessibility', accessibilityRoutes);
 if (contractRoutes) app.use('/api/contracts', contractRoutes);
 if (notificationRoutes) app.use('/api/notifications', notificationRoutes);
 if (paymentsRoutes) app.use('/api/payments', paymentsRoutes);
@@ -222,6 +224,7 @@ if (newsletterRoutes) app.use('/newsletter', newsletterRoutes);
 if (authRoutes) app.use('/auth', authRoutes);
 if (schedulerRoutes) app.use('/scheduler', schedulerRoutes);
 if (auditorRoutes) app.use('/auditor', auditorRoutes);
+if (accessibilityRoutes) app.use('/accessibility', accessibilityRoutes);
 if (crmRoutes) app.use('/crm', crmRoutes);
 if (contactsRoutes) app.use('/contacts', contactsRoutes);
 if (contractRoutes) app.use('/contracts', contractRoutes);

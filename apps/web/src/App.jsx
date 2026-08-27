@@ -16,6 +16,8 @@ import ClientPortalPage from '@/pages/ClientPortalPage.jsx';
 import BlogPostPage from '@/pages/BlogPostPage.jsx';
 import AuditorPage from '@/pages/AuditorPage.jsx';
 import AuditorResultsPage from '@/pages/AuditorResultsPage.jsx';
+import AccessibilityCheckerPage from '@/pages/AccessibilityCheckerPage.jsx';
+import AccessibilityCheckerResultsPage from '@/pages/AccessibilityCheckerResultsPage.jsx';
 import ClientPortalLoginPage from '@/pages/ClientPortalLoginPage.jsx';
 import ResetPasswordPage from '@/pages/ResetPasswordPage.jsx';
 import MaintenancePlansPage from '@/pages/MaintenancePlansPage.jsx';
@@ -62,6 +64,8 @@ function App() {
             <Route path="/blog/:slug" element={<BlogPostPage />} />
             <Route path="/auditor" element={<AuditorPage />} />
             <Route path="/auditor/results/:id" element={<AuditorResultsPage />} />
+            <Route path="/accessibility-checker" element={<AccessibilityCheckerPage />} />
+            <Route path="/accessibility-checker/results/:id" element={<AccessibilityCheckerResultsPage />} />
             <Route path="/maintenance-plans" element={<MaintenancePlansPage />} />
             <Route path="/payment-success" element={<PaymentSuccessPage />} />
             <Route path="/accessibility-statement" element={<AccessibilityStatementPage />} />
