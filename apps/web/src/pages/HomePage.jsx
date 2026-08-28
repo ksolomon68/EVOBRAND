@@ -71,7 +71,8 @@ const CountStat = ({ value, suffix, label, delay = 0 }) => {
 
   return (
     <div ref={rootRef}>
-      <p className="text-3xl font-bold text-white" aria-label={`${value}${suffix} ${label}`}>
+      <p className="text-3xl font-bold text-white">
+        <span className="sr-only">{`${value}${suffix} ${label}`}</span>
         <span ref={numRef} aria-hidden="true">0{suffix}</span>
       </p>
       <svg
@@ -93,7 +94,7 @@ const CountStat = ({ value, suffix, label, delay = 0 }) => {
           strokeDashoffset="100"
         />
       </svg>
-      <p className="text-gray-400 text-sm">{label}</p>
+      <p className="text-gray-300 text-sm">{label}</p>
     </div>
   );
 };
@@ -186,7 +187,7 @@ const HomePage = () => {
         {/* Stats Banner */}
         <section className="py-8" style={{ background: 'rgba(26,35,50,0.88)' }}>
           <div className="container mx-auto px-4">
-            <p className="text-center text-xs md:text-sm font-semibold uppercase tracking-wider text-white/50 mb-4">
+            <p className="text-center text-xs md:text-sm font-bold uppercase tracking-wider text-[#22c8e5] mb-4">
               Results our clients see
             </p>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">

@@ -102,7 +102,7 @@
 }
 .aw-header-icon {
   width: 40px; height: 40px;
-  background: rgba(255,255,255,0.18);
+  background: rgba(0,50,88,0.15);
   border-radius: 10px;
   display: flex; align-items: center; justify-content: center;
   flex-shrink: 0;
@@ -111,26 +111,27 @@
 .aw-header-copy { flex: 1; min-width: 0; }
 .aw-header-copy h2 {
   font-size: 1rem; font-weight: 700;
-  color: #fff; margin: 0; line-height: 1.2;
+  color: #003258; margin: 0; line-height: 1.2;
 }
 .aw-header-copy p {
   font-size: 0.75rem;
-  color: rgba(255,255,255,0.7);
+  color: rgba(0,50,88,0.85);
   margin: 3px 0 0; line-height: 1;
 }
 .aw-close {
-  width: 34px; height: 34px;
-  background: rgba(255,255,255,0.18);
+  width: 36px; height: 36px;
+  background: rgba(0,50,88,0.12);
   border: none; border-radius: 50%;
-  color: #fff; font-size: 1rem;
+  color: #003258; font-size: 1.1rem;
+  font-weight: bold;
   cursor: pointer;
   display: flex; align-items: center; justify-content: center;
   flex-shrink: 0;
   transition: background 0.2s;
   font-family: inherit;
 }
-.aw-close:hover { background: rgba(255,255,255,0.32); }
-.aw-close:focus-visible { outline: 2px solid #FFCC00; outline-offset: 2px; }
+.aw-close:hover { background: rgba(0,50,88,0.25); }
+.aw-close:focus-visible { outline: 2px solid #003258; outline-offset: 2px; }
 
 /* ── Body ────────────────────────────────────────────────────── */
 .aw-body {
@@ -245,14 +246,14 @@
   border-color: var(--a11y-primary);
   box-shadow: 0 3px 12px rgba(0,87,184,0.3);
 }
-.aw-card.on .aw-card-ico,
-.aw-card.on .aw-card-lbl { color: #fff; }
+.aw-card.on .aw-card-ico { color: #003258; }
+.aw-card.on .aw-card-lbl { color: #003258; font-weight: 700; }
 .aw-card.on::after {
   content: '✓';
   position: absolute;
   top: 5px; right: 7px;
   font-size: 9px; font-weight: 800;
-  color: rgba(255,255,255,0.85);
+  color: #003258;
 }
 .aw-card-ico {
   width: 28px; height: 28px;

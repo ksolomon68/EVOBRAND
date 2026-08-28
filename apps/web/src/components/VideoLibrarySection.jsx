@@ -271,7 +271,7 @@ export default function VideoLibrarySection() {
                 <span className="text-4xl" aria-hidden="true">🎬</span>
               </div>
               <p className="text-white text-xl font-bold mb-2">Coming Soon</p>
-              <p className="text-gray-500 max-w-sm text-sm">Our video library is on its way. Check back soon for AI tutorials and client stories.</p>
+              <p className="text-gray-300 max-w-sm text-sm">Our video library is on its way. Check back soon for AI tutorials and client stories.</p>
             </div>
           ) : filteredVideos.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-24 text-center">

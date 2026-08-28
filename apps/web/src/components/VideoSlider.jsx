@@ -132,9 +132,9 @@ export default function VideoSlider({ videos = [], onVideoSelect, title, newVide
         onClick={() => slide(-1)}
         disabled={!canPrev}
         aria-label="Previous videos"
-        className="absolute left-0 top-1/2 -translate-y-1/2 z-20 w-10 h-10 rounded-full bg-[#0A1628] border border-[#22c8e5]/30 flex items-center justify-center text-[#22c8e5] disabled:opacity-20 disabled:cursor-not-allowed hover:bg-[#22c8e5] hover:text-[#003258] transition-all duration-200 shadow-lg shadow-black/60 focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#22c8e5] focus-visible:outline-offset-2"
+        className="absolute left-0 top-1/2 -translate-y-1/2 z-20 w-11 h-11 rounded-full bg-[#0A1628] border border-[#22c8e5]/30 flex items-center justify-center text-[#22c8e5] disabled:opacity-20 disabled:cursor-not-allowed hover:bg-[#22c8e5] hover:text-[#003258] transition-all duration-200 shadow-lg shadow-black/60 focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#22c8e5] focus-visible:outline-offset-2"
       >
-        <ChevronLeft size={18} aria-hidden="true" />
+        <ChevronLeft size={20} aria-hidden="true" />
       </button>
 
       {/* Next arrow */}
@@ -142,9 +142,9 @@ export default function VideoSlider({ videos = [], onVideoSelect, title, newVide
         onClick={() => slide(1)}
         disabled={!canNext}
         aria-label="Next videos"
-        className="absolute right-0 top-1/2 -translate-y-1/2 z-20 w-10 h-10 rounded-full bg-[#0A1628] border border-[#22c8e5]/30 flex items-center justify-center text-[#22c8e5] disabled:opacity-20 disabled:cursor-not-allowed hover:bg-[#22c8e5] hover:text-[#003258] transition-all duration-200 shadow-lg shadow-black/60 focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#22c8e5] focus-visible:outline-offset-2"
+        className="absolute right-0 top-1/2 -translate-y-1/2 z-20 w-11 h-11 rounded-full bg-[#0A1628] border border-[#22c8e5]/30 flex items-center justify-center text-[#22c8e5] disabled:opacity-20 disabled:cursor-not-allowed hover:bg-[#22c8e5] hover:text-[#003258] transition-all duration-200 shadow-lg shadow-black/60 focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#22c8e5] focus-visible:outline-offset-2"
       >
-        <ChevronRight size={18} aria-hidden="true" />
+        <ChevronRight size={20} aria-hidden="true" />
       </button>
 
       {/* Track */}
@@ -164,17 +164,15 @@ export default function VideoSlider({ videos = [], onVideoSelect, title, newVide
           style={{ gap: CARD_GAP, width: 'max-content', padding: `4px ${PEEK}px 16px` }}
         >
           {videos.map((video, i) => (
-            <div
+            <button
               key={video.id}
-              className="vs-card relative rounded-xl overflow-hidden flex-shrink-0 bg-[#0A1628] border border-white/5 will-change-transform"
+              type="button"
+              className="vs-card relative rounded-xl overflow-hidden flex-shrink-0 bg-[#0A1628] border border-white/5 will-change-transform text-left p-0 cursor-pointer focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#22c8e5]"
               style={{ width: CARD_W, aspectRatio: '16/9' }}
               onMouseEnter={onCardEnter}
               onMouseLeave={onCardLeave}
               onClick={() => handleCardClick(video.id)}
-              onKeyDown={(e) => e.key === 'Enter' && onVideoSelect(video.id)}
-              role="button"
-              tabIndex={0}
-              aria-label={`Play: ${video.title}`}
+              aria-label={`${video.title} — Play video`}
             >
               {/* Thumbnail */}
               <img
@@ -218,7 +216,7 @@ export default function VideoSlider({ videos = [], onVideoSelect, title, newVide
               <p className="vs-title absolute bottom-3 left-3 right-3 text-white text-xs font-semibold leading-tight line-clamp-2 opacity-0 translate-y-2 pointer-events-none" aria-hidden="true">
                 {video.title}
               </p>
-            </div>
+            </button>
           ))}
         </div>
       </div>
@@ -228,15 +226,15 @@ export default function VideoSlider({ videos = [], onVideoSelect, title, newVide
         {videos.map((_, i) => (
           <button
             key={i}
-            aria-pressed={i === activeIndex}
             aria-label={`Go to video ${i + 1}`}
+            aria-current={i === activeIndex ? 'true' : undefined}
             onClick={() => snapToIndex(i)}
-            className="relative -m-2.5 flex items-center justify-center p-2.5 focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#22c8e5]"
+            className="relative min-w-[36px] min-h-[36px] flex items-center justify-center p-2.5 focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#22c8e5] rounded-full"
           >
             <span
               aria-hidden="true"
-              className={`block h-1 rounded-full transition-all duration-300 ${
-                i === activeIndex ? 'w-6 bg-[#22c8e5]' : 'w-1.5 bg-white/20 hover:bg-white/40'
+              className={`block h-1.5 rounded-full transition-all duration-300 ${
+                i === activeIndex ? 'w-6 bg-[#22c8e5]' : 'w-2 bg-white/30 hover:bg-white/50'
               }`}
             />
           </button>

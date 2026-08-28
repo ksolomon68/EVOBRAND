@@ -138,6 +138,7 @@ const AccessibilityResults = ({ report, isLoading, onDownloadPDF }) => {
   return (
     <div className="min-h-screen bg-[#04080f] pt-8 pb-20">
       <div className="container mx-auto px-4 max-w-5xl">
+        <h1 className="sr-only">EVOBRAND Accessibility Scan Report</h1>
         {/* Score Hero */}
         <motion.div
           initial={{ opacity: 0, y: 40 }}
@@ -320,8 +321,8 @@ const AccessibilityResults = ({ report, isLoading, onDownloadPDF }) => {
               Download PDF Report
             </button>
           </div>
-          <p className="text-white/30 text-xs max-w-xl mx-auto leading-relaxed mb-3">{r.disclaimer}</p>
-          <p className="text-white/30 text-sm">Keisha Solomon · CEO, EVOBRAND Concepts · Ellis County, TX</p>
+          <p className="text-gray-300 text-xs max-w-xl mx-auto leading-relaxed mb-3">{r.disclaimer}</p>
+          <p className="text-gray-300 text-sm font-medium">Keisha Solomon · CEO, EVOBRAND Concepts · Ellis County, TX</p>
         </motion.div>
       </div>
     </div>

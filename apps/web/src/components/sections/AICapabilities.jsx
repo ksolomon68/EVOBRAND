@@ -149,7 +149,7 @@ const AICapabilities = () => {
             viewport={{ once: true }}
             transition={{ duration: 0.6 }}
           >
-            <span className="inline-block text-white/50 text-xs font-bold tracking-[0.15em] uppercase mb-4">
+            <span className="inline-block text-[#22c8e5] text-xs font-bold tracking-[0.15em] uppercase mb-4">
               AI Capabilities
             </span>
             <h2 className="text-3xl md:text-5xl font-bold mb-4 text-white leading-tight">
@@ -176,7 +176,7 @@ const AICapabilities = () => {
                   <div className="w-11 h-11 rounded-lg bg-[rgba(34,200,229,0.15)] flex items-center justify-center" aria-hidden="true">
                     <f.icon className="text-[#22c8e5]" size={22} />
                   </div>
-                  <span className="text-[11px] font-bold tracking-[0.25em] text-white/60">
+                  <span className="text-[11px] font-bold tracking-[0.25em] text-white/80">
                     {f.num} — 05
                   </span>
                 </div>
@@ -200,7 +200,7 @@ const AICapabilities = () => {
 
         {/* Stats */}
         <div className="container mx-auto px-4 lg:max-w-[1200px] mt-12">
-          <p className="text-center text-xs md:text-sm font-semibold uppercase tracking-wider text-white/50 mb-4">
+          <p className="text-center text-xs md:text-sm font-bold uppercase tracking-wider text-[#22c8e5] mb-4">
             EVOBRAND by the numbers
           </p>
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6">

@@ -74,7 +74,7 @@ const Footer = () => {
             <Link to="/" className="inline-block mb-4" aria-label="EVOBRAND — go to home page">
               <motion.img
                 src="/logo.png"
-                alt=""
+                alt="EVOBRAND"
                 className="h-[40px] md:h-[50px] lg:h-[60px] w-auto object-contain"
                 whileHover={{ scale: 1.02 }}
                 transition={{ duration: 0.3 }}
@@ -83,17 +83,17 @@ const Footer = () => {
             <p className="text-gray-400 text-sm mb-4">
               AI Transformation Partner - Empowering businesses with cutting-edge AI solutions, custom applications, and intelligent automation.
             </p>
-            <div className="flex -m-2">
-              <a href="http://facebook.com/evobrandconcepts" target="_blank" rel="noopener noreferrer" className="p-2 text-gray-400 hover:text-[#22c8e5] transition-colors" aria-label="EVOBRAND on Facebook (opens in new tab)">
+            <div className="flex gap-2">
+              <a href="http://facebook.com/evobrandconcepts" target="_blank" rel="noopener noreferrer" className="min-w-[44px] min-h-[44px] inline-flex items-center justify-center text-gray-400 hover:text-[#22c8e5] transition-colors rounded-lg focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#22c8e5]" aria-label="EVOBRAND on Facebook (opens in new tab)">
                 <Facebook size={20} aria-hidden="true" />
               </a>
-              <a href="https://www.linkedin.com/company/evobrand-concepts/" target="_blank" rel="noopener noreferrer" className="p-2 text-gray-400 hover:text-[#22c8e5] transition-colors" aria-label="EVOBRAND on LinkedIn (opens in new tab)">
+              <a href="https://www.linkedin.com/company/evobrand-concepts/" target="_blank" rel="noopener noreferrer" className="min-w-[44px] min-h-[44px] inline-flex items-center justify-center text-gray-400 hover:text-[#22c8e5] transition-colors rounded-lg focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#22c8e5]" aria-label="EVOBRAND on LinkedIn (opens in new tab)">
                 <Linkedin size={20} aria-hidden="true" />
               </a>
-              <a href="https://www.instagram.com/evobrandconcepts" target="_blank" rel="noopener noreferrer" className="p-2 text-gray-400 hover:text-[#22c8e5] transition-colors" aria-label="EVOBRAND on Instagram (opens in new tab)">
+              <a href="https://www.instagram.com/evobrandconcepts" target="_blank" rel="noopener noreferrer" className="min-w-[44px] min-h-[44px] inline-flex items-center justify-center text-gray-400 hover:text-[#22c8e5] transition-colors rounded-lg focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#22c8e5]" aria-label="EVOBRAND on Instagram (opens in new tab)">
                 <Instagram size={20} aria-hidden="true" />
               </a>
-              <a href="https://www.youtube.com/channel/UC8z66n8_seQVY5PjBEDMM7w" target="_blank" rel="noopener noreferrer" className="p-2 text-gray-400 hover:text-[#22c8e5] transition-colors" aria-label="EVOBRAND on YouTube (opens in new tab)">
+              <a href="https://www.youtube.com/channel/UC8z66n8_seQVY5PjBEDMM7w" target="_blank" rel="noopener noreferrer" className="min-w-[44px] min-h-[44px] inline-flex items-center justify-center text-gray-400 hover:text-[#22c8e5] transition-colors rounded-lg focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#22c8e5]" aria-label="EVOBRAND on YouTube (opens in new tab)">
                 <Youtube size={20} aria-hidden="true" />
               </a>
             </div>

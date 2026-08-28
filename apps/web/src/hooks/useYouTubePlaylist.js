@@ -230,16 +230,25 @@ const useYouTubePlaylist = (playlistId) => {
       }
 
       try {
-        const response = await axios.get('https://www.googleapis.com/youtube/v3/playlistItems', {
-          params: {
+        // Paginate through ALL playlist pages (YouTube caps each page at 50)
+        let allItems = [];
+        let nextPageToken = null;
+
+        do {
+          const params = {
             part: 'snippet,status',
             maxResults: 50,
             playlistId: playlistId,
             key: apiKey,
-          },
-        });
+          };
+          if (nextPageToken) params.pageToken = nextPageToken;
 
-        const formattedVideos = response.data.items
+          const response = await axios.get('https://www.googleapis.com/youtube/v3/playlistItems', { params });
+          allItems = allItems.concat(response.data.items);
+          nextPageToken = response.data.nextPageToken || null;
+        } while (nextPageToken);
+
+        const formattedVideos = allItems
           .filter(item => item.status.privacyStatus === 'public')
           .map((item) => ({
             id: item.snippet.resourceId.videoId,

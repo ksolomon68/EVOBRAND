@@ -130,7 +130,7 @@ export default function ScrollProgressRail() {
               href={`#${stop.id}`}
               aria-label={`${stop.num} — ${stop.label}`}
               aria-current={isActive ? 'true' : undefined}
-              className="group absolute left-1/2 flex h-[22px] w-[22px] items-center justify-center rounded-full focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#22c8e5]"
+              className="group absolute left-1/2 flex h-[36px] w-[36px] items-center justify-center rounded-full focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#22c8e5]"
               style={{
                 top: `${dotPos[i] * 100}%`,
                 transform: 'translate(-50%, -50%)',

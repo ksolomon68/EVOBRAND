@@ -155,7 +155,7 @@
   function syncUI() {
     FEATURES.forEach(f => {
       const c = document.getElementById(`aw-card-${f.id}`);
-      if (c) { c.classList.toggle('on', !!P[f.id]); c.setAttribute('aria-pressed', String(!!P[f.id])); }
+      if (c) { c.classList.toggle('on', !!P[f.id]); c.setAttribute('aria-checked', String(!!P[f.id])); }
     });
     PROFILES.forEach(p => {
       const b = document.getElementById(`aw-prof-${p.id}`);
@@ -177,13 +177,13 @@
     setTimeout(() => { el.textContent = msg; }, 50);
   }
 
-  /* ── Build HTML ──────────────────────────────────────────── */
+  /* ── Build HTML ──────────────────────────────────── */
   function buildHTML() {
     const profiles = PROFILES.map(p => `
       <button class="aw-profile" id="aw-prof-${p.id}" data-prof="${p.id}"
-              aria-pressed="false" aria-label="${p.label.replace('\n',' ')}">
+              aria-pressed="false">
         <span class="aw-profile-ico" aria-hidden="true">${IC[p.ico]}</span>
-        <span class="aw-profile-name" aria-hidden="true">${p.label.replace('\n','<br>')}</span>
+        <span class="aw-profile-name">${p.label.replace('\n','<br>')}</span>
       </button>`).join('');
 
     const cards = FEATURES.map(f => `

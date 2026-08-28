@@ -148,23 +148,21 @@ const AccessibilityForm = ({ onComplete }) => {
         />
       </div>
 
-      <label className="flex items-start gap-3 cursor-pointer group">
+      <label htmlFor="a11y-wants-call" className="flex items-start gap-3 cursor-pointer group">
+        <input
+          id="a11y-wants-call"
+          type="checkbox"
+          checked={form.wantsCall}
+          onChange={(e) => set('wantsCall', e.target.checked)}
+          className="sr-only"
+        />
         <div
           className={`
             mt-0.5 w-5 h-5 rounded border-2 flex-shrink-0 flex items-center justify-center
             transition-all duration-200 cursor-pointer
             ${form.wantsCall ? 'bg-[#22C8E5] border-[#22C8E5]' : 'border-white/30 group-hover:border-[#22C8E5]'}
           `}
-          onClick={() => set('wantsCall', !form.wantsCall)}
-          onKeyDown={(e) => {
-            if (e.key === ' ' || e.key === 'Enter') {
-              e.preventDefault();
-              set('wantsCall', !form.wantsCall);
-            }
-          }}
-          role="checkbox"
-          aria-checked={form.wantsCall}
-          tabIndex={0}
+          aria-hidden="true"
         >
           {form.wantsCall && (
             <svg className="w-3 h-3 text-[#003258]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
@@ -172,9 +170,9 @@ const AccessibilityForm = ({ onComplete }) => {
             </svg>
           )}
         </div>
-        <span className="text-white/70 text-sm leading-relaxed">
+        <span className="text-white/80 text-sm leading-relaxed">
           I'd like a free 15-min strategy call with Keisha about accessibility remediation
-          <span className="block text-[#22C8E5]/60 text-xs mt-0.5 font-medium">(No pressure. Completely optional.)</span>
+          <span className="block text-[#22C8E5] text-xs mt-0.5 font-medium">(No pressure. Completely optional.)</span>
         </span>
       </label>
 

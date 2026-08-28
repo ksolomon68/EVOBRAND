@@ -31,7 +31,7 @@ const Header = () => {
           <NavLink to="/" className="flex items-center" aria-label="EVOBRAND — go to home page">
             <motion.img
               src="/logo.png"
-              alt=""
+              alt="EVOBRAND"
               className="h-[40px] md:h-[50px] lg:h-[60px] w-auto object-contain"
               whileHover={{ scale: 1.02 }}
               transition={{ duration: 0.3 }}
@@ -69,7 +69,7 @@ const Header = () => {
           {/* Mobile Menu Button */}
           <button
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            className="xl:hidden text-white hover:text-[#22c8e5] transition-colors p-2"
+            className="xl:hidden text-white hover:text-[#22c8e5] transition-colors p-2 min-h-[44px] min-w-[44px] flex items-center justify-center rounded-lg"
             aria-label={mobileMenuOpen ? 'Close navigation menu' : 'Open navigation menu'}
             aria-expanded={mobileMenuOpen}
             aria-controls="mobile-nav"

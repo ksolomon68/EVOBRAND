@@ -139,12 +139,12 @@ const AuditorSection = () => {
             <div className="hidden lg:flex items-center gap-6">
               <div className="text-center">
                 <p className="font-bold text-5xl text-[#22C8E5] leading-none">87</p>
-                <p className="text-white/30 text-xs mt-1">Sample Score</p>
+                <p className="text-gray-300 text-xs mt-1">Sample Score</p>
               </div>
               <div className="flex-1 space-y-2">
                 {['Visual Identity', 'Digital Presence', 'Brand Clarity'].map((label, i) => (
                   <div key={label} className="flex items-center gap-3">
-                    <span className="text-white/40 text-xs w-28">{label}</span>
+                    <span className="text-gray-300 text-xs w-28">{label}</span>
                     <div className="flex-1 h-1 bg-white/10 rounded-full overflow-hidden">
                       <motion.div
                         className="h-full bg-[#22C8E5] rounded-full"
@@ -176,7 +176,7 @@ const AuditorSection = () => {
                 <p className="text-[#22C8E5] text-xs font-semibold tracking-widest uppercase">
                   Quick Audit Preview
                 </p>
-                <p className="text-white/30 text-xs ">Step {step} of 2</p>
+                <p className="text-gray-300 text-xs font-medium">Step {step} of 2</p>
               </div>
               <div className="w-full h-0.5 bg-white/10 rounded-full mb-8 overflow-hidden">
                 <motion.div
@@ -256,7 +256,7 @@ const AuditorSection = () => {
                           transition-all duration-200 cursor-pointer
                           ${form.challenges.includes(c)
                             ? 'bg-[#22C8E5] border-[#22C8E5] text-[#003258] font-semibold'
-                            : 'border-white/20 text-white/60 hover:border-[#22C8E5]'
+                            : 'border-white/20 text-white/80 hover:border-[#22C8E5]'
                           }
                         `}
                         id={`section-challenge-${c.replace(/\s+/g, '-').toLowerCase()}`}
@@ -290,7 +290,7 @@ const AuditorSection = () => {
                 {step === 1 ? <>Continue <span aria-hidden="true">→</span></> : <>Get My Free Brand Score <span aria-hidden="true">→</span></>}
               </motion.button>
 
-              <p className="text-white/20 text-xs text-center mt-4 ">
+              <p className="text-gray-400 text-xs text-center mt-4 font-medium">
                 Free · Takes 4 minutes · No credit card
               </p>
             </div>

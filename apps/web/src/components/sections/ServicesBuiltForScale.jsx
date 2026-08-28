@@ -11,7 +11,7 @@ const ServicesBuiltForScale = () => {
             initial={{ opacity: 0, y: 30 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            className="inline-block text-white/50 text-xs font-bold tracking-[0.15em] uppercase mb-4"
+            className="inline-block text-[#22c8e5] text-xs font-bold tracking-[0.15em] uppercase mb-4"
           >
             What We Do
           </motion.span>
