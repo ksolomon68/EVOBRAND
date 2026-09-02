@@ -99,7 +99,7 @@ const OurWorkPage = () => {
       subtitle: 'Dual-Screen Simulator',
       category: 'Dashboard Demo',
       industry: 'SaaS / Operations',
-      image: '/projects/evocore.gif',
+      image: '/projects/evocore.jpeg',
       highlights: ['Interactive Prototype', 'Mobile Crew App', 'Admin Portal', 'Real-Time Sync'],
       description: 'Interactive simulator showing how the Mobile Crew App and Admin Portal sync in real-time.',
       link: 'https://evobrandconcepts.com/evocore/'
