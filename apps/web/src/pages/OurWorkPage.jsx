@@ -94,6 +94,17 @@ const OurWorkPage = () => {
 
   const dashboardDemos = [
     {
+      id: 300,
+      title: 'EVOCORE',
+      subtitle: 'Dual-Screen Simulator',
+      category: 'Dashboard Demo',
+      industry: 'SaaS / Operations',
+      image: '/projects/evocore.gif',
+      highlights: ['Interactive Prototype', 'Mobile Crew App', 'Admin Portal', 'Real-Time Sync'],
+      description: 'Interactive simulator showing how the Mobile Crew App and Admin Portal sync in real-time.',
+      link: 'https://evobrandconcepts.com/evocore/'
+    },
+    {
       id: 301,
       title: 'Who Wanna Pho',
       subtitle: 'Operations Hub & Management',
@@ -201,7 +212,7 @@ const OurWorkPage = () => {
       image: '/projects/true-releaf.jpg',
       highlights: ['Premium CBD/Hemp', 'Quality Focused', 'Customer Education'],
       description: 'Serving Only the Best. Premium CBD/Hemp Store with a focus on quality and customer education.',
-      link: 'https://truereleafmonroe.com'
+      link: 'https://evobrandconcepts.com/truereleaf/'
     },
     {
       id: 101,
