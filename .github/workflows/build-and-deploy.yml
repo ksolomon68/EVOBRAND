@@ -73,6 +73,17 @@ jobs:
           [ -f dist/apps/web/robots.txt ]  && cp dist/apps/web/robots.txt  deploy/robots.txt  || true
           [ -f dist/apps/web/sitemap.xml ] && cp dist/apps/web/sitemap.xml deploy/sitemap.xml || true
 
+      - name: Sync project images into deploy/projects/
+        # Keeps deploy/projects/ in sync with apps/web/public/projects/ so
+        # any new or updated project images (screenshots, demo thumbnails)
+        # are automatically available on the live site after a push.
+        # Uses rsync-style cp behaviour: new files are added, existing files
+        # are overwritten, but files deleted from public/ are NOT pruned from
+        # deploy/ (keeps legacy images that may still be referenced elsewhere).
+        run: |
+          mkdir -p deploy/projects
+          cp -r apps/web/public/projects/. deploy/projects/
+
       - name: Commit & push updated dist and deploy
         id: commit_dist
         run: |
