@@ -185,6 +185,16 @@ const OurWorkPage = () => {
 
   const recentLaunches = [
     {
+      id: 107,
+      title: "The Texas Theater",
+      category: 'Web Development',
+      industry: 'Entertainment',
+      image: '/projects/ttt.png',
+      highlights: ['Live Music & Film', 'Historic Venue', 'Waxahachie TX'],
+      description: "A restored 1939 art-deco theater on the square in Waxahachie, Texas. Live music, film, and theater under a working neon marquee.",
+      link: 'https://evobrandconcepts.com/ttt/'
+    },
+    {
       id: 106,
       title: "Christopher's Pinpoint",
       category: 'Web Development',
