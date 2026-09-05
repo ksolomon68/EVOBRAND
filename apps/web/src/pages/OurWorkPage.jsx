@@ -185,6 +185,16 @@ const OurWorkPage = () => {
 
   const recentLaunches = [
     {
+      id: 106,
+      title: "Christopher's Pinpoint",
+      category: 'Web Development',
+      industry: 'Fashion & Apparel',
+      image: '/projects/cpp.png',
+      highlights: ['Bespoke Suits', 'Custom Haberdasher', 'Monroe LA'],
+      description: "We don't make suits. We build character. Hand-cut, hand-stitched garments built from a pattern that exists nowhere else but on you.",
+      link: 'https://christopherspinpoint.com/'
+    },
+    {
       id: 20,
       title: 'RBCA Community Development Corporation',
       category: 'Web Development',
