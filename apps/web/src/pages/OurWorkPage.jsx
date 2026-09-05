@@ -225,16 +225,6 @@ const OurWorkPage = () => {
       link: 'https://evobrandconcepts.com/bigals'
     },
     {
-      id: 11,
-      title: 'True Releaf',
-      category: 'E-commerce',
-      industry: 'Retail',
-      image: '/projects/true-releaf.jpg',
-      highlights: ['Premium CBD/Hemp', 'Quality Focused', 'Customer Education'],
-      description: 'Serving Only the Best. Premium CBD/Hemp Store with a focus on quality and customer education.',
-      link: 'https://evobrandconcepts.com/truereleaf/'
-    },
-    {
       id: 101,
       title: 'Common Ground Ministries',
       category: 'Web Development',
