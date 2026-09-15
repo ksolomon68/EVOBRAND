@@ -58,7 +58,7 @@ const OurWorkPage = () => {
       image: '/projects/chamberos.png',
       highlights: ['Saves 12+ Hrs/Wk', '19 Modules', '$0 Setup'],
       description: 'Stop running your chamber on spreadsheets. The all-in-one platform built to automate dues, events, governance, advocacy, and member engagement.',
-      link: 'https://evobrand.net/chambercore'
+      link: 'https://chambercore.net'
     },
     {
       id: 103,
