@@ -8,6 +8,8 @@ const work = [
     description: 'One place for membership, dues, events, and the day-to-day work of a chamber.' },
   { title: 'PrimeReach', type: 'Government contracting', image: '/projects/primereach.png', url: 'https://primereachgov.com/',
     description: 'A platform that connects prime contractors with qualified small businesses.' },
+  { title: 'The AI Executive Sandbox', type: 'Executive AI & leadership', image: '/projects/keishasolomon.png', url: 'https://keishasolomon.com/',
+    description: 'Applied AI cohort where business leaders build deployable AI assets, workflows, and pipelines.' },
   { title: 'Pivotal Voice', type: 'Community & civic engagement', image: '/projects/pivotal-voice.jpg', url: 'https://pivotalvoice.org/',
     description: 'A public platform connecting Ellis County residents with civic information.' },
 ];

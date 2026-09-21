@@ -71,6 +71,16 @@ const OurWorkPage = () => {
       link: 'https://primereachgov.com/'
     },
     {
+      id: 105,
+      title: 'The AI Executive Sandbox',
+      category: 'Executive Education',
+      industry: 'AI & Leadership',
+      image: '/projects/keishasolomon.png',
+      highlights: ['8-Month Cohort', 'Hands-On Building', 'Executive AI'],
+      description: 'Applied AI for Leadership & Business Innovation. An eight-month, in-person cohort where leaders build working AI assets, policies, workflows, and pipelines.',
+      link: 'https://keishasolomon.com/'
+    },
+    {
       id: 12,
       title: 'Pivotal Voice',
       category: 'Web Development',
