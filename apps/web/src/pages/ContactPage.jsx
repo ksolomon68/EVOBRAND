@@ -408,6 +408,7 @@ export default function ContactPage() {
       <div className="min-h-screen bg-[#0f1419]">
         {/* Hero */}
         <PageHero
+          variant="contact"
           eyebrow="Get in Touch"
           lines={[[{ t: "Let's" }, { t: 'Connect', accent: true }]]}
           sub="Ready to transform your business with AI? Reach out for a free 30-minute consultation — no obligation."

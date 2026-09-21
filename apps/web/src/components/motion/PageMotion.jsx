@@ -127,35 +127,48 @@ export function KineticHeadline({
  * PageHero — cinematic interior-page hero: radial glow + faint grid backdrop,
  * chapter-style eyebrow, kinetic headline, fading subtitle.
  */
-export function PageHero({ eyebrow, lines, sub, children, replayKey }) {
+/**
+ * PageHero — cinematic interior-page hero: radial glow + faint grid backdrop,
+ * chapter-style eyebrow, kinetic headline, fading subtitle.
+ * Supports distinct mode-driven procedural hero backdrops (`variant`).
+ */
+export function PageHero({ eyebrow, lines, sub, children, replayKey, variant = 'default' }) {
+  const glows = {
+    default: 'radial-gradient(ellipse 80% 60% at 50% 35%, rgba(34,200,229,0.12) 0%, transparent 70%)',
+    about: 'radial-gradient(ellipse 75% 55% at 50% 30%, rgba(34,200,229,0.14) 0%, transparent 65%)',
+    services: 'radial-gradient(ellipse 90% 70% at 30% 20%, rgba(34,200,229,0.15) 0%, transparent 65%)',
+    work: 'radial-gradient(ellipse 85% 60% at 70% 40%, rgba(34,200,229,0.14) 0%, transparent 70%)',
+    process: 'radial-gradient(ellipse 80% 50% at 50% 50%, rgba(34,200,229,0.13) 0%, transparent 65%)',
+    resources: 'radial-gradient(ellipse 70% 65% at 50% 25%, rgba(34,200,229,0.15) 0%, transparent 70%)',
+    audit: 'radial-gradient(ellipse 65% 65% at 50% 40%, rgba(34,200,229,0.16) 0%, transparent 60%)',
+    contact: 'radial-gradient(circle at 50% 45%, rgba(34,200,229,0.18) 0%, transparent 65%)',
+  };
+
+  const selectedGlow = glows[variant] || glows.default;
+
   return (
     <section className="relative overflow-hidden bg-[#0f1419] pt-16 pb-16 md:pt-24 md:pb-24">
       <div aria-hidden="true" className="pointer-events-none absolute inset-0">
         <div
-          className="absolute -top-32 left-1/2 h-[520px] w-[900px] max-w-none -translate-x-1/2"
-          style={{
-            background:
-              'radial-gradient(ellipse, rgba(34,200,229,0.10) 0%, transparent 65%)',
-          }}
+          className="absolute -top-32 left-1/2 h-[560px] w-[960px] max-w-none -translate-x-1/2 transition-all duration-700"
+          style={{ background: selectedGlow }}
         />
         <div
           className="absolute inset-0"
           style={{
             backgroundImage:
               'linear-gradient(rgba(255,255,255,0.035) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.035) 1px, transparent 1px)',
-            backgroundSize: '56px 56px',
-            maskImage:
-              'radial-gradient(ellipse 80% 65% at 50% 35%, black, transparent)',
-            WebkitMaskImage:
-              'radial-gradient(ellipse 80% 65% at 50% 35%, black, transparent)',
+            backgroundSize: variant === 'services' ? '44px 44px' : '56px 56px',
+            maskImage: 'radial-gradient(ellipse 85% 65% at 50% 35%, black, transparent)',
+            WebkitMaskImage: 'radial-gradient(ellipse 85% 65% at 50% 35%, black, transparent)',
           }}
         />
-        <TechBackdrop density={34} />
+        <TechBackdrop mode={variant} density={variant === 'work' ? 48 : 34} />
       </div>
       <div className="container relative mx-auto px-4 text-center">
         {eyebrow && (
           <Reveal>
-            <p className="mb-6 inline-block rounded-full border border-[#22c8e5]/25 px-4 py-1.5 text-[11px] font-bold uppercase tracking-[0.25em] text-[#22c8e5]">
+            <p className="mb-6 inline-block rounded-full border border-[#22c8e5]/25 px-4 py-1.5 text-[11px] font-bold uppercase tracking-[0.25em] text-[#22c8e5] shadow-sm shadow-[#22c8e5]/10">
               {eyebrow}
             </p>
           </Reveal>
@@ -163,6 +176,7 @@ export function PageHero({ eyebrow, lines, sub, children, replayKey }) {
         <KineticHeadline
           lines={lines}
           replayKey={replayKey}
+          direction={variant === 'work' ? 'rtl' : 'ltr'}
           className="mb-6 text-4xl font-bold leading-tight text-white md:text-6xl"
         />
         {sub && (
@@ -323,8 +337,6 @@ export function ScrollDrawnLine({ className = '' }) {
       raf = null;
       const r = track.getBoundingClientRect();
       const vh = window.innerHeight;
-      // Draw from when the track's top passes 75% of viewport until its
-      // bottom passes 45% — the line stays just ahead of the reader.
       const start = vh * 0.75;
       const end = vh * 0.45;
       const total = r.height + (start - end);
@@ -360,12 +372,16 @@ export function ScrollDrawnLine({ className = '' }) {
 }
 
 /**
- * TechBackdrop — procedural network-node canvas (drifting data nodes with
- * proximity connections). Zero asset weight; pauses offscreen; renders a
- * single static frame under prefers-reduced-motion. Parent must be
- * position:relative — the canvas fills it.
+ * TechBackdrop — procedural canvas hero animation with mode-specific visuals:
+ * - 'about': Orbital drifting data nodes with connection links.
+ * - 'services': Hexagonal module grid with sweeping pulse beams.
+ * - 'work': Horizontal stream flow particles representing high velocity.
+ * - 'process': Circuit trace pathways with step-pulse highlights.
+ * - 'resources': Floating knowledge particle cloud drifting upwards.
+ * - 'audit': Laser radar scanner line with target pings.
+ * - 'contact': Concentric beacon rings pulsating outwards.
  */
-export function TechBackdrop({ density = 38, className = '' }) {
+export function TechBackdrop({ density = 38, mode = 'default', className = '' }) {
   const ref = useRef(null);
   const reduced = usePrefersReducedMotion();
 
@@ -377,6 +393,7 @@ export function TechBackdrop({ density = 38, className = '' }) {
     let raf = null;
     let disposed = false;
     let visible = true;
+    let frameCount = 0;
 
     function size() {
       canvas.width = parent.offsetWidth;
@@ -385,39 +402,187 @@ export function TechBackdrop({ density = 38, className = '' }) {
     size();
 
     const N = window.innerWidth < 768 ? Math.floor(density / 2) : density;
-    const nodes = Array.from({ length: N }, () => ({
-      x: Math.random() * canvas.width,
-      y: Math.random() * canvas.height,
-      vx: (Math.random() - 0.5) * 0.25,
-      vy: (Math.random() - 0.5) * 0.25,
-      r: Math.random() * 1.6 + 0.8,
-    }));
+
+    // Mode-specific particle state initialization
+    const particles = Array.from({ length: N }, () => {
+      if (mode === 'work') {
+        return {
+          x: Math.random() * canvas.width,
+          y: Math.random() * canvas.height,
+          vx: Math.random() * 1.5 + 0.5,
+          vy: (Math.random() - 0.5) * 0.1,
+          r: Math.random() * 2 + 1,
+          alpha: Math.random() * 0.4 + 0.1,
+        };
+      } else if (mode === 'resources') {
+        return {
+          x: Math.random() * canvas.width,
+          y: Math.random() * canvas.height,
+          vx: (Math.random() - 0.5) * 0.3,
+          vy: -(Math.random() * 0.4 + 0.1),
+          r: Math.random() * 2.2 + 0.8,
+          alpha: Math.random() * 0.35 + 0.15,
+        };
+      } else {
+        return {
+          x: Math.random() * canvas.width,
+          y: Math.random() * canvas.height,
+          vx: (Math.random() - 0.5) * 0.3,
+          vy: (Math.random() - 0.5) * 0.3,
+          r: Math.random() * 1.8 + 0.8,
+        };
+      }
+    });
 
     function draw(move) {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
-      for (let i = 0; i < nodes.length; i++) {
-        const a = nodes[i];
-        if (move) {
-          a.x += a.vx; a.y += a.vy;
-          if (a.x < 0 || a.x > canvas.width) a.vx *= -1;
-          if (a.y < 0 || a.y > canvas.height) a.vy *= -1;
-        }
-        for (let j = i + 1; j < nodes.length; j++) {
-          const b = nodes[j];
-          const d = Math.hypot(a.x - b.x, a.y - b.y);
-          if (d < 130) {
-            ctx.strokeStyle = `rgba(34,200,229,${(0.1 * (1 - d / 130)).toFixed(3)})`;
-            ctx.lineWidth = 0.7;
-            ctx.beginPath();
-            ctx.moveTo(a.x, a.y);
-            ctx.lineTo(b.x, b.y);
-            ctx.stroke();
+      frameCount++;
+
+      if (mode === 'work') {
+        // Stream Flow Animation
+        particles.forEach((p) => {
+          if (move) {
+            p.x += p.vx;
+            p.y += p.vy;
+            if (p.x > canvas.width) p.x = 0;
+            if (p.y < 0 || p.y > canvas.height) p.vy *= -1;
           }
-        }
-        ctx.fillStyle = 'rgba(34,200,229,0.35)';
+          ctx.fillStyle = `rgba(34,200,229,${p.alpha})`;
+          ctx.beginPath();
+          ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+          ctx.fill();
+
+          // Tail stream
+          ctx.strokeStyle = `rgba(34,200,229,${p.alpha * 0.4})`;
+          ctx.lineWidth = 1;
+          ctx.beginPath();
+          ctx.moveTo(p.x, p.y);
+          ctx.lineTo(p.x - 18 * p.vx, p.y);
+          ctx.stroke();
+        });
+      } else if (mode === 'resources') {
+        // Rising Knowledge Cloud
+        particles.forEach((p) => {
+          if (move) {
+            p.x += p.vx;
+            p.y += p.vy;
+            if (p.y < 0) {
+              p.y = canvas.height;
+              p.x = Math.random() * canvas.width;
+            }
+          }
+          ctx.fillStyle = `rgba(34,200,229,${p.alpha})`;
+          ctx.beginPath();
+          ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+          ctx.fill();
+        });
+      } else if (mode === 'audit') {
+        // Laser Scanner Line Sweep
+        const scanY = (frameCount * 1.2) % canvas.height;
+        ctx.strokeStyle = 'rgba(34,200,229,0.25)';
+        ctx.lineWidth = 1.5;
         ctx.beginPath();
-        ctx.arc(a.x, a.y, a.r, 0, Math.PI * 2);
-        ctx.fill();
+        ctx.moveTo(0, scanY);
+        ctx.lineTo(canvas.width, scanY);
+        ctx.stroke();
+
+        // Scan Beam Glow
+        const grad = ctx.createLinearGradient(0, scanY - 30, 0, scanY);
+        grad.addColorStop(0, 'rgba(34,200,229,0)');
+        grad.addColorStop(1, 'rgba(34,200,229,0.12)');
+        ctx.fillStyle = grad;
+        ctx.fillRect(0, scanY - 30, canvas.width, 30);
+
+        particles.forEach((p) => {
+          if (move) {
+            p.x += p.vx; p.y += p.vy;
+            if (p.x < 0 || p.x > canvas.width) p.vx *= -1;
+            if (p.y < 0 || p.y > canvas.height) p.vy *= -1;
+          }
+          const nearScan = Math.abs(p.y - scanY) < 25;
+          ctx.fillStyle = nearScan ? 'rgba(34,200,229,0.9)' : 'rgba(34,200,229,0.3)';
+          ctx.beginPath();
+          ctx.arc(p.x, p.y, nearScan ? p.r * 1.8 : p.r, 0, Math.PI * 2);
+          ctx.fill();
+        });
+      } else if (mode === 'contact') {
+        // Radiating Beacon Pulse Rings
+        const cx = canvas.width / 2;
+        const cy = canvas.height / 2;
+        const pulseR = (frameCount * 0.8) % 240;
+
+        [0, 80, 160].forEach((offset) => {
+          const r = (pulseR + offset) % 240;
+          const alpha = (1 - r / 240) * 0.22;
+          ctx.strokeStyle = `rgba(34,200,229,${alpha})`;
+          ctx.lineWidth = 1.2;
+          ctx.beginPath();
+          ctx.arc(cx, cy, r, 0, Math.PI * 2);
+          ctx.stroke();
+        });
+
+        particles.forEach((p) => {
+          if (move) {
+            p.x += p.vx; p.y += p.vy;
+            if (p.x < 0 || p.x > canvas.width) p.vx *= -1;
+            if (p.y < 0 || p.y > canvas.height) p.vy *= -1;
+          }
+          ctx.fillStyle = 'rgba(34,200,229,0.35)';
+          ctx.beginPath();
+          ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+          ctx.fill();
+        });
+      } else if (mode === 'services' || mode === 'process') {
+        // Hexagonal Grid & Circuit Traces
+        const stepY = (frameCount * 0.9) % canvas.height;
+        ctx.strokeStyle = 'rgba(34,200,229,0.08)';
+        ctx.lineWidth = 0.8;
+
+        for (let x = 30; x < canvas.width; x += 60) {
+          ctx.beginPath();
+          ctx.moveTo(x, 0);
+          ctx.lineTo(x, canvas.height);
+          ctx.stroke();
+        }
+
+        particles.forEach((p) => {
+          if (move) {
+            p.x += p.vx; p.y += p.vy;
+            if (p.x < 0 || p.x > canvas.width) p.vx *= -1;
+            if (p.y < 0 || p.y > canvas.height) p.vy *= -1;
+          }
+          const isHighlighted = Math.abs(p.y - stepY) < 35;
+          ctx.fillStyle = isHighlighted ? 'rgba(34,200,229,0.85)' : 'rgba(34,200,229,0.3)';
+          ctx.beginPath();
+          ctx.arc(p.x, p.y, isHighlighted ? p.r * 1.6 : p.r, 0, Math.PI * 2);
+          ctx.fill();
+        });
+      } else {
+        // Default / About Constellation Node Network
+        for (let i = 0; i < particles.length; i++) {
+          const a = particles[i];
+          if (move) {
+            a.x += a.vx; a.y += a.vy;
+            if (a.x < 0 || a.x > canvas.width) a.vx *= -1;
+            if (a.y < 0 || a.y > canvas.height) a.vy *= -1;
+          }
+          for (let j = i + 1; j < particles.length; j++) {
+            const b = particles[j];
+            const d = Math.hypot(a.x - b.x, a.y - b.y);
+            if (d < 130) {
+              ctx.strokeStyle = `rgba(34,200,229,${(0.1 * (1 - d / 130)).toFixed(3)})`;
+              ctx.lineWidth = 0.7;
+              ctx.beginPath();
+              ctx.moveTo(a.x, a.y);
+              ctx.lineTo(b.x, b.y);
+              ctx.stroke();
+            }
+          }
+          ctx.fillStyle = 'rgba(34,200,229,0.35)';
+          ctx.beginPath();
+          ctx.arc(a.x, a.y, a.r, 0, Math.PI * 2);
+          ctx.fill();
+        }
       }
     }
 
@@ -443,7 +608,7 @@ export function TechBackdrop({ density = 38, className = '' }) {
       io.disconnect();
       window.removeEventListener('resize', onResize);
     };
-  }, [reduced, density]);
+  }, [reduced, density, mode]);
 
   return (
     <canvas

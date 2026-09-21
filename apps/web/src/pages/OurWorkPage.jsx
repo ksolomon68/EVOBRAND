@@ -346,6 +346,7 @@ const OurWorkPage = () => {
       <div className="min-h-screen bg-[#0f1419]">
         {/* Hero */}
         <PageHero
+          variant="work"
           eyebrow="Web · SaaS · Government · Nonprofit"
           lines={[[{ t: 'Our' }, { t: 'Work', accent: true }]]}
           sub="Real projects. Real results. See how we've helped businesses transform with AI."

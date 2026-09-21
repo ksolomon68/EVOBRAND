@@ -129,6 +129,7 @@ const HowItWorksPage = () => {
       <div className="min-h-screen bg-[#0f1419]">
         {/* Hero */}
         <PageHero
+          variant="process"
           eyebrow="Discovery → Launch → Beyond"
           lines={[
             [{ t: 'Our' }, { t: 'Proven' }, { t: 'Process', accent: true }],

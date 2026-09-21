@@ -354,6 +354,7 @@ const ServicesPage = () => {
       <div className="min-h-screen bg-[#0f1419]">
         {/* Hero */}
         <PageHero
+          variant="services"
           eyebrow="Custom AI · Visual · Video · Docs · Web · WCAG"
           lines={[[{ t: 'Our' }, { t: 'Services', accent: true }]]}
           sub="Explore our full suite of AI-powered solutions with transparent pricing and proven results."

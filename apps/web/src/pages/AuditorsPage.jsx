@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Sparkles, Accessibility, ArrowRight, Zap, ShieldCheck } from 'lucide-react';
 import SEO from '@/components/SEO.jsx';
-import { KineticHeadline, Reveal } from '@/components/motion/PageMotion.jsx';
+import { PageHero, Reveal } from '@/components/motion/PageMotion.jsx';
 
 const TOOLS = [
   {
@@ -47,39 +47,15 @@ const AuditorsPage = () => {
 
       <div className="min-h-screen bg-[#04080f]">
         {/* Hero */}
-        <div className="relative overflow-hidden">
-          <div className="absolute inset-0 bg-gradient-to-br from-[#003258]/80 to-transparent" />
-          <div
-            aria-hidden="true"
-            className="absolute inset-0 pointer-events-none"
-            style={{
-              backgroundImage:
-                'linear-gradient(rgba(255,255,255,0.035) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.035) 1px, transparent 1px)',
-              backgroundSize: '56px 56px',
-              maskImage: 'radial-gradient(ellipse 80% 70% at 50% 30%, black, transparent)',
-              WebkitMaskImage: 'radial-gradient(ellipse 80% 70% at 50% 30%, black, transparent)',
-            }}
-          />
-          <div className="relative container mx-auto px-4 pt-20 pb-16 text-center">
-            <Reveal>
-              <span className="inline-block px-4 py-1.5 rounded-full bg-[#22C8E5]/10 border border-[#22C8E5]/20 text-[#22C8E5] text-[11px] font-bold tracking-[0.25em] uppercase mb-6">
-                Free · Instant · No Sign-Up
-              </span>
-            </Reveal>
-            <KineticHeadline
-              lines={[
-                [{ t: 'Know' }, { t: 'Where' }, { t: 'You' }],
-                [{ t: 'Actually', accent: true }, { t: 'Stand', accent: true }],
-              ]}
-              className="text-4xl md:text-6xl font-bold text-white mb-4"
-            />
-            <Reveal delay={0.45}>
-              <p className="text-white/60 text-lg max-w-xl mx-auto">
-                Two free AI-powered scans — pick one, or run both for the full picture of your brand and your site.
-              </p>
-            </Reveal>
-          </div>
-        </div>
+        <PageHero
+          variant="audit"
+          eyebrow="Free · Instant · No Sign-Up"
+          lines={[
+            [{ t: 'Know' }, { t: 'Where' }, { t: 'You' }],
+            [{ t: 'Actually', accent: true }, { t: 'Stand', accent: true }],
+          ]}
+          sub="Two free, AI-driven diagnostic scanners. Get actionable scores, competitor benchmarks, and 90-day execution roadmaps in under 4 minutes."
+        />
 
         {/* Tool cards */}
         <div className="container mx-auto px-4 max-w-5xl pb-24">

@@ -6,6 +6,7 @@ import { motion } from 'framer-motion';
 import { Search, Calendar, User, ArrowRight, TrendingUp, BookOpen, Lightbulb, BarChart } from 'lucide-react';
 import { blogPosts } from '../data/blogPosts';
 import SEO from '@/components/SEO.jsx';
+import { PageHero } from '@/components/motion/PageMotion.jsx';
 
 const ResourcesPage = () => {
   const [searchQuery, setSearchQuery] = useState('');
@@ -23,7 +24,6 @@ const ResourcesPage = () => {
     { id: 'ethics-law', label: 'Ethics & Law', icon: <BookOpen size={20} /> },
     { id: 'industry-trends', label: 'Industry Trends', icon: <TrendingUp size={20} /> }
   ];
-
 
   const filteredPosts = blogPosts.filter(post => {
     const matchesCategory = selectedCategory === 'all' || post.category === selectedCategory;
@@ -82,33 +82,25 @@ const ResourcesPage = () => {
 
       <div className="min-h-screen bg-[#0f1419]">
         {/* Hero */}
-        <section className="py-20 bg-gradient-to-br from-[#1a2332] to-[#0f1419]">
-          <div className="container mx-auto px-4 text-center">
-            <motion.div
-              initial={{ opacity: 0, y: 30 }}
-              animate={{ opacity: 1, y: 0 }}
-            >
-              <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-6">
-                Resources & <span className="text-[#22c8e5]">Insights</span>
-              </h1>
-              <p className="text-xl text-gray-400 max-w-3xl mx-auto mb-8">
-                Stay ahead with the latest AI trends, case studies, and practical guides
-              </p>
-
-              {/* Search Bar */}
-              <div className="max-w-2xl mx-auto relative">
-                <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
-                <input
-                  type="text"
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  placeholder="Search articles..."
-                  className="w-full pl-12 pr-4 py-4 bg-[#1a2332] text-white border border-gray-700 rounded-2xl focus:outline-none focus:border-[#22c8e5]"
-                />
-              </div>
-            </motion.div>
+        <PageHero
+          variant="resources"
+          eyebrow="Knowledge · AI Research · Whitepapers"
+          lines={[
+            [{ t: 'Resources' }, { t: '&' }, { t: 'Insights', accent: true }],
+          ]}
+          sub="Stay ahead with the latest AI trends, technical masterclasses, and practical execution guides"
+        >
+          <div className="max-w-2xl mx-auto relative mt-8">
+            <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="Search articles..."
+              className="w-full pl-12 pr-4 py-4 bg-[#1a2332]/90 backdrop-blur-md text-white border border-gray-700/80 rounded-2xl focus:outline-none focus:border-[#22c8e5] shadow-xl shadow-black/30"
+            />
           </div>
-        </section>
+        </PageHero>
 
         {/* Categories */}
         <section className="py-8 bg-[#1a2332] sticky top-20 z-40">

@@ -103,6 +103,7 @@ const AboutPage = () => {
       <div className="min-h-screen bg-[#0f1419]">
         {/* Hero */}
         <PageHero
+          variant="about"
           eyebrow="Since 1999 — Ellis County, Texas"
           lines={[
             [{ t: 'AI' }, { t: 'Transformation' }, { t: 'Partner' }],
