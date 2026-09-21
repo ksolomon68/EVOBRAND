@@ -216,7 +216,7 @@ html {
 .evo-hero-note { font-size: 12px; color: var(--evo-muted); margin-top: 32px; }
 .evo-feature { display: block; background: var(--evo-surface); border: 1px solid var(--evo-line); border-radius: var(--evo-radius); overflow: hidden; transform: rotate(-2deg); box-shadow: 0 24px 70px #0004; }
 .evo-feature-top { padding: 18px 22px; display: flex; justify-content: space-between; align-items: center; color: var(--evo-muted); font-size: 12px; }
-.evo-feature img { width: 100%; aspect-ratio: 1.35; object-fit: cover; object-position: top; }
+.evo-feature img { width: 100%; aspect-ratio: 16/9; object-fit: cover; object-position: top center; }
 .evo-feature-caption { display: grid; gap: 8px; padding: 24px; }
 .evo-feature-caption span { color: var(--evo-muted); font-size: 12px; }
 .evo-work { background: var(--evo-surface); }
@@ -224,10 +224,11 @@ html {
 .evo-section-heading > p { max-width: 340px; color: var(--evo-muted); }
 .evo-work-grid, .evo-service-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 32px; }
 .evo-work-image { border-radius: 8px; overflow: hidden; margin-bottom: 25px; border: 1px solid var(--evo-line); }
-.evo-work-image img { width: 100%; aspect-ratio: 1.4; object-fit: cover; object-position: top; transition: transform .3s; }
+.evo-work-image img { width: 100%; aspect-ratio: 16/9; object-fit: cover; object-position: top center; transition: transform .3s; }
 .evo-work-item:hover img { transform: scale(1.025); }
 .evo-work-item .portal-eyebrow { margin-bottom: 10px; font-size: 10px; }
-.evo-work-item h3 { display: flex; justify-content: space-between; margin-bottom: 14px; }
+.evo-work-item h3 { display: flex; justify-content: space-between; margin-bottom: 6px; }
+.evo-work-subtitle { font-size: 11px; font-weight: 600; color: var(--evo-accent); text-transform: uppercase; letter-spacing: .08em; margin-bottom: 14px; }
 .evo-work-item > p:last-of-type, .evo-service-grid article > p, .evo-process p, .evo-closing p { color: var(--evo-muted); font-size: 15px; }
 .evo-service-grid article { border-top: 1px solid var(--evo-line); padding-top: 28px; }
 .evo-service-grid svg { color: var(--evo-accent); margin-bottom: 24px; }
@@ -279,7 +280,7 @@ html {
   .evo-wrap { width: calc(100% - 40px); }
   .evo-hero { grid-template-columns: 1fr; padding-block: 56px; gap: 48px; }
   .evo-feature { transform: none; }
-  .evo-feature img { aspect-ratio: 1.6; }
+  .evo-feature img { aspect-ratio: 16/9; }
   .evo-work-grid, .evo-service-grid, .evo-process-grid { grid-template-columns: 1fr; gap: 40px; }
   .evo-section-heading, .evo-closing { flex-direction: column; align-items: flex-start; gap: 24px; }
   .evo-section-heading > p { max-width: none; }
