@@ -6,7 +6,6 @@
 - [AI Portfolio & Case Studies | Client Work | EVOBRAND](/ourwork): Browse EVOBRAND
 - [AI Resources, Blog & Industry Guides | EVOBRAND](/resources): Free AI resources and expert articles from EVOBRAND. Explore enterprise AI, agentic AI, creative AI, ethics, and industry trends. Stay ahead of the AI revolution.
 - [AI Services & Pricing | Custom AI Apps, Video, Docs & More](/services): Explore EVOBRAND
-- [AI Solutions for Business Growth | Ellis County, TX](/home): EVOBRAND transforms businesses with custom AI applications, visual content creation, intelligent document generation, and AI video production. Ellis County-based agency serving clients nationwide.
 - [Audit Results](/auditorresults): View your personalized AI-powered brand audit report from EVOBRAND.
 - [Blog Post](/blogpost): No description available
 - [Book a Free AI Consultation | Contact EVOBRAND — Ellis County, TX](/contact): Ready to transform your business with AI? Contact EVOBRAND for a free 30-minute strategy call. Serving clients nationwide from Ellis County, TX. Call +1 214-531-4427 or email info@evobrand.net.
@@ -21,4 +20,5 @@
 - [How Our AI Process Works | Discovery to Launch | EVOBRAND](/howitworks): EVOBRAND
 - [Payment Success - EVOBRAND](/paymentsuccess): Thank you for your purchase. Your payment was verified successfully.
 - [Reset Password](/resetpassword): Reset your EVOBRAND client portal password.
+- [Websites, AI & Automation for Your Business](/home): EVOBRAND builds websites, custom applications, and practical AI workflows for businesses and organizations. Based in Ellis County, Texas. Serving clients nationwide.
 - [WordPress Maintenance & Support Plans — EVOBRAND](/maintenanceplans): Keep your WordPress site secure, fast, and up to date with EVOBRAND
