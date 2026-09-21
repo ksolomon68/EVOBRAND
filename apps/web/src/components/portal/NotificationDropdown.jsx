@@ -75,7 +75,7 @@ export default function NotificationDropdown({ onNavigate }) {
   const handleNotificationClick = (notif) => {
     if (!notif.is_read) markAsRead(notif.id);
     if (notif.link && onNavigate) {
-      if (notif.link.includes('ticket')) onNavigate('dashboard');
+      if (notif.link.includes('ticket')) onNavigate('my-tickets');
       if (notif.link.includes('contract')) onNavigate('my-contracts');
       if (notif.link.includes('project')) onNavigate(notif.link.replace('#', ''));
       setIsOpen(false);

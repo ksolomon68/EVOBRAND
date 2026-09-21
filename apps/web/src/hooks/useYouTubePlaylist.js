@@ -6,184 +6,184 @@ const CACHE_DURATION = 1000 * 60 * 60; // 1 hour
 
 const FALLBACK_VIDEOS = [
   {
-    id: 'TLV50pXKRCI',
-    title: "Series Launch Invitation",
-    description: "Series Launch Invitation",
-    thumbnail: 'https://img.youtube.com/vi/TLV50pXKRCI/hqdefault.jpg',
-    publishedAt: '2026-01-01T12:00:00Z',
-  },
-  {
-    id: 'u2Yyt07mhP0',
-    title: "Begin your brand transformation",
-    description: "Begin your brand transformation",
-    thumbnail: 'https://img.youtube.com/vi/u2Yyt07mhP0/hqdefault.jpg',
-    publishedAt: '2026-01-01T12:00:00Z',
-  },
-  {
-    id: 'PA4AbGoPR7E',
-    title: "Collaboration is the new currency.",
-    description: "Collaboration is the new currency.",
-    thumbnail: 'https://img.youtube.com/vi/PA4AbGoPR7E/hqdefault.jpg',
-    publishedAt: '2026-01-01T12:00:00Z',
-  },
-  {
-    id: 'cXRY1fVVtrw',
-    title: "Does Your Brand REFLECT Your TRUE Values",
-    description: "Does Your Brand REFLECT Your TRUE Values",
-    thumbnail: 'https://img.youtube.com/vi/cXRY1fVVtrw/hqdefault.jpg',
-    publishedAt: '2026-01-01T12:00:00Z',
-  },
-  {
-    id: 'XgZPQAV5bNs',
-    title: "The goal is not to post more. The goal is to post with intention.",
-    description: "The goal is not to post more. The goal is to post with intention.",
-    thumbnail: 'https://img.youtube.com/vi/XgZPQAV5bNs/hqdefault.jpg',
-    publishedAt: '2026-01-01T12:00:00Z',
-  },
-  {
-    id: 'Bb5qoCV1ytY',
-    title: "Identity first. Strategy second.",
-    description: "Identity first. Strategy second.",
-    thumbnail: 'https://img.youtube.com/vi/Bb5qoCV1ytY/hqdefault.jpg',
-    publishedAt: '2026-01-01T12:00:00Z',
-  },
-  {
-    id: 'FEQN_UAzvjU',
-    title: "You're always broadcasting something",
-    description: "You're always broadcasting something",
-    thumbnail: 'https://img.youtube.com/vi/FEQN_UAzvjU/hqdefault.jpg',
-    publishedAt: '2026-01-01T12:00:00Z',
-  },
-  {
-    id: 'muMtb_HwFR0',
-    title: "A brand is not a logo.",
-    description: "A brand is not a logo.",
-    thumbnail: 'https://img.youtube.com/vi/muMtb_HwFR0/hqdefault.jpg',
-    publishedAt: '2026-01-01T12:00:00Z',
-  },
-  {
-    id: 'o7HOIt-FVvM',
-    title: "Sustainable growth isn’t a sprint. It’s a rhythm.",
-    description: "Sustainable growth isn’t a sprint. It’s a rhythm.",
-    thumbnail: 'https://img.youtube.com/vi/o7HOIt-FVvM/hqdefault.jpg',
-    publishedAt: '2026-01-01T12:00:00Z',
-  },
-  {
-    id: 'NUoCNopJOP0',
-    title: "Is your brand speaking clearly? 🔇",
-    description: "Is your brand speaking clearly? 🔇",
-    thumbnail: 'https://img.youtube.com/vi/NUoCNopJOP0/hqdefault.jpg',
-    publishedAt: '2026-01-01T12:00:00Z',
-  },
-  {
-    id: 'qEG_2v7VJ64',
-    title: "Is your brand having an identity crisis? 🎭",
-    description: "Is your brand having an identity crisis? 🎭",
-    thumbnail: 'https://img.youtube.com/vi/qEG_2v7VJ64/hqdefault.jpg',
-    publishedAt: '2026-01-01T12:00:00Z',
-  },
-  {
-    id: '8Q7tgBEyB-4',
-    title: "Drowning in busy work? 🌊 You're not alone.",
-    description: "Drowning in busy work? 🌊 You're not alone.",
-    thumbnail: 'https://img.youtube.com/vi/8Q7tgBEyB-4/hqdefault.jpg',
-    publishedAt: '2026-01-01T12:00:00Z',
-  },
-  {
-    id: 'HkX-cZu6Vko',
-    title: "🚀 Stop losing productivity to paperwork.",
-    description: "🚀 Stop losing productivity to paperwork.",
-    thumbnail: 'https://img.youtube.com/vi/HkX-cZu6Vko/hqdefault.jpg',
-    publishedAt: '2026-01-01T12:00:00Z',
-  },
-  {
-    id: 'PsgH_n6qXA0',
-    title: "Can Automation REALLY Boost Payroll Accuracy to 99.8%?",
-    description: "Can Automation REALLY Boost Payroll Accuracy to 99.8%?",
-    thumbnail: 'https://img.youtube.com/vi/PsgH_n6qXA0/hqdefault.jpg',
-    publishedAt: '2026-01-01T12:00:00Z',
-  },
-  {
-    id: '8ebtCrJlaM4',
-    title: "Unlock Your Time: Automate With Intention",
-    description: "Unlock Your Time: Automate With Intention",
-    thumbnail: 'https://img.youtube.com/vi/8ebtCrJlaM4/hqdefault.jpg',
-    publishedAt: '2026-01-01T12:00:00Z',
-  },
-  {
-    id: 'JLYwAFjTaTE',
-    title: "Are You Paying The Dabbler's Tax? 👑",
-    description: "Are You Paying The Dabbler's Tax? 👑",
-    thumbnail: 'https://img.youtube.com/vi/JLYwAFjTaTE/hqdefault.jpg',
-    publishedAt: '2026-01-01T12:00:00Z',
-  },
-  {
-    id: 'zwIvSEwbyYc',
-    title: "Your mission is too important to fail because of bad systems. 💙",
-    description: "Your mission is too important to fail because of bad systems. 💙",
-    thumbnail: 'https://img.youtube.com/vi/zwIvSEwbyYc/hqdefault.jpg',
-    publishedAt: '2026-01-01T12:00:00Z',
-  },
-  {
-    id: 'UWKqogq082U',
-    title: "Scaling shouldn't feel like drowning. 📦→⚡",
-    description: "Scaling shouldn't feel like drowning. 📦→⚡",
-    thumbnail: 'https://img.youtube.com/vi/UWKqogq082U/hqdefault.jpg',
-    publishedAt: '2026-01-01T12:00:00Z',
-  },
-  {
-    id: 'Q5Vm8JQ3L7U',
-    title: "The Unsubscriber's Lament",
-    description: "The Unsubscriber's Lament",
-    thumbnail: 'https://img.youtube.com/vi/Q5Vm8JQ3L7U/hqdefault.jpg',
-    publishedAt: '2026-01-01T12:00:00Z',
-  },
-  {
     id: 'ViRsWHj3SQo',
-    title: "From Burnout to Breakthrough: How AI Transformed Mark’s Marketing Team",
-    description: "From Burnout to Breakthrough: How AI Transformed Mark’s Marketing Team",
+    title: "From Burnout to Breakthrough: How AI Transformed Mark's Marketing Team",
+    description: "Discover how enterprise AI automation and intelligent workflow systems transformed a burnt-out marketing team into an efficient growth engine.",
     thumbnail: 'https://img.youtube.com/vi/ViRsWHj3SQo/hqdefault.jpg',
     publishedAt: '2026-01-01T12:00:00Z',
   },
   {
     id: 'X3ijPs2Wn-U',
-    title: "Stop Dabbling in AI. Start Architecting Your Future. 🚀",
-    description: "Stop Dabbling in AI. Start Architecting Your Future. 🚀",
+    title: "Stop Dabbling in AI. Start Architecting Your Future 🚀",
+    description: "Learn how modern businesses harness custom LLMs, AI solution frameworks, and automated technology to scale revenue and operations.",
     thumbnail: 'https://img.youtube.com/vi/X3ijPs2Wn-U/hqdefault.jpg',
     publishedAt: '2026-01-01T12:00:00Z',
   },
   {
+    id: 'TLV50pXKRCI',
+    title: "Series Launch: AI-Powered Brand Transformation & Digital Growth",
+    description: "Welcome to our animated video series showcasing high-impact brand identity design, business growth strategies, and automated technology.",
+    thumbnail: 'https://img.youtube.com/vi/TLV50pXKRCI/hqdefault.jpg',
+    publishedAt: '2026-01-01T12:00:00Z',
+  },
+  {
+    id: 'u2Yyt07mhP0',
+    title: "Begin Your Brand Identity Transformation",
+    description: "Reinvent your visual identity and brand strategy with custom logo design, design systems, and creative visual guidelines.",
+    thumbnail: 'https://img.youtube.com/vi/u2Yyt07mhP0/hqdefault.jpg',
+    publishedAt: '2026-01-01T12:00:00Z',
+  },
+  {
+    id: 'PA4AbGoPR7E',
+    title: "Collaboration & Strategy is the New Business Currency",
+    description: "How strategic partnerships and collaborative business growth strategy create sustainable revenue and market expansion.",
+    thumbnail: 'https://img.youtube.com/vi/PA4AbGoPR7E/hqdefault.jpg',
+    publishedAt: '2026-01-01T12:00:00Z',
+  },
+  {
+    id: 'cXRY1fVVtrw',
+    title: "Does Your Brand REFLECT Your TRUE Values?",
+    description: "Align your core brand values with modern creative design, visual identity, and authentic messaging across digital channels.",
+    thumbnail: 'https://img.youtube.com/vi/cXRY1fVVtrw/hqdefault.jpg',
+    publishedAt: '2026-01-01T12:00:00Z',
+  },
+  {
+    id: 'XgZPQAV5bNs',
+    title: "Post with Intention: High-Converting Marketing Content Strategy",
+    description: "Stop cluttering feeds. Build a targeted marketing and sales strategy that converts prospects into long-term loyal clients.",
+    thumbnail: 'https://img.youtube.com/vi/XgZPQAV5bNs/hqdefault.jpg',
+    publishedAt: '2026-01-01T12:00:00Z',
+  },
+  {
+    id: 'Bb5qoCV1ytY',
+    title: "Identity First. Strategy Second.",
+    description: "Why establishing a strong brand identity and visual positioning must precede tactical marketing campaigns.",
+    thumbnail: 'https://img.youtube.com/vi/Bb5qoCV1ytY/hqdefault.jpg',
+    publishedAt: '2026-01-01T12:00:00Z',
+  },
+  {
+    id: 'FEQN_UAzvjU',
+    title: "You're Always Broadcasting Something: Creative Brand Voice",
+    description: "Mastering your visual branding and creative tone of voice across every digital customer touchpoint.",
+    thumbnail: 'https://img.youtube.com/vi/FEQN_UAzvjU/hqdefault.jpg',
+    publishedAt: '2026-01-01T12:00:00Z',
+  },
+  {
+    id: 'muMtb_HwFR0',
+    title: "A Brand is Not Just a Logo: Comprehensive Identity Systems",
+    description: "Discover why holistic visual identity, customer experience, and creative design outweigh standalone logo assets.",
+    thumbnail: 'https://img.youtube.com/vi/muMtb_HwFR0/hqdefault.jpg',
+    publishedAt: '2026-01-01T12:00:00Z',
+  },
+  {
+    id: 'o7HOIt-FVvM',
+    title: "Sustainable Business Growth: Building Operational Rhythm",
+    description: "Scale your revenue and operations through consistent process automation, team alignment, and growth planning.",
+    thumbnail: 'https://img.youtube.com/vi/o7HOIt-FVvM/hqdefault.jpg',
+    publishedAt: '2026-01-01T12:00:00Z',
+  },
+  {
+    id: 'NUoCNopJOP0',
+    title: "Is Your Brand Speaking Clearly? 🔇",
+    description: "Audit your visual identity and messaging clarity to eliminate drop-off in your digital sales funnel.",
+    thumbnail: 'https://img.youtube.com/vi/NUoCNopJOP0/hqdefault.jpg',
+    publishedAt: '2026-01-01T12:00:00Z',
+  },
+  {
+    id: 'qEG_2v7VJ64',
+    title: "Is Your Brand Having an Identity Crisis? 🎭",
+    description: "How to realign fractured brand messaging and modern visual design into a unified corporate presence.",
+    thumbnail: 'https://img.youtube.com/vi/qEG_2v7VJ64/hqdefault.jpg',
+    publishedAt: '2026-01-01T12:00:00Z',
+  },
+  {
+    id: '8Q7tgBEyB-4',
+    title: "Drowning in Busy Work? Automate Your Core Workflow 🌊",
+    description: "Eliminate repetitive tasks by building seamless process automation and system integrations.",
+    thumbnail: 'https://img.youtube.com/vi/8Q7tgBEyB-4/hqdefault.jpg',
+    publishedAt: '2026-01-01T12:00:00Z',
+  },
+  {
+    id: 'HkX-cZu6Vko',
+    title: "🚀 Stop Losing Productivity to Paperwork: Process Automation",
+    description: "Replace legacy manual paperwork with automated cloud systems and digital document workflows.",
+    thumbnail: 'https://img.youtube.com/vi/HkX-cZu6Vko/hqdefault.jpg',
+    publishedAt: '2026-01-01T12:00:00Z',
+  },
+  {
+    id: 'PsgH_n6qXA0',
+    title: "Can Automation REALLY Boost Payroll & Invoicing Accuracy to 99.8%?",
+    description: "Case study on workflow automation, automated reporting systems, and financial accuracy.",
+    thumbnail: 'https://img.youtube.com/vi/PsgH_n6qXA0/hqdefault.jpg',
+    publishedAt: '2026-01-01T12:00:00Z',
+  },
+  {
+    id: '8ebtCrJlaM4',
+    title: "Unlock Your Time: Automate Workflows With Intention",
+    description: "Strategic automation solutions for modern teams seeking efficient, error-free operational execution.",
+    thumbnail: 'https://img.youtube.com/vi/8ebtCrJlaM4/hqdefault.jpg',
+    publishedAt: '2026-01-01T12:00:00Z',
+  },
+  {
+    id: 'JLYwAFjTaTE',
+    title: "Are You Paying The Dabbler's Tax in Business Growth?",
+    description: "Why switching tactics constantly hurts scaling profits and how a clear growth strategy secures revenue.",
+    thumbnail: 'https://img.youtube.com/vi/JLYwAFjTaTE/hqdefault.jpg',
+    publishedAt: '2026-01-01T12:00:00Z',
+  },
+  {
+    id: 'zwIvSEwbyYc',
+    title: "Your Mission is Too Important for Broken Systems 💙",
+    description: "Modernize legacy tech stacks with custom AI solution architecture and automated data management.",
+    thumbnail: 'https://img.youtube.com/vi/zwIvSEwbyYc/hqdefault.jpg',
+    publishedAt: '2026-01-01T12:00:00Z',
+  },
+  {
+    id: 'UWKqogq082U',
+    title: "Scaling Shouldn't Feel Like Drowning: Growth Systems 📦→⚡",
+    description: "Build scalable infrastructure, robust sales channels, and automated business processes.",
+    thumbnail: 'https://img.youtube.com/vi/UWKqogq082U/hqdefault.jpg',
+    publishedAt: '2026-01-01T12:00:00Z',
+  },
+  {
+    id: 'Q5Vm8JQ3L7U',
+    title: "The Unsubscriber's Lament: Audience Growth & Marketing",
+    description: "Turn customer churn into scalable audience retention using automated email nurture campaigns.",
+    thumbnail: 'https://img.youtube.com/vi/Q5Vm8JQ3L7U/hqdefault.jpg',
+    publishedAt: '2026-01-01T12:00:00Z',
+  },
+  {
     id: 'ybP6TJGzagQ',
-    title: "Beyond the Checkbox: True Digital Accessibility.",
-    description: "Beyond the Checkbox: True Digital Accessibility.",
+    title: "Beyond the Checkbox: True AI & Digital Accessibility Solutions",
+    description: "How cutting-edge accessibility technology and AI auditing tools build inclusive web applications.",
     thumbnail: 'https://img.youtube.com/vi/ybP6TJGzagQ/hqdefault.jpg',
     publishedAt: '2026-01-01T12:00:00Z',
   },
   {
     id: 'Vr-LzMDY6NI',
-    title: "The Report Nobody Could Find\" | AI for Government Agencies | EVOBRAND",
-    description: "The Report Nobody Could Find\" | AI for Government Agencies | EVOBRAND",
+    title: "AI Solutions for Government & Enterprise: Searchable Knowledge bases",
+    description: "How AI intelligence and document indexing eliminate lost reports and streamline agency workflows.",
     thumbnail: 'https://img.youtube.com/vi/Vr-LzMDY6NI/hqdefault.jpg',
     publishedAt: '2026-01-01T12:00:00Z',
   },
   {
     id: 'AhOIC6s4vls',
-    title: "The Grant That Almost Didn't Happen",
-    description: "The Grant That Almost Didn't Happen",
+    title: "The Grant That Almost Didn't Happen: AI Automation Case Study",
+    description: "How automated tracking and AI tools saved critical deadline funding for a fast-growing nonprofit.",
     thumbnail: 'https://img.youtube.com/vi/AhOIC6s4vls/hqdefault.jpg',
     publishedAt: '2026-01-01T12:00:00Z',
   },
   {
     id: 'GhvaTc8uhj4',
-    title: "Stop Dabbling. Start Architecting. 🏛️",
-    description: "Stop Dabbling. Start Architecting. 🏛️",
+    title: "Stop Dabbling. Start Architecting Enterprise AI 🏛️",
+    description: "Architect scalable AI models, automated pipelines, and intelligent business infrastructure.",
     thumbnail: 'https://img.youtube.com/vi/GhvaTc8uhj4/hqdefault.jpg',
     publishedAt: '2026-01-01T12:00:00Z',
   },
   {
     id: 'VzHNnybz4mQ',
-    title: "Some systems aren't worth saving.",
-    description: "Some systems aren't worth saving.",
+    title: "Some Systems Aren't Worth Saving: Rebuilding Core Technology",
+    description: "When to retire legacy databases in favor of modern automation and AI solution architectures.",
     thumbnail: 'https://img.youtube.com/vi/VzHNnybz4mQ/hqdefault.jpg',
     publishedAt: '2026-01-01T12:00:00Z',
   }
@@ -206,9 +206,14 @@ const useYouTubePlaylist = (playlistId) => {
     const fetchVideos = async () => {
       const apiKey = import.meta.env.VITE_YOUTUBE_API_KEY;
       const cacheKey = `${CACHE_KEY_PREFIX}${playlistId}`;
+      const forceRefresh = window.location.search.includes('refresh=true');
+
+      if (forceRefresh) {
+        try { sessionStorage.removeItem(cacheKey); } catch (e) {}
+      }
 
       if (!apiKey) {
-        console.warn('VITE_YOUTUBE_API_KEY is missing in .env file. Using fallback videos.');
+        console.warn('VITE_YOUTUBE_API_KEY is missing in .env file. Using fallback videos dataset.');
         setVideos(withFallbackDates());
         setLoading(false);
         return;
@@ -217,9 +222,10 @@ const useYouTubePlaylist = (playlistId) => {
       // Check cache first
       try {
         const cachedStr = sessionStorage.getItem(cacheKey);
-        if (cachedStr) {
+        if (cachedStr && !forceRefresh) {
           const cachedData = JSON.parse(cachedStr);
           if (Date.now() - cachedData.timestamp < CACHE_DURATION) {
+            console.log('[YouTube Playlist] Loaded cached playlist videos:', cachedData.videos.length);
             setVideos(cachedData.videos);
             setLoading(false);
             return;

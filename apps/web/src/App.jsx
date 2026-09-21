@@ -27,6 +27,8 @@ import NotFoundPage from '@/pages/NotFoundPage.jsx';
 import AccessibilityStatementPage from '@/pages/AccessibilityStatementPage.jsx';
 import BookConsultationPage from '@/pages/BookConsultationPage.jsx';
 import FreeDemoPortalPage from '@/pages/FreeDemoPortalPage.jsx';
+import VideoLibrarySection from '@/components/VideoLibrarySection.jsx';
+import SEO from '@/components/SEO.jsx';
 import { trackPageView } from '@/lib/analytics.js';
 
 function AnalyticsTracker() {
@@ -37,9 +39,11 @@ function AnalyticsTracker() {
   return null;
 }
 
-function App() {
+function SiteLayout() {
+  const { pathname } = useLocation();
+  const isPortal = pathname === '/client-portal';
   return (
-    <BrowserRouter>
+    <>
       <ScrollToTop />
       <AnalyticsTracker />
       <a
@@ -49,7 +53,7 @@ function App() {
         Skip to main content
       </a>
       <div className="flex flex-col min-h-screen">
-        <Header />
+        {!isPortal && <Header />}
         <main className="flex-1" id="main-content">
           <Routes>
             <Route path="/" element={<HomePage />} />
@@ -57,6 +61,7 @@ function App() {
             <Route path="/how-it-works" element={<HowItWorksPage />} />
             <Route path="/our-work" element={<OurWorkPage />} />
             <Route path="/resources" element={<ResourcesPage />} />
+            <Route path="/videos" element={<><SEO title="Video library" description="Explore EVOBRAND videos on branding, automation, AI, and business growth." canonical="https://evobrand.net/videos" /><VideoLibrarySection standalone /></>} />
             <Route path="/about" element={<AboutPage />} />
             <Route path="/contact" element={<ContactPage />} />
             <Route path="/client-portal" element={<ClientPortalPage />} />
@@ -78,11 +83,13 @@ function App() {
             <Route path="*" element={<NotFoundPage />} />
           </Routes>
         </main>
-        <Footer />
+        {!isPortal && <Footer />}
         <AccessibilityWidget />
       </div>
-    </BrowserRouter>
+    </>
   );
 }
 
-export default App;
+export default function App() {
+  return <BrowserRouter><SiteLayout /></BrowserRouter>;
+}

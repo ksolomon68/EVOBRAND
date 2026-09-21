@@ -237,10 +237,10 @@ function EmptyState() {
       </div>
       <h3 className="text-lg font-bold mb-2" style={{ color: BEIGE }}>No Sessions Yet</h3>
       <p className="text-sm max-w-xs" style={{ color: 'rgba(255,255,255,0.5)' }}>
-        Book a free 30-minute consultation from the Contact page to get started.
+        Book a free 30-minute consultation with our team to get started.
       </p>
       <a
-        href="/contact"
+        href="/book-consultation"
         className="mt-6 inline-flex items-center gap-2 px-6 py-3 rounded-2xl text-sm font-bold uppercase tracking-widest transition-all duration-200 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#22c8e5]"
         style={{ background: GOLD, color: NAVY }}
         onMouseEnter={(e) => (e.currentTarget.style.opacity = '0.85')}

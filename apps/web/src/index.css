@@ -184,3 +184,105 @@ html {
     display: none !important;
   }
 }
+
+/* Shared EVOBRAND presentation tokens. */
+:root {
+  --evo-bg: #101b2b;
+  --evo-surface: #172638;
+  --evo-raised: #203348;
+  --evo-text: #f5f8fb;
+  --evo-muted: #b3c1cf;
+  --evo-accent: #22c8e5;
+  --evo-line: #34485a;
+  --evo-radius: 12px;
+}
+.evo-home { background: var(--evo-bg); color: var(--evo-text); }
+.evo-wrap { width: min(1240px, calc(100% - 64px)); margin-inline: auto; }
+.evo-section { padding-block: clamp(64px, 8vw, 112px); }
+.evo-home h1, .evo-home h2, .evo-home h3 { letter-spacing: -.035em; line-height: 1.12; }
+.evo-home h2 { font-size: clamp(32px, 4vw, 48px); }
+.evo-home h3 { font-size: 24px; }
+.evo-home p { line-height: 1.7; }
+.portal-eyebrow { color: var(--evo-accent); font-size: 11px; letter-spacing: .14em; text-transform: uppercase; font-weight: 700; margin-bottom: 20px; }
+.evo-hero { min-height: 690px; display: grid; grid-template-columns: 1.1fr 1fr; align-items: center; gap: 64px; padding-block: 90px; }
+.evo-hero h1 { font-size: clamp(44px, 5.5vw, 76px); font-weight: 700; margin-bottom: 28px; }
+.evo-hero h1 span { color: var(--evo-accent); }
+.evo-lead { color: var(--evo-muted); font-size: 19px; max-width: 530px; }
+.evo-actions { display: flex; align-items: center; gap: 24px; flex-wrap: wrap; margin-top: 36px; }
+.evo-button { display: inline-flex; gap: 12px; align-items: center; justify-content: center; min-height: 48px; padding: 14px 22px; background: var(--evo-accent); color: var(--evo-bg); font-size: 14px; font-weight: 700; border-radius: 8px; flex-shrink: 0; transition: background .2s; }
+.evo-button:hover { background: #7de2f2; }
+.evo-link, .portal-text-link { display: inline-flex; align-items: center; gap: 8px; min-height: 44px; font-size: 14px; font-weight: 600; color: var(--evo-text); }
+.evo-link:hover, .portal-text-link:hover { color: var(--evo-accent); }
+.evo-hero-note { font-size: 12px; color: var(--evo-muted); margin-top: 32px; }
+.evo-feature { display: block; background: var(--evo-surface); border: 1px solid var(--evo-line); border-radius: var(--evo-radius); overflow: hidden; transform: rotate(-2deg); box-shadow: 0 24px 70px #0004; }
+.evo-feature-top { padding: 18px 22px; display: flex; justify-content: space-between; align-items: center; color: var(--evo-muted); font-size: 12px; }
+.evo-feature img { width: 100%; aspect-ratio: 1.35; object-fit: cover; object-position: top; }
+.evo-feature-caption { display: grid; gap: 8px; padding: 24px; }
+.evo-feature-caption span { color: var(--evo-muted); font-size: 12px; }
+.evo-work { background: var(--evo-surface); }
+.evo-section-heading { display: flex; justify-content: space-between; gap: 40px; align-items: end; margin-bottom: 44px; }
+.evo-section-heading > p { max-width: 340px; color: var(--evo-muted); }
+.evo-work-grid, .evo-service-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 32px; }
+.evo-work-image { border-radius: 8px; overflow: hidden; margin-bottom: 25px; border: 1px solid var(--evo-line); }
+.evo-work-image img { width: 100%; aspect-ratio: 1.4; object-fit: cover; object-position: top; transition: transform .3s; }
+.evo-work-item:hover img { transform: scale(1.025); }
+.evo-work-item .portal-eyebrow { margin-bottom: 10px; font-size: 10px; }
+.evo-work-item h3 { display: flex; justify-content: space-between; margin-bottom: 14px; }
+.evo-work-item > p:last-of-type, .evo-service-grid article > p, .evo-process p, .evo-closing p { color: var(--evo-muted); font-size: 15px; }
+.evo-service-grid article { border-top: 1px solid var(--evo-line); padding-top: 28px; }
+.evo-service-grid svg { color: var(--evo-accent); margin-bottom: 24px; }
+.evo-service-grid h3 { margin-bottom: 18px; }
+.evo-service-grid .evo-service-detail { font-size: 12px; padding-top: 24px; }
+.evo-process { background: var(--evo-surface); }
+.evo-process-grid { display: grid; grid-template-columns: 1fr 1.2fr; gap: 96px; }
+.evo-process h2 { margin-bottom: 24px; }
+.evo-process .evo-link { margin-top: 24px; }
+.evo-process ol { display: grid; gap: 28px; }
+.evo-process li { display: flex; gap: 24px; padding-bottom: 28px; border-bottom: 1px solid var(--evo-line); }
+.evo-process li > span { color: var(--evo-accent); font-size: 12px; padding-top: 5px; }
+.evo-process h3 { margin-bottom: 12px; }
+.evo-closing { display: flex; align-items: center; justify-content: space-between; gap: 40px; }
+.evo-closing p:not(.portal-eyebrow) { max-width: 530px; margin-top: 24px; }
+.evo-resources { margin-top: 64px; padding-top: 24px; border-top: 1px solid var(--evo-line); display: flex; flex-wrap: wrap; gap: 16px 28px; font-size: 13px; color: var(--evo-muted); }
+.evo-resources a { text-decoration: underline; text-underline-offset: 4px; }
+.portal-shell { color: var(--evo-text); }
+.portal-shell :focus-visible, .evo-home :focus-visible { outline: 2px solid var(--evo-accent); outline-offset: 4px; }
+.portal-muted { color: var(--evo-muted); line-height: 1.65; font-size: 14px; }
+.portal-nav-label { color: var(--evo-muted); font-size: 10px; letter-spacing: .13em; text-transform: uppercase; padding: 0 12px; margin-bottom: 10px; }
+.portal-page-heading h1 { font-size: clamp(28px, 3vw, 38px); letter-spacing: -.025em; line-height: 1.2; margin-bottom: 12px; }
+.portal-page-heading .portal-eyebrow { margin-bottom: 12px; }
+.portal-next { display: flex; gap: 32px; align-items: center; justify-content: space-between; padding: 32px; background: var(--evo-surface); border: 1px solid var(--evo-line); border-left: 3px solid var(--evo-accent); border-radius: var(--evo-radius); }
+.portal-next h2 { font-size: 25px; margin-bottom: 12px; line-height: 1.25; }
+.portal-next .portal-eyebrow { margin-bottom: 12px; }
+.portal-card { border: 1px solid var(--evo-line); border-radius: var(--evo-radius); overflow: hidden; }
+.portal-card-heading { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 16px 24px; border-bottom: 1px solid var(--evo-line); }
+.portal-card-heading h2 { display: flex; align-items: center; gap: 10px; font-size: 16px; font-weight: 600; }
+.portal-card-heading svg, .portal-summary-links > button > svg:first-child { color: var(--evo-accent); flex-shrink: 0; }
+.portal-empty { padding: 32px 24px; color: var(--evo-muted); line-height: 1.7; font-size: 14px; }
+.portal-project-row { display: grid; gap: 12px; padding: 24px; width: 100%; text-align: left; border-bottom: 1px solid var(--evo-line); }
+.portal-project-row:last-child { border-bottom: 0; }
+.portal-project-row:hover { background: var(--evo-surface); }
+.portal-project-row progress { width: 100%; height: 5px; border: 0; border-radius: 8px; overflow: hidden; accent-color: var(--evo-accent); }
+.portal-project-row progress::-webkit-progress-bar { background: var(--evo-line); }
+.portal-project-row progress::-webkit-progress-value { background: var(--evo-accent); }
+.portal-summary-links { display: grid; grid-template-columns: 1fr 1fr; border-top: 1px solid var(--evo-line); }
+.portal-summary-links > button { display: flex; gap: 18px; align-items: center; text-align: left; padding: 24px 12px; }
+.portal-summary-links > button > span { display: grid; gap: 6px; flex: 1; }
+.portal-notice { background: var(--evo-surface); border: 1px solid var(--evo-line); padding: 16px 20px; border-radius: 8px; font-size: 14px; }
+.portal-skeleton { min-height: 220px; border-radius: var(--evo-radius); background: var(--evo-surface); }
+@media (max-width: 1000px) {
+  .evo-hero { gap: 32px; min-height: auto; }
+  .evo-process-grid { gap: 40px; }
+  .portal-next { flex-direction: column; align-items: flex-start; }
+}
+@media (max-width: 767px) {
+  .evo-wrap { width: calc(100% - 40px); }
+  .evo-hero { grid-template-columns: 1fr; padding-block: 56px; gap: 48px; }
+  .evo-feature { transform: none; }
+  .evo-feature img { aspect-ratio: 1.6; }
+  .evo-work-grid, .evo-service-grid, .evo-process-grid { grid-template-columns: 1fr; gap: 40px; }
+  .evo-section-heading, .evo-closing { flex-direction: column; align-items: flex-start; gap: 24px; }
+  .evo-section-heading > p { max-width: none; }
+  .portal-next { padding: 22px; }
+  .portal-summary-links { grid-template-columns: 1fr; }
+}

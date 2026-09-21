@@ -17,22 +17,23 @@ const TicketList = ({ tickets, onViewTicket }) => {
             case 'open': return 'text-green-400 bg-green-400/10 border-green-400/20';
             case 'in_progress': return 'text-yellow-400 bg-yellow-400/10 border-yellow-400/20';
             case 'pending': return 'text-yellow-400 bg-yellow-400/10 border-yellow-400/20';
-            case 'resolved': return 'text-white/20 bg-white/5 border-white/10';
-            case 'closed': return 'text-white/20 bg-white/5 border-white/10';
-            default: return 'text-white/40 bg-white/5 border-white/10';
+            case 'resolved': return 'text-slate-400 bg-white/5 border-white/10';
+            case 'closed': return 'text-slate-400 bg-white/5 border-white/10';
+            default: return 'text-slate-300 bg-white/5 border-white/10';
         }
     };
 
     return (
         <div className="space-y-4">
             {tickets.map((ticket, index) => (
-                <motion.div
+                <motion.button
                     key={ticket.id}
+                    type="button"
                     initial={{ opacity: 0, x: -20 }}
                     animate={{ opacity: 1, x: 0 }}
                     transition={{ delay: index * 0.05 }}
                     onClick={() => onViewTicket(ticket)}
-                    className="group bg-white/5 backdrop-blur-md border border-white/10 rounded-2xl p-6 hover:border-[#22c8e5]/50 transition-all cursor-pointer relative overflow-hidden"
+                    className="w-full text-left group bg-white/5 backdrop-blur-md border border-white/10 rounded-2xl p-6 hover:border-[#22c8e5]/50 transition-all cursor-pointer relative overflow-hidden"
                 >
                     {/* Hover Glow */}
                     <div className="absolute inset-0 bg-gradient-to-r from-[#22c8e5]/0 via-[#22c8e5]/0 to-[#22c8e5]/5 opacity-0 group-hover:opacity-100 transition-opacity" />
@@ -45,15 +46,15 @@ const TicketList = ({ tickets, onViewTicket }) => {
                             <div>
                                 <div className="flex items-center gap-3 mb-1">
                                     <h3 className="text-white font-bold group-hover:text-[#22c8e5] transition-colors">{ticket.subject}</h3>
-                                    <span className="text-white/20 font-mono text-xs">#{String(ticket.id).split('-')[0]}</span>
+                                    <span className="text-slate-400 font-mono text-xs">#{String(ticket.id).split('-')[0]}</span>
                                 </div>
                                 {ticket.user_name && (
-                                    <p className="text-white/30 text-xs mb-1 font-medium">{ticket.user_name}{ticket.user_email ? ` · ${ticket.user_email}` : ''}</p>
+                                    <p className="text-slate-400 text-xs mb-1 font-medium">{ticket.user_name}{ticket.user_email ? ` · ${ticket.user_email}` : ''}</p>
                                 )}
                                 <div className="flex items-center gap-4">
-                                    <span className="text-white/40 text-xs font-bold uppercase tracking-widest">{ticket.service}</span>
+                                    <span className="text-slate-300 text-xs font-bold uppercase tracking-widest">{ticket.service}</span>
                                     <div className="w-1 h-1 rounded-full bg-white/10" />
-                                    <span className="text-white/40 text-xs">{new Date(ticket.lastUpdated).toLocaleDateString()}</span>
+                                    <span className="text-slate-300 text-xs">{new Date(ticket.lastUpdated).toLocaleDateString()}</span>
                                 </div>
                             </div>
                         </div>
@@ -64,27 +65,27 @@ const TicketList = ({ tickets, onViewTicket }) => {
                             </span>
                             <span className={`px-3 py-1 rounded-lg text-[10px] font-bold uppercase tracking-widest border flex items-center gap-2 ${getStatusColor(ticket.status)}`}>
                                 <div className={`w-1.5 h-1.5 rounded-full ${
-                                    ticket.status === 'open' ? 'bg-green-400 animate-pulse' :
-                                    ticket.status === 'in_progress' ? 'bg-yellow-400 animate-pulse' :
+                                    ticket.status === 'open' ? 'bg-green-400 ' :
+                                    ticket.status === 'in_progress' ? 'bg-yellow-400 ' :
                                     ticket.status === 'pending' ? 'bg-yellow-400' : 'bg-white/20'
                                 }`} />
-                                {ticket.status}
+                                {ticket.status?.replaceAll('_', ' ')}
                             </span>
-                            <div className="ml-4 p-2 rounded-lg bg-white/5 text-white/20 group-hover:text-[#22c8e5] group-hover:bg-[#22c8e5]/10 transition-all">
+                            <div className="ml-4 p-2 rounded-lg bg-white/5 text-slate-400 group-hover:text-[#22c8e5] group-hover:bg-[#22c8e5]/10 transition-all">
                                 <ChevronRight size={18} />
                             </div>
                         </div>
                     </div>
-                </motion.div>
+                </motion.button>
             ))}
             
             {tickets.length === 0 && (
                 <div className="py-20 text-center bg-white/5 rounded-2xl border border-dashed border-white/10">
-                    <div className="w-16 h-16 rounded-full bg-white/5 flex items-center justify-center text-white/20 mx-auto mb-6">
+                    <div className="w-16 h-16 rounded-full bg-white/5 flex items-center justify-center text-slate-400 mx-auto mb-6">
                         <AlertCircle size={32} />
                     </div>
-                    <h3 className="text-white font-bold mb-2">No Active Transmissions</h3>
-                    <p className="text-white/40 text-sm">Submit a new ticket to begin your support request.</p>
+                    <h3 className="text-white font-bold mb-2">No support tickets yet</h3>
+                    <p className="text-slate-300 text-sm">Submit a new ticket to begin your support request.</p>
                 </div>
             )}
         </div>

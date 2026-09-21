@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { motion } from 'framer-motion';
+
 import {
   AlertCircle, Ticket, Mail, Calendar, Users, Eye, FileText,
   ArrowRight, Clock, CheckCircle2, Circle, Loader2
@@ -30,11 +30,11 @@ function fmtDate(dateStr) {
 }
 
 function fmtMeetingDate(dateStr, timeStr) {
-  const d = new Date(`${dateStr}T${timeStr || '00:00'}`);
-  const today = new Date(); today.setHours(0, 0, 0, 0);
-  const tomorrow = new Date(today); tomorrow.setDate(today.getDate() + 1);
-  const day = d < tomorrow ? (d < new Date(tomorrow) && d >= today ? 'Today' : 'Tomorrow') : fmtDate(dateStr);
-  return `${day} at ${d.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' })}`;
+  const day = String(dateStr || '').slice(0, 10);
+  const date = new Date(day + 'T12:00:00');
+  const label = Number.isNaN(date.getTime()) ? 'Date to be confirmed'
+    : date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+  return timeStr ? `${label} · ${timeStr} CT` : label;
 }
 
 const STATUS_STYLES = {
@@ -79,7 +79,7 @@ function SectionHeader({ icon: Icon, title, count, onNavigate, navLabel }) {
       {onNavigate && (
         <button onClick={onNavigate}
           className="flex items-center gap-1 text-xs font-medium transition-colors hover:text-white"
-          style={{ color: 'rgba(255,255,255,0.35)' }}>
+          style={{ color: 'var(--evo-muted)' }}>
           {navLabel || 'View all'} <ArrowRight size={12} />
         </button>
       )}
@@ -89,7 +89,7 @@ function SectionHeader({ icon: Icon, title, count, onNavigate, navLabel }) {
 
 function EmptyRow({ text }) {
   return (
-    <div className="px-5 py-6 text-sm text-center" style={{ color: 'rgba(255,255,255,0.25)' }}>{text}</div>
+    <div className="px-5 py-6 text-sm text-center" style={{ color: 'var(--evo-muted)' }}>{text}</div>
   );
 }
 
@@ -100,16 +100,25 @@ export default function AdminDashboard({ tickets = [], onViewTicket, setView }) 
   const [crmCount, setCrmCount]   = useState(null);
   const [contracts, setContracts] = useState([]);
   const [loading, setLoading]     = useState(true);
+  const [loadError, setLoadError] = useState(false);
 
   useEffect(() => {
     const h = authHeaders();
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), 10000);
+    const read = url => fetch(url, { headers: h, signal: controller.signal }).then(r => {
+      if (!r.ok) throw new Error('Unable to load overview');
+      return r.json();
+    });
     Promise.allSettled([
-      fetch(`${API}/contacts`, { headers: h }).then(r => r.ok ? r.json() : []),
-      fetch(`${API}/scheduler/appointments`, { headers: h }).then(r => r.ok ? r.json() : []),
-      fetch(`${API}/analytics/overview`, { headers: h }).then(r => r.ok ? r.json() : null),
-      fetch(`${API}/crm/contacts`, { headers: h }).then(r => r.ok ? r.json() : null),
-      fetch(`${API}/contracts`, { headers: h }).then(r => r.ok ? r.json() : []),
+      read(`${API}/contacts`),
+      read(`${API}/scheduler/appointments`),
+      read(`${API}/analytics/overview`),
+      read(`${API}/crm/contacts`),
+      read(`${API}/contracts`),
     ]).then(([c, m, a, crm, co]) => {
+      clearTimeout(timer);
+      setLoadError([c, m, a, crm, co].some(r => r.status === 'rejected'));
       if (c.status === 'fulfilled') setContacts(Array.isArray(c.value) ? c.value : []);
       if (m.status === 'fulfilled') setMeetings(Array.isArray(m.value) ? m.value : []);
       if (a.status === 'fulfilled' && a.value) setAnalytics(a.value);
@@ -120,23 +129,22 @@ export default function AdminDashboard({ tickets = [], onViewTicket, setView }) 
       if (co.status === 'fulfilled') setContracts(Array.isArray(co.value) ? co.value : co.value?.contracts || []);
       setLoading(false);
     });
+    return () => { clearTimeout(timer); controller.abort(); };
   }, []);
 
   // Derived counts
   const openTickets    = tickets.filter(t => t.status === 'open' || t.status === 'in_progress');
   const pendingTickets = tickets.filter(t => t.status === 'pending');
   const newContacts    = contacts.filter(c => c.status === 'new');
-  const today          = new Date().toISOString().slice(0, 10);
+  const today = new Date().toLocaleDateString('en-CA');
   const todayMeetings  = meetings.filter(m => m.date?.slice(0, 10) === today);
-  const upcomingMtgs   = meetings.filter(m => m.date?.slice(0, 10) >= today).slice(0, 4);
-  const unsignedContracts = contracts.filter(c => !c.signed_at && !c.client_signed_at);
+  const upcomingMtgs = meetings.filter(m => m.date?.slice(0, 10) >= today && ['scheduled', 'confirmed'].includes(m.status))
+    .sort((a, b) => a.date.localeCompare(b.date) || String(a.time).localeCompare(String(b.time))).slice(0, 4);
+  const unsignedContracts = contracts.filter(c => c.status === 'sent');
 
   // Needs-attention alerts
   const alerts = [
-    openTickets.length    && { label: `${openTickets.length} open ticket${openTickets.length > 1 ? 's' : ''}`,    icon: Ticket,   action: () => setView('admin'),         color: GOLD },
     pendingTickets.length && { label: `${pendingTickets.length} pending response${pendingTickets.length > 1 ? 's' : ''}`, icon: Clock, action: () => setView('admin'),  color: '#facc15' },
-    newContacts.length    && { label: `${newContacts.length} new contact form${newContacts.length > 1 ? 's' : ''}`, icon: Mail,    action: () => setView('contact-forms'), color: '#f472b6' },
-    todayMeetings.length  && { label: `${todayMeetings.length} meeting${todayMeetings.length > 1 ? 's' : ''} today`, icon: Calendar, action: () => setView('scheduler-admin'), color: '#34d399' },
     unsignedContracts.length && { label: `${unsignedContracts.length} unsigned contract${unsignedContracts.length > 1 ? 's' : ''}`, icon: FileText, action: () => setView('contract-builder'), color: '#a78bfa' },
   ].filter(Boolean);
 
@@ -147,22 +155,23 @@ export default function AdminDashboard({ tickets = [], onViewTicket, setView }) 
       {/* Header */}
       <div className="flex items-start justify-between">
         <div>
-          <h1 className="text-3xl font-bold text-white">Command Center</h1>
-          <p className="text-sm mt-1" style={{ color: 'rgba(255,255,255,0.35)' }}>{now}</p>
+          <h1 className="text-3xl font-bold text-white">Studio overview</h1>
+          <p className="text-sm mt-1" style={{ color: 'var(--evo-muted)' }}>{now} · Your work, in one place.</p>
         </div>
         {loading && <Loader2 size={18} className="animate-spin mt-1" style={{ color: 'rgba(255,255,255,0.3)' }} />}
       </div>
 
-      {/* Needs Attention */}
+      {loadError && <p role="alert" className="portal-notice">Some information could not be loaded. Refresh to try again; the counts below may be incomplete.</p>}
+      {/* Follow-ups */}
       {alerts.length > 0 && (
         <div className="rounded-2xl p-4" style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)' }}>
-          <p className="text-xs font-bold uppercase tracking-widest mb-3 flex items-center gap-2" style={{ color: 'rgba(255,255,255,0.4)' }}>
+          <p className="text-xs font-bold uppercase tracking-widest mb-3 flex items-center gap-2" style={{ color: 'var(--evo-muted)' }}>
             <AlertCircle size={13} /> Needs Attention
           </p>
           <div className="flex flex-wrap gap-2">
             {alerts.map((a, i) => (
               <button key={i} onClick={a.action}
-                className="flex items-center gap-2 px-3 py-2 rounded-xl text-xs font-semibold transition-all hover:scale-[1.02]"
+                className="flex items-center gap-2 px-3 py-2 rounded-xl text-xs font-semibold transition-all hover:brightness-125"
                 style={{ background: `${a.color}15`, border: `1px solid ${a.color}30`, color: a.color }}>
                 <a.icon size={12} />
                 {a.label}
@@ -173,19 +182,17 @@ export default function AdminDashboard({ tickets = [], onViewTicket, setView }) 
         </div>
       )}
 
-      {/* Stats Row */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+      {/* Context metrics; actionable counts belong with their lists. */}
+      <div className="grid grid-cols-2 gap-4">
         {[
           { icon: Eye,      label: 'Page Views Today', value: analytics ? analytics.pageViewsToday?.toLocaleString() : '—', color: GOLD },
-          { icon: Ticket,   label: 'Open Tickets',     value: openTickets.length,                                           color: '#facc15' },
-          { icon: Mail,     label: 'New Forms',        value: loading ? '…' : newContacts.length,                          color: '#f472b6' },
           { icon: Users,    label: 'CRM Contacts',     value: crmCount != null ? crmCount.toLocaleString() : '—',          color: '#a78bfa' },
         ].map(({ icon: Icon, label, value, color }) => (
           <div key={label} className="rounded-2xl p-5"
             style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.07)' }}>
             <div className="flex items-center gap-2 mb-3">
               <Icon size={14} style={{ color }} />
-              <span className="text-xs uppercase tracking-widest font-bold" style={{ color: 'rgba(255,255,255,0.4)' }}>{label}</span>
+              <span className="text-xs uppercase tracking-widest font-bold" style={{ color: 'var(--evo-muted)' }}>{label}</span>
             </div>
             <p className="text-3xl font-bold" style={{ color }}>{value}</p>
           </div>
@@ -198,7 +205,7 @@ export default function AdminDashboard({ tickets = [], onViewTicket, setView }) 
         {/* Recent Tickets */}
         <SectionCard>
           <SectionHeader icon={Ticket} title="Recent Tickets"
-            count={openTickets.length || undefined}
+            
             onNavigate={() => setView('admin')} />
           {tickets.length === 0
             ? <EmptyRow text="No tickets yet" />
@@ -213,7 +220,7 @@ export default function AdminDashboard({ tickets = [], onViewTicket, setView }) 
                 </div>
                 <div className="flex-1 min-w-0">
                   <p className="text-sm font-medium text-white truncate">{t.subject || t.title || 'Untitled'}</p>
-                  <p className="text-xs mt-0.5 truncate" style={{ color: 'rgba(255,255,255,0.35)' }}>
+                  <p className="text-xs mt-0.5 truncate" style={{ color: 'var(--evo-muted)' }}>
                     {t.user_name || t.name || 'Client'} · {timeAgo(t.lastUpdated || t.updated_at || t.created_at)}
                   </p>
                 </div>
@@ -225,29 +232,29 @@ export default function AdminDashboard({ tickets = [], onViewTicket, setView }) 
 
         {/* Contact Form Submissions */}
         <SectionCard>
-          <SectionHeader icon={Mail} title="Contact Forms"
+          <SectionHeader icon={Mail} title="New inquiries"
             count={newContacts.length || undefined}
             onNavigate={() => setView('contact-forms')} />
           {loading
             ? <EmptyRow text="Loading…" />
-            : contacts.length === 0
-            ? <EmptyRow text="No submissions yet" />
-            : contacts.slice(0, 6).map(c => (
+            : newContacts.length === 0
+            ? <EmptyRow text="No new inquiries. New website requests will appear here." />
+            : newContacts.slice(0, 6).map(c => (
               <div key={c.id}
                 className="flex items-start gap-3 px-5 py-3.5"
                 style={{ borderBottom: '1px solid rgba(255,255,255,0.04)' }}>
                 <div className="w-7 h-7 rounded-xl flex items-center justify-center flex-shrink-0 text-xs font-bold"
                   style={{ background: c.status === 'new' ? 'rgba(244,114,182,0.15)' : 'rgba(255,255,255,0.06)',
-                           color: c.status === 'new' ? '#f472b6' : 'rgba(255,255,255,0.4)' }}>
+                           color: c.status === 'new' ? '#f472b6' : 'var(--evo-muted)' }}>
                   {(c.name || 'A').charAt(0).toUpperCase()}
                 </div>
                 <div className="flex-1 min-w-0">
                   <p className="text-sm font-medium text-white truncate">{c.name || 'Unknown'}</p>
-                  <p className="text-xs truncate mt-0.5" style={{ color: 'rgba(255,255,255,0.35)' }}>
+                  <p className="text-xs truncate mt-0.5" style={{ color: 'var(--evo-muted)' }}>
                     {c.email} · {timeAgo(c.created_at)}
                   </p>
                   {c.message && (
-                    <p className="text-xs mt-1 truncate" style={{ color: 'rgba(255,255,255,0.25)' }}>{c.message}</p>
+                    <p className="text-xs mt-1 truncate" style={{ color: 'var(--evo-muted)' }}>{c.message}</p>
                   )}
                 </div>
                 {c.status === 'new' && (
@@ -264,7 +271,7 @@ export default function AdminDashboard({ tickets = [], onViewTicket, setView }) 
       <SectionCard>
         <SectionHeader icon={Calendar} title="Upcoming Meetings"
           count={upcomingMtgs.length || undefined}
-          onNavigate={() => setView('scheduler-admin')} />
+          onNavigate={() => setView('meetings')} />
         {loading
           ? <EmptyRow text="Loading…" />
           : upcomingMtgs.length === 0
@@ -278,11 +285,11 @@ export default function AdminDashboard({ tickets = [], onViewTicket, setView }) 
                     {m.date?.slice(0, 10) === today ? 'TODAY' : fmtMeetingDate(m.date, m.time)}
                   </p>
                   <p className="text-sm font-semibold text-white truncate">{m.client_name || 'Client'}</p>
-                  <p className="text-xs mt-0.5 truncate" style={{ color: 'rgba(255,255,255,0.4)' }}>
+                  <p className="text-xs mt-0.5 truncate" style={{ color: 'var(--evo-muted)' }}>
                     {m.type || 'Meeting'} · {m.duration || 30} min
                   </p>
                   {m.date?.slice(0, 10) === today && (
-                    <p className="text-xs mt-1" style={{ color: 'rgba(255,255,255,0.35)' }}>{m.time}</p>
+                    <p className="text-xs mt-1" style={{ color: 'var(--evo-muted)' }}>{m.time}</p>
                   )}
                 </div>
               ))}

@@ -155,6 +155,10 @@ const ResourcesPage = () => {
                         <img
                           src={post.image}
                           alt={post.title}
+                          onError={(e) => {
+                            e.target.onerror = null;
+                            e.target.src = 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=1200&q=80';
+                          }}
                           className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
                         />
                         <div className="absolute top-4 left-4 bg-[#22c8e5] text-white px-3 py-1 rounded-full text-xs font-semibold">
@@ -209,6 +213,10 @@ const ResourcesPage = () => {
                       <img
                         src={post.image}
                         alt={post.title}
+                        onError={(e) => {
+                          e.target.onerror = null;
+                          e.target.src = 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=1200&q=80';
+                        }}
                         className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
                       />
                     </div>

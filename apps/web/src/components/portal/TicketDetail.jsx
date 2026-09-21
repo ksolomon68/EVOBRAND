@@ -129,6 +129,7 @@ const TicketDetail = ({ ticket, onBack, onReply, onClose, user, onRefresh }) => 
                     <div className="flex items-center gap-4">
                         <button 
                             onClick={onBack} 
+                            aria-label="Back to support tickets"
                             className="p-4 bg-white/5 hover:bg-[#22c8e5]/10 border border-white/10 text-white/40 hover:text-[#22c8e5] rounded-2xl transition-all"
                         >
                             <ArrowLeft size={20} />
@@ -157,7 +158,7 @@ const TicketDetail = ({ ticket, onBack, onReply, onClose, user, onRefresh }) => 
 
                     <div className="flex items-center gap-3 p-4 bg-[#22c8e5]/5 border border-[#22c8e5]/10 rounded-2xl">
                         <Shield size={18} className="text-[#22c8e5]" />
-                        <span className="text-white/60 text-xs font-bold uppercase tracking-widest">End-to-End Encrypted Support Channel</span>
+                        <span className="text-white/60 text-xs font-bold uppercase tracking-widest">Your conversation with EVOBRAND</span>
                     </div>
                 </div>
 
@@ -256,12 +257,14 @@ const TicketDetail = ({ ticket, onBack, onReply, onClose, user, onRefresh }) => 
                                     <input
                                         value={replyText}
                                         onChange={handleReplyChange}
-                                        placeholder="Enter secure transmission..."
+                                        placeholder="Write a reply…"
+                                        aria-label="Your reply"
                                         className="w-full pl-12 pr-4 py-4 bg-white/5 text-white border border-white/10 rounded-2xl focus:outline-none focus:border-[#22c8e5] transition-all text-sm"
                                     />
                                 </div>
                                 <button
                                     type="submit"
+                                    aria-label="Send reply"
                                     disabled={!replyText.trim() || sendingReply}
                                     className="p-4 bg-[#22c8e5] text-[#003258] rounded-2xl hover:bg-[#1ba3c0] disabled:opacity-30 disabled:grayscale transition-all shadow-lg shadow-[#22c8e5]/20"
                                 >

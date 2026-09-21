@@ -81,7 +81,7 @@ const Footer = () => {
               />
             </Link>
             <p className="text-gray-400 text-sm mb-4">
-              AI Transformation Partner - Empowering businesses with cutting-edge AI solutions, custom applications, and intelligent automation.
+              Websites, custom applications, and practical AI workflows. Strategy, design, and technology built around your organization.
             </p>
             <div className="flex gap-2">
               <a href="http://facebook.com/evobrandconcepts" target="_blank" rel="noopener noreferrer" className="min-w-[44px] min-h-[44px] inline-flex items-center justify-center text-gray-400 hover:text-[#22c8e5] transition-colors rounded-lg focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#22c8e5]" aria-label="EVOBRAND on Facebook (opens in new tab)">
@@ -104,10 +104,10 @@ const Footer = () => {
             <h3 className="text-lg font-semibold mb-4 text-[#22c8e5]">Quick Links</h3>
             <ul className="space-y-2">
               <li><Link to="/services" className="text-gray-400 hover:text-[#22c8e5] transition-colors text-sm">Services</Link></li>
-              <li><Link to="/book-consultation" className="text-gray-400 hover:text-[#22c8e5] transition-colors text-sm">Book Consultation</Link></li>
+              <li><Link to="/book-consultation" className="text-gray-400 hover:text-[#22c8e5] transition-colors text-sm">Book a strategy call</Link></li>
               <li><Link to="/about" className="text-gray-400 hover:text-[#22c8e5] transition-colors text-sm">About</Link></li>
               <li><Link to="/contact" className="text-gray-400 hover:text-[#22c8e5] transition-colors text-sm">Contact</Link></li>
-              <li><Link to="/auditors" className="text-gray-400 hover:text-[#22c8e5] transition-colors text-sm">Auditors</Link></li>
+              <li><Link to="/auditors" className="text-gray-400 hover:text-[#22c8e5] transition-colors text-sm">Free tools</Link></li>
               <li><Link to="/accessibility-statement" className="text-gray-400 hover:text-[#22c8e5] transition-colors text-sm">Accessibility Statement</Link></li>
             </ul>
           </div>
@@ -175,24 +175,6 @@ const Footer = () => {
                 <p className="text-red-400 text-xs mt-2">{message}</p>
               )}
             </form>
-          </div>
-        </div>
-
-        {/* Trust Badges */}
-        <div className="border-t border-gray-800 pt-8 mb-8">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
-            <div className="bg-[#1a2332] p-4 rounded-lg">
-              <p className="text-xs font-semibold text-[#22c8e5]">SOC 2 Certified</p>
-            </div>
-            <div className="bg-[#1a2332] p-4 rounded-lg">
-              <p className="text-xs font-semibold text-[#22c8e5]">GDPR Compliant</p>
-            </div>
-            <div className="bg-[#1a2332] p-4 rounded-lg">
-              <p className="text-xs font-semibold text-[#22c8e5]">US Data Sovereignty</p>
-            </div>
-            <div className="bg-[#1a2332] p-4 rounded-lg">
-              <p className="text-xs font-semibold text-[#22c8e5]">EU AI Act Ready</p>
-            </div>
           </div>
         </div>
 

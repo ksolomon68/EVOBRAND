@@ -36,7 +36,8 @@ const categorize = (video) => {
 
 const ROW_LIMIT = 10;
 
-export default function VideoLibrarySection() {
+export default function VideoLibrarySection({ standalone = false }) {
+  const Heading = standalone ? 'h1' : 'h2';
   const { videos, loading, error } = useYouTubePlaylist('PLE-KllGUkEz7CBo120L5G3NWoYKHNkWuo');
   const [selectedCategory, setSelectedCategory] = useState('All');
   const [selectedVideoId, setSelectedVideoId] = useState(null);
@@ -211,12 +212,12 @@ export default function VideoLibrarySection() {
           <p className="text-xs font-bold uppercase tracking-[0.25em] mb-3" style={{ color: '#22c8e5' }}>
             Our Animated Series
           </p>
-          <h2
+          <Heading
             id="video-library-heading"
             className="text-4xl md:text-5xl font-bold text-white mb-4"
           >
             Video Library
-          </h2>
+          </Heading>
           <p className="text-gray-300 max-w-xl mx-auto">
             Fresh drops every week — AI transformations, tutorials, and client success stories.
           </p>

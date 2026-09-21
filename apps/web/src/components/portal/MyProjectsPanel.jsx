@@ -299,8 +299,8 @@ export default function MyProjectsPanel() {
   return (
     <>
       <div className="mb-8">
-        <h1 className="text-3xl font-bold text-white mb-1">My Schedule</h1>
-        <p className="text-white/40">Track and check off milestones as they're completed — updates live, no downloads needed.</p>
+        <h1 className="text-3xl font-bold text-white mb-1">Project timeline</h1>
+        <p className="text-white/40">See what is in progress, review due dates, and mark completed milestones.</p>
       </div>
 
       {loading ? (

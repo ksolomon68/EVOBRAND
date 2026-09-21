@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import SEO from '@/components/SEO.jsx';
 import {
@@ -6,6 +6,7 @@ import {
   Loader2, Calendar, ShieldCheck, Users, FileText, Menu, X, CheckCircle2, AlertCircle, BarChart2,
   Layers,
 } from 'lucide-react';
+import ClientOverview from '../components/portal/ClientOverview';
 import TicketList from '../components/portal/TicketList';
 import NewTicketForm from '../components/portal/NewTicketForm';
 import TicketDetail from '../components/portal/TicketDetail';
@@ -35,10 +36,10 @@ function NavItem({ icon: Icon, label, active, onClick, badge }) {
     <button
       onClick={onClick}
       aria-current={active ? 'page' : undefined}
-      className={`w-full flex items-center gap-3 px-5 py-3.5 rounded-2xl transition-all duration-300 font-bold text-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 ${
+      className={`w-full flex items-center gap-3 px-3 py-3 rounded-lg transition-colors font-medium text-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 ${
         active
           ? 'text-[#003258]'
-          : 'text-white/40 hover:text-white hover:bg-white/5'
+          : 'text-slate-300 hover:text-white hover:bg-white/5'
       }`}
       style={active ? { background: GOLD } : {}}
     >
@@ -64,21 +65,44 @@ function NavItem({ icon: Icon, label, active, onClick, badge }) {
 
 function Sidebar({ user, view, setView, setSelectedTicket, openTicketCount, handleSignOut, mobileOpen, setMobileOpen }) {
   const isAdmin = user?.is_admin === 1 || user?.is_admin === true;
+  const drawerRef = useRef(null);
+  useEffect(() => {
+    if (!mobileOpen) return;
+    const previous = document.activeElement;
+    const drawer = drawerRef.current;
+    drawer?.querySelector('button')?.focus();
+    const onKey = event => {
+      if (event.key === 'Escape') setMobileOpen(false);
+      if (event.key !== 'Tab') return;
+      const controls = drawer.querySelectorAll('button, a[href]');
+      const first = controls[0];
+      const last = controls[controls.length - 1];
+      if (event.shiftKey && document.activeElement === first) { event.preventDefault(); last.focus(); }
+      else if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first.focus(); }
+    };
+    drawer?.addEventListener('keydown', onKey);
+    return () => { drawer?.removeEventListener('keydown', onKey); previous?.focus(); };
+  }, [mobileOpen, setMobileOpen]);
 
-  const navItems = [
-    { key: 'dashboard', icon: LayoutDashboard, label: 'Dashboard', badge: openTicketCount },
-    { key: 'meetings', icon: Calendar, label: 'My Meetings' },
-    { key: 'my-contracts', icon: FileText, label: 'My Contracts' },
-    { key: 'my-projects', icon: Layers, label: 'My Schedule' },
+  const navGroups = [
+    { label: 'Workspace', items: [
+      { key: 'dashboard', icon: LayoutDashboard, label: 'Overview' },
+      { key: isAdmin ? 'project-tracker' : 'my-projects', icon: Layers, label: isAdmin ? 'Projects' : 'Project timeline' },
+      { key: 'meetings', icon: Calendar, label: 'Meetings' },
+      { key: 'my-contracts', icon: FileText, label: 'Contracts' },
+      { key: isAdmin ? 'admin' : 'my-tickets', icon: Ticket, label: 'Support tickets' },
+    ] },
     ...(isAdmin ? [
-      { key: 'analytics', icon: BarChart2, label: 'Analytics' },
-      { key: 'admin', icon: ShieldCheck, label: 'Support Tickets' },
-      { key: 'client-plans', icon: Users, label: 'Client Plans' },
-      { key: 'contact-forms', icon: ShieldCheck, label: 'Contact Forms' },
-      { key: 'scheduler-admin', icon: Calendar, label: 'Availability Controls' },
-      { key: 'crm', icon: Users, label: 'CRM & Campaigns' },
-      { key: 'contract-builder', icon: FileText, label: 'Contract Builder' },
-      { key: 'project-tracker', icon: Layers, label: 'Project Schedule' },
+      { label: 'Relationships', items: [
+        { key: 'contact-forms', icon: Bell, label: 'Inquiries' },
+        { key: 'crm', icon: Users, label: 'CRM & campaigns' },
+        { key: 'client-plans', icon: ShieldCheck, label: 'Service plans' },
+      ] },
+      { label: 'Operations', items: [
+        { key: 'scheduler-admin', icon: Calendar, label: 'Booking availability' },
+        { key: 'analytics', icon: BarChart2, label: 'Analytics' },
+        { key: 'contract-builder', icon: FileText, label: 'Contract builder' },
+      ] },
     ] : []),
   ];
 
@@ -90,25 +114,21 @@ function Sidebar({ user, view, setView, setSelectedTicket, openTicketCount, hand
 
   const navContent = (
     <div className="flex flex-col h-full min-h-0">
-        <div className="p-8 flex-1 overflow-y-auto min-h-0">
-          <div className="flex flex-col items-start gap-4 mb-12">
+        <div className="p-5 flex-1 overflow-y-auto min-h-0">
+          <div className="flex flex-col items-start gap-4 mb-8">
             <img src="/logo.png" alt="EVOBRAND" className="h-10 object-contain" />
             <div className="h-px w-8" style={{ background: `${GOLD}30` }} aria-hidden="true" />
-            <span className="font-bold tracking-[0.3em] text-xs uppercase" style={{ color: `${GOLD}60` }}>Client Portal</span>
+            <span className="font-bold tracking-[0.3em] text-xs uppercase" style={{ color: `${GOLD}60` }}>{isAdmin ? 'Studio workspace' : 'Client workspace'}</span>
           </div>
-          <nav className="space-y-1" aria-label="Main portal navigation">
-            {navItems.map(({ key, icon, label, badge }) => (
-              <NavItem key={key} icon={icon} label={label}
-                active={view === key || (view === 'detail' && key === 'dashboard')}
-                badge={badge}
-                onClick={() => { setView(key); setSelectedTicket(null); setMobileOpen(false); }}
-              />
-            ))}
-            <div className="pl-4 pt-1">
-              <NavItem icon={Ticket} label="My Tickets" active={false}
-                onClick={() => { setView('dashboard'); setSelectedTicket(null); setMobileOpen(false); }}
-              />
-            </div>
+          <nav className="space-y-6" aria-label="Main portal navigation">
+            {navGroups.map(group => <div key={group.label}>
+              <p className="portal-nav-label">{group.label}</p>
+              <div className="space-y-1">{group.items.map(({ key, icon, label }) => (
+                <NavItem key={key} icon={icon} label={label}
+                  active={view === key || (view === 'detail' && key === (isAdmin ? 'admin' : 'my-tickets'))}
+                  onClick={() => { setView(key); setSelectedTicket(null); setMobileOpen(false); }} />
+              ))}</div>
+            </div>)}
           </nav>
         </div>
         <div className="flex-shrink-0 p-8 border-t" style={{ borderColor: 'rgba(255,255,255,0.05)' }}>
@@ -144,9 +164,10 @@ function Sidebar({ user, view, setView, setSelectedTicket, openTicketCount, hand
           style={{ background: 'rgba(0,0,0,0.7)' }} />
       )}
       {/* Mobile drawer */}
-      <div className={`fixed inset-y-0 left-0 z-50 w-72 flex flex-col transition-transform duration-300 md:hidden ${mobileOpen ? 'translate-x-0' : '-translate-x-full'}`}
+      <div ref={drawerRef} role="dialog" aria-label="Workspace navigation" aria-modal={mobileOpen || undefined} aria-hidden={!mobileOpen} inert={mobileOpen ? undefined : ''} className={`fixed inset-y-0 left-0 z-50 w-72 flex flex-col transition-transform duration-300 md:hidden ${mobileOpen ? 'translate-x-0' : '-translate-x-full'}`}
         style={{ background: '#04080f', borderRight: '1px solid rgba(255,255,255,0.05)' }}>
         <button onClick={() => setMobileOpen(false)}
+          aria-label="Close navigation"
           className="absolute top-4 right-4 p-2 rounded-lg text-white/40 hover:text-white hover:bg-white/10 transition-colors">
           <X size={18} />
         </button>
@@ -177,6 +198,7 @@ const ClientPortalPage = () => {
     return VALID_VIEWS.includes(hash) ? hash : 'dashboard';
   });
   const [tickets, setTickets] = useState([]);
+  const [ticketsError, setTicketsError] = useState(false);
   const [editingContract, setEditingContract] = useState(null);
   const [duplicatingContract, setDuplicatingContract] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -262,6 +284,7 @@ const ClientPortalPage = () => {
 
   const fetchTickets = async (isInitial = false) => {
     if (isInitial) setLoading(true);
+    setTicketsError(false);
     try {
       const token = localStorage.getItem('evobrand_token');
       const controller = new AbortController();
@@ -289,6 +312,7 @@ const ClientPortalPage = () => {
     } catch (err) {
       // Keep stale ticket data — don't blank the list on API error
       console.error('Error fetching tickets:', err);
+      setTicketsError(true);
     } finally {
       if (isInitial) setLoading(false);
     }
@@ -413,18 +437,20 @@ const ClientPortalPage = () => {
 
   // ── Resolve page title & breadcrumb ─────────────────────────────────────────
   const pageTitle = {
-    dashboard: 'Operational Dashboard',
+    dashboard: 'Overview',
+    'my-tickets': 'Support tickets',
+    analytics: 'Analytics',
     detail: 'Ticket Details',
     meetings: 'My Meetings',
     'my-contracts': 'My Contracts',
-    'my-projects': 'My Schedule',
+    'my-projects': 'Project timeline',
     admin: 'Support Tickets',
-    'client-plans': 'Client Plans',
-    'contact-forms': 'Contact Forms',
-    'scheduler-admin': 'Availability Controls',
+    'client-plans': 'Service plans',
+    'contact-forms': 'Inquiries',
+    'scheduler-admin': 'Booking availability',
     crm: 'CRM & Campaigns',
     'contract-builder': 'Contract Builder',
-    'project-tracker': 'Project Schedule',
+    'project-tracker': 'Projects',
   }[view] ?? 'Dashboard';
 
   if (authLoading || loading) {
@@ -436,7 +462,7 @@ const ClientPortalPage = () => {
         aria-label="Loading portal"
       >
         <Loader2 size={36} className="animate-spin mb-4" style={{ color: GOLD }} aria-hidden="true" />
-        <p className="text-white/40 font-bold tracking-widest text-xs uppercase">Accessing Secure Vault...</p>
+        <p className="text-white/40 font-bold tracking-widest text-xs uppercase">Loading your workspace…</p>
       </div>
     );
   }
@@ -484,7 +510,7 @@ const ClientPortalPage = () => {
         )}
       </AnimatePresence>
 
-      <div className="min-h-screen flex overflow-x-hidden" style={{ background: '#04080f' }}>
+      <div className="portal-shell h-dvh flex overflow-hidden" style={{ background: '#04080f' }}>
         <Sidebar
           user={user}
           view={view}
@@ -497,7 +523,7 @@ const ClientPortalPage = () => {
         />
 
         {/* Main content */}
-        <main className="flex-1 flex flex-col h-screen overflow-hidden min-w-0" style={{ background: '#04080f' }}>
+        <div className="flex-1 flex flex-col h-full overflow-hidden min-w-0" style={{ background: '#04080f' }}>
           {/* Top bar */}
           <header
             className="h-16 border-b flex items-center justify-between px-4 md:px-8 flex-shrink-0"
@@ -515,7 +541,7 @@ const ClientPortalPage = () => {
               </div>
             </div>
             <div className="flex items-center gap-2 sm:gap-4">
-              <NotificationDropdown onNavigate={(v) => { setView(v); setMobileNavOpen(false); }} />
+              <NotificationDropdown onNavigate={(v) => { setView(v === 'my-tickets' && isAdmin ? 'admin' : v); setMobileNavOpen(false); }} />
               <button
                 onClick={handleSignOut}
                 className="md:hidden p-2.5 rounded-xl transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-red-400"
@@ -535,25 +561,26 @@ const ClientPortalPage = () => {
                 onMouseLeave={(e) => (e.currentTarget.style.opacity = '1')}
               >
                 <Plus size={14} aria-hidden="true" />
-                <span className="hidden sm:inline">New Ticket</span>
+                <span>New ticket</span>
               </button>
             </div>
           </header>
 
           {/* Scrollable content */}
-          <div className="flex-1 overflow-y-auto p-8">
+          <div className="flex-1 overflow-y-auto px-4 py-6 sm:p-6 lg:p-10">
             <div className="max-w-6xl mx-auto">
+              {ticketsError && <div role="alert" className="portal-notice mb-6">Support information could not be refreshed. <button className="portal-text-link" onClick={() => fetchTickets()}>Try again</button></div>}
               <AnimatePresence mode="wait">
                 {/* ── Dashboard ── */}
-                {(view === 'dashboard') && (
+                {(view === 'dashboard' || view === 'my-tickets') && (
                   <motion.div
-                    key="dashboard"
+                    key={view}
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, y: -10 }}
                     transition={{ duration: 0.25 }}
                   >
-                    {user?.is_admin === 1 || user?.is_admin === true ? (
+                    {view === 'dashboard' && isAdmin ? (
                       <AdminDashboard
                         tickets={tickets}
                         setView={setView}
@@ -570,33 +597,13 @@ const ClientPortalPage = () => {
                           } catch (err) { console.error(err); }
                         }}
                       />
+                    ) : view === 'dashboard' ? (
+                      <ClientOverview user={user} tickets={tickets} setView={setView} />
                     ) : (
                       <>
-                        <div className="mb-10">
-                          <h1 className="text-4xl font-bold text-white mb-2">My Dashboard</h1>
-                          <p className="text-white/40">Track your tickets and project updates.</p>
-                        </div>
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-5 mb-12">
-                          {[
-                            { label: 'Active Tickets', value: tickets.filter(t => t.status === 'open' || t.status === 'in_progress').length, color: GOLD },
-                            { label: 'Awaiting Action', value: tickets.filter(t => t.status === 'pending').length, color: '#facc15' },
-                            { label: 'Resolved', value: tickets.filter(t => t.status === 'resolved' || t.status === 'closed').length, color: '#34d399' },
-                          ].map(({ label, value, color }) => (
-                            <div key={label} className="p-8 rounded-3xl border transition-all"
-                              style={{ background: 'rgba(255,255,255,0.03)', borderColor: 'rgba(255,255,255,0.07)' }}
-                              onMouseEnter={e => e.currentTarget.style.borderColor = `${color}30`}
-                              onMouseLeave={e => e.currentTarget.style.borderColor = 'rgba(255,255,255,0.07)'}>
-                              <h3 className="text-white/40 text-xs font-bold uppercase tracking-widest mb-3">{label}</h3>
-                              <p className="text-5xl font-bold" style={{ color }}>{value}</p>
-                            </div>
-                          ))}
-                        </div>
-                        <div className="flex items-center justify-between mb-6">
-                          <h2 className="text-xl font-bold text-white">My Tickets</h2>
-                          <div className="flex items-center gap-2 text-white/40 text-xs font-bold uppercase tracking-widest">
-                            <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse" aria-hidden="true" />
-                            Live Sync
-                          </div>
+                        <div className="mb-8">
+                          <h1 className="text-3xl font-bold text-white mb-2">Support tickets</h1>
+                          <p className="portal-muted">Ask a question, request a change, or follow up with our team.</p>
                         </div>
                         <TicketList tickets={tickets} onViewTicket={async (ticket) => {
                           setSelectedTicket(ticket);
@@ -626,7 +633,7 @@ const ClientPortalPage = () => {
                   >
                     <TicketDetail
                       ticket={selectedTicket}
-                      onBack={() => setView('dashboard')}
+                      onBack={() => setView(isAdmin ? 'admin' : 'my-tickets')}
                       onReply={handleClientReply}
                       onClose={handleCloseTicket}
                       user={user}
@@ -795,7 +802,7 @@ const ClientPortalPage = () => {
               </AnimatePresence>
             </div>
           </div>
-        </main>
+        </div>
       </div>
 
       <AnimatePresence>
