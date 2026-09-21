@@ -20,7 +20,7 @@ const Header = () => {
     location.pathname === link.to || (link.matchPrefixes || []).some((p) => location.pathname.startsWith(p));
 
   return (
-    <header className="sticky top-0 z-50 bg-[#101b2b]/95 border-b border-white/10 backdrop-blur-md">
+    <header className="sticky top-0 z-[100] bg-[#101b2b]/95 border-b border-white/10 backdrop-blur-md">
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between h-20">
           {/* Logo */}
@@ -67,7 +67,7 @@ const Header = () => {
             </NavLink>
           </nav>
 
-          {/* Mobile Menu Button with Solid Styled Container */}
+          {/* Mobile Menu Button */}
           <motion.button
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
             whileHover={{ scale: 1.05 }}
@@ -86,26 +86,41 @@ const Header = () => {
       <AnimatePresence>
         {mobileMenuOpen && (
           <>
-            {/* Backdrop */}
+            {/* Full-Screen Dark Glass Backdrop */}
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               transition={{ duration: 0.2 }}
               onClick={() => setMobileMenuOpen(false)}
-              className="fixed inset-0 top-20 bg-black/70 backdrop-blur-sm z-40 xl:hidden"
+              className="fixed inset-0 bg-black/80 backdrop-blur-md z-[999] xl:hidden"
               aria-hidden="true"
             />
 
-            {/* Mobile Drawer */}
+            {/* Mobile Drawer (Z-[1000] ensures top layer placement) */}
             <motion.div
               initial={{ x: '100%' }}
               animate={{ x: 0 }}
               exit={{ x: '100%' }}
               transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-              className="fixed top-20 right-0 bottom-0 w-72 bg-[#101b2b]/98 border-l border-white/10 backdrop-blur-xl z-50 xl:hidden flex flex-col shadow-2xl"
+              className="fixed top-0 right-0 bottom-0 w-80 max-w-[85vw] bg-[#101b2b] border-l border-white/10 z-[1000] xl:hidden flex flex-col shadow-2xl shadow-black/80"
               id="mobile-nav"
             >
+              {/* Drawer Top Header Row */}
+              <div className="flex items-center justify-between p-6 border-b border-white/10">
+                <div className="flex items-center">
+                  <img src="/logo.png" alt="EVOBRAND" className="h-[28px] w-auto object-contain" />
+                </div>
+                <button
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="bg-[#1a2332] text-[#22c8e5] hover:text-white border border-white/10 hover:border-[#22c8e5]/40 p-2 rounded-xl transition-all"
+                  aria-label="Close menu"
+                >
+                  <X size={22} />
+                </button>
+              </div>
+
+              {/* Drawer Nav Links */}
               <nav className="flex flex-col p-6 space-y-2 overflow-y-auto flex-1" aria-label="Mobile navigation">
                 {navLinks.map((link) => {
                   const active = isLinkActive(link);
