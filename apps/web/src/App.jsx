@@ -4,7 +4,7 @@ import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-route
 import ScrollToTop from '@/components/ScrollToTop.jsx';
 import Header from '@/components/Header.jsx';
 import Footer from '@/components/Footer.jsx';
-import AccessibilityWidget from '@/components/AccessibilityWidget.jsx';
+import ChatWidget from '@/components/ChatWidget.jsx';
 import HomePage from '@/pages/HomePage.jsx';
 import ServicesPage from '@/pages/ServicesPage.jsx';
 import HowItWorksPage from '@/pages/HowItWorksPage.jsx';
@@ -84,7 +84,7 @@ function SiteLayout() {
           </Routes>
         </main>
         {!isPortal && <Footer />}
-        <AccessibilityWidget />
+        <ChatWidget />
       </div>
     </>
   );
