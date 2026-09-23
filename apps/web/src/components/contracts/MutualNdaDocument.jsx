@@ -22,7 +22,7 @@ export default function MutualNdaDocument({ data = {}, contract = null }) {
     <div className="bg-white rounded p-8 sm:p-12 shadow-2xl print-contract-preview" style={{ fontFamily: 'Times New Roman, serif' }}>
       <article className="text-black text-[0.92rem] leading-[1.75]">
         <header className="text-center border-b-2 border-black pb-5">
-          <p className="text-[0.7rem] tracking-[0.28em] font-bold uppercase mb-2">Evo Brand Concepts</p>
+          <p className="text-[0.7rem] tracking-[0.28em] font-bold uppercase mb-2">EVOBRAND Concepts</p>
           <h2 className="text-2xl font-bold uppercase tracking-wider">Mutual Non-Disclosure Agreement</h2>
           <p className="mt-2 text-sm">Effective {formatDate(nda.effectiveDate)}</p>
         </header>
