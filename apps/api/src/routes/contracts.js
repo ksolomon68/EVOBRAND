@@ -46,6 +46,12 @@ const ensureTable = async () => {
   try {
     await pool.query('ALTER TABLE contracts ADD COLUMN client_signed_at TIMESTAMP NULL');
   } catch (e) {} // Ignore if column already exists
+  try {
+    await pool.query('ALTER TABLE contracts ADD COLUMN signer_ip VARCHAR(64)');
+  } catch (e) {}
+  try {
+    await pool.query('ALTER TABLE contracts ADD COLUMN signer_user_agent VARCHAR(500)');
+  } catch (e) {}
 };
 
 // @route POST /api/contracts — admin saves a contract and associates it with a client
@@ -74,19 +80,19 @@ router.post('/', authenticateToken, requireAdmin, async (req, res) => {
     // Send email notification to client and copy to admin
     if (contractStatus !== 'draft' && clientEmail && clientEmail.includes('@')) {
       try {
-        const clientInfo = contractData.clientInfo || {};
+        const clientInfo = contractData.clientInfo || contractData.partnerInfo || {};
         const project = contractData.project || {};
         const repName = clientInfo.repName || 'Representative';
         const companyName = clientInfo.companyName || 'Client';
+        const isNda = contractData.agreementType === 'mutual-nda';
 
         const emailBody = `
           <p>Hi ${repName},</p>
-          <p>A new Services Agreement (<strong>${title}</strong>) has been prepared and sent to you by <strong>EVOBRAND Concepts LLC</strong>.</p>
+          <p>A new ${isNda ? 'Mutual Non-Disclosure Agreement' : 'Services Agreement'} (<strong>${title}</strong>) has been prepared and sent to you by <strong>EVOBRAND Concepts LLC</strong>.</p>
           <p><strong>Agreement Summary:</strong></p>
           <ul>
             <li><strong>Client Company:</strong> ${companyName}</li>
-            <li><strong>Estimated Completion:</strong> ${project.completion || 'N/A'}</li>
-            <li><strong>Governing State:</strong> ${project.state || 'N/A'}</li>
+            ${isNda ? `<li><strong>Purpose:</strong> ${contractData.nda?.purpose || 'Potential business relationship'}</li><li><strong>Governing State:</strong> ${contractData.nda?.state || 'Texas'}</li>` : `<li><strong>Estimated Completion:</strong> ${project.completion || 'N/A'}</li><li><strong>Governing State:</strong> ${project.state || 'N/A'}</li>`}
           </ul>
           <p>Please log in to your EVOBRAND Client Portal to review and sign the agreement electronically:</p>
           <p><a href="https://evobrandconcepts.com/login" style="color: #22c8e5; font-weight: bold; text-decoration: none;">Go to Client Portal</a></p>
@@ -120,6 +126,12 @@ router.put('/:id', authenticateToken, requireAdmin, async (req, res) => {
 
   try {
     await ensureTable();
+
+    const [existing] = await pool.query('SELECT status FROM contracts WHERE id = ?', [req.params.id]);
+    if (existing.length === 0) return res.status(404).json({ error: 'Contract not found' });
+    if (existing[0].status === 'signed') {
+      return res.status(409).json({ error: 'Signed agreements are locked and cannot be edited. Create a new agreement instead.' });
+    }
 
     // Look up client user by email
     let clientUserId = null;
@@ -235,7 +247,7 @@ router.put('/:id/status', authenticateToken, requireAdmin, async (req, res) => {
 
 // @route POST /api/contracts/:id/sign — client signs contract
 router.post('/:id/sign', authenticateToken, async (req, res) => {
-  const { signature } = req.body;
+  const { signature, acceptedElectronic = false } = req.body;
   if (!signature || signature.trim().length === 0) {
     return res.status(400).json({ error: 'Signature is required' });
   }
@@ -253,9 +265,14 @@ router.post('/:id/sign', authenticateToken, async (req, res) => {
       return res.status(400).json({ error: 'Contract is already signed' });
     }
 
+    const contractData = typeof contract.contract_data === 'string' ? JSON.parse(contract.contract_data) : contract.contract_data;
+    if (contractData?.agreementType === 'mutual-nda' && acceptedElectronic !== true) {
+      return res.status(400).json({ error: 'Electronic signature consent is required' });
+    }
+
     await pool.query(
-      'UPDATE contracts SET status = "signed", client_signature = ?, client_signed_at = NOW() WHERE id = ?',
-      [signature.trim(), req.params.id]
+      'UPDATE contracts SET status = "signed", client_signature = ?, client_signed_at = NOW(), signer_ip = ?, signer_user_agent = ? WHERE id = ?',
+      [signature.trim(), req.ip || null, String(req.get('user-agent') || '').slice(0, 500), req.params.id]
     );
 
     // Auto-add signer to Customers CRM list

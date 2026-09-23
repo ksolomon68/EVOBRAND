@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { FileText, X, Download, Clock, CheckCircle2, Send, CreditCard, Copy, Trash2, Loader2 } from 'lucide-react';
 import PaymentModal from './PaymentModal';
+import MutualNdaDocument from '../contracts/MutualNdaDocument';
 
 const API_BASE = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
   ? 'http://localhost:5000/api'
@@ -25,6 +26,46 @@ const formatDate = (str) => {
   return new Date(str).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
 };
 
+function NdaContractModal({ contract, data, onClose, onSign }) {
+  const [signature, setSignature] = useState('');
+  const [consented, setConsented] = useState(false);
+  const [signing, setSigning] = useState(false);
+  const handleSign = async () => {
+    if (!signature.trim() || !consented) return;
+    setSigning(true);
+    await onSign(signature, true);
+    setSigning(false);
+  };
+  return (
+    <div className="fixed inset-0 z-50 flex items-start justify-center p-4 pt-10 overflow-y-auto" style={{ background: 'rgba(0,0,0,0.88)' }}>
+      <div className="relative w-full max-w-4xl">
+        <div className="flex flex-wrap items-center justify-between gap-3 mb-4 no-print">
+          <div><p className="text-[#22c8e5] text-[0.68rem] uppercase tracking-[0.18em] font-bold">Confidentiality agreement</p><h2 className="text-white font-bold text-lg">{contract.title}</h2></div>
+          <div className="flex items-center gap-3">
+            <button onClick={() => window.print()} className="flex items-center gap-2 px-4 py-2 rounded-xl font-bold text-sm" style={{ background: GOLD, color: '#003258' }}><Download size={14} /> Print / Download</button>
+            <button onClick={onClose} aria-label="Close agreement" className="p-2 rounded-lg text-white/50 hover:text-white hover:bg-white/10"><X size={20} /></button>
+          </div>
+        </div>
+        <MutualNdaDocument data={data} contract={contract} />
+        {contract.status !== 'signed' && contract.status !== 'draft' && (
+          <div className="mt-6 rounded-2xl p-6 border border-[#22c8e5]/20 bg-[#07111d] shadow-xl no-print">
+            <h3 className="text-lg font-bold text-white mb-2">Sign the mutual NDA</h3>
+            <p className="text-sm text-white/55 mb-4">Your typed name becomes your electronic signature. Both parties are bound by the same confidentiality duties.</p>
+            <label className="flex items-start gap-3 mb-4 text-sm text-white/75 cursor-pointer">
+              <input type="checkbox" checked={consented} onChange={(e) => setConsented(e.target.checked)} className="mt-1 accent-[#22c8e5]" />
+              <span>I have reviewed the full agreement, consent to use an electronic record and signature, and intend to sign and be legally bound.</span>
+            </label>
+            <div className="flex flex-col sm:flex-row gap-4">
+              <input type="text" autoComplete="name" placeholder="Type your full legal name" value={signature} onChange={(e) => setSignature(e.target.value)} className="flex-1 px-4 py-3 rounded-xl text-sm bg-white/5 border border-white/10 text-white focus:outline-none focus:border-[#22c8e5]/50" />
+              <button onClick={handleSign} disabled={signing || !signature.trim() || !consented} className="px-8 py-3 rounded-xl font-bold text-sm disabled:opacity-45 uppercase tracking-wider" style={{ background: GOLD, color: '#003258' }}>{signing ? 'Signing…' : 'Sign agreement'}</button>
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
 function ContractModal({ contract, onClose, onSign, isAdmin, onEditContract }) {
   const [signature, setSignature] = useState('');
   const [signing, setSigning] = useState(false);
@@ -40,6 +81,9 @@ function ContractModal({ contract, onClose, onSign, isAdmin, onEditContract }) {
   const data = typeof contract.contract_data === 'string'
     ? JSON.parse(contract.contract_data)
     : contract.contract_data;
+  if (data?.agreementType === 'mutual-nda') {
+    return <NdaContractModal contract={contract} data={data} onClose={onClose} onSign={onSign} />;
+  }
   const { clientInfo = {}, project = {}, selectedServices = [], clauses = {} } = data;
 
   const agency = { name: 'EVOBRAND Concepts LLC', address: 'Ellis County, Texas 75165', email: 'info@evobrand.net' };
@@ -249,7 +293,7 @@ export default function MyContractsPanel({ user, onEditContract, onDuplicateCont
     }
   };
 
-  const handleSignContract = async (signature) => {
+  const handleSignContract = async (signature, acceptedElectronic = false) => {
     try {
       const token = localStorage.getItem('evobrand_token');
       const res = await fetch(`${API_BASE}/contracts/${selected.id}/sign`, {
@@ -258,7 +302,7 @@ export default function MyContractsPanel({ user, onEditContract, onDuplicateCont
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify({ signature })
+        body: JSON.stringify({ signature, acceptedElectronic })
       });
       if (res.ok) {
         // Refresh the selected contract and the list
@@ -275,7 +319,7 @@ export default function MyContractsPanel({ user, onEditContract, onDuplicateCont
             ? JSON.parse(selected.contract_data)
             : selected.contract_data;
           const fee = Number(contractData?.project?.fee);
-          if (!isNaN(fee) && fee > 0) {
+          if (contractData?.agreementType !== 'mutual-nda' && !isNaN(fee) && fee > 0) {
             setPaymentModal({
               type: 'contract',
               id: selected.id,
@@ -294,7 +338,7 @@ export default function MyContractsPanel({ user, onEditContract, onDuplicateCont
     <>
       <div className="mb-8">
         <h1 className="text-3xl font-bold text-white mb-1">My Contracts</h1>
-        <p className="text-white/40">View and download agreements sent to you by EVOBRAND.</p>
+        <p className="text-white/40">Review, sign, and download agreements sent to you by EVOBRAND.</p>
       </div>
 
       {loading ? (

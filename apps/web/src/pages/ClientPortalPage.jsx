@@ -16,6 +16,7 @@ import AdminTicketPanel from '../components/admin/AdminTicketPanel';
 import AdminCRMPanel from '../components/admin/AdminCRMPanel';
 import AdminClientPlansPanel from '../components/admin/AdminClientPlansPanel';
 import ContractBuilderPanel from '../components/admin/ContractBuilderPanel';
+import MutualNdaPanel from '../components/admin/MutualNdaPanel';
 import AdminBlackoutPanel from '../components/admin/AdminBlackoutPanel';
 import AdminContactFormsPanel from '../components/admin/AdminContactFormsPanel';
 import MyContractsPanel from '../components/portal/MyContractsPanel';
@@ -102,6 +103,7 @@ function Sidebar({ user, view, setView, setSelectedTicket, openTicketCount, hand
         { key: 'scheduler-admin', icon: Calendar, label: 'Booking availability' },
         { key: 'analytics', icon: BarChart2, label: 'Analytics' },
         { key: 'contract-builder', icon: FileText, label: 'Contract builder' },
+        { key: 'nda-builder', icon: ShieldCheck, label: 'Mutual NDA' },
       ] },
     ] : []),
   ];
@@ -192,7 +194,7 @@ const ClientPortalPage = () => {
   const isAdmin = user?.is_admin === 1 || user?.is_admin === true;
   const navigate = useNavigate();
   const location = useLocation();
-  const VALID_VIEWS = ['dashboard','meetings','analytics','admin','client-plans','contact-forms','scheduler-admin','crm','contracts','my-tickets','blackout','my-contracts','contract-builder','project-tracker','my-projects'];
+  const VALID_VIEWS = ['dashboard','meetings','analytics','admin','client-plans','contact-forms','scheduler-admin','crm','contracts','my-tickets','blackout','my-contracts','contract-builder','project-tracker','my-projects','nda-builder'];
   const [view, setView] = useState(() => {
     const hash = window.location.hash.replace('#', '');
     return VALID_VIEWS.includes(hash) ? hash : 'dashboard';
@@ -747,6 +749,19 @@ const ClientPortalPage = () => {
                       duplicatingContract={duplicatingContract}
                       onClear={() => { setEditingContract(null); setDuplicatingContract(null); }}
                     />
+                  </motion.div>
+                )}
+
+                {/* ── Mutual NDA Builder (admin) ── */}
+                {view === 'nda-builder' && isAdmin && (
+                  <motion.div
+                    key="nda-builder"
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -10 }}
+                    transition={{ duration: 0.2 }}
+                  >
+                    <MutualNdaPanel />
                   </motion.div>
                 )}
 
