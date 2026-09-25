@@ -32,8 +32,7 @@ const FreeDemoPortalPage = lazy(() => import('@/pages/FreeDemoPortalPage.jsx'));
 const MotionLabPage = lazy(() => import('@/pages/MotionLabPage.jsx'));
 const MotionBlueprintPage = lazy(() => import('@/pages/MotionBlueprintPage.jsx'));
 const StyleGuidePage = lazy(() => import('@/pages/StyleGuidePage.jsx'));
-const VideoLibrarySection = lazy(() => import('@/components/VideoLibrarySection.jsx'));
-import SEO from '@/components/SEO.jsx';
+const VideoLibraryPage = lazy(() => import('@/pages/VideoLibraryPage.jsx'));
 import { trackPageView } from '@/lib/analytics.js';
 
 function AnalyticsTracker() {
@@ -70,7 +69,8 @@ function SiteLayout() {
                 <Route path="/how-it-works" element={<HowItWorksPage />} />
                 <Route path="/our-work" element={<OurWorkPage />} />
                 <Route path="/resources" element={<ResourcesPage />} />
-                <Route path="/videos" element={<><SEO title="Video library" description="Explore EVOBRAND videos on branding, automation, AI, and business growth." canonical="https://evobrand.net/videos" /><VideoLibrarySection standalone /></>} />
+                <Route path="/our-work/videos" element={<VideoLibraryPage />} />
+                <Route path="/videos" element={<Navigate to="/our-work/videos" replace />} />
                 <Route path="/about" element={<AboutPage />} />
                 <Route path="/contact" element={<ContactPage />} />
                 <Route path="/client-portal" element={<ClientPortalPage />} />

@@ -36,7 +36,8 @@ const categorize = (video) => {
 
 const ROW_LIMIT = 10;
 
-export default function VideoLibrarySection({ standalone = false }) {
+// `bare` drops the built-in heading when a page hero already introduces the library.
+export default function VideoLibrarySection({ standalone = false, bare = false }) {
   const Heading = standalone ? 'h1' : 'h2';
   const { videos, loading, error } = useYouTubePlaylist('PLE-KllGUkEz7CBo120L5G3NWoYKHNkWuo');
   const [selectedCategory, setSelectedCategory] = useState('All');
@@ -195,7 +196,8 @@ export default function VideoLibrarySection({ standalone = false }) {
     <section
       className="py-20 relative overflow-hidden"
       style={{ background: 'linear-gradient(180deg, rgba(7,10,14,0.82) 0%, rgba(15,20,25,0.82) 100%)' }}
-      aria-labelledby="video-library-heading"
+      aria-labelledby={bare ? undefined : 'video-library-heading'}
+      aria-label={bare ? 'Video library' : undefined}
     >
       {/* Animated Canvas Background */}
       <canvas ref={canvasRef} className="absolute inset-0 w-full h-full pointer-events-none opacity-50" aria-hidden="true" />
@@ -208,6 +210,7 @@ export default function VideoLibrarySection({ standalone = false }) {
 
       <div className="container mx-auto px-4 relative z-10">
         {/* Heading */}
+        {!bare && (
         <div ref={headingRef} className="text-center mb-12">
           <p className="text-xs font-bold uppercase tracking-[0.25em] mb-3" style={{ color: '#22c8e5' }}>
             Our Animated Series
@@ -223,6 +226,7 @@ export default function VideoLibrarySection({ standalone = false }) {
           </p>
           <div className="w-12 h-0.5 mx-auto mt-5" style={{ background: '#22c8e5' }} />
         </div>
+        )}
 
         {/* Category filters */}
         <div

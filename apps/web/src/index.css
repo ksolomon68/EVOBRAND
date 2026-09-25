@@ -2763,3 +2763,50 @@ body:has(.cta-band) .site-footer__statement { display: none; }
   .academy__tab-timer { display: none; }
   .launch__media img, .launch__overlay { transition: none; }
 }
+
+/* Our work: video library teaser */
+.video-teaser { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: var(--space-xl); align-items: center; }
+.video-teaser__card {
+  position: relative;
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: var(--space-m);
+  padding: var(--space-l);
+  overflow: hidden;
+  border: 1px solid var(--evo-line);
+  border-radius: 24px;
+  background:
+    radial-gradient(circle at 0% 50%, color-mix(in srgb, var(--cyan-400) 18%, transparent), transparent 55%),
+    var(--ink-900);
+  transition: border-color 0.3s, transform 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.video-teaser__card:hover, .video-teaser__card:focus-visible { border-color: var(--evo-accent); transform: translateY(-4px); }
+.video-teaser__play {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 76px;
+  height: 76px;
+  border-radius: 50%;
+  background: var(--evo-accent);
+  color: var(--evo-on-accent);
+  box-shadow: 0 0 40px color-mix(in srgb, var(--cyan-400) 45%, transparent);
+}
+.video-teaser__play::after {
+  content: '';
+  position: absolute;
+  inset: -8px;
+  border: 1px solid var(--evo-accent);
+  border-radius: 50%;
+  animation: teaser-ping 2.4s ease-out infinite;
+}
+@keyframes teaser-ping { from { opacity: 0.8; transform: scale(0.9); } to { opacity: 0; transform: scale(1.35); } }
+.video-teaser__play svg { margin-left: 4px; }
+.video-teaser__text { display: grid; gap: 0.35rem; }
+.video-teaser__title { font-family: var(--font-display); font-size: var(--step-3); line-height: 1.1; color: var(--evo-text); }
+.video-teaser__arrow { color: var(--evo-accent); transition: transform 0.3s; }
+.video-teaser__card:hover .video-teaser__arrow { transform: translate(3px, -3px); }
+@media (max-width: 1023px) { .video-teaser { grid-template-columns: 1fr; } }
+@media (max-width: 480px) { .video-teaser__card { grid-template-columns: auto 1fr; } .video-teaser__arrow { display: none; } }
+@media (prefers-reduced-motion: reduce) { .video-teaser__play::after { animation: none; opacity: 0; } }

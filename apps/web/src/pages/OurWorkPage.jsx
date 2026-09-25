@@ -2,7 +2,8 @@ import React, { useEffect, useRef, useState } from 'react';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { AnimatePresence, MotionConfig, motion, useReducedMotion } from 'framer-motion';
-import { ArrowLeft, ArrowRight, ExternalLink } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import { ArrowLeft, ArrowRight, ArrowUpRight, ExternalLink, Play } from 'lucide-react';
 import SEO from '@/components/SEO.jsx';
 import { CtaBand, InnerHero } from '@/components/inner/InnerKit.jsx';
 import { ButtonLink, SectionHeading } from '@/components/system/Section.jsx';
@@ -169,6 +170,7 @@ export default function OurWorkPage() {
             { href: '#flagship', label: 'Flagship platforms' },
             { href: '#dashboard-demos', label: 'Live demos' },
             { href: '#recent-launches', label: 'Recent launches' },
+            { href: '#videos', label: 'Video library' },
             { href: '#testimonials', label: 'Clients' },
           ]}
         />
@@ -209,9 +211,29 @@ export default function OurWorkPage() {
           </div>
         </section>
 
+        <section id="videos" className="evo-block evo-block--slate" aria-labelledby="videos-heading">
+          <div className="evo-container video-teaser">
+            <SectionHeading
+              id="videos-heading"
+              label="05 · Video library"
+              lead="Watch the work,"
+              emphasis="explained on screen."
+              intro="Walkthroughs, AI tutorials and client stories from our animated series, with new videos every week."
+            />
+            <Link to="/our-work/videos" className="video-teaser__card">
+              <span className="video-teaser__play" aria-hidden="true"><Play size={28} fill="currentColor" /></span>
+              <span className="video-teaser__text">
+                <span className="work-card__meta">Branding · Automation · AI · Growth</span>
+                <span className="video-teaser__title">Open the video library</span>
+              </span>
+              <ArrowUpRight className="video-teaser__arrow" size={22} aria-hidden="true" />
+            </Link>
+          </div>
+        </section>
+
         <section id="testimonials" className="evo-block evo-block--deep" aria-labelledby="testimonials-heading">
           <div className="evo-container quote-layout">
-            <SectionHeading id="testimonials-heading" label="05 · What clients say" lead="In their" emphasis="own words." />
+            <SectionHeading id="testimonials-heading" label="06 · What clients say" lead="In their" emphasis="own words." />
             <QuoteRotator />
           </div>
         </section>

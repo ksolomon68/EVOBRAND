@@ -125,7 +125,7 @@ const ResourcesPage = () => {
         intro="AI trends, technical walkthroughs and execution guides, written for the people who have to make the work happen."
         actions={[
           { to: '#articles', label: 'Browse articles', cta: 'resources-hero-browse' },
-          { to: '/videos', label: 'Watch the video library', cta: 'resources-hero-videos' },
+          { to: '/our-work/videos', label: 'Watch the video library', cta: 'resources-hero-videos' },
         ]}
         facts={[
           { label: 'Articles', value: `${blogPosts.length} guides and essays` },
