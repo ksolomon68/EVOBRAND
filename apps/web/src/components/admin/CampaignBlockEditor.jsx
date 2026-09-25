@@ -472,7 +472,7 @@ export default function CampaignBlockEditor({ blocks, setBlocks, accentColor, se
                     index={index + 1}
                     dragActive={dragOverIndex === index + 1}
                     onDragOver={setDragOverIndex}
-                    onDrop={(i) => handleDrop(i)}
+                    onDrop={handleDropAt}
                   />
                 </React.Fragment>
               );

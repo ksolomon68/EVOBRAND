@@ -41,7 +41,10 @@ function isUpcoming(dateStr) {
 
 // ─── Mini calendar ────────────────────────────────────────────────────────────
 
-function DatePicker({ value, onChange, appointmentDates = new Set(), blackoutDates = new Set() }) {
+// Shared default so memoized callbacks keep a stable dependency between renders.
+const EMPTY_SET = new Set();
+
+function DatePicker({ value, onChange, appointmentDates = EMPTY_SET, blackoutDates = EMPTY_SET }) {
   const [view, setView] = useState(() => {
     const n = new Date();
     return { year: n.getFullYear(), month: n.getMonth() };
@@ -51,9 +54,10 @@ function DatePicker({ value, onChange, appointmentDates = new Set(), blackoutDat
   const firstDow = new Date(view.year, view.month, 1).getDay();
   const todayStr = toISO(new Date().getFullYear(), new Date().getMonth(), new Date().getDate());
 
-  const cells = [];
-  for (let i = 0; i < firstDow; i++) cells.push(null);
-  for (let d = 1; d <= daysInMonth; d++) cells.push(d);
+  const cells = [
+    ...Array(firstDow).fill(null),
+    ...Array.from({ length: daysInMonth }, (_, i) => i + 1),
+  ];
 
   const prevMonth = () =>
     setView((v) => v.month === 0 ? { year: v.year - 1, month: 11 } : { ...v, month: v.month - 1 });

@@ -101,7 +101,10 @@ function StepIndicator({ step }) {
 
 // ─── Step 1: Calendar ────────────────────────────────────────────────────────
 
-function CalendarPicker({ selectedDate, onSelect, blackoutDates, fullyBookedDates = new Set(), onMonthChange }) {
+// Shared default so memoized callbacks keep a stable dependency between renders.
+const EMPTY_SET = new Set();
+
+function CalendarPicker({ selectedDate, onSelect, blackoutDates, fullyBookedDates = EMPTY_SET, onMonthChange }) {
   const todayStr = today();
   const ref = useRef(null);
 
@@ -188,9 +191,10 @@ function CalendarPicker({ selectedDate, onSelect, blackoutDates, fullyBookedDate
     return dateStr <= todayStr || isWeekend(dateStr) || isHoliday(dateStr) || isBlackedOut(dateStr) || isFullyBooked(dateStr);
   }, [todayStr, isWeekend, isHoliday, isBlackedOut, isFullyBooked]);
 
-  const cells = [];
-  for (let i = 0; i < firstDow; i++) cells.push(null);
-  for (let d = 1; d <= daysInMonth; d++) cells.push(d);
+  const cells = [
+    ...Array(firstDow).fill(null),
+    ...Array.from({ length: daysInMonth }, (_, i) => i + 1),
+  ];
 
   return (
     <div>

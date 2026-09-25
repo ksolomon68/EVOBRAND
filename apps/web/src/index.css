@@ -31,6 +31,8 @@
 
   body {
     @apply bg-[#0f1419] text-white;
+    /* Guard against off-canvas decorative elements causing sideways scroll on phones. */
+    overflow-x: clip;
     font-family: 'Open Sans', sans-serif;
   }
 

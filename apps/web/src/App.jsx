@@ -1,33 +1,33 @@
 
-import React, { useEffect } from 'react';
+import React, { Suspense, lazy, useEffect } from 'react';
 import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import ScrollToTop from '@/components/ScrollToTop.jsx';
 import Header from '@/components/Header.jsx';
 import Footer from '@/components/Footer.jsx';
 import ChatWidget from '@/components/ChatWidget.jsx';
 import HomePage from '@/pages/HomePage.jsx';
-import ServicesPage from '@/pages/ServicesPage.jsx';
-import HowItWorksPage from '@/pages/HowItWorksPage.jsx';
-import OurWorkPage from '@/pages/OurWorkPage.jsx';
-import ResourcesPage from '@/pages/ResourcesPage.jsx';
-import AboutPage from '@/pages/AboutPage.jsx';
-import ContactPage from '@/pages/ContactPage.jsx';
-import ClientPortalPage from '@/pages/ClientPortalPage.jsx';
-import BlogPostPage from '@/pages/BlogPostPage.jsx';
-import AuditorsPage from '@/pages/AuditorsPage.jsx';
-import AuditorPage from '@/pages/AuditorPage.jsx';
-import AuditorResultsPage from '@/pages/AuditorResultsPage.jsx';
-import AccessibilityCheckerPage from '@/pages/AccessibilityCheckerPage.jsx';
-import AccessibilityCheckerResultsPage from '@/pages/AccessibilityCheckerResultsPage.jsx';
-import ClientPortalLoginPage from '@/pages/ClientPortalLoginPage.jsx';
-import ResetPasswordPage from '@/pages/ResetPasswordPage.jsx';
-import MaintenancePlansPage from '@/pages/MaintenancePlansPage.jsx';
-import PaymentSuccessPage from '@/pages/PaymentSuccessPage.jsx';
-import NotFoundPage from '@/pages/NotFoundPage.jsx';
-import AccessibilityStatementPage from '@/pages/AccessibilityStatementPage.jsx';
-import BookConsultationPage from '@/pages/BookConsultationPage.jsx';
-import FreeDemoPortalPage from '@/pages/FreeDemoPortalPage.jsx';
-import VideoLibrarySection from '@/components/VideoLibrarySection.jsx';
+const ServicesPage = lazy(() => import('@/pages/ServicesPage.jsx'));
+const HowItWorksPage = lazy(() => import('@/pages/HowItWorksPage.jsx'));
+const OurWorkPage = lazy(() => import('@/pages/OurWorkPage.jsx'));
+const ResourcesPage = lazy(() => import('@/pages/ResourcesPage.jsx'));
+const AboutPage = lazy(() => import('@/pages/AboutPage.jsx'));
+const ContactPage = lazy(() => import('@/pages/ContactPage.jsx'));
+const ClientPortalPage = lazy(() => import('@/pages/ClientPortalPage.jsx'));
+const BlogPostPage = lazy(() => import('@/pages/BlogPostPage.jsx'));
+const AuditorsPage = lazy(() => import('@/pages/AuditorsPage.jsx'));
+const AuditorPage = lazy(() => import('@/pages/AuditorPage.jsx'));
+const AuditorResultsPage = lazy(() => import('@/pages/AuditorResultsPage.jsx'));
+const AccessibilityCheckerPage = lazy(() => import('@/pages/AccessibilityCheckerPage.jsx'));
+const AccessibilityCheckerResultsPage = lazy(() => import('@/pages/AccessibilityCheckerResultsPage.jsx'));
+const ClientPortalLoginPage = lazy(() => import('@/pages/ClientPortalLoginPage.jsx'));
+const ResetPasswordPage = lazy(() => import('@/pages/ResetPasswordPage.jsx'));
+const MaintenancePlansPage = lazy(() => import('@/pages/MaintenancePlansPage.jsx'));
+const PaymentSuccessPage = lazy(() => import('@/pages/PaymentSuccessPage.jsx'));
+const NotFoundPage = lazy(() => import('@/pages/NotFoundPage.jsx'));
+const AccessibilityStatementPage = lazy(() => import('@/pages/AccessibilityStatementPage.jsx'));
+const BookConsultationPage = lazy(() => import('@/pages/BookConsultationPage.jsx'));
+const FreeDemoPortalPage = lazy(() => import('@/pages/FreeDemoPortalPage.jsx'));
+const VideoLibrarySection = lazy(() => import('@/components/VideoLibrarySection.jsx'));
 import SEO from '@/components/SEO.jsx';
 import { trackPageView } from '@/lib/analytics.js';
 
@@ -55,6 +55,7 @@ function SiteLayout() {
       <div className="flex flex-col min-h-screen">
         {!isPortal && <Header />}
         <main className="flex-1" id="main-content">
+          <Suspense fallback={<div className="min-h-[60vh]" aria-busy="true" />}>
           <Routes>
             <Route path="/" element={<HomePage />} />
             <Route path="/services" element={<ServicesPage />} />
@@ -82,6 +83,7 @@ function SiteLayout() {
             <Route path="/contract-builder" element={<Navigate to="/client-portal" replace />} />
             <Route path="*" element={<NotFoundPage />} />
           </Routes>
+          </Suspense>
         </main>
         {!isPortal && <Footer />}
         <ChatWidget />

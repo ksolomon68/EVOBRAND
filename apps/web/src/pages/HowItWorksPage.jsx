@@ -213,8 +213,8 @@ const HowItWorksPage = () => {
             <div className="grid lg:grid-cols-2 gap-16 items-center max-w-6xl mx-auto text-left">
               <motion.div 
                 className="space-y-8"
-                initial={{ opacity: 0, x: -50 }}
-                whileInView={{ opacity: 1, x: 0 }}
+                initial={{ opacity: 0, y: 24 }}
+                whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ duration: 0.5 }}
               >
@@ -245,8 +245,8 @@ const HowItWorksPage = () => {
 
               <motion.div 
                 className="relative"
-                initial={{ opacity: 0, x: 50 }}
-                whileInView={{ opacity: 1, x: 0 }}
+                initial={{ opacity: 0, y: 24 }}
+                whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ duration: 0.5, delay: 0.2 }}
               >
