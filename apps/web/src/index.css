@@ -896,7 +896,7 @@ html {
 .site-menu {
   position: fixed;
   inset: 0;
-  z-index: 10000;
+  z-index: 99998; /* above the chat widget (99997), below the intro panel */
   overflow-y: auto;
   background: var(--evo-bg-deep);
   color: var(--evo-text);

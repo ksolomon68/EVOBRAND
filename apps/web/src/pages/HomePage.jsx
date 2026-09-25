@@ -63,7 +63,7 @@ const CAPABILITIES = [
   {
     index: '01',
     label: 'Websites & portals',
-    title: 'Make the experience easier to choose—and easier to use.',
+    title: 'Make the experience easier to choose and easier to use.',
     body: 'Accessible websites and client portals shaped around the decisions people actually need to make.',
   },
   {
@@ -100,7 +100,7 @@ export default function HomePage() {
         eyebrow="EVOBRAND Concepts · Strategy, design & technology"
         lead="Better systems."
         emphasis="A stronger brand."
-        intro="Websites, custom applications, and AI workflows that make your organization easier to run—and easier to choose."
+        intro="Websites, custom applications, and AI workflows that make your organization easier to run and easier to choose."
         primary={{ to: '/book-consultation', label: 'Book a strategy call', cta: 'hero-strategy' }}
         secondary={{ to: '/our-work', label: 'See the work', cta: 'hero-work' }}
         media={{
@@ -157,7 +157,7 @@ export default function HomePage() {
             label="What we build"
             lead="Start with the problem."
             emphasis="Build the right system."
-            intro="Strategy, design, and technology stay connected, so the finished work is useful—not merely impressive."
+            intro="Strategy, design, and technology stay connected, so the finished work is useful, not merely impressive."
           />
           <ButtonLink to="/services" variant="secondary">
             Explore services <ArrowRight size={16} aria-hidden="true" />

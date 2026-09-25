@@ -3,6 +3,7 @@ import { createPortal } from 'react-dom';
 import { Link, NavLink, useLocation } from 'react-router-dom';
 import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
 import { ArrowUpRight, Menu, X } from 'lucide-react';
+import { getLoadedMotion } from '@/lib/motion.js';
 
 const NAV_LINKS = [
   { to: '/about', label: 'About' },
@@ -29,6 +30,10 @@ export default function Header() {
     if (!mobileMenuOpen) return undefined;
     const previous = document.body.style.overflow;
     document.body.style.overflow = 'hidden';
+    // Smooth scrolling drives the page from wheel and touch events, so it has
+    // to be paused too or the page keeps moving behind the open menu.
+    const lenis = getLoadedMotion()?.lenis;
+    lenis?.stop();
     const focusFrame = requestAnimationFrame(() => closeButtonRef.current?.focus());
     const onKeyDown = (event) => {
       if (event.key === 'Escape') {
@@ -52,6 +57,7 @@ export default function Header() {
     return () => {
       cancelAnimationFrame(focusFrame);
       document.body.style.overflow = previous;
+      lenis?.start();
       document.removeEventListener('keydown', onKeyDown);
       menuButtonRef.current?.focus();
     };
@@ -67,6 +73,7 @@ export default function Header() {
           exit={{ clipPath: 'inset(0 0 100% 0)' }}
           transition={{ duration: reduceMotion ? 0 : 0.65, ease: [0.76, 0, 0.24, 1] }}
           id="mobile-nav"
+          data-lenis-prevent
           role="dialog"
           aria-modal="true"
           aria-label="Site navigation"

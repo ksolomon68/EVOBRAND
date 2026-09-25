@@ -70,7 +70,7 @@ export default function Footer() {
         <div className="site-footer__grid">
           <div className="site-footer__brand">
             <Link to="/" aria-label="EVOBRAND home"><img src="/logo.png" alt="EVOBRAND" /></Link>
-            <p>Websites, applications, and practical AI workflows—designed around how your organization really works.</p>
+            <p>Websites, applications, and practical AI workflows, designed around how your organization really works.</p>
             <div className="site-footer__socials">
               {SOCIALS.map(([label, href, Icon]) => (
                 <a key={label} href={href} target="_blank" rel="noopener noreferrer" aria-label={`${label} (opens in a new tab)`}>
