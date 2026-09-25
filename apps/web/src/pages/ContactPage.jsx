@@ -157,7 +157,7 @@ function ContactForm() {
         <button
           onClick={() => setStatus('idle')}
           className="text-xs font-bold uppercase tracking-widest rounded transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#22c8e5]"
-          style={{ color: 'rgba(34,200,229,0.6)' }}
+          style={{ color: 'var(--evo-accent)' }}
         >
           Send another message
         </button>
@@ -283,7 +283,7 @@ function ContactForm() {
 
           <div>
             <label htmlFor="cf-logo" className="block text-xs font-bold uppercase tracking-widest mb-1.5" style={{ color: GOLD }}>
-              Business Logo <span className="normal-case font-normal" style={{ color: 'rgba(255,255,255,0.4)' }}>(optional, max 5MB)</span>
+              Business Logo <span className="normal-case font-normal" style={{ color: 'var(--fog)' }}>(optional, max 5MB)</span>
             </label>
             {logo ? (
               <div
@@ -436,7 +436,7 @@ export default function ContactPage() {
                         <a
                           key={text}
                           href={href}
-                          className="block text-sm transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#22c8e5] rounded"
+                          className="flex items-center min-h-[44px] text-sm transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#22c8e5] rounded"
                           style={{ color: 'rgba(255,255,255,0.55)' }}
                           onMouseEnter={(e) => (e.target.style.color = GOLD)}
                           onMouseLeave={(e) => (e.target.style.color = 'rgba(255,255,255,0.55)')}
@@ -481,7 +481,7 @@ export default function ContactPage() {
 
                 {/* What to expect */}
                 <div className="mt-8 pt-7 border-t" style={{ borderColor: 'rgba(34,200,229,0.1)' }}>
-                  <p className="text-xs font-bold uppercase tracking-widest mb-4" style={{ color: 'rgba(34,200,229,0.6)' }}>
+                  <p className="text-xs font-bold uppercase tracking-widest mb-4" style={{ color: 'var(--evo-accent)' }}>
                     What Happens Next
                   </p>
                   <ul className="space-y-2.5">
@@ -517,7 +517,7 @@ export default function ContactPage() {
         {/* Social */}
         <section className="py-12 border-t" style={{ borderColor: 'rgba(34,200,229,0.08)' }}>
           <div className="container mx-auto px-4 text-center">
-            <p className="text-xs font-bold uppercase tracking-[0.25em] mb-5" style={{ color: 'rgba(34,200,229,0.5)' }}>
+            <p className="text-xs font-bold uppercase tracking-[0.25em] mb-5" style={{ color: 'var(--evo-accent)' }}>
               Follow Our Journey
             </p>
             <div className="flex justify-center gap-6">
@@ -534,7 +534,7 @@ export default function ContactPage() {
                   rel="noopener noreferrer"
                   aria-label={`EVOBRAND on ${label}`}
                   className="w-10 h-10 rounded-full flex items-center justify-center border transition-all duration-200 focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#22c8e5] focus-visible:outline-offset-2"
-                  style={{ borderColor: 'rgba(34,200,229,0.2)', color: 'rgba(255,255,255,0.4)' }}
+                  style={{ borderColor: 'rgba(34,200,229,0.2)', color: 'var(--fog)' }}
                   onMouseEnter={(e) => { e.currentTarget.style.borderColor = GOLD; e.currentTarget.style.color = GOLD; e.currentTarget.style.background = 'rgba(34,200,229,0.1)'; }}
                   onMouseLeave={(e) => { e.currentTarget.style.borderColor = 'rgba(34,200,229,0.2)'; e.currentTarget.style.color = 'rgba(255,255,255,0.4)'; e.currentTarget.style.background = 'transparent'; }}
                 >

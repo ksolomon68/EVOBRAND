@@ -54,7 +54,7 @@ export default function ResetPasswordPage() {
           <div className="text-center mb-10">
             <img src="/logo.png" alt="EVOBRAND" className="h-20 mx-auto object-contain" />
             <div className="h-px w-12 bg-[#22c8e5]/20 mx-auto mt-6 mb-4" />
-            <p className="text-[#22c8e5]/60 font-bold tracking-[0.3em] uppercase text-xs">
+            <p className="text-evo-cyan font-bold tracking-[0.3em] uppercase text-xs">
               Reset Password
             </p>
           </div>
@@ -71,7 +71,7 @@ export default function ResetPasswordPage() {
             ) : (
               <>
                 <h2 className="text-2xl font-bold text-white mb-2">Set new password</h2>
-                <p className="text-white/40 text-sm mb-8">Choose a strong password for your account.</p>
+                <p className="text-evo-fog text-sm mb-8">Choose a strong password for your account.</p>
 
                 {error && (
                   <div className="mb-6 p-4 bg-red-500/10 border border-red-500/20 rounded-xl flex items-start gap-3 text-red-400 text-sm">
@@ -82,9 +82,9 @@ export default function ResetPasswordPage() {
 
                 <form onSubmit={handleSubmit} className="space-y-5">
                   <div className="space-y-2">
-                    <label className="text-white/40 text-xs font-bold uppercase tracking-widest ml-1">New Password</label>
+                    <label className="text-evo-fog text-xs font-bold uppercase tracking-widest ml-1">New Password</label>
                     <div className="relative">
-                      <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-white/20" size={18} />
+                      <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-evo-fog" size={18} />
                       <input
                         type="password"
                         required
@@ -99,9 +99,9 @@ export default function ResetPasswordPage() {
                   </div>
 
                   <div className="space-y-2">
-                    <label className="text-white/40 text-xs font-bold uppercase tracking-widest ml-1">Confirm Password</label>
+                    <label className="text-evo-fog text-xs font-bold uppercase tracking-widest ml-1">Confirm Password</label>
                     <div className="relative">
-                      <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-white/20" size={18} />
+                      <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-evo-fog" size={18} />
                       <input
                         type="password"
                         required
@@ -128,7 +128,7 @@ export default function ResetPasswordPage() {
             )}
           </div>
 
-          <p className="mt-8 text-center text-white/20 text-xs font-medium">
+          <p className="mt-8 text-center text-evo-fog text-xs font-medium">
             Protected by EVOBRAND Security Protocols
           </p>
         </motion.div>

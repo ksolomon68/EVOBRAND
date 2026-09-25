@@ -82,7 +82,7 @@ const LoadingState = () => {
             className="text-center mb-8"
           >
             <p className="text-white font-bold text-xl mb-1">{phase.label}</p>
-            <p className="text-white/40 text-sm">{phase.sub}</p>
+            <p className="text-evo-fog text-sm">{phase.sub}</p>
           </motion.div>
         </AnimatePresence>
         <div className="flex items-center gap-2">
@@ -99,7 +99,7 @@ const LoadingState = () => {
             />
           ))}
         </div>
-        <p className="text-white/20 text-xs mt-6 text-center">Live accessibility scan in progress. This takes ~15-20 seconds</p>
+        <p className="text-evo-fog text-xs mt-6 text-center">Live accessibility scan in progress. This takes ~15-20 seconds</p>
       </div>
     </div>
   );
@@ -159,11 +159,11 @@ const AccessibilityResults = ({ report, isLoading, onDownloadPDF }) => {
                 >
                   {r.grade}
                 </div>
-                <span className="text-white/40 text-xs mt-1">Grade</span>
+                <span className="text-evo-fog text-xs mt-1">Grade</span>
               </div>
             </div>
           </div>
-          <p className="text-white/40 text-sm uppercase tracking-widest mb-3">Accessibility Score</p>
+          <p className="text-evo-fog text-sm uppercase tracking-widest mb-3">Accessibility Score</p>
           <div className="flex justify-center mb-4">
             <span
               className="inline-flex items-center gap-2 text-xs font-bold px-4 py-1.5 rounded-full uppercase tracking-widest"
@@ -233,7 +233,7 @@ const AccessibilityResults = ({ report, isLoading, onDownloadPDF }) => {
                     <p className="text-[#22C8E5]/70 text-xs font-mono mb-3">WCAG {issue.wcag}</p>
                   )}
                   <p className="text-white/60 text-sm leading-relaxed mb-2">{issue.detail}</p>
-                  <p className="text-white/40 text-sm leading-relaxed"><span className="text-white/60 font-semibold">Fix: </span>{issue.fix}</p>
+                  <p className="text-evo-fog text-sm leading-relaxed"><span className="text-white/60 font-semibold">Fix: </span>{issue.fix}</p>
                 </motion.div>
               ))}
             </div>

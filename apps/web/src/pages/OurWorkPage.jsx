@@ -576,7 +576,7 @@ const OurWorkPage = () => {
                           ))}
                         </div>
                       )}
-                      <span className="text-xs text-gray-500">{item.industry}</span>
+                      <span className="text-xs text-evo-fog">{item.industry}</span>
                     </div>
                   </>
                 );

@@ -209,7 +209,7 @@ const AuditorPage = () => {
               </motion.div>
 
               {/* Trust signals */}
-              <div className="flex flex-wrap justify-center gap-6 mt-8 text-white/30 text-xs ">
+              <div className="flex flex-wrap justify-center gap-6 mt-8 text-evo-fog text-xs ">
                 <span>🔒 Your data is private</span>
                 <span>⚡ Results in seconds</span>
                 <span>📧 Report emailed to you</span>

@@ -80,7 +80,7 @@ function MailingListSignup({ prefillEmail = '', prefillName = '' }) {
         </button>
       </form>
       {status === 'error' && <p className="text-red-400 text-xs text-center mt-2">{errorMsg}</p>}
-      <p className="text-white/20 text-[11px] text-center mt-3">No spam. Unsubscribe any time.</p>
+      <p className="text-evo-fog text-[11px] text-center mt-3">No spam. Unsubscribe any time.</p>
     </div>
   );
 }
@@ -191,7 +191,7 @@ const LoadingState = ({ hasWebsite }) => {
             <p className="text-white font-bold text-xl mb-1">
               {currentPhase.label}
             </p>
-            <p className="text-white/40 text-sm">
+            <p className="text-evo-fog text-sm">
               {currentPhase.sub}
             </p>
           </motion.div>
@@ -216,7 +216,7 @@ const LoadingState = ({ hasWebsite }) => {
         )}
 
         {hasWebsite && (
-          <p className="text-white/20 text-xs mt-6 text-center">
+          <p className="text-evo-fog text-xs mt-6 text-center">
             Live internet scan in progress. This takes ~15 seconds
           </p>
         )}
@@ -254,11 +254,11 @@ const ScoreHero = ({ report }) => {
             >
               {report.grade}
             </div>
-            <span className="text-white/40 text-xs mt-1 ">Grade</span>
+            <span className="text-evo-fog text-xs mt-1 ">Grade</span>
           </div>
         </div>
       </div>
-      <p className="text-white/40 text-sm uppercase tracking-widest mb-4">Overall Brand Score</p>
+      <p className="text-evo-fog text-sm uppercase tracking-widest mb-4">Overall Brand Score</p>
       <h2 className="text-2xl md:text-3xl font-bold text-white max-w-2xl mx-auto leading-tight">
         {report.headline}
       </h2>
@@ -305,7 +305,7 @@ const RecommendationCard = ({ rec, delay }) => (
         <span className={`text-xs px-2 py-1 rounded-2xl border font-semibold ${IMPACT_COLORS[rec.impact]}`}>
           {rec.impact} Impact
         </span>
-        <span className="text-xs px-2 py-1 rounded-2xl border border-white/10 text-white/40 ">
+        <span className="text-xs px-2 py-1 rounded-2xl border border-white/10 text-evo-fog ">
           {rec.effort} Effort
         </span>
       </div>
@@ -360,7 +360,7 @@ const RoadmapSection = ({ roadmap }) => {
 const EDGE_STYLES = {
   you: 'text-green-400',
   them: 'text-red-400',
-  tie: 'text-white/40',
+  tie: 'text-evo-fog',
 };
 
 const CompetitiveComparisonSection = ({ comparison, businessName }) => {
@@ -382,9 +382,9 @@ const CompetitiveComparisonSection = ({ comparison, businessName }) => {
         <table className="w-full text-sm min-w-[420px]">
           <thead>
             <tr className="border-b border-white/10">
-              <th className="text-left text-white/40 font-semibold uppercase text-xs tracking-wider py-2 pr-4">Factor</th>
-              <th className="text-left text-white/40 font-semibold uppercase text-xs tracking-wider py-2 pr-4">{businessName || 'You'}</th>
-              <th className="text-left text-white/40 font-semibold uppercase text-xs tracking-wider py-2">{comparison.competitor_name || 'Them'}</th>
+              <th className="text-left text-evo-fog font-semibold uppercase text-xs tracking-wider py-2 pr-4">Factor</th>
+              <th className="text-left text-evo-fog font-semibold uppercase text-xs tracking-wider py-2 pr-4">{businessName || 'You'}</th>
+              <th className="text-left text-evo-fog font-semibold uppercase text-xs tracking-wider py-2">{comparison.competitor_name || 'Them'}</th>
             </tr>
           </thead>
           <tbody>
@@ -629,7 +629,7 @@ const AuditResults = ({ report, onDownloadPDF, isLoading, hasWebsite, prefillEma
               </button>
             </div>
           </div>
-          <p className="text-white/30 text-sm ">
+          <p className="text-evo-fog text-sm ">
             Keisha Solomon · CEO, EVOBRAND Concepts · Ellis County, TX
           </p>
           <MailingListSignup prefillEmail={prefillEmail} prefillName={prefillName} />

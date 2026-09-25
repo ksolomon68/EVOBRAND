@@ -83,7 +83,7 @@ function MobilePillNav({ services, active, onSelect }) {
 function DesktopSidebar({ services, active, onSelect }) {
   return (
     <aside className="hidden md:flex flex-col gap-1 w-64 lg:w-72 flex-shrink-0 sticky top-[88px] self-start max-h-[calc(100vh-120px)] overflow-y-auto pr-2">
-      <p className="text-[10px] font-bold uppercase tracking-[0.25em] mb-4" style={{ color: 'rgba(34,200,229,0.6)' }}>
+      <p className="text-[10px] font-bold uppercase tracking-[0.25em] mb-4" style={{ color: 'var(--evo-accent)' }}>
         Our Services
       </p>
       {services.map((s, i) => (
@@ -111,7 +111,7 @@ function DesktopSidebar({ services, active, onSelect }) {
             >
               {s.title}
             </p>
-            <p className="text-[11px] mt-0.5 truncate" style={{ color: 'rgba(255,255,255,0.3)' }}>
+            <p className="text-[11px] mt-0.5 truncate" style={{ color: 'var(--fog)' }}>
               {String(i + 1).padStart(2, '0')} of {String(services.length).padStart(2, '0')}
             </p>
           </div>
@@ -171,8 +171,8 @@ function PricingCard({ plan, serviceId, getPlanId, onCheckout, index }) {
 
       <h3 className="text-base font-bold text-white mb-1">{plan.tier}</h3>
       <p className="text-3xl font-bold mb-1" style={{ color: CYAN }}>{plan.price}</p>
-      {!isCustom && <p className="text-[11px] mb-5" style={{ color: 'rgba(255,255,255,0.4)' }}>one-time</p>}
-      {isCustom && <p className="text-[11px] mb-5" style={{ color: 'rgba(255,255,255,0.4)' }}>tailored quote</p>}
+      {!isCustom && <p className="text-[11px] mb-5" style={{ color: 'var(--fog)' }}>one-time</p>}
+      {isCustom && <p className="text-[11px] mb-5" style={{ color: 'var(--fog)' }}>tailored quote</p>}
 
       <ul className="space-y-2.5 mb-6 flex-1">
         {plan.features.map((f, fi) => (
@@ -238,7 +238,7 @@ function MaintenanceCard({ plan, onCheckout, index }) {
       )}
       <h3 className="text-base font-bold text-white mb-1">{plan.tier}</h3>
       <p className="text-3xl font-bold mb-1" style={{ color: CYAN }}>{plan.price}</p>
-      <p className="text-[11px] mb-5" style={{ color: 'rgba(255,255,255,0.4)' }}>per month</p>
+      <p className="text-[11px] mb-5" style={{ color: 'var(--fog)' }}>per month</p>
       <ul className="space-y-2.5 mb-6 flex-1">
         {plan.features.map((f, fi) => (
           <li key={fi} className="flex items-start gap-2 text-sm" style={{ color: 'rgba(255,255,255,0.75)' }}>
@@ -525,7 +525,7 @@ export default function ServiceDeck({ services, getPlanId, onCheckout }) {
                         </div>
                         <div className="md:px-1">
                           <p className="text-sm font-bold text-white">{step.step}</p>
-                          <p className="text-xs mt-0.5 leading-snug" style={{ color: 'rgba(255,255,255,0.45)' }}>{step.description}</p>
+                          <p className="text-xs mt-0.5 leading-snug" style={{ color: 'var(--fog)' }}>{step.description}</p>
                         </div>
                       </motion.div>
                     ))}

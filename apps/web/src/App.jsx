@@ -27,6 +27,7 @@ const NotFoundPage = lazy(() => import('@/pages/NotFoundPage.jsx'));
 const AccessibilityStatementPage = lazy(() => import('@/pages/AccessibilityStatementPage.jsx'));
 const BookConsultationPage = lazy(() => import('@/pages/BookConsultationPage.jsx'));
 const FreeDemoPortalPage = lazy(() => import('@/pages/FreeDemoPortalPage.jsx'));
+const StyleGuidePage = lazy(() => import('@/pages/StyleGuidePage.jsx'));
 const VideoLibrarySection = lazy(() => import('@/components/VideoLibrarySection.jsx'));
 import SEO from '@/components/SEO.jsx';
 import { trackPageView } from '@/lib/analytics.js';
@@ -79,6 +80,7 @@ function SiteLayout() {
             <Route path="/accessibility-statement" element={<AccessibilityStatementPage />} />
             <Route path="/book-consultation" element={<BookConsultationPage />} />
             <Route path="/free-demo-portal" element={<FreeDemoPortalPage />} />
+            <Route path="/style-guide" element={<StyleGuidePage />} />
             <Route path="/book" element={<Navigate to="/book-consultation" replace />} />
             <Route path="/contract-builder" element={<Navigate to="/client-portal" replace />} />
             <Route path="*" element={<NotFoundPage />} />

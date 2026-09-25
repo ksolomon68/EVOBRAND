@@ -20,7 +20,7 @@ function ProgressBar({ milestones }) {
   return (
     <div>
       <div className="flex items-center justify-between text-xs mb-1.5">
-        <span className="text-white/40 font-semibold">{done}/{total} milestones complete</span>
+        <span className="text-evo-fog font-semibold">{done}/{total} milestones complete</span>
         <span className="font-bold" style={{ color: GOLD }}>{pct}%</span>
       </div>
       <div className="h-2 rounded-full bg-white/5 overflow-hidden">
@@ -65,7 +65,7 @@ function MilestoneRow({ m, onToggle, saving }) {
         {m.name || '(unnamed)'}
       </span>
       {m.due_date && (
-        <span className="text-xs text-white/30 flex-shrink-0">
+        <span className="text-xs text-evo-fog flex-shrink-0">
           Due {new Date(m.due_date + 'T00:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
         </span>
       )}
@@ -82,7 +82,7 @@ function MilestoneRow({ m, onToggle, saving }) {
       </span>
       </div>
       {meta.length > 0 && (
-        <p className="text-white/25 text-[11px] pl-8 mt-0.5 truncate">{meta.join(' · ')}</p>
+        <p className="text-evo-fog text-[11px] pl-8 mt-0.5 truncate">{meta.join(' · ')}</p>
       )}
     </div>
   );
@@ -161,7 +161,7 @@ function ProjectCard({ project, onUpdated }) {
             )}
           </div>
           {project.description && (
-            <p className="text-white/40 text-xs mt-0.5 truncate">{project.description}</p>
+            <p className="text-evo-fog text-xs mt-0.5 truncate">{project.description}</p>
           )}
         </div>
 
@@ -188,7 +188,7 @@ function ProjectCard({ project, onUpdated }) {
         </div>
         <button
           onClick={() => setExpanded(v => !v)}
-          className="p-2 rounded-lg text-white/40 hover:text-white hover:bg-white/10 transition-colors flex-shrink-0"
+          className="p-2 rounded-lg text-evo-fog hover:text-white hover:bg-white/10 transition-colors flex-shrink-0"
         >
           {expanded ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
         </button>
@@ -208,7 +208,7 @@ function ProjectCard({ project, onUpdated }) {
           >
             <div className="border-t px-6 pb-6 pt-4" style={{ borderColor: 'rgba(255,255,255,0.06)' }}>
               {milestones.length === 0 ? (
-                <p className="text-white/25 text-sm">No milestones defined yet.</p>
+                <p className="text-evo-fog text-sm">No milestones defined yet.</p>
               ) : (
                 <div>
                   {milestones.map((m, i) => (
@@ -300,7 +300,7 @@ export default function MyProjectsPanel() {
     <>
       <div className="mb-8">
         <h1 className="text-3xl font-bold text-white mb-1">Project timeline</h1>
-        <p className="text-white/40">See what is in progress, review due dates, and mark completed milestones.</p>
+        <p className="text-evo-fog">See what is in progress, review due dates, and mark completed milestones.</p>
       </div>
 
       {loading ? (
@@ -316,7 +316,7 @@ export default function MyProjectsPanel() {
             <Layers size={28} style={{ color: GOLD }} />
           </div>
           <h3 className="text-white font-bold text-lg mb-2">No projects yet</h3>
-          <p className="text-white/40 text-sm">
+          <p className="text-evo-fog text-sm">
             Your project milestones and progress will appear here once EVOBRAND sets them up.
           </p>
         </div>

@@ -162,7 +162,7 @@ const ResourcesPage = () => {
                           {post.title}
                         </h3>
                         <p className="text-gray-400 mb-4">{post.excerpt}</p>
-                        <div className="flex items-center justify-between text-sm text-gray-500">
+                        <div className="flex items-center justify-between text-sm text-evo-fog">
                           <div className="flex items-center space-x-4">
                             <span className="flex items-center space-x-1">
                               <User size={16} />
@@ -220,7 +220,7 @@ const ResourcesPage = () => {
                         {post.title}
                       </h3>
                       <p className="text-gray-400 text-sm mb-4">{post.excerpt}</p>
-                      <div className="flex items-center justify-between text-xs text-gray-500">
+                      <div className="flex items-center justify-between text-xs text-evo-fog">
                         <span className="flex items-center space-x-1">
                           <User size={14} />
                           <span>{post.author}</span>

@@ -656,6 +656,7 @@ export function EraWatermark({ labels = [] }) {
       {labels.map((label, i) => (
         <span
           key={label}
+          data-label={label}
           className="era-label absolute right-0 top-1/2 -translate-y-1/2 select-none font-bold leading-none"
           style={{
             fontFamily: "'Glacial Indifference', sans-serif",
@@ -663,9 +664,7 @@ export function EraWatermark({ labels = [] }) {
             color: 'rgba(34,200,229,0.07)',
             opacity: i === 0 ? 1 : 0,
           }}
-        >
-          {label}
-        </span>
+        />
       ))}
     </div>
   );

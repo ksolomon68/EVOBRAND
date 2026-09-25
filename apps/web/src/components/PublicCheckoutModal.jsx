@@ -98,7 +98,7 @@ export default function PublicCheckoutModal({ planId, planName, price, type, int
                 Full Name
               </label>
               <div className="relative">
-                <User className="absolute left-4 top-3.5 text-gray-500" size={18} />
+                <User className="absolute left-4 top-3.5 text-evo-fog" size={18} />
                 <input
                   type="text"
                   required
@@ -116,7 +116,7 @@ export default function PublicCheckoutModal({ planId, planName, price, type, int
                 Email Address
               </label>
               <div className="relative">
-                <Mail className="absolute left-4 top-3.5 text-gray-500" size={18} />
+                <Mail className="absolute left-4 top-3.5 text-evo-fog" size={18} />
                 <input
                   type="email"
                   required
@@ -127,7 +127,7 @@ export default function PublicCheckoutModal({ planId, planName, price, type, int
                   className="w-full rounded-2xl border border-white/10 bg-white/5 py-3 pl-12 pr-4 text-sm text-white placeholder-gray-500 outline-none focus:border-[#22c8e5] focus:bg-white/10 transition-all"
                 />
               </div>
-              <span className="text-[10px] text-gray-500 mt-1 block pl-1">
+              <span className="text-[10px] text-evo-fog mt-1 block pl-1">
                 Your receipt and client portal login instructions will be sent here.
               </span>
             </div>
@@ -150,7 +150,7 @@ export default function PublicCheckoutModal({ planId, planName, price, type, int
             </button>
           </form>
 
-          <p className="mt-5 text-center text-[10px] text-gray-500">
+          <p className="mt-5 text-center text-[10px] text-evo-fog">
             Secure checkout powered by Stripe. SSL encrypted.
           </p>
         </motion.div>

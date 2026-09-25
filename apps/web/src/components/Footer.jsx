@@ -118,11 +118,11 @@ const Footer = () => {
             <ul className="space-y-3">
               <li className="flex items-center space-x-2 text-gray-400 text-sm">
                 <Phone size={16} className="text-[#22c8e5]" aria-hidden="true" />
-                <a href="tel:+12145314427" className="hover:text-[#22c8e5] transition-colors">+1 214-531-4427</a>
+                <a href="tel:+12145314427" className="inline-flex items-center min-h-[44px] hover:text-[#22c8e5] transition-colors">+1 214-531-4427</a>
               </li>
               <li className="flex items-center space-x-2 text-gray-400 text-sm">
                 <Mail size={16} className="text-[#22c8e5]" aria-hidden="true" />
-                <a href="mailto:info@evobrand.net" className="hover:text-[#22c8e5] transition-colors">
+                <a href="mailto:info@evobrand.net" className="inline-flex items-center min-h-[44px] hover:text-[#22c8e5] transition-colors">
                   info@evobrand.net <span className="sr-only">(opens email client)</span>
                 </a>
               </li>

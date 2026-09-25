@@ -304,7 +304,7 @@ export default function MyMeetings({ userId }) {
     <div>
       <div ref={headerRef} className="mb-8">
         <h1 className="text-3xl font-bold text-white mb-1">My Meetings</h1>
-        <p style={{ color: 'rgba(255,255,255,0.45)' }}>
+        <p style={{ color: 'var(--fog)' }}>
           {upcomingCount > 0
             ? `You have ${upcomingCount} upcoming session${upcomingCount > 1 ? 's' : ''}.`
             : 'Your scheduled consultation sessions.'}
@@ -350,7 +350,7 @@ export default function MyMeetings({ userId }) {
       {loading ? (
         <div className="flex flex-col items-center py-20">
           <Loader2 size={32} className="animate-spin mb-3" style={{ color: GOLD }} aria-hidden="true" />
-          <p className="text-sm" style={{ color: 'rgba(255,255,255,0.4)' }}>Loading sessions...</p>
+          <p className="text-sm" style={{ color: 'var(--fog)' }}>Loading sessions...</p>
         </div>
       ) : filtered.length === 0 ? (
         <EmptyState />

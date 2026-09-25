@@ -222,7 +222,7 @@ function CalendarPicker({ selectedDate, onSelect, blackoutDates, fullyBookedDate
       {/* Day headers */}
       <div className="grid grid-cols-7 mb-2">
         {DAYS.map((d) => (
-          <div key={d} className="text-center text-[11px] font-bold tracking-widest uppercase" style={{ color: 'rgba(255,255,255,0.35)' }} aria-hidden="true">
+          <div key={d} className="text-center text-[11px] font-bold tracking-widest uppercase" style={{ color: 'var(--fog)' }} aria-hidden="true">
             {d}
           </div>
         ))}
@@ -353,7 +353,7 @@ function TimeSlotPicker({ selectedDate, selectedSlot, onSelect, blackoutDates, b
           );
         })}
       </div>
-      <p className="text-xs mt-4" style={{ color: 'rgba(255,255,255,0.35)' }}>
+      <p className="text-xs mt-4" style={{ color: 'var(--fog)' }}>
         All times shown in Central Standard Time (CST).
       </p>
     </div>
@@ -512,7 +512,7 @@ function ConfirmForm({ selectedDate, selectedSlot, onBack, onSuccess }) {
 
         <div>
           <label htmlFor="sch-notes" className="block text-xs font-bold tracking-widest uppercase mb-1.5" style={{ color: 'rgba(34,200,229,0.7)' }}>
-            Notes <span style={{ color: 'rgba(255,255,255,0.3)', fontWeight: 400, textTransform: 'none', letterSpacing: 0 }}>(optional)</span>
+            Notes <span style={{ color: 'var(--fog)', fontWeight: 400, textTransform: 'none', letterSpacing: 0 }}>(optional)</span>
           </label>
           <textarea
             id="sch-notes"
@@ -678,7 +678,7 @@ function CreateAccountPrompt({ booking, onSkip, onReset }) {
           type="button"
           onClick={onSkip}
           className="w-full text-xs py-2 transition-colors"
-          style={{ color: 'rgba(255,255,255,0.35)' }}
+          style={{ color: 'var(--fog)' }}
         >
           No thanks, I'll check my email
         </button>
@@ -759,7 +759,7 @@ function SuccessView({ booking, onReset }) {
       <button
         onClick={onReset}
         className="text-xs font-bold uppercase tracking-widest transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#22c8e5] rounded"
-        style={{ color: 'rgba(34,200,229,0.6)' }}
+        style={{ color: 'var(--evo-accent)' }}
       >
         Book another session
       </button>
@@ -953,8 +953,8 @@ export default function SchedulerWidget() {
       {/* Office hours note */}
       {step < 4 && step !== 5 && (
         <div className="mt-6 pt-5 border-t flex items-center gap-2" style={{ borderColor: 'rgba(34,200,229,0.1)' }}>
-          <Clock size={12} style={{ color: 'rgba(255,255,255,0.3)', flexShrink: 0 }} aria-hidden="true" />
-          <p className="text-[11px]" style={{ color: 'rgba(255,255,255,0.3)' }}>
+          <Clock size={12} style={{ color: 'var(--fog)', flexShrink: 0 }} aria-hidden="true" />
+          <p className="text-[11px]" style={{ color: 'var(--fog)' }}>
             Mon–Fri · 10 AM–6 PM CST · 30-min sessions
           </p>
         </div>

@@ -96,7 +96,7 @@ const AuditorsPage = () => {
           </div>
 
           {/* Trust signals */}
-          <div className="flex flex-wrap justify-center gap-6 mt-10 text-white/30 text-xs">
+          <div className="flex flex-wrap justify-center gap-6 mt-10 text-evo-fog text-xs">
             <span className="flex items-center gap-1.5"><Zap size={13} /> Results in seconds</span>
             <span className="flex items-center gap-1.5"><ShieldCheck size={13} /> Your data is private</span>
             <span>📧 Reports emailed to you</span>

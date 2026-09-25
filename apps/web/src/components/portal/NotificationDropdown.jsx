@@ -140,7 +140,7 @@ export default function NotificationDropdown({ onNavigate }) {
               {unreadCount > 0 && (
                 <button
                   onClick={markAllAsRead}
-                  className="text-[10px] uppercase tracking-widest font-bold text-white/40 hover:text-white transition-colors"
+                  className="text-[10px] uppercase tracking-widest font-bold text-evo-fog hover:text-white transition-colors"
                 >
                   Mark all read
                 </button>
@@ -149,7 +149,7 @@ export default function NotificationDropdown({ onNavigate }) {
 
             <div className="max-h-[400px] overflow-y-auto">
               {notifications.length === 0 ? (
-                <div className="p-8 text-center text-white/30 text-sm">
+                <div className="p-8 text-center text-evo-fog text-sm">
                   You're all caught up!
                 </div>
               ) : (
@@ -170,7 +170,7 @@ export default function NotificationDropdown({ onNavigate }) {
                         <p className="text-xs text-white/50 mt-1 leading-relaxed">
                           {notif.message}
                         </p>
-                        <p className="text-[10px] text-white/30 uppercase tracking-widest font-bold mt-2">
+                        <p className="text-[10px] text-evo-fog uppercase tracking-widest font-bold mt-2">
                           {new Date(notif.created_at).toLocaleString()}
                         </p>
                       </div>

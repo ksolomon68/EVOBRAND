@@ -78,7 +78,7 @@ const AccessibilityForm = ({ onComplete }) => {
           </span>
         </label>
         <div className="relative">
-          <span className="absolute left-4 top-1/2 -translate-y-1/2 text-white/30 text-sm pointer-events-none">🌐</span>
+          <span className="absolute left-4 top-1/2 -translate-y-1/2 text-evo-fog text-sm pointer-events-none">🌐</span>
           <input
             id="a11y-website-url"
             type="url"
@@ -90,7 +90,7 @@ const AccessibilityForm = ({ onComplete }) => {
         </div>
         {errors.websiteUrl
           ? <p className="text-red-400 text-xs mt-1">{errors.websiteUrl}</p>
-          : <p className="text-white/30 text-xs mt-1">We'll run a real Lighthouse + WCAG scan against this page</p>
+          : <p className="text-evo-fog text-xs mt-1">We'll run a real Lighthouse + WCAG scan against this page</p>
         }
       </div>
 

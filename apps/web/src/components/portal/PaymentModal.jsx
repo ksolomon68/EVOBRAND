@@ -99,12 +99,12 @@ export default function PaymentModal({ type, id, amount, description, onClose })
               </div>
               <div>
                 <h2 className="text-white font-bold text-xl leading-tight">Secure Payment</h2>
-                <p className="text-white/40 text-xs font-bold uppercase tracking-widest mt-0.5">Powered by Stripe</p>
+                <p className="text-evo-fog text-xs font-bold uppercase tracking-widest mt-0.5">Powered by Stripe</p>
               </div>
             </div>
             <button
               onClick={onClose}
-              className="p-2 rounded-xl text-white/30 hover:text-white hover:bg-white/10 transition-all"
+              className="p-2 rounded-xl text-evo-fog hover:text-white hover:bg-white/10 transition-all"
             >
               <X size={18} />
             </button>
@@ -116,7 +116,7 @@ export default function PaymentModal({ type, id, amount, description, onClose })
               className="rounded-2xl p-6 text-center"
               style={{ background: 'rgba(34,200,229,0.05)', border: '1px solid rgba(34,200,229,0.12)' }}
             >
-              <p className="text-white/40 text-xs font-bold uppercase tracking-widest mb-2">Amount Due</p>
+              <p className="text-evo-fog text-xs font-bold uppercase tracking-widest mb-2">Amount Due</p>
               <p
                 className="text-5xl font-bold mb-1 tracking-tight"
                 style={{ color: GOLD }}
@@ -140,7 +140,7 @@ export default function PaymentModal({ type, id, amount, description, onClose })
 
           {/* Trust signals */}
           <div className="px-8 pb-4">
-            <div className="flex items-center justify-center gap-6 text-white/25">
+            <div className="flex items-center justify-center gap-6 text-evo-fog">
               {['Visa', 'Mastercard', 'Amex', 'Discover'].map((card) => (
                 <span key={card} className="text-[10px] font-bold uppercase tracking-wider">{card}</span>
               ))}
@@ -196,7 +196,7 @@ export default function PaymentModal({ type, id, amount, description, onClose })
             <button
               onClick={onClose}
               disabled={status === 'loading'}
-              className="w-full py-3.5 rounded-2xl text-white/40 hover:text-white/70 text-sm font-bold transition-colors uppercase tracking-widest"
+              className="w-full py-3.5 rounded-2xl text-evo-fog hover:text-white/70 text-sm font-bold transition-colors uppercase tracking-widest"
             >
               Pay Later
             </button>
@@ -207,8 +207,8 @@ export default function PaymentModal({ type, id, amount, description, onClose })
             className="flex items-center justify-center gap-2 px-8 py-4 border-t"
             style={{ borderColor: 'rgba(255,255,255,0.05)', background: 'rgba(255,255,255,0.02)' }}
           >
-            <Lock size={11} className="text-white/25" />
-            <p className="text-white/25 text-[10px] font-bold uppercase tracking-widest">
+            <Lock size={11} className="text-evo-fog" />
+            <p className="text-evo-fog text-[10px] font-bold uppercase tracking-widest">
               256-bit SSL · PCI DSS compliant · Powered by Stripe
             </p>
           </div>

@@ -145,7 +145,7 @@ const AuditForm = ({ onComplete, prefillData }) => {
         <p className="text-[#22C8E5] text-sm font-semibold tracking-widest uppercase">
           Brand Audit
         </p>
-        <p className="text-white/40 text-sm ">
+        <p className="text-evo-fog text-sm ">
           Step {step} of {TOTAL_STEPS}
         </p>
       </div>
@@ -184,7 +184,7 @@ const AuditForm = ({ onComplete, prefillData }) => {
                     </span>
                   </label>
                   <div className="relative">
-                    <span className="absolute left-4 top-1/2 -translate-y-1/2 text-white/30 text-sm pointer-events-none">🌐</span>
+                    <span className="absolute left-4 top-1/2 -translate-y-1/2 text-evo-fog text-sm pointer-events-none">🌐</span>
                     <input
                       type="url"
                       placeholder="https://yourwebsite.com"
@@ -196,7 +196,7 @@ const AuditForm = ({ onComplete, prefillData }) => {
                   </div>
                   {errors.websiteUrl
                     ? <p className="text-red-400 text-xs mt-1">{errors.websiteUrl}</p>
-                    : <p className="text-white/30 text-xs mt-1">Optional but highly recommended: we'll scan your site for real data</p>
+                    : <p className="text-evo-fog text-xs mt-1">Optional but highly recommended: we'll scan your site for real data</p>
                   }
                 </div>
 
@@ -354,7 +354,7 @@ const AuditForm = ({ onComplete, prefillData }) => {
                     </span>
                   </label>
                   <div className="relative">
-                    <span className="absolute left-4 top-1/2 -translate-y-1/2 text-white/30 text-sm pointer-events-none">🔗</span>
+                    <span className="absolute left-4 top-1/2 -translate-y-1/2 text-evo-fog text-sm pointer-events-none">🔗</span>
                     <input
                       type="url"
                       placeholder="https://competitorsite.com"
@@ -364,7 +364,7 @@ const AuditForm = ({ onComplete, prefillData }) => {
                       id="audit-competitor-url"
                     />
                   </div>
-                  <p className="text-white/30 text-xs mt-1">Optional: helps us benchmark your brand position against theirs</p>
+                  <p className="text-evo-fog text-xs mt-1">Optional: helps us benchmark your brand position against theirs</p>
                 </div>
               </div>
             </div>
@@ -449,7 +449,7 @@ const AuditForm = ({ onComplete, prefillData }) => {
                 <div>
                   <label className={labelClass}>
                     Anything else you'd like us to know?{' '}
-                    <span className="text-white/30 font-normal normal-case tracking-normal">(optional)</span>
+                    <span className="text-evo-fog font-normal normal-case tracking-normal">(optional)</span>
                   </label>
                   <textarea
                     rows={3}

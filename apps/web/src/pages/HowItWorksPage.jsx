@@ -192,11 +192,11 @@ const HowItWorksPage = () => {
                     <h3 className="text-lg font-bold text-white mb-2">{item.service}</h3>
                     <div className="flex items-center justify-between">
                       <div>
-                        <p className="text-sm text-gray-500">Timeline</p>
+                        <p className="text-sm text-evo-fog">Timeline</p>
                         <p className="text-[#22c8e5] font-semibold">{item.timeline}</p>
                       </div>
                       <div>
-                        <p className="text-sm text-gray-500">Complexity</p>
+                        <p className="text-sm text-evo-fog">Complexity</p>
                         <p className="text-gray-300 font-semibold">{item.complexity}</p>
                       </div>
                     </div>
@@ -229,16 +229,16 @@ const HowItWorksPage = () => {
                   <div className="grid grid-cols-2 gap-4">
                     <div className="p-4 bg-[#0f1419] rounded-xl">
                       <p className="text-[#22c8e5] font-bold">Unified</p>
-                      <p className="text-xs text-gray-500">Centralized strategy</p>
+                      <p className="text-xs text-evo-fog">Centralized strategy</p>
                     </div>
                     <div className="p-4 bg-[#0f1419] rounded-xl">
                       <p className="text-[#22c8e5] font-bold">Iterative</p>
-                      <p className="text-xs text-gray-500">Constant improvement</p>
+                      <p className="text-xs text-evo-fog">Constant improvement</p>
                     </div>
                   </div>
                 </div>
                 
-                <p className="text-gray-500 italic text-sm px-4">
+                <p className="text-evo-fog italic text-sm px-4">
                   * Scroll to see the node connection protocol in action.
                 </p>
               </motion.div>
@@ -252,7 +252,7 @@ const HowItWorksPage = () => {
               >
                 <ProcessVisualizer />
                 {/* Decorative overlay text for the visualizer */}
-                <div className="absolute top-4 left-4 font-mono text-[10px] text-[#22c8e5]/40 uppercase tracking-widest">
+                <div className="absolute top-4 left-4 font-mono text-[10px] text-evo-cyan uppercase tracking-widest">
                   System.Protocol.Active
                 </div>
               </motion.div>

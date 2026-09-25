@@ -107,7 +107,7 @@ function TerminalOutput() {
         <div className="w-2.5 h-2.5 rounded-full bg-red-500/80" />
         <div className="w-2.5 h-2.5 rounded-full bg-yellow-500/80" />
         <div className="w-2.5 h-2.5 rounded-full bg-green-500/80" />
-        <span className="text-white/30 text-[10px] ml-2 tracking-wider uppercase">evobrand terminal</span>
+        <span className="text-evo-fog text-[10px] ml-2 tracking-wider uppercase">evobrand terminal</span>
       </div>
       {lines.filter(Boolean).map((line, idx) => (
         <motion.div
@@ -265,7 +265,7 @@ const NotFoundPage = () => {
             animate={{ opacity: 1 }}
             transition={{ delay: 1.4, duration: 0.6 }}
           >
-            <p className="text-[10px] font-bold tracking-[0.25em] uppercase text-white/25 mb-4">
+            <p className="text-[10px] font-bold tracking-[0.25em] uppercase text-evo-fog mb-4">
               Popular Destinations
             </p>
             <div className="flex flex-wrap justify-center gap-3">
@@ -279,7 +279,7 @@ const NotFoundPage = () => {
                 <Link
                   key={link.to}
                   to={link.to}
-                  className="text-xs text-white/35 hover:text-[#22c8e5] px-3 py-1.5 rounded-lg border border-white/5 hover:border-[#22c8e5]/20 transition-all duration-300"
+                  className="text-xs text-evo-fog hover:text-[#22c8e5] px-3 py-1.5 rounded-lg border border-white/5 hover:border-[#22c8e5]/20 transition-all duration-300"
                 >
                   {link.label}
                 </Link>

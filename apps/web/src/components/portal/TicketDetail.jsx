@@ -15,7 +15,7 @@ function Attachment({ url, className = '' }) {
   const isImage = /\.(jpg|jpeg|png|gif|webp)$/i.test(url);
   return (
     <div className={`mt-3 pt-3 border-t border-white/10 ${className}`}>
-      <p className="text-[10px] font-bold uppercase tracking-widest text-white/40 mb-2 flex items-center gap-1">
+      <p className="text-[10px] font-bold uppercase tracking-widest text-evo-fog mb-2 flex items-center gap-1">
         <Paperclip size={10} /> Attachment
       </p>
       {isImage ? (
@@ -130,28 +130,28 @@ const TicketDetail = ({ ticket, onBack, onReply, onClose, user, onRefresh }) => 
                         <button 
                             onClick={onBack} 
                             aria-label="Back to support tickets"
-                            className="p-4 bg-white/5 hover:bg-[#22c8e5]/10 border border-white/10 text-white/40 hover:text-[#22c8e5] rounded-2xl transition-all"
+                            className="p-4 bg-white/5 hover:bg-[#22c8e5]/10 border border-white/10 text-evo-fog hover:text-[#22c8e5] rounded-2xl transition-all"
                         >
                             <ArrowLeft size={20} />
                         </button>
                         <div>
                             <div className="flex items-center gap-3 mb-1">
                                 <h2 className="text-3xl font-bold text-white">{ticket.subject}</h2>
-                                <span className="px-2 py-1 rounded bg-white/5 border border-white/10 text-white/20 font-mono text-xs">#{String(ticket.id).split('-')[0]}</span>
+                                <span className="px-2 py-1 rounded bg-white/5 border border-white/10 text-evo-fog font-mono text-xs">#{String(ticket.id).split('-')[0]}</span>
                             </div>
                             {isAdmin && (ticket.user_name || ticket.user_email) && (
-                                <p className="text-white/40 text-xs mb-1">
+                                <p className="text-evo-fog text-xs mb-1">
                                     Submitted by <span className="text-white/70 font-semibold">{ticket.user_name || ticket.user_email}</span>
                                     {ticket.user_name && ticket.user_email && <span> · {ticket.user_email}</span>}
                                 </p>
                             )}
                             <div className="flex items-center gap-4 text-xs font-bold uppercase tracking-widest">
                                 <span className={`px-2 py-0.5 rounded border ${getPriorityColor(ticket.priority)}`}>{ticket.priority}</span>
-                                <span className="text-white/40 flex items-center gap-2">
+                                <span className="text-evo-fog flex items-center gap-2">
                                     <div className={`w-1.5 h-1.5 rounded-full ${ticket.status === 'open' ? 'bg-green-400 animate-pulse' : ticket.status === 'in_progress' ? 'bg-yellow-400 animate-pulse' : 'bg-white/20'}`} />
                                     {ticket.status}
                                 </span>
-                                <span className="text-white/20">{ticket.service}</span>
+                                <span className="text-evo-fog">{ticket.service}</span>
                             </div>
                         </div>
                     </div>
@@ -176,7 +176,7 @@ const TicketDetail = ({ ticket, onBack, onReply, onClose, user, onRefresh }) => 
                                     <div className="max-w-[85%]">
                                         <div className="flex items-center gap-3 mb-2 flex-row-reverse">
                                             <div className="w-8 h-8 rounded-lg flex items-center justify-center text-[10px] font-bold bg-[#22c8e5] text-[#003258]">YOU</div>
-                                            <span className="text-[10px] font-bold text-white/20 uppercase tracking-widest">
+                                            <span className="text-[10px] font-bold text-evo-fog uppercase tracking-widest">
                                                 {new Date(ticket.created_at).toLocaleString([], { hour: '2-digit', minute: '2-digit' })}
                                             </span>
                                         </div>
@@ -203,7 +203,7 @@ const TicketDetail = ({ ticket, onBack, onReply, onClose, user, onRefresh }) => 
                                             }`}>
                                                 {!msg.sender_is_admin ? 'YOU' : 'EVOBRAND'}
                                             </div>
-                                            <span className="text-[10px] font-bold text-white/20 uppercase tracking-widest">
+                                            <span className="text-[10px] font-bold text-evo-fog uppercase tracking-widest">
                                                 {new Date(msg.timestamp || msg.created_at).toLocaleString([], { hour: '2-digit', minute: '2-digit' })}
                                             </span>
                                         </div>
@@ -230,7 +230,7 @@ const TicketDetail = ({ ticket, onBack, onReply, onClose, user, onRefresh }) => 
                                     <button
                                         type="button"
                                         onClick={() => { setReplyFile(null); if (fileInputRef.current) fileInputRef.current.value = ''; }}
-                                        className="text-white/40 hover:text-white/80 transition-colors"
+                                        className="text-evo-fog hover:text-white/80 transition-colors"
                                     >
                                         <X size={12} />
                                     </button>
@@ -248,12 +248,12 @@ const TicketDetail = ({ ticket, onBack, onReply, onClose, user, onRefresh }) => 
                                 <label
                                     htmlFor="reply-file-upload"
                                     title="Attach screenshot or document"
-                                    className="flex-shrink-0 p-4 bg-white/5 hover:bg-white/10 border border-white/10 text-white/40 hover:text-[#22c8e5] rounded-2xl transition-all cursor-pointer"
+                                    className="flex-shrink-0 p-4 bg-white/5 hover:bg-white/10 border border-white/10 text-evo-fog hover:text-[#22c8e5] rounded-2xl transition-all cursor-pointer"
                                 >
                                     <Paperclip size={18} />
                                 </label>
                                 <div className="relative flex-1">
-                                    <MessageSquare className="absolute left-4 top-1/2 -translate-y-1/2 text-white/20" size={18} />
+                                    <MessageSquare className="absolute left-4 top-1/2 -translate-y-1/2 text-evo-fog" size={18} />
                                     <input
                                         value={replyText}
                                         onChange={handleReplyChange}
@@ -281,9 +281,9 @@ const TicketDetail = ({ ticket, onBack, onReply, onClose, user, onRefresh }) => 
                             <div className="space-y-6">
                                 {isAdmin && (ticket.user_name || ticket.user_email) && (
                                     <div>
-                                        <p className="text-white/20 text-[10px] font-bold uppercase tracking-widest mb-1">Client</p>
+                                        <p className="text-evo-fog text-[10px] font-bold uppercase tracking-widest mb-1">Client</p>
                                         <p className="text-white text-sm font-semibold">{ticket.user_name || '-'}</p>
-                                        <p className="text-white/40 text-xs mt-0.5">{ticket.user_email || '-'}</p>
+                                        <p className="text-evo-fog text-xs mt-0.5">{ticket.user_email || '-'}</p>
                                         <div className="mt-2">
                                             {ticket.user_support_plan ? (
                                                 <span className="inline-block px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-[#22c8e5]/10 text-[#22c8e5] border border-[#22c8e5]/20">
@@ -298,15 +298,15 @@ const TicketDetail = ({ ticket, onBack, onReply, onClose, user, onRefresh }) => 
                                     </div>
                                 )}
                                 <div>
-                                    <p className="text-white/20 text-[10px] font-bold uppercase tracking-widest mb-1">Opened</p>
+                                    <p className="text-evo-fog text-[10px] font-bold uppercase tracking-widest mb-1">Opened</p>
                                     <p className="text-white text-sm font-medium">{new Date(ticket.created_at).toLocaleDateString()}</p>
                                 </div>
                                 <div>
-                                    <p className="text-white/20 text-[10px] font-bold uppercase tracking-widest mb-1">Service</p>
+                                    <p className="text-evo-fog text-[10px] font-bold uppercase tracking-widest mb-1">Service</p>
                                     <p className="text-white text-sm font-medium">{ticket.service || 'Support'}</p>
                                 </div>
                                 <div>
-                                    <p className="text-white/20 text-[10px] font-bold uppercase tracking-widest mb-1">Assigned To</p>
+                                    <p className="text-evo-fog text-[10px] font-bold uppercase tracking-widest mb-1">Assigned To</p>
                                     <div className="flex items-center gap-2 mt-1">
                                         <div className="w-2 h-2 rounded-full bg-green-500" />
                                         <p className="text-white text-sm font-medium">EVOBRAND Team</p>
@@ -314,12 +314,12 @@ const TicketDetail = ({ ticket, onBack, onReply, onClose, user, onRefresh }) => 
                                 </div>
                                 {isAdmin ? (
                                     <div className="pt-4 border-t border-white/10">
-                                        <p className="text-[#22c8e5]/60 text-[10px] font-bold uppercase tracking-widest mb-3 flex items-center gap-1.5">
+                                        <p className="text-evo-cyan text-[10px] font-bold uppercase tracking-widest mb-3 flex items-center gap-1.5">
                                             <DollarSign size={11} /> Quoted Price
                                         </p>
                                         <div className="flex gap-2 mb-2">
                                             <div className="relative flex-1">
-                                                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-white/40 text-sm font-bold">$</span>
+                                                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-evo-fog text-sm font-bold">$</span>
                                                 <input
                                                     type="number"
                                                     min="0"
@@ -355,7 +355,7 @@ const TicketDetail = ({ ticket, onBack, onReply, onClose, user, onRefresh }) => 
                                     </div>
                                 ) : ticket.quoted_price > 0 ? (
                                     <div className="pt-4 border-t border-white/10">
-                                        <p className="text-[#22c8e5]/60 text-[10px] font-bold uppercase tracking-widest mb-1">Estimated Cost</p>
+                                        <p className="text-evo-cyan text-[10px] font-bold uppercase tracking-widest mb-1">Estimated Cost</p>
                                         <p className="text-[#22c8e5] text-2xl font-bold">${Number(ticket.quoted_price).toFixed(2)}</p>
                                         {ticket.is_paid ? (
                                             <span className="inline-block mt-2 px-2 py-1 bg-green-500/20 text-green-400 text-[10px] font-bold uppercase rounded border border-green-500/30">Paid</span>
@@ -425,7 +425,7 @@ const TicketDetail = ({ ticket, onBack, onReply, onClose, user, onRefresh }) => 
                             )}
                             {(ticket.status === 'closed' || ticket.status === 'resolved') && (
                                 <div className="mt-8 pt-8 border-t border-white/5">
-                                    <div className="w-full py-4 rounded-2xl bg-white/5 border border-white/10 text-white/30 text-xs font-bold uppercase tracking-widest text-center">
+                                    <div className="w-full py-4 rounded-2xl bg-white/5 border border-white/10 text-evo-fog text-xs font-bold uppercase tracking-widest text-center">
                                         Ticket Closed
                                     </div>
                                 </div>

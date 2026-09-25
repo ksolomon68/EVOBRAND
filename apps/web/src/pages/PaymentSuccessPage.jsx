@@ -147,7 +147,7 @@ export default function PaymentSuccessPage() {
                 </button>
                 <a
                   href="/"
-                  className="text-xs text-gray-500 hover:text-white transition-all underline"
+                  className="text-xs text-evo-fog hover:text-white transition-all underline"
                 >
                   Go back to Home Page
                 </a>

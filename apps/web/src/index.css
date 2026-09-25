@@ -1,8 +1,31 @@
-
-@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800;900&family=Open+Sans:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@400;500;600;700;800&display=swap');
-
-/* Glacial Indifference: brand title font (matches marketing/social cards).
-   Self-hosted, SIL OFL licensed (license file in /fonts/). */
+/* Typefaces. All self-hosted and SIL OFL licensed (license files in /fonts/).
+   Newsreader: display serif for h1/h2. The italic carries emphasized phrases.
+   Public Sans: body and UI. The USWDS typeface, familiar to public-sector readers.
+   Glacial Indifference: brand wordmark face, used for small uppercase labels. */
+@font-face {
+  font-family: 'Newsreader';
+  font-style: normal;
+  font-weight: 200 800;
+  font-display: swap;
+  src: url('/fonts/newsreader-latin-wght-normal.woff2') format('woff2-variations');
+  unicode-range: U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD;
+}
+@font-face {
+  font-family: 'Newsreader';
+  font-style: italic;
+  font-weight: 200 800;
+  font-display: swap;
+  src: url('/fonts/newsreader-latin-wght-italic.woff2') format('woff2-variations');
+  unicode-range: U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD;
+}
+@font-face {
+  font-family: 'Public Sans';
+  font-style: normal;
+  font-weight: 100 900;
+  font-display: swap;
+  src: url('/fonts/public-sans-latin-wght-normal.woff2') format('woff2-variations');
+  unicode-range: U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD;
+}
 @font-face {
   font-family: 'Glacial Indifference';
   font-style: normal;
@@ -20,6 +43,70 @@
        url('/fonts/glacial-indifference-700.woff') format('woff');
 }
 
+/* Design tokens.
+   Primitives come from the existing EVOBRAND palette. Components use the
+   semantic --evo-* names, which the homepage and client portal already use. */
+:root {
+  /* Primitives */
+  --ink-950: #04080f;
+  --ink-900: #0f1419;
+  --slate-800: #1a2332;
+  --slate-700: #22304a;
+  --navy-700: #003258;
+  --cyan-400: #22c8e5;
+  --cyan-300: #7de2f2;
+  --paper: #f5f8fb;
+  --mist: #b3c1cf;   /* secondary text: 7:1 or better on every surface */
+  --fog: #8892a4;    /* tertiary text: ink and slate only, never on navy */
+  --rule: #2a3a4f;
+
+  /* Semantic */
+  --evo-bg: var(--ink-900);
+  --evo-bg-deep: var(--ink-950);
+  --evo-surface: var(--slate-800);
+  --evo-raised: var(--slate-700);
+  --evo-band: var(--navy-700);
+  --evo-text: var(--paper);
+  --evo-muted: var(--mist);
+  --evo-subtle: var(--fog);
+  --evo-accent: var(--cyan-400);
+  --evo-accent-hover: var(--cyan-300);
+  --evo-on-accent: var(--navy-700);
+  --evo-line: var(--rule);
+  --evo-radius: 12px;
+  --evo-radius-sm: 8px;
+
+  /* Type families */
+  --font-display: 'Newsreader', 'Iowan Old Style', Georgia, serif;
+  --font-sans: 'Public Sans', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --font-label: 'Glacial Indifference', 'Public Sans', system-ui, sans-serif;
+
+  /* Fluid type scale, 375px to 1280px */
+  --step--2: clamp(0.75rem, 0.7241rem + 0.1105vw, 0.8125rem);
+  --step--1: clamp(0.875rem, 0.8491rem + 0.1105vw, 0.9375rem);
+  --step-0: clamp(1rem, 0.9482rem + 0.2210vw, 1.125rem);
+  --step-1: clamp(1.125rem, 1.0214rem + 0.4420vw, 1.375rem);
+  --step-2: clamp(1.375rem, 1.2196rem + 0.6630vw, 1.75rem);
+  --step-3: clamp(1.625rem, 1.3142rem + 1.3260vw, 2.375rem);
+  --step-4: clamp(2rem, 1.4820rem + 2.2099vw, 3.25rem);
+  --step-5: clamp(2.5rem, 1.6713rem + 3.5359vw, 4.5rem);
+
+  /* Fluid spacing */
+  --space-3xs: 0.25rem;
+  --space-2xs: 0.5rem;
+  --space-xs: 0.75rem;
+  --space-s: 1rem;
+  --space-m: 1.5rem;
+  --space-l: clamp(2rem, 1.7928rem + 0.8840vw, 2.5rem);
+  --space-xl: clamp(3rem, 2.5856rem + 1.7680vw, 4rem);
+  --space-2xl: clamp(4rem, 3.1713rem + 3.5359vw, 6rem);
+  --space-3xl: clamp(5rem, 3.7569rem + 5.3039vw, 8rem);
+
+  --gutter: clamp(1rem, 0.5rem + 2.2vw, 2rem);
+  --measure: 62ch;
+  --tap: 44px;
+}
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -30,14 +117,165 @@
   }
 
   body {
-    @apply bg-[#0f1419] text-white;
+    background: var(--evo-bg);
+    color: var(--evo-text);
     /* Guard against off-canvas decorative elements causing sideways scroll on phones. */
     overflow-x: clip;
-    font-family: 'Open Sans', sans-serif;
+    font-family: var(--font-sans);
+    font-size: var(--step-0);
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
   }
 
-  h1, h2, h3, h4, h5, h6 {
-    font-family: 'Glacial Indifference', 'Montserrat', sans-serif;
+  h1, h2 {
+    font-family: var(--font-display);
+    font-weight: 500;
+    letter-spacing: -0.015em;
+    line-height: 1.08;
+    text-wrap: balance;
+  }
+
+  h3, h4, h5, h6 {
+    font-family: var(--font-sans);
+    font-weight: 650;
+    letter-spacing: -0.01em;
+    line-height: 1.25;
+  }
+
+  /* The emphasized second half of a headline. */
+  h1 em, h2 em {
+    font-style: italic;
+    font-weight: 400;
+    color: var(--evo-accent);
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--evo-accent);
+    outline-offset: 3px;
+  }
+}
+
+@layer components {
+  .evo-container {
+    width: min(1240px, 100% - 2 * var(--gutter));
+    margin-inline: auto;
+  }
+
+  .evo-block {
+    padding-block: var(--space-3xl);
+  }
+  .evo-block--ink { background: var(--evo-bg); }
+  .evo-block--deep { background: var(--evo-bg-deep); }
+  .evo-block--slate { background: var(--evo-surface); }
+  .evo-block--navy { background: var(--evo-band); }
+
+  /* Short uppercase label that opens a section. */
+  .evo-eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-xs);
+    font-family: var(--font-label);
+    font-size: var(--step--2);
+    font-weight: 700;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--evo-accent);
+  }
+  .evo-eyebrow::before {
+    content: '';
+    width: 1.5rem;
+    height: 1px;
+    background: currentColor;
+  }
+
+  .evo-heading {
+    font-size: var(--step-4);
+    max-width: 22ch;
+  }
+  .evo-heading--display {
+    font-size: var(--step-5);
+  }
+  .evo-heading em {
+    display: block;
+  }
+
+  .evo-intro {
+    max-width: var(--measure);
+    font-size: var(--step-1);
+    line-height: 1.55;
+    color: var(--evo-muted);
+  }
+
+  /* Buttons. Both variants meet the 44px touch target. */
+  .evo-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-2xs);
+    min-height: var(--tap);
+    padding: 0.75rem 1.375rem;
+    border-radius: var(--evo-radius-sm);
+    font-family: var(--font-sans);
+    font-size: var(--step--1);
+    font-weight: 650;
+    line-height: 1.2;
+    text-decoration: none;
+    transition: background-color 0.2s, color 0.2s, border-color 0.2s;
+  }
+  .evo-btn--primary {
+    background: var(--evo-accent);
+    color: var(--evo-on-accent);
+  }
+  .evo-btn--primary:hover { background: var(--evo-accent-hover); }
+  .evo-btn--secondary {
+    border: 1px solid var(--evo-line);
+    color: var(--evo-text);
+  }
+  .evo-btn--secondary:hover {
+    border-color: var(--evo-accent);
+    color: var(--evo-accent);
+  }
+
+  /* Credential ledger: proof points set like an official record. */
+  .evo-ledger {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 12rem), 1fr));
+    border-top: 1px solid var(--evo-line);
+  }
+  .evo-ledger > div {
+    display: grid;
+    gap: var(--space-3xs);
+    padding: var(--space-m) var(--space-m) var(--space-m) 0;
+    border-bottom: 1px solid var(--evo-line);
+  }
+  .evo-ledger dt {
+    order: 2;
+    font-family: var(--font-label);
+    font-size: var(--step--2);
+    font-weight: 700;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--evo-muted);
+  }
+  .evo-ledger dd {
+    order: 1;
+    font-family: var(--font-display);
+    font-size: var(--step-3);
+    font-weight: 500;
+    line-height: 1.1;
+    font-variant-numeric: lining-nums tabular-nums;
+    color: var(--evo-text);
+  }
+
+  /* Decorative watermark text comes from CSS so it is never read as content. */
+  .era-label::before {
+    content: attr(data-label);
+  }
+
+  .tap-target {
+    min-height: var(--tap);
+    min-width: var(--tap);
   }
 }
 
@@ -145,8 +383,8 @@ html {
 
 /* Selection color */
 ::selection {
-  background-color: #22c8e5;
-  color: #ffffff;
+  background-color: var(--evo-accent);
+  color: var(--evo-on-accent);
 }
 
 /* Global Print Styles for Contracts */
@@ -187,32 +425,21 @@ html {
   }
 }
 
-/* Shared EVOBRAND presentation tokens. */
-:root {
-  --evo-bg: #101b2b;
-  --evo-surface: #172638;
-  --evo-raised: #203348;
-  --evo-text: #f5f8fb;
-  --evo-muted: #b3c1cf;
-  --evo-accent: #22c8e5;
-  --evo-line: #34485a;
-  --evo-radius: 12px;
-}
 .evo-home { background: var(--evo-bg); color: var(--evo-text); }
-.evo-wrap { width: min(1240px, calc(100% - 64px)); margin-inline: auto; }
+.evo-wrap { width: min(1240px, 100% - 2 * var(--gutter)); margin-inline: auto; }
 .evo-section { padding-block: clamp(64px, 8vw, 112px); }
-.evo-home h1, .evo-home h2, .evo-home h3 { letter-spacing: -.035em; line-height: 1.12; }
-.evo-home h2 { font-size: clamp(32px, 4vw, 48px); }
-.evo-home h3 { font-size: 24px; }
+.evo-home h3 { letter-spacing: -.01em; line-height: 1.25; }
+.evo-home h2 { font-size: var(--step-4); }
+.evo-home h3 { font-size: var(--step-2); }
 .evo-home p { line-height: 1.7; }
 .portal-eyebrow { color: var(--evo-accent); font-size: 11px; letter-spacing: .14em; text-transform: uppercase; font-weight: 700; margin-bottom: 20px; }
 .evo-hero { min-height: 690px; display: grid; grid-template-columns: 1.1fr 1fr; align-items: center; gap: 64px; padding-block: 90px; }
-.evo-hero h1 { font-size: clamp(44px, 5.5vw, 76px); font-weight: 700; margin-bottom: 28px; }
+.evo-hero h1 { font-size: var(--step-5); margin-bottom: 28px; }
 .evo-hero h1 span { color: var(--evo-accent); }
-.evo-lead { color: var(--evo-muted); font-size: 19px; max-width: 530px; }
+.evo-lead { color: var(--evo-muted); font-size: var(--step-1); max-width: 530px; }
 .evo-actions { display: flex; align-items: center; gap: 24px; flex-wrap: wrap; margin-top: 36px; }
-.evo-button { display: inline-flex; gap: 12px; align-items: center; justify-content: center; min-height: 48px; padding: 14px 22px; background: var(--evo-accent); color: var(--evo-bg); font-size: 14px; font-weight: 700; border-radius: 8px; flex-shrink: 0; transition: background .2s; }
-.evo-button:hover { background: #7de2f2; }
+.evo-button { font-family: var(--font-sans); display: inline-flex; gap: 12px; align-items: center; justify-content: center; min-height: 48px; padding: 14px 22px; background: var(--evo-accent); color: var(--evo-on-accent); font-size: 14px; font-weight: 700; border-radius: 8px; flex-shrink: 0; transition: background .2s; }
+.evo-button:hover { background: var(--evo-accent-hover); }
 .evo-link, .portal-text-link { display: inline-flex; align-items: center; gap: 8px; min-height: 44px; font-size: 14px; font-weight: 600; color: var(--evo-text); }
 .evo-link:hover, .portal-text-link:hover { color: var(--evo-accent); }
 .evo-hero-note { font-size: 12px; color: var(--evo-muted); margin-top: 32px; }
@@ -279,7 +506,6 @@ html {
   .portal-next { flex-direction: column; align-items: flex-start; }
 }
 @media (max-width: 767px) {
-  .evo-wrap { width: calc(100% - 40px); }
   .evo-hero { grid-template-columns: 1fr; padding-block: 56px; gap: 48px; }
   .evo-feature { transform: none; }
   .evo-feature img { aspect-ratio: 16/9; }

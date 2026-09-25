@@ -4,6 +4,7 @@ Disallow: /client-portal/
 Disallow: /login
 Disallow: /reset-password
 Disallow: /auditor/results/
+Disallow: /style-guide
 
 # Sitemaps
 Sitemap: https://evobrand.net/sitemap.xml

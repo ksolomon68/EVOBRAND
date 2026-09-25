@@ -143,7 +143,7 @@ function Sidebar({ user, view, setView, setSelectedTicket, openTicketCount, hand
             </div>
             <div className="overflow-hidden">
               <p className="text-white text-sm font-bold truncate">{user?.name || 'Project Lead'}</p>
-              <p className="text-white/40 text-xs truncate">{user?.email}</p>
+              <p className="text-evo-fog text-xs truncate">{user?.email}</p>
             </div>
           </div>
           <button onClick={handleSignOut}
@@ -170,7 +170,7 @@ function Sidebar({ user, view, setView, setSelectedTicket, openTicketCount, hand
         style={{ background: '#04080f', borderRight: '1px solid rgba(255,255,255,0.05)' }}>
         <button onClick={() => setMobileOpen(false)}
           aria-label="Close navigation"
-          className="absolute top-4 right-4 p-2 rounded-lg text-white/40 hover:text-white hover:bg-white/10 transition-colors">
+          className="absolute top-4 right-4 p-2 rounded-lg text-evo-fog hover:text-white hover:bg-white/10 transition-colors">
           <X size={18} />
         </button>
         {navContent}
@@ -464,7 +464,7 @@ const ClientPortalPage = () => {
         aria-label="Loading portal"
       >
         <Loader2 size={36} className="animate-spin mb-4" style={{ color: GOLD }} aria-hidden="true" />
-        <p className="text-white/40 font-bold tracking-widest text-xs uppercase">Loading your workspace…</p>
+        <p className="text-evo-fog font-bold tracking-widest text-xs uppercase">Loading your workspace…</p>
       </div>
     );
   }
@@ -504,7 +504,7 @@ const ClientPortalPage = () => {
             <p className="text-white text-sm font-bold">{paymentBanner.message}</p>
             <button
               onClick={() => setPaymentBanner(null)}
-              className="ml-2 text-white/40 hover:text-white transition-colors"
+              className="ml-2 text-evo-fog hover:text-white transition-colors"
             >
               <X size={15} />
             </button>
@@ -547,7 +547,7 @@ const ClientPortalPage = () => {
               <button
                 onClick={handleSignOut}
                 className="md:hidden p-2.5 rounded-xl transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-red-400"
-                style={{ background: 'rgba(255,255,255,0.04)', color: 'rgba(255,255,255,0.35)' }}
+                style={{ background: 'rgba(255,255,255,0.04)', color: 'var(--fog)' }}
                 aria-label="Sign out"
                 onMouseEnter={(e) => { e.currentTarget.style.color = '#f87171'; e.currentTarget.style.background = 'rgba(248,113,113,0.08)'; }}
                 onMouseLeave={(e) => { e.currentTarget.style.color = 'rgba(255,255,255,0.35)'; e.currentTarget.style.background = 'rgba(255,255,255,0.04)'; }}

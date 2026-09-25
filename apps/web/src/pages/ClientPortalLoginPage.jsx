@@ -88,7 +88,7 @@ const ClientPortalLoginPage = () => {
               transition={{ duration: 0.3 }}
             />
             <div className="h-px w-12 bg-[#22c8e5]/20 mx-auto mt-6 mb-4" />
-            <p className="text-[#22c8e5]/60 font-bold tracking-[0.3em] uppercase text-xs">
+            <p className="text-evo-cyan font-bold tracking-[0.3em] uppercase text-xs">
               Client Portal
             </p>
           </div>
@@ -102,7 +102,7 @@ const ClientPortalLoginPage = () => {
               <>
                 <button
                   onClick={() => { setForgotPassword(false); setResetSent(false); setError(''); }}
-                  className="text-white/30 hover:text-white/60 text-xs font-bold uppercase tracking-widest mb-6 transition-colors"
+                  className="text-evo-fog hover:text-white/60 text-xs font-bold uppercase tracking-widest mb-6 transition-colors"
                 >
                   ← Back to login
                 </button>
@@ -120,7 +120,7 @@ const ClientPortalLoginPage = () => {
                 ) : (
                   <>
                     <h2 className="text-2xl font-bold text-white mb-2">Forgot password?</h2>
-                    <p className="text-white/40 text-sm mb-8">Enter your email and we'll send you a reset link.</p>
+                    <p className="text-evo-fog text-sm mb-8">Enter your email and we'll send you a reset link.</p>
 
                     {error && (
                       <div className="mb-6 p-4 bg-red-500/10 border border-red-500/20 rounded-xl flex items-start gap-3 text-red-400 text-sm">
@@ -131,9 +131,9 @@ const ClientPortalLoginPage = () => {
 
                     <form onSubmit={handleForgotPassword} className="space-y-5">
                       <div className="space-y-2">
-                        <label className="text-white/40 text-xs font-bold uppercase tracking-widest ml-1">Email Address</label>
+                        <label className="text-evo-fog text-xs font-bold uppercase tracking-widest ml-1">Email Address</label>
                         <div className="relative">
-                          <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-white/20" size={18} />
+                          <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-evo-fog" size={18} />
                           <input
                             type="email"
                             required
@@ -163,13 +163,13 @@ const ClientPortalLoginPage = () => {
                 <div className="flex gap-4 mb-8">
                   <button
                     onClick={() => { setIsLogin(true); setError(''); }}
-                    className={`flex-1 py-2 rounded-2xl text-sm font-bold transition-all ${isLogin ? 'bg-[#22c8e5] text-[#003258]' : 'bg-white/5 text-white/40 hover:bg-white/10'}`}
+                    className={`flex-1 py-2 rounded-2xl text-sm font-bold transition-all ${isLogin ? 'bg-[#22c8e5] text-[#003258]' : 'bg-white/5 text-evo-fog hover:bg-white/10'}`}
                   >
                     LOG IN
                   </button>
                   <button
                     onClick={() => { setIsLogin(false); setError(''); }}
-                    className={`flex-1 py-2 rounded-2xl text-sm font-bold transition-all ${!isLogin ? 'bg-[#22c8e5] text-[#003258]' : 'bg-white/5 text-white/40 hover:bg-white/10'}`}
+                    className={`flex-1 py-2 rounded-2xl text-sm font-bold transition-all ${!isLogin ? 'bg-[#22c8e5] text-[#003258]' : 'bg-white/5 text-evo-fog hover:bg-white/10'}`}
                   >
                     SIGN UP
                   </button>
@@ -178,7 +178,7 @@ const ClientPortalLoginPage = () => {
                 <h2 className="text-2xl font-bold text-white mb-2">
                   {isLogin ? 'Welcome back' : 'Start your project'}
                 </h2>
-                <p className="text-white/40 text-sm mb-8">
+                <p className="text-evo-fog text-sm mb-8">
                   {isLogin ? 'Sign in to manage your tickets.' : 'Create an account to access support.'}
                 </p>
 
@@ -192,9 +192,9 @@ const ClientPortalLoginPage = () => {
                 <form onSubmit={handleAuth} className="space-y-5">
                   {!isLogin && (
                     <div className="space-y-2">
-                      <label className="text-white/40 text-xs font-bold uppercase tracking-widest ml-1">Full Name</label>
+                      <label className="text-evo-fog text-xs font-bold uppercase tracking-widest ml-1">Full Name</label>
                       <div className="relative">
-                        <User className="absolute left-4 top-1/2 -translate-y-1/2 text-white/20" size={18} />
+                        <User className="absolute left-4 top-1/2 -translate-y-1/2 text-evo-fog" size={18} />
                         <input
                           type="text"
                           required
@@ -208,9 +208,9 @@ const ClientPortalLoginPage = () => {
                   )}
 
                   <div className="space-y-2">
-                    <label className="text-white/40 text-xs font-bold uppercase tracking-widest ml-1">Email Address</label>
+                    <label className="text-evo-fog text-xs font-bold uppercase tracking-widest ml-1">Email Address</label>
                     <div className="relative">
-                      <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-white/20" size={18} />
+                      <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-evo-fog" size={18} />
                       <input
                         type="email"
                         required
@@ -224,19 +224,19 @@ const ClientPortalLoginPage = () => {
 
                   <div className="space-y-2">
                     <div className="flex justify-between items-center ml-1">
-                      <label className="text-white/40 text-xs font-bold uppercase tracking-widest">Password</label>
+                      <label className="text-evo-fog text-xs font-bold uppercase tracking-widest">Password</label>
                       {isLogin && (
                         <button
                           type="button"
                           onClick={() => { setForgotPassword(true); setError(''); }}
-                          className="text-[#22c8e5]/60 hover:text-[#22c8e5] text-xs font-semibold transition-colors"
+                          className="text-evo-cyan hover:text-[#22c8e5] text-xs font-semibold transition-colors"
                         >
                           Forgot password?
                         </button>
                       )}
                     </div>
                     <div className="relative">
-                      <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-white/20" size={18} />
+                      <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-evo-fog" size={18} />
                       <input
                         type="password"
                         required
@@ -267,7 +267,7 @@ const ClientPortalLoginPage = () => {
             )}
           </div>
 
-          <p className="mt-8 text-center text-white/20 text-xs font-medium">
+          <p className="mt-8 text-center text-evo-fog text-xs font-medium">
             Protected by EVOBRAND Security Protocols
           </p>
         </motion.div>

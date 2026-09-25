@@ -338,7 +338,7 @@ export default function MyContractsPanel({ user, onEditContract, onDuplicateCont
     <>
       <div className="mb-8">
         <h1 className="text-3xl font-bold text-white mb-1">My Contracts</h1>
-        <p className="text-white/40">Review, sign, and download agreements sent to you by EVOBRAND.</p>
+        <p className="text-evo-fog">Review, sign, and download agreements sent to you by EVOBRAND.</p>
       </div>
 
       {loading ? (
@@ -351,7 +351,7 @@ export default function MyContractsPanel({ user, onEditContract, onDuplicateCont
             <FileText size={28} style={{ color: GOLD }} />
           </div>
           <h3 className="text-white font-bold text-lg mb-2">No contracts yet</h3>
-          <p className="text-white/40 text-sm">Contracts sent to you by EVOBRAND will appear here.</p>
+          <p className="text-evo-fog text-sm">Contracts sent to you by EVOBRAND will appear here.</p>
         </div>
       ) : (
         <div className="space-y-4 max-w-3xl">
@@ -377,7 +377,7 @@ export default function MyContractsPanel({ user, onEditContract, onDuplicateCont
                 </div>
                 <div className="flex-1 min-w-0 cursor-pointer" onClick={() => openContract(c.id)}>
                   <p className="text-white font-bold truncate">{c.title}</p>
-                  <p className="text-white/40 text-xs mt-0.5">{formatDate(c.created_at)}</p>
+                  <p className="text-evo-fog text-xs mt-0.5">{formatDate(c.created_at)}</p>
                 </div>
                 <div className="flex items-center gap-3 flex-shrink-0">
                   {isAdmin && (
@@ -417,7 +417,7 @@ export default function MyContractsPanel({ user, onEditContract, onDuplicateCont
                         title="Delete contract"
                         onClick={(e) => { e.stopPropagation(); handleDeleteContract(c); }}
                         disabled={deletingId === c.id}
-                        className="p-1.5 rounded-lg text-white/20 hover:text-red-400 transition-colors disabled:opacity-50"
+                        className="p-1.5 rounded-lg text-evo-fog hover:text-red-400 transition-colors disabled:opacity-50"
                       >
                         {deletingId === c.id ? <Loader2 size={13} className="animate-spin" /> : <Trash2 size={13} />}
                       </button>

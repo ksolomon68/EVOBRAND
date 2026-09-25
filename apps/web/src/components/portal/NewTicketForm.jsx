@@ -97,11 +97,11 @@ const NewTicketForm = ({ onClose, onSubmit, user, usage }) => {
               <Zap size={16} className="text-[#22c8e5]" />
               <h2 className="text-2xl font-bold text-white">Initialize New Transmission</h2>
             </div>
-            <p className="text-white/40 text-xs font-bold uppercase tracking-widest">Support Node Alpha // Secure Entry</p>
+            <p className="text-evo-fog text-xs font-bold uppercase tracking-widest">Support Node Alpha // Secure Entry</p>
           </div>
           <button
             onClick={onClose}
-            className="p-3 bg-white/5 hover:bg-white/10 border border-white/10 rounded-2xl text-white/40 hover:text-white transition-all"
+            className="p-3 bg-white/5 hover:bg-white/10 border border-white/10 rounded-2xl text-evo-fog hover:text-white transition-all"
           >
             <X size={20} />
           </button>
@@ -141,7 +141,7 @@ const NewTicketForm = ({ onClose, onSubmit, user, usage }) => {
               );
             })() : (
               <div className="space-y-3">
-                <label className="text-white/40 text-xs font-bold uppercase tracking-widest ml-1">Ticket Type & Pricing</label>
+                <label className="text-evo-fog text-xs font-bold uppercase tracking-widest ml-1">Ticket Type & Pricing</label>
                 <div className="grid grid-cols-1 gap-3">
                   {TICKET_TYPES.map((t) => (
                     <button
@@ -173,7 +173,7 @@ const NewTicketForm = ({ onClose, onSubmit, user, usage }) => {
             {/* ── Service & Priority ──────────────────────────────────────── */}
             <div className="grid md:grid-cols-2 gap-8">
               <div className="space-y-2">
-                <label className="text-white/40 text-xs font-bold uppercase tracking-widest ml-1">Target Cluster</label>
+                <label className="text-evo-fog text-xs font-bold uppercase tracking-widest ml-1">Target Cluster</label>
                 <select
                   name="service"
                   value={formData.service}
@@ -187,7 +187,7 @@ const NewTicketForm = ({ onClose, onSubmit, user, usage }) => {
                 </select>
               </div>
               <div className="space-y-2">
-                <label className="text-white/40 text-xs font-bold uppercase tracking-widest ml-1">Urgency Level</label>
+                <label className="text-evo-fog text-xs font-bold uppercase tracking-widest ml-1">Urgency Level</label>
                 <select
                   name="priority"
                   value={formData.priority}
@@ -204,7 +204,7 @@ const NewTicketForm = ({ onClose, onSubmit, user, usage }) => {
 
             {/* ── Subject ─────────────────────────────────────────────────── */}
             <div className="space-y-2">
-              <label className="text-white/40 text-xs font-bold uppercase tracking-widest ml-1">Transmission Subject</label>
+              <label className="text-evo-fog text-xs font-bold uppercase tracking-widest ml-1">Transmission Subject</label>
               <input
                 type="text"
                 name="subject"
@@ -218,7 +218,7 @@ const NewTicketForm = ({ onClose, onSubmit, user, usage }) => {
 
             {/* ── Description ─────────────────────────────────────────────── */}
             <div className="space-y-2">
-              <label className="text-white/40 text-xs font-bold uppercase tracking-widest ml-1">Detailed Intelligence</label>
+              <label className="text-evo-fog text-xs font-bold uppercase tracking-widest ml-1">Detailed Intelligence</label>
               <textarea
                 name="description"
                 value={formData.description}
@@ -232,20 +232,20 @@ const NewTicketForm = ({ onClose, onSubmit, user, usage }) => {
 
             {/* ── File Upload ─────────────────────────────────────────────── */}
             <div className="space-y-2">
-              <label className="text-white/40 text-xs font-bold uppercase tracking-widest ml-1">Supplementary Evidence</label>
+              <label className="text-evo-fog text-xs font-bold uppercase tracking-widest ml-1">Supplementary Evidence</label>
               <div className="border-2 border-dashed border-white/10 rounded-3xl p-8 text-center hover:border-[#22c8e5]/50 hover:bg-[#22c8e5]/5 transition-all bg-white/2">
                 <input type="file" id="file-upload" className="hidden" onChange={handleFileChange} />
                 <label htmlFor="file-upload" className="cursor-pointer flex flex-col items-center justify-center">
                   <Upload className="text-[#22c8e5] mb-3" size={28} />
                   <span className="text-white font-bold text-sm mb-1">{formData.file ? formData.file.name : 'Upload Assets'}</span>
-                  <span className="text-white/20 text-xs uppercase tracking-widest">PNG, JPG, PDF up to 10MB</span>
+                  <span className="text-evo-fog text-xs uppercase tracking-widest">PNG, JPG, PDF up to 10MB</span>
                 </label>
               </div>
             </div>
 
             {/* ── Footer ──────────────────────────────────────────────────── */}
             <div className="flex items-center justify-between pt-4">
-              <div className="flex items-center gap-2 text-white/20">
+              <div className="flex items-center gap-2 text-evo-fog">
                 <ShieldCheck size={16} />
                 <span className="text-[10px] font-bold uppercase tracking-widest">Secure Transmission Active</span>
               </div>

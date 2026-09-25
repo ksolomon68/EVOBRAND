@@ -133,7 +133,7 @@ function DemoPortalForm() {
         <button
           onClick={() => setStatus('idle')}
           className="text-xs font-bold uppercase tracking-widest rounded transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#22c8e5]"
-          style={{ color: 'rgba(34,200,229,0.6)' }}
+          style={{ color: 'var(--evo-accent)' }}
         >
           Submit another request
         </button>
@@ -217,7 +217,7 @@ function DemoPortalForm() {
 
         <div>
           <label htmlFor="dp-phone" className="block text-xs font-bold uppercase tracking-widest mb-1.5" style={{ color: GOLD }}>
-            Phone <span className="normal-case font-normal" style={{ color: 'rgba(255,255,255,0.4)' }}>(optional)</span>
+            Phone <span className="normal-case font-normal" style={{ color: 'var(--fog)' }}>(optional)</span>
           </label>
           <input
             id="dp-phone"
@@ -252,7 +252,7 @@ function DemoPortalForm() {
 
       <div>
         <label htmlFor="dp-logo" className="block text-xs font-bold uppercase tracking-widest mb-1.5" style={{ color: GOLD }}>
-          Business Logo <span className="normal-case font-normal" style={{ color: 'rgba(255,255,255,0.4)' }}>(optional, max 5MB)</span>
+          Business Logo <span className="normal-case font-normal" style={{ color: 'var(--fog)' }}>(optional, max 5MB)</span>
         </label>
         {logo ? (
           <div className="flex items-center justify-between px-4 py-3 rounded-xl text-sm" style={inputStyle}>

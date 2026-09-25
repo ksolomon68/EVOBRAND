@@ -35,7 +35,7 @@ const AccessibilityStatementPage = () => {
             <p className="text-gray-400 text-lg max-w-2xl mx-auto">
               EVOBRAND is committed to ensuring digital accessibility for people of all abilities.
             </p>
-            <p className="text-gray-500 text-sm mt-4">Last updated: June 14, 2026</p>
+            <p className="text-evo-fog text-sm mt-4">Last updated: June 14, 2026</p>
           </motion.div>
         </div>
       </div>
@@ -226,7 +226,7 @@ const AccessibilityStatementPage = () => {
               </ul>
             </Section>
 
-            <div className="border-t border-gray-800 pt-8 text-sm text-gray-500">
+            <div className="border-t border-gray-800 pt-8 text-sm text-evo-fog">
               <p>
                 This statement was prepared on <strong className="text-gray-400">June 14, 2026</strong> and
                 will be reviewed and updated annually or following any significant changes to our website.

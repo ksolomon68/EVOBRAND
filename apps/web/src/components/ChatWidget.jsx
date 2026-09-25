@@ -18,7 +18,7 @@ const VARS = `
     --whatsapp:      #25D366;
     --whatsapp-ink:  #06210F;
     --shadow:        rgba(0,0,0,0.50);
-    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    font-family: var(--font-sans);
   }
 `;
 
@@ -167,7 +167,7 @@ export default function ChatWidget() {
               <IconChat />
             </div>
             <div>
-              <div style={{ fontWeight: 700, fontSize: '0.96rem', fontFamily: "'Playfair Display', Georgia, serif" }}>
+              <div style={{ fontWeight: 700, fontSize: '0.96rem', fontFamily: 'var(--font-display)' }}>
                 EVOBRAND Assistant
               </div>
               <div style={{ fontSize: '0.75rem', color: 'var(--ink-soft)', display: 'flex', alignItems: 'center', gap: 6, marginTop: 2 }}>
@@ -241,7 +241,7 @@ export default function ChatWidget() {
                   background: 'var(--surface)', border: '1px solid var(--border)',
                   borderRadius: 12, padding: 16, display: 'flex', flexDirection: 'column', gap: 10,
                 }}>
-                  <div style={{ fontWeight: 700, fontSize: '0.95rem', fontFamily: "'Playfair Display', Georgia, serif", color: 'var(--ink)' }}>
+                  <div style={{ fontWeight: 700, fontSize: '0.95rem', fontFamily: 'var(--font-display)', color: 'var(--ink)' }}>
                     Reach our team
                   </div>
                   <p style={{ margin: 0, fontSize: '0.86rem', color: 'var(--ink-soft)', lineHeight: 1.5 }}>
