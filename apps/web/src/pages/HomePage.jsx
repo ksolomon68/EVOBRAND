@@ -38,7 +38,7 @@ const work = [
   },
 ];
 
-// Dashboard demos shown in the homepage "Selected work" section — sourced from OurWorkPage
+// Dashboard demos shown in the homepage "Selected work" section: sourced from OurWorkPage
 const demos = [
   {
     title: 'EVOCORE',
@@ -46,7 +46,7 @@ const demos = [
     type: 'Custom business dashboard',
     image: '/projects/evocore.jpeg',
     url: 'https://evobrandconcepts.com/evocore/',
-    description: 'Interactive simulator showing how the Mobile Crew App and Admin Portal sync in real-time — dispatch, job costing, payroll, and live revenue.',
+    description: 'Interactive simulator showing how the Mobile Crew App and Admin Portal sync in real-time: dispatch, job costing, payroll, and live revenue.',
   },
   {
     title: 'RBCA Workforce Portal',
@@ -54,7 +54,7 @@ const demos = [
     type: 'Workforce & education platform',
     image: '/projects/rbca-portal.png',
     url: 'https://evobrandconcepts.com/rbca1/rbca-portal.html',
-    description: 'All-in-one workforce operations hub — 5-week cohort lifecycle, participant database, contractor network, stipend disbursements, and placement analytics.',
+    description: 'All-in-one workforce operations hub: 5-week cohort lifecycle, participant database, contractor network, stipend disbursements, and placement analytics.',
   },
   {
     title: 'NOVA Transformation Portal',
@@ -99,7 +99,7 @@ export default function HomePage() {
     <>
       <SEO
         title="Websites, AI & Automation for Your Business"
-        description="EVOBRAND builds websites, custom applications, and practical AI workflows for businesses and organizations. Based in Ellis County, Texas. Serving clients nationwide."
+        description="EVOBRAND builds websites, custom applications, and practical AI workflows for businesses and organizations. Based in Italy, Texas. Serving clients nationwide."
         canonical="https://evobrand.net/"
       />
       <div className="evo-home">
@@ -110,22 +110,22 @@ export default function HomePage() {
             <p className="portal-eyebrow">EVOBRAND Concepts · Strategy, design & technology</p>
             <h1>Better systems.<br /><span>A stronger brand.</span></h1>
             <p className="evo-lead">
-              Websites, custom applications, and AI workflows that make your business easier to run—and easier to choose.
+              Websites, custom applications, and AI workflows that make your business easier to run and easier to choose.
             </p>
             <div className="evo-actions">
               <Link className="evo-button" to="/book-consultation">Book a strategy call <ArrowRight size={17} /></Link>
               <Link className="evo-link" to="/our-work">View our work <ArrowUpRight size={17} /></Link>
             </div>
-            <p className="evo-hero-note">Based in Ellis County, Texas. Built around your organization.</p>
+            <p className="evo-hero-note">Based in Italy, Texas. Serving clients nationwide.</p>
           </div>
 
-          {/* Hero feature card — randomly rotates through flagship projects on each page load */}
+          {/* Hero feature card: randomly rotates through flagship projects on each page load */}
           <a
             href={featured.url}
             target="_blank"
             rel="noopener noreferrer"
             className="evo-feature"
-            aria-label={`Visit ${featured.title} — an EVOBRAND project`}
+            aria-label={`Visit ${featured.title}, an EVOBRAND project`}
           >
             <div className="evo-feature-top"><span>Inside the work</span><ArrowUpRight size={18} /></div>
             <img src={featured.image} alt={`${featured.title} website preview`} />
@@ -136,7 +136,7 @@ export default function HomePage() {
           </a>
         </section>
 
-        {/* ── Selected Work — Dashboard Demos ── */}
+        {/* ── Selected Work: Dashboard Demos ── */}
         <section className="evo-section evo-work" aria-labelledby="work-title">
           <div className="evo-wrap">
             <div className="evo-section-heading">

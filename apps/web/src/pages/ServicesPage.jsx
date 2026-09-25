@@ -66,12 +66,9 @@ const ServicesPage = () => {
           cta: 'Contact Us'
         }
       ],
-      caseStudy: {
-        client: 'Tech Startup',
-        challenge: 'Manual data processing taking 40 hours/week',
-        solution: 'Custom AI automation pipeline',
-        results: ['95% time reduction', '99.8% accuracy', '$120K annual savings']
-      }
+      // TODO(content): a real client result for this service (client or sector,
+      // challenge, solution, and measured results). The banner stays hidden while null.
+      caseStudy: null
     },
     {
       id: 1,
@@ -116,12 +113,9 @@ const ServicesPage = () => {
           cta: 'Contact Us'
         }
       ],
-      caseStudy: {
-        client: 'E-commerce Brand',
-        challenge: 'High cost of product photography',
-        solution: 'AI-generated product visuals',
-        results: ['70% cost reduction', '5x faster production', '200+ assets/month']
-      }
+      // TODO(content): a real client result for this service (client or sector,
+      // challenge, solution, and measured results). The banner stays hidden while null.
+      caseStudy: null
     },
     {
       id: 2,
@@ -166,12 +160,9 @@ const ServicesPage = () => {
           cta: 'Contact Us'
         }
       ],
-      caseStudy: {
-        client: 'Legal Firm',
-        challenge: 'Manual contract generation taking hours',
-        solution: 'AI-powered document automation',
-        results: ['90% time savings', '100% accuracy', '500+ docs/month']
-      }
+      // TODO(content): a real client result for this service (client or sector,
+      // challenge, solution, and measured results). The banner stays hidden while null.
+      caseStudy: null
     },
     {
       id: 3,
@@ -216,12 +207,9 @@ const ServicesPage = () => {
           cta: 'Contact Us'
         }
       ],
-      caseStudy: {
-        client: 'Marketing Agency',
-        challenge: 'High video production costs',
-        solution: 'AI-powered video creation',
-        results: ['60% cost reduction', '3x faster delivery', '50+ videos/month']
-      }
+      // TODO(content): a real client result for this service (client or sector,
+      // challenge, solution, and measured results). The banner stays hidden while null.
+      caseStudy: null
     },
     {
       id: 4,
@@ -271,12 +259,9 @@ const ServicesPage = () => {
         { tier: 'Pro', price: '$299/mo', features: ['Everything in Basic', 'Unlimited tickets', '24-hr priority response', 'Performance optimization', '2 hrs minor edits/mo'], highlighted: true },
         { tier: 'Elite', price: '$749/mo', features: ['Everything in Pro', 'Same-day emergency response', '4 hrs dev work/mo', 'Dedicated account manager'] },
       ],
-      caseStudy: {
-        client: 'Retail Business',
-        challenge: 'Outdated website with poor performance',
-        solution: 'Modern WordPress rebuild',
-        results: ['300% faster load time', '150% traffic increase', '80% bounce rate reduction']
-      }
+      // TODO(content): a real client result for this service (client or sector,
+      // challenge, solution, and measured results). The banner stays hidden while null.
+      caseStudy: null
     },
     {
       id: 5,
@@ -321,12 +306,9 @@ const ServicesPage = () => {
           cta: 'Contact Us'
         }
       ],
-      caseStudy: {
-        client: 'Global E-Commerce Brand',
-        challenge: 'Legal pressure due to non-compliant website',
-        solution: 'Full WCAG 2.1 AA remediation',
-        results: ['100% Compliance Achieved', 'Zero Legal Issues', '15% Conversion Increase']
-      }
+      // TODO(content): a real client result for this service (client or sector,
+      // challenge, solution, and measured results). The banner stays hidden while null.
+      caseStudy: null
     }
   ];
 
@@ -357,7 +339,7 @@ const ServicesPage = () => {
           variant="services"
           eyebrow="Custom AI · Visual · Video · Docs · Web · WCAG"
           lines={[[{ t: 'Our' }, { t: 'Services', accent: true }]]}
-          sub="Explore our full suite of AI-powered solutions with transparent pricing and proven results."
+          sub="Explore our full suite of AI-powered solutions with transparent pricing."
         />
 
         {/* The immersive service deck */}

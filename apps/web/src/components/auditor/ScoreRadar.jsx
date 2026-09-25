@@ -4,7 +4,7 @@ import { motion } from 'framer-motion';
 const TICKS = [25, 50, 75, 100];
 
 // Splits a two-word label ("Digital Presence") onto two stacked lines so
-// side-anchored labels grow *taller* instead of *wider* — the previous
+// side-anchored labels grow *taller* instead of *wider*: the previous
 // single-line version pushed long labels past the SVG's viewBox and the
 // browser's default overflow:hidden on <svg> silently clipped them.
 const splitLabel = (label = '') => {

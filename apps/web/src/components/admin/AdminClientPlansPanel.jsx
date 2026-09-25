@@ -15,12 +15,12 @@ const PLANS = [
   { value: 'elite', label: 'Elite',       icon: Star,            color: '#E8DDD0' },
 ];
 
-// Mirrors PLAN_TICKET_QUOTAS in apps/api/src/routes/support.js — included
+// Mirrors PLAN_TICKET_QUOTAS in apps/api/src/routes/support.js, included
 // support tickets per calendar month. null = unlimited.
 const PLAN_TICKET_QUOTAS = { basic: 2, pro: null, elite: null };
 
 function TicketUsage({ plan, used }) {
-  if (!plan) return <span className="text-xs text-white/20">—</span>;
+  if (!plan) return <span className="text-xs text-white/20">-</span>;
   const quota = PLAN_TICKET_QUOTAS[plan];
   if (quota === null) return <span className="text-xs text-white/40">{used} used · Unlimited</span>;
   const atLimit = used >= quota;
@@ -343,7 +343,7 @@ export default function AdminClientPlansPanel({ user }) {
         setFetchError(data.error || `Server error (${res.status})`);
       }
     } catch (err) {
-      setFetchError('Network error — could not reach the server. Please check your connection.');
+      setFetchError('Network error: could not reach the server. Please check your connection.');
       console.error('Fetch clients error:', err);
     } finally {
       setLoading(false);
@@ -486,7 +486,7 @@ export default function AdminClientPlansPanel({ user }) {
               {filtered.map(client => (
                 <tr key={client.id} className="border-b border-white/5 hover:bg-white/[0.02] transition-colors">
                   <td className="px-6 py-4">
-                    <p className="text-white font-semibold text-sm">{client.name || '—'}</p>
+                    <p className="text-white font-semibold text-sm">{client.name || '-'}</p>
                     <p className="text-white/40 text-xs mt-0.5">{client.email}</p>
                   </td>
                   <td className="px-6 py-4">
@@ -503,7 +503,7 @@ export default function AdminClientPlansPanel({ user }) {
                     />
                   </td>
                   <td className="px-6 py-4 text-white/30 text-xs">
-                    {client.created_at ? new Date(client.created_at).toLocaleDateString() : '—'}
+                    {client.created_at ? new Date(client.created_at).toLocaleDateString() : '-'}
                   </td>
                 </tr>
               ))}

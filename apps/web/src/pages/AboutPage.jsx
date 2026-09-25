@@ -1,7 +1,6 @@
-
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Lightbulb, Target, Users, Award, MapPin, Mail, Phone } from 'lucide-react';
+import { Lightbulb, Target, Users, Award } from 'lucide-react';
 import SEO from '@/components/SEO.jsx';
 import {
   PageHero,
@@ -12,69 +11,62 @@ import {
 } from '@/components/motion/PageMotion.jsx';
 
 const AboutPage = () => {
-  const teamMembers = [
-    {
-      name: 'Sarah Johnson',
-      title: 'CEO & Founder',
-      image: 'https://images.unsplash.com/photo-1531497684310-0f15276c39ab',
-      bio: 'AI strategist with 15+ years in technology innovation and business transformation.'
-    },
-    {
-      name: 'Michael Chen',
-      title: 'CTO',
-      image: 'https://images.unsplash.com/photo-1531497684310-0f15276c39ab',
-      bio: 'Machine learning expert specializing in custom AI solutions and automation.'
-    },
-    {
-      name: 'Emily Rodriguez',
-      title: 'Head of Design',
-      image: 'https://images.unsplash.com/photo-1531497684310-0f15276c39ab',
-      bio: 'Creative director with expertise in AI-powered visual content and brand design.'
-    },
-    {
-      name: 'Dr. James Wilson',
-      title: 'AI Research Lead',
-      image: 'https://images.unsplash.com/photo-1531497684310-0f15276c39ab',
-      bio: 'PhD in Computer Science, focused on natural language processing and predictive analytics.'
-    }
-  ];
-
   const coreValues = [
     {
-      icon: <Lightbulb size={40} />,
-      title: 'Innovation',
-      description: 'We push boundaries and explore cutting-edge AI technologies to deliver transformative solutions.'
-    },
-    {
       icon: <Target size={40} />,
-      title: 'Transparency',
-      description: 'Clear communication, honest timelines, and no hidden costs. You always know where your project stands.'
-    },
-    {
-      icon: <Award size={40} />,
-      title: 'Results-Driven',
-      description: 'We measure success by your ROI. Every solution is designed to deliver measurable business value.'
+      title: 'Plain answers',
+      description: 'Clear scope, honest timelines, and written decisions. You always know where the project stands.'
     },
     {
       icon: <Users size={40} />,
-      title: 'Human-in-the-Loop',
-      description: 'AI augments human capability, not replaces it. We design solutions that empower your team.'
+      title: 'Senior-led',
+      description: 'The person who scopes the work stays on it through launch and after.'
+    },
+    {
+      icon: <Lightbulb size={40} />,
+      title: 'Built to be run',
+      description: 'We design systems your staff can operate after we hand them over, not just launch.'
+    },
+    {
+      icon: <Award size={40} />,
+      title: 'Accountable',
+      description: 'Every project starts with agreed outcomes, and we report against them.'
     }
   ];
 
-  const awards = [
-    { title: 'Best AI Innovation 2025', organization: 'Tech Excellence Awards' },
-    { title: 'Top AI Agency 2025', organization: 'Business Insider' },
-    { title: 'SOC 2 Type II Certified', organization: 'Security Compliance' },
-    { title: 'GDPR Compliant', organization: 'EU Data Protection' }
+  // TODO(content): add the certifying agency, certificate number and expiration
+  // for each certification. Leave `agency` empty to hide that line on the page.
+  const certifications = [
+    { code: 'SBE', title: 'Small Business Enterprise', agency: '' },
+    { code: 'WBE', title: "Women's Business Enterprise", agency: '' },
+    { code: 'MBE', title: 'Minority Business Enterprise', agency: '' }
+  ];
+
+  const history = [
+    {
+      num: '01',
+      era: '1999: The foundation',
+      // TODO(content): the original business name, if you want it mentioned.
+      body: 'The business started in 1999 as a creative agency doing brand and digital work.',
+    },
+    {
+      num: '02',
+      era: '2010: EVOBRAND Concepts',
+      body: 'In 2010 the business moved to Italy, Texas, in the DFW area, and became EVOBRAND Concepts LLC.',
+    },
+    {
+      num: '03',
+      era: 'Today: Full-stack delivery',
+      body: 'A full-stack digital agency for government agencies, corporations, and nonprofits. Strategy, design, development, and the platforms that keep programs running, including ChamberCore and PrimeReach.',
+    },
   ];
 
   return (
     <>
       <SEO
-        title="About EVOBRAND | AI Agency Founded in Ellis County, TX"
-        description="Since 1999, EVOBRAND has evolved from a creative agency to a leading AI transformation partner. Led by Keisha Solomon, we deliver custom AI solutions, visual content, and intelligent automation to businesses nationwide."
-        keywords="about EVOBRAND, AI agency Ellis County, Keisha Solomon, AI transformation, AI company Texas, custom AI solutions company"
+        title="About EVOBRAND Concepts"
+        description="EVOBRAND Concepts is a full-stack digital agency led by Keisha Solomon, with 25+ years of work for government agencies, corporations, and nonprofits. SBE, WBE, and MBE certified. Based in Italy, Texas."
+        keywords="about EVOBRAND Concepts, Keisha Solomon, digital agency Texas, SBE WBE MBE certified agency, government web development"
         canonical="https://evobrand.net/about"
         structuredData={{
           "@context": "https://schema.org",
@@ -83,20 +75,20 @@ const AboutPage = () => {
           "url": "https://evobrand.net",
           "logo": "https://evobrand.net/logo.png",
           "foundingDate": "1999",
-          "description": "Ellis County-based AI transformation agency delivering custom AI applications, visual content, and intelligent automation.",
+          "description": "Full-stack digital agency serving government agencies, corporations, and nonprofits.",
           "email": "info@evobrand.net",
+          "telephone": "+1-214-531-4427",
           "address": {
             "@type": "PostalAddress",
-            "addressLocality": "Ellis County",
+            "addressLocality": "Italy",
             "addressRegion": "TX",
             "addressCountry": "US"
           },
           "founder": {
             "@type": "Person",
-            "name": "Keisha Solomon",
-            "jobTitle": "CEO & Founder"
+            "name": "Keisha Solomon"
           },
-          "sameAs": ["https://evobrandconcepts.com"]
+          "sameAs": ["https://www.linkedin.com/company/evobrand-concepts/"]
         }}
       />
 
@@ -104,20 +96,20 @@ const AboutPage = () => {
         {/* Hero */}
         <PageHero
           variant="about"
-          eyebrow="Since 1999 — Ellis County, Texas"
+          eyebrow="Since 1999 · Italy, Texas"
           lines={[
-            [{ t: 'AI' }, { t: 'Transformation' }, { t: 'Partner' }],
+            [{ t: 'Full-stack' }, { t: 'digital' }, { t: 'agency.' }],
             [
-              { t: 'Not', accent: true },
-              { t: 'Just', accent: true },
-              { t: 'an', accent: true },
-              { t: 'Agency', accent: true },
+              { t: 'Senior-led', accent: true },
+              { t: 'for', accent: true },
+              { t: '25+', accent: true },
+              { t: 'years.', accent: true },
             ],
           ]}
-          sub="We're on a mission to make AI accessible and impactful for businesses of all sizes"
+          sub="EVOBRAND Concepts plans, designs, and builds websites, platforms, and brand systems for government agencies, corporations, and nonprofits."
         />
 
-        {/* Company Story — scroll-drawn evolution timeline */}
+        {/* Company story: scroll-drawn timeline */}
         <section className="py-20 bg-[#0f1419]">
           <div className="container mx-auto px-4">
             <div className="max-w-3xl mx-auto">
@@ -128,26 +120,10 @@ const AboutPage = () => {
               </Reveal>
 
               <div className="relative pl-12 md:pl-16">
-                <EraWatermark labels={['1999', '2024', 'TODAY']} />
+                <EraWatermark labels={['1999', '2010', 'TODAY']} />
                 <ScrollDrawnLine className="left-[5px] md:left-[7px] top-2 bottom-2" />
 
-                {[
-                  {
-                    num: '01',
-                    era: '1999 — The Foundation',
-                    body: 'Founded in 1999, EVOBRAND began as a traditional creative agency, helping hundreds of businesses build their brands and digital presence over two decades of rapid technological change.',
-                  },
-                  {
-                    num: '02',
-                    era: '2024 — The Evolution',
-                    body: 'In 2024, we experienced our own evolution. We recognized that AI was no longer just a buzzword—it was a fundamental shift. However, we saw our clients struggling to harness its power due to complex implementations, high costs, and unclear ROI.',
-                  },
-                  {
-                    num: '03',
-                    era: 'Today — The Mission',
-                    body: 'We decided to change that. Bringing together our deep branding expertise with cutting-edge AI specialists, we completely transformed our own process. Now, we help businesses navigate this exact same transformation, making AI accessible, practical, and highly profitable.',
-                  },
-                ].map((beat, i) => (
+                {history.map((beat) => (
                   <Reveal key={beat.num} delay={0.05} className="relative mb-12 last:mb-0">
                     {/* Node on the spine */}
                     <span
@@ -157,7 +133,7 @@ const AboutPage = () => {
                       <span className="h-3 w-3 rounded-full border border-white/40 bg-[#0f1419]" />
                     </span>
                     <p className="text-[11px] font-bold uppercase tracking-[0.25em] text-white/50 mb-2">
-                      {beat.num} — {beat.era}
+                      {beat.num} · {beat.era}
                     </p>
                     <p className="text-gray-300 leading-relaxed">{beat.body}</p>
                   </Reveal>
@@ -166,7 +142,7 @@ const AboutPage = () => {
 
               <Reveal delay={0.1}>
                 <p className="mt-14 rounded-2xl border border-[#22c8e5]/20 bg-[#1a2332] p-8 text-center font-semibold text-white">
-                  Our legacy is built on decades of experience, but our future is driven by artificial intelligence. The AI revolution is here, and we're committed to ensuring your business doesn't just survive—it thrives.
+                  Twenty-five years in, the work is still led by the person who started it.
                 </p>
               </Reveal>
             </div>
@@ -177,7 +153,7 @@ const AboutPage = () => {
         <section className="py-20 bg-[#1a2332]">
           <div className="container mx-auto px-4">
             <Reveal>
-              <h2 className="text-3xl font-bold text-white mb-12 text-center">Our Core Values</h2>
+              <h2 className="text-3xl font-bold text-white mb-12 text-center">How we work</h2>
             </Reveal>
             <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
               {coreValues.map((value, index) => (
@@ -195,34 +171,47 @@ const AboutPage = () => {
 
 
 
-        {/* Awards & Certifications */}
+        {/* Leadership */}
+        <section className="py-20 bg-[#0f1419]">
+          <div className="container mx-auto px-4 max-w-3xl text-center">
+            <Reveal>
+              <h2 className="text-3xl font-bold text-white mb-6">Leadership</h2>
+              {/* TODO(content): headshot and a short bio for Keisha Solomon. */}
+              <p className="text-xl font-bold text-white">Keisha Solomon</p>
+              <p className="text-[#22c8e5] font-semibold mb-4">Founder</p>
+              <p className="text-gray-300 leading-relaxed">
+                Keisha has led the business since 1999 and leads every EVOBRAND engagement directly.
+              </p>
+            </Reveal>
+          </div>
+        </section>
+
+        {/* Certifications */}
         <section className="py-20 bg-[#1a2332]">
           <div className="container mx-auto px-4">
             <Reveal>
-              <h2 className="text-3xl font-bold text-white mb-12 text-center">Awards & Certifications</h2>
+              <h2 className="text-3xl font-bold text-white mb-12 text-center">Certifications</h2>
             </Reveal>
-            <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 max-w-5xl mx-auto">
-              {awards.map((award, index) => (
-                <Reveal key={index} delay={index * 0.08}>
-                  <TiltCard className="h-full rounded-xl border border-white/5 bg-[#0f1419] p-6 text-center transition-colors hover:border-[#ffc800]/30">
-                    <Award className="text-[#ffc800] mx-auto mb-3" size={32} />
-                    <h3 className="text-white font-bold mb-1">{award.title}</h3>
-                    <p className="text-gray-400 text-sm">{award.organization}</p>
-                  </TiltCard>
+            <div className="grid md:grid-cols-3 gap-6 max-w-4xl mx-auto">
+              {certifications.map((cert, index) => (
+                <Reveal key={cert.code} delay={index * 0.08}>
+                  <div className="h-full rounded-xl border border-white/5 bg-[#0f1419] p-6 text-center">
+                    <p className="text-3xl font-bold text-[#22c8e5] mb-2">{cert.code}</p>
+                    <h3 className="text-white font-bold">{cert.title}</h3>
+                    {cert.agency && <p className="text-gray-400 text-sm mt-1">{cert.agency}</p>}
+                  </div>
                 </Reveal>
               ))}
             </div>
           </div>
         </section>
 
-
-
         {/* CTA */}
         <section className="py-20 relative overflow-hidden bg-[#1a2332]">
           <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[700px] bg-[radial-gradient(circle,rgba(34,200,229,0.12)_0%,transparent_70%)] pointer-events-none"></div>
           <div className="container mx-auto px-4 text-center relative">
-            <h2 className="text-4xl font-bold text-white mb-6">Join Our Success Story</h2>
-            <p className="text-xl text-white/90 mb-8">Let's transform your business together</p>
+            <h2 className="text-4xl font-bold text-white mb-6">Start a project</h2>
+            <p className="text-xl text-white/90 mb-8">Tell us what you are working on and we will set up a call.</p>
             <a
               href="/contact"
               className="inline-block px-8 py-4 bg-[#22c8e5] text-[#003258] rounded-2xl font-bold hover:shadow-lg hover:bg-opacity-90 transition-all"

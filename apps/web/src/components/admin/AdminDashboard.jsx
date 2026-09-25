@@ -185,8 +185,8 @@ export default function AdminDashboard({ tickets = [], onViewTicket, setView }) 
       {/* Context metrics; actionable counts belong with their lists. */}
       <div className="grid grid-cols-2 gap-4">
         {[
-          { icon: Eye,      label: 'Page Views Today', value: analytics ? analytics.pageViewsToday?.toLocaleString() : '—', color: GOLD },
-          { icon: Users,    label: 'CRM Contacts',     value: crmCount != null ? crmCount.toLocaleString() : '—',          color: '#a78bfa' },
+          { icon: Eye,      label: 'Page Views Today', value: analytics ? analytics.pageViewsToday?.toLocaleString() : '-', color: GOLD },
+          { icon: Users,    label: 'CRM Contacts',     value: crmCount != null ? crmCount.toLocaleString() : '-',          color: '#a78bfa' },
         ].map(({ icon: Icon, label, value, color }) => (
           <div key={label} className="rounded-2xl p-5"
             style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.07)' }}>

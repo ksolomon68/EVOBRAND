@@ -143,7 +143,7 @@ const HowItWorksPage = () => {
             <Reveal>
               <h2 className="text-3xl font-bold text-white mb-12 text-center">Step-by-Step Process</h2>
             </Reveal>
-            {/* Cinematic scene stack — each phase slides over the previous */}
+            {/* Cinematic scene stack: each phase slides over the previous */}
             <div className="max-w-4xl mx-auto">
               {processSteps.map((step, index) => (
                 <div
@@ -158,7 +158,7 @@ const HowItWorksPage = () => {
                       </div>
                       <div>
                         <p className="text-[11px] font-bold uppercase tracking-[0.25em] text-[#22c8e5] mb-1">
-                          {String(index + 1).padStart(2, '0')} / {String(processSteps.length).padStart(2, '0')} — {step.week}
+                          {String(index + 1).padStart(2, '0')} / {String(processSteps.length).padStart(2, '0')}: {step.week}
                         </p>
                         <h3 className="text-2xl md:text-3xl font-bold text-white">{step.phase}</h3>
                       </div>
@@ -224,7 +224,7 @@ const HowItWorksPage = () => {
                     The Operational Loop
                   </h3>
                   <p className="text-gray-400 mb-6">
-                    Our process isn't just a straight line—it's a continuous optimization loop. Each phase feeds data back into the central core, allowing our AI to learn and adapt to your business in real-time.
+                    Our process isn't a straight line. It's a continuous optimization loop. Each phase feeds data back into the central core, allowing our AI to learn and adapt to your business in real-time.
                   </p>
                   <div className="grid grid-cols-2 gap-4">
                     <div className="p-4 bg-[#0f1419] rounded-xl">

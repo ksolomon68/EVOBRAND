@@ -607,7 +607,7 @@ export default function ProjectTrackerPanel() {
         name: f.name || data.name,
         milestones: [...f.milestones, ...data.milestones],
       }));
-      showToast('success', `Imported ${data.milestones.length} milestones — review dates below before creating.`);
+      showToast('success', `Imported ${data.milestones.length} milestones. Review dates below before creating.`);
     } catch (err) {
       showToast('error', err.message);
     } finally {
@@ -645,7 +645,7 @@ export default function ProjectTrackerPanel() {
             <Layers size={28} style={{ color: GOLD }} />
             Project Schedule
           </h1>
-          <p className="text-white/40">Live milestone schedules for each client — auto-updates, no downloads required.</p>
+          <p className="text-white/40">Live milestone schedules for each client, auto-updates, no downloads required.</p>
         </div>
         <button
           onClick={() => setShowForm(v => !v)}
@@ -680,10 +680,10 @@ export default function ProjectTrackerPanel() {
                     value={form.contractId}
                     onChange={e => handleContractSelect(e.target.value)}
                   >
-                    <option value="" className="bg-[#003258]">No contract — enter client manually</option>
+                    <option value="" className="bg-[#003258]">No contract: enter client manually</option>
                     {contracts.map(c => (
                       <option key={c.id} value={c.id} className="bg-[#003258]">
-                        {c.title} — {c.client_email || 'no email'}
+                        {c.title}: {c.client_email || 'no email'}
                       </option>
                     ))}
                   </select>
@@ -743,7 +743,7 @@ export default function ProjectTrackerPanel() {
 
                 {form.milestones.length === 0 ? (
                   <p className="text-white/25 text-sm">
-                    No milestones yet — add them manually below or import a schedule doc (Phase / What / Who / When table format).
+                    No milestones yet: add them manually below or import a schedule doc (Phase / What / Who / When table format).
                   </p>
                 ) : (
                   form.milestones.map((m, i) => (

@@ -6,7 +6,7 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger';
 gsap.registerPlugin(ScrollTrigger);
 
 /**
- * PageMotion — shared motion language for interior pages.
+ * PageMotion: shared motion language for interior pages.
  *
  * Extends the homepage hero's kinetic identity (clip-path word reveals,
  * chapter numbering, cyan accents) across the site with a consistent,
@@ -14,7 +14,7 @@ gsap.registerPlugin(ScrollTrigger);
  *
  * Accessibility: every effect here is gated on prefers-reduced-motion at
  * the JS level. The global CSS kill-switch in index.css only stops CSS
- * animations/transitions — GSAP and Framer Motion write inline styles via
+ * animations/transitions: GSAP and Framer Motion write inline styles via
  * rAF, so they must check the media query themselves. Reduced motion means:
  * content renders in its final, fully-visible state.
  */
@@ -35,10 +35,10 @@ export function usePrefersReducedMotion() {
 }
 
 /**
- * KineticHeadline — the homepage hero's clip-path word reveal, reusable.
+ * KineticHeadline: the homepage hero's clip-path word reveal, reusable.
  * `lines`: array of lines; each line is an array of { t: 'word', accent?: bool }.
  * `replayKey`: change to re-run the reveal (e.g. service tab switches).
- * `direction`: 'ltr' (default) or 'rtl' — rtl reveals right-to-left and
+ * `direction`: 'ltr' (default) or 'rtl': rtl reveals right-to-left and
  *   staggers from the last word, for bookend moments mirroring the hero.
  * `startOnView`: defer the reveal until the headline scrolls into view
  *   (use for below-the-fold headlines).
@@ -56,7 +56,7 @@ export function KineticHeadline({
   const reduced = usePrefersReducedMotion();
   // Vertical insets are negative so descenders (g/y/p/q/j) that extend
   // below the word's border box under tight line-heights never get clipped
-  // — the reveal is horizontal only.
+  // so the reveal is horizontal only.
   const hiddenClip =
     direction === 'rtl'
       ? 'inset(-20% 0% -20% 100%)'
@@ -124,11 +124,11 @@ export function KineticHeadline({
 }
 
 /**
- * PageHero — cinematic interior-page hero: radial glow + faint grid backdrop,
+ * PageHero: cinematic interior-page hero: radial glow + faint grid backdrop,
  * chapter-style eyebrow, kinetic headline, fading subtitle.
  */
 /**
- * PageHero — cinematic interior-page hero: radial glow + faint grid backdrop,
+ * PageHero: cinematic interior-page hero: radial glow + faint grid backdrop,
  * chapter-style eyebrow, kinetic headline, fading subtitle.
  * Supports distinct mode-driven procedural hero backdrops (`variant`).
  */
@@ -193,7 +193,7 @@ export function PageHero({ eyebrow, lines, sub, children, replayKey, variant = '
 }
 
 /**
- * Reveal — standardized in-view entrance. Under reduced motion, content is
+ * Reveal: standardized in-view entrance. Under reduced motion, content is
  * simply visible (no offset, no fade choreography).
  */
 export function Reveal({
@@ -227,7 +227,7 @@ export function Reveal({
 }
 
 /**
- * TiltCard — restrained 3D tilt following the cursor. Mouse-only (skips
+ * TiltCard: restrained 3D tilt following the cursor. Mouse-only (skips
  * touch/pen), disabled under reduced motion. Max tilt kept low on purpose:
  * enterprise audience, precision over bounce.
  */
@@ -266,7 +266,7 @@ export function TiltCard({ children, className = '', max = 4, style }) {
 }
 
 /**
- * SectionMorphDivider — a gentle SVG curve between sections whose shape
+ * SectionMorphDivider: a gentle SVG curve between sections whose shape
  * shifts subtly as it crosses the viewport (scroll-scrubbed), replacing a
  * hard horizontal cut. `from` = background color of the section above,
  * `to` = background color of the section below. Static under reduced motion.
@@ -313,7 +313,7 @@ export function SectionMorphDivider({ from, to }) {
 }
 
 /**
- * ScrollDrawnLine — a vertical spine that draws itself as the user scrolls
+ * ScrollDrawnLine: a vertical spine that draws itself as the user scrolls
  * through its container (echoes the homepage progress rail). Position the
  * parent `relative`; this renders an absolutely-positioned track + fill.
  * Under reduced motion the line renders fully drawn.
@@ -372,7 +372,7 @@ export function ScrollDrawnLine({ className = '' }) {
 }
 
 /**
- * TechBackdrop — procedural canvas hero animation with mode-specific visuals:
+ * TechBackdrop: procedural canvas hero animation with mode-specific visuals:
  * - 'about': Orbital drifting data nodes with connection links.
  * - 'services': Hexagonal module grid with sweeping pulse beams.
  * - 'work': Horizontal stream flow particles representing high velocity.
@@ -620,7 +620,7 @@ export function TechBackdrop({ density = 38, mode = 'default', className = '' })
 }
 
 /**
- * EraWatermark — giant ghost labels (e.g. 1999 / 2024 / TODAY) that
+ * EraWatermark: giant ghost labels (e.g. 1999 / 2010 / TODAY) that
  * crossfade as the visitor scrolls through the parent container. Place as
  * the FIRST child of a position:relative container so content paints above.
  * Static first label under prefers-reduced-motion.

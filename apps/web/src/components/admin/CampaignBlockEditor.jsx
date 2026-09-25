@@ -45,7 +45,7 @@ function hexToRgb(hex) {
 }
 
 // Text blocks carry admin-authored inline HTML (bold/italic/link, inserted
-// via the toolbar below) rather than escaped plain text — same trust level
+// via the toolbar below) rather than escaped plain text, same trust level
 // as the old raw-HTML campaign editor this replaced. Shared by blocksToHtml
 // (the real send/save output) and the canvas preview so they stay identical.
 function renderTextContent(content = '') {
@@ -320,7 +320,7 @@ function DropZone({ index, dragActive, onDrop, onDragOver }) {
 }
 
 /**
- * CampaignBlockEditor — drag-and-drop email composer: a block palette,
+ * CampaignBlockEditor: drag-and-drop email composer: a block palette,
  * a live-styled canvas, and a design panel (accent color + heading font).
  * `blocks` is the single source of truth; blocksToHtml() renders it to the
  * HTML string that actually gets saved/sent.
@@ -362,7 +362,7 @@ export default function CampaignBlockEditor({ blocks, setBlocks, accentColor, se
     e.dataTransfer.setData('text/plain', JSON.stringify({ kind: 'reorder', index }));
   };
 
-  // Single drop handler for every gap in the canvas — reads what's being
+  // Single drop handler for every gap in the canvas, reads what's being
   // dragged (a new palette block, or an existing block being reordered)
   // straight from dataTransfer rather than tracking it in component state.
   const handleDropAt = (atIndex, e) => {

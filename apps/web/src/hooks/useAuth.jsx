@@ -34,7 +34,7 @@ export const AuthProvider = ({ children }) => {
         return;
       }
 
-      // Decode JWT locally first — if expired, clear and bail
+      // Decode JWT locally first: if expired, clear and bail
       const localPayload = decodeToken(token);
       if (!localPayload) {
         localStorage.removeItem('evobrand_token');
@@ -59,7 +59,7 @@ export const AuthProvider = ({ children }) => {
           const data = await response.json();
           setUser(data.user); // refresh with latest DB values
         } else if (response.status === 401 || response.status === 403) {
-          // Token explicitly rejected — log out
+          // Token explicitly rejected: log out
           localStorage.removeItem('evobrand_token');
           setUser(null);
         }
@@ -84,7 +84,7 @@ export const AuthProvider = ({ children }) => {
         body: JSON.stringify({ email, password, name })
       });
     } catch (err) {
-      throw new Error(err.name === 'AbortError' ? 'Request timed out — please try again.' : 'Unable to reach the server. Check your connection.');
+      throw new Error(err.name === 'AbortError' ? 'Request timed out. Please try again.' : 'Unable to reach the server. Check your connection.');
     }
 
     const data = await response.json();
@@ -104,7 +104,7 @@ export const AuthProvider = ({ children }) => {
         body: JSON.stringify({ email, password })
       });
     } catch (err) {
-      throw new Error(err.name === 'AbortError' ? 'Request timed out — please try again.' : 'Unable to reach the server. Check your connection.');
+      throw new Error(err.name === 'AbortError' ? 'Request timed out. Please try again.' : 'Unable to reach the server. Check your connection.');
     }
 
     const data = await response.json();
@@ -129,7 +129,7 @@ export const AuthProvider = ({ children }) => {
         body: JSON.stringify({ email })
       });
     } catch (err) {
-      throw new Error(err.name === 'AbortError' ? 'Request timed out — please try again.' : 'Unable to reach the server. Check your connection.');
+      throw new Error(err.name === 'AbortError' ? 'Request timed out. Please try again.' : 'Unable to reach the server. Check your connection.');
     }
     const data = await response.json();
     if (!response.ok) throw new Error(data.error || 'Request failed');
@@ -145,7 +145,7 @@ export const AuthProvider = ({ children }) => {
         body: JSON.stringify({ token, password })
       });
     } catch (err) {
-      throw new Error(err.name === 'AbortError' ? 'Request timed out — please try again.' : 'Unable to reach the server. Check your connection.');
+      throw new Error(err.name === 'AbortError' ? 'Request timed out. Please try again.' : 'Unable to reach the server. Check your connection.');
     }
     const data = await response.json();
     if (!response.ok) throw new Error(data.error || 'Password reset failed');

@@ -219,7 +219,7 @@ export default function VideoLibrarySection({ standalone = false }) {
             Video Library
           </Heading>
           <p className="text-gray-300 max-w-xl mx-auto">
-            Fresh drops every week — AI transformations, tutorials, and client success stories.
+            Fresh drops every week: AI transformations, tutorials, and client success stories.
           </p>
           <div className="w-12 h-0.5 mx-auto mt-5" style={{ background: '#22c8e5' }} />
         </div>

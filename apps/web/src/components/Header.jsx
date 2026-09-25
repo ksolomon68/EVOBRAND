@@ -110,7 +110,7 @@ const Header = () => {
         <div className="container mx-auto px-4">
           <div className="flex items-center justify-between h-20">
             {/* Logo */}
-            <NavLink to="/" className="flex items-center" aria-label="EVOBRAND — go to home page">
+            <NavLink to="/" className="flex items-center" aria-label="EVOBRAND home">
               <motion.img
                 src="/logo.png"
                 alt="EVOBRAND"

@@ -109,7 +109,7 @@ function StatCard({ icon: Icon, label, value, sub, accent = CYAN, pulse = false 
         <Icon size={15} style={{ color: accent }} />
         <span className="text-xs uppercase tracking-widest" style={{ color: 'rgba(255,255,255,0.45)' }}>{label}</span>
       </div>
-      <div className="text-3xl font-bold text-white">{value ?? '—'}</div>
+      <div className="text-3xl font-bold text-white">{value ?? '-'}</div>
       {sub && <div className="text-xs" style={{ color: 'rgba(255,255,255,0.4)' }}>{sub}</div>}
     </div>
   );
@@ -162,8 +162,8 @@ function TrackingHealthStrip({ health, healthStatus, onRefreshHealth }) {
         ok: false,
         detail:
           post.status === 0
-            ? 'The tracking request never reached the server — the /api/t endpoint may not be deployed, or a browser extension blocked it.'
-            : `The tracking endpoint responded with HTTP ${post.status} — check that the API server is running the latest deploy.`,
+            ? 'The tracking request never reached the server. The /api/t endpoint may not be deployed, or a browser extension blocked it.'
+            : `The tracking endpoint responded with HTTP ${post.status}. Check that the API server is running the latest deploy.`,
       });
       setTesting(false);
       return;
@@ -174,8 +174,8 @@ function TrackingHealthStrip({ health, healthStatus, onRefreshHealth }) {
     const after = fresh?.testRows ?? before;
     setVerdict(
       after > before
-        ? { ok: true, detail: 'Test hit recorded end-to-end — tracking pipeline is working. Visitor data will accumulate from here.' }
-        : { ok: false, detail: 'The endpoint accepted the hit but no row appeared in the database — check the API server logs for INSERT errors.' }
+        ? { ok: true, detail: 'Test hit recorded end-to-end. The tracking pipeline is working. Visitor data will accumulate from here.' }
+        : { ok: false, detail: 'The endpoint accepted the hit but no row appeared in the database. Check the API server logs for INSERT errors.' }
     );
     setTesting(false);
   };
@@ -200,7 +200,7 @@ function TrackingHealthStrip({ health, healthStatus, onRefreshHealth }) {
 
       {healthStatus === 'error' ? (
         <span className="text-sm" style={{ color: AMBER }}>
-          Health endpoint unavailable — the API server may be running an older deploy without <code className="font-mono">/api/analytics/health</code>.
+          Health endpoint unavailable: the API server may be running an older deploy without <code className="font-mono">/api/analytics/health</code>.
         </span>
       ) : !health ? (
         <span className="text-sm" style={{ color: 'rgba(255,255,255,0.4)' }}>Checking…</span>
@@ -271,7 +271,7 @@ function OverviewTab({ overview, daily, pages, loading, health, healthStatus, on
       <SectionCard
         title={
           <div className="flex items-center justify-between gap-4">
-            <span>Daily Traffic — Last {days} Days</span>
+            <span>Daily Traffic: Last {days} Days</span>
             <div className="flex gap-1">
               {RANGES.map((r) => (
                 <button
@@ -295,7 +295,7 @@ function OverviewTab({ overview, daily, pages, loading, health, healthStatus, on
           {loading ? <Skeleton className="h-56" /> : daily.length === 0 ? (
             <div className="h-56 flex items-center justify-center text-center text-sm px-8" style={{ color: 'rgba(255,255,255,0.35)' }}>
               {healthStatus === 'error'
-                ? 'Could not reach the analytics API — check that the server is deployed and running.'
+                ? 'Could not reach the analytics API. Check that the server is deployed and running.'
                 : 'No data returned for this period.'}
             </div>
           ) : (
@@ -304,7 +304,7 @@ function OverviewTab({ overview, daily, pages, loading, health, healthStatus, on
                 <div className="absolute inset-0 z-10 flex items-center justify-center">
                   <span className="rounded-lg px-4 py-2 text-sm" style={{ background: 'rgba(15,20,25,0.85)', color: 'rgba(255,255,255,0.5)', border: '1px solid rgba(255,255,255,0.08)' }}>
                     {health && health.totalRows === 0
-                      ? 'Nothing recorded yet — use "Send Test Hit" above to verify the pipeline.'
+                      ? 'Nothing recorded yet: use "Send Test Hit" above to verify the pipeline.'
                       : `No traffic in the last ${days} days.`}
                   </span>
                 </div>
@@ -337,7 +337,7 @@ function OverviewTab({ overview, daily, pages, loading, health, healthStatus, on
       </SectionCard>
 
       {/* Top pages */}
-      <SectionCard title="Top Pages — Last 30 Days">
+      <SectionCard title="Top Pages: Last 30 Days">
         {loading ? (
           <div className="p-6 space-y-3">{Array.from({ length: 5 }).map((_, i) => <Skeleton key={i} className="h-8" />)}</div>
         ) : (
@@ -535,7 +535,7 @@ function GeoTab({ geo, loading }) {
         ))}
       </div>
 
-      <SectionCard title={`Top ${geoView.charAt(0).toUpperCase() + geoView.slice(1)} — Last 30 Days`}>
+      <SectionCard title={`Top ${geoView.charAt(0).toUpperCase() + geoView.slice(1)}: Last 30 Days`}>
         {data.length === 0 ? (
           <div className="px-6 py-12 text-center text-sm" style={{ color: 'rgba(255,255,255,0.3)' }}>
             Geographic data will appear as visitors are tracked with IP geolocation.
@@ -708,13 +708,13 @@ function EngagementTab({ engagement, realtime, loading }) {
     <div className="space-y-6">
       {/* Key metrics */}
       <div className="grid grid-cols-2 lg:grid-cols-3 gap-4">
-        <StatCard icon={MousePointerClick} label="Avg Pages / Session" value={engagement?.avgPagesPerSession ?? '—'} sub="last 30 days" />
-        <StatCard icon={ArrowUpRight} label="Bounce Rate" value={engagement ? `${engagement.bounceRate}%` : '—'} sub="single-page sessions" accent={ROSE} />
-        <StatCard icon={Activity} label="Active Now" value={realtime?.activeNow ?? '—'} sub="last 5 min" accent={EMERALD} pulse={(realtime?.activeNow || 0) > 0} />
+        <StatCard icon={MousePointerClick} label="Avg Pages / Session" value={engagement?.avgPagesPerSession ?? '-'} sub="last 30 days" />
+        <StatCard icon={ArrowUpRight} label="Bounce Rate" value={engagement ? `${engagement.bounceRate}%` : '-'} sub="single-page sessions" accent={ROSE} />
+        <StatCard icon={Activity} label="Active Now" value={realtime?.activeNow ?? '-'} sub="last 5 min" accent={EMERALD} pulse={(realtime?.activeNow || 0) > 0} />
       </div>
 
       {/* Hourly heatmap (today) */}
-      <SectionCard title="Traffic by Hour — Last 30 Days">
+      <SectionCard title="Traffic by Hour: Last 30 Days">
         <div className="p-6">
           {(!engagement?.byHour || engagement.byHour.length === 0) ? (
             <div className="h-32 flex items-center justify-center text-sm" style={{ color: 'rgba(255,255,255,0.3)' }}>No hourly data yet</div>
@@ -733,7 +733,7 @@ function EngagementTab({ engagement, realtime, loading }) {
       </SectionCard>
 
       {/* Day of week */}
-      <SectionCard title="Traffic by Day of Week — Last 30 Days">
+      <SectionCard title="Traffic by Day of Week: Last 30 Days">
         <div className="p-6">
           {(!engagement?.byDow || engagement.byDow.length === 0) ? (
             <div className="h-32 flex items-center justify-center text-sm" style={{ color: 'rgba(255,255,255,0.3)' }}>No day-of-week data yet</div>

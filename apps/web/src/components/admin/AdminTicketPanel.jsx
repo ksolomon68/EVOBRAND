@@ -21,7 +21,7 @@ const NAVY = '#003258';
 const STATUS_OPTS = ['open', 'in_progress', 'resolved', 'closed'];
 const PRIORITY_OPTS = ['low', 'normal', 'high', 'urgent'];
 
-// Mirrors NewTicketForm.jsx's TICKET_TYPES — the pricing tier the client
+// Mirrors NewTicketForm.jsx's TICKET_TYPES: the pricing tier the client
 // picked when submitting, so admins can see what was actually selected
 // without asking, or re-deriving it from the quoted price after the fact.
 const TICKET_TYPE_META = {
@@ -30,16 +30,16 @@ const TICKET_TYPE_META = {
   urgent:        { label: 'Urgent Fix', price: '$299', turnaround: '24-hour response' },
   custom_dev:    { label: 'Custom Development', price: '$99/hr', turnaround: 'Timeline quoted per project' },
   plan_covered:  { label: 'Plan-Covered Request', price: 'Included', turnaround: 'Per plan SLA' },
-  plan_overage:  { label: 'Plan Overage — Bill at $85/hr', price: 'Not yet quoted', turnaround: 'Admin to set price' },
+  plan_overage:  { label: 'Plan Overage: Bill at $85/hr', price: 'Not yet quoted', turnaround: 'Admin to set price' },
 };
 function ticketTypeLabel(type) {
   return TICKET_TYPE_META[type]?.label || type || 'Standard';
 }
 
-// America/Chicago auto-handles CST/CDT (UTC-6 / UTC-5) across DST — this is
+// America/Chicago auto-handles CST/CDT (UTC-6 / UTC-5) across DST, this is
 // what visitors mean by "CST" in everyday use.
 function formatCST(dateStr) {
-  if (!dateStr) return '—';
+  if (!dateStr) return '-';
   // The API returns naive "YYYY-MM-DD HH:MM:SS" strings (the DB session runs
   // in UTC) with no timezone marker. `new Date()` parses that shape as local
   // browser time rather than UTC, so mark it explicitly UTC before converting.
@@ -101,7 +101,7 @@ function TicketRow({ t, onOpen }) {
         {t.priority}
       </td>
       <td className="px-5 py-4 text-sm font-bold" style={{ color: GOLD }}>
-        {t.quoted_price > 0 ? `$${Number(t.quoted_price).toFixed(2)}` : '—'}
+        {t.quoted_price > 0 ? `$${Number(t.quoted_price).toFixed(2)}` : '-'}
       </td>
       <td className="px-5 py-4 text-white/30 text-xs whitespace-nowrap">
         {formatCST(t.created_at)}
@@ -116,7 +116,7 @@ function TicketRow({ t, onOpen }) {
 function AttachmentBlock({ url }) {
   if (!url) return null;
   // Prod: frontend (static host) and API (separate Node app) are deployed
-  // independently — only /api/* is proxied to the Node app, so uploads must
+  // independently: only /api/* is proxied to the Node app, so uploads must
   // be requested through that prefix or they 404 against the static host.
   const base = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
     ? 'http://localhost:5000'
@@ -234,7 +234,7 @@ function TicketDetail({ ticket, onBack, onRefresh }) {
     if (!replyText.trim()) return;
     setSending(true);
     try {
-      // multipart/form-data whenever a file is attached — don't set
+      // multipart/form-data whenever a file is attached, don't set
       // Content-Type manually, fetch sets the multipart boundary itself.
       const body = new FormData();
       body.append('message', replyText);
@@ -358,14 +358,14 @@ function TicketDetail({ ticket, onBack, onRefresh }) {
         {/* Controls */}
         <div className="w-full lg:w-72 space-y-5 lg:flex-shrink-0">
 
-          {/* Submission Details — exactly what the client selected on the form */}
+          {/* Submission Details: exactly what the client selected on the form */}
           <div className="bg-white/5 border border-white/10 rounded-2xl p-5 space-y-3">
             <h3 className="text-xs font-bold uppercase tracking-widest text-white/40 flex items-center gap-2">
               <Tag size={12} /> Submission Details
             </h3>
             <div>
               <p className="text-[10px] font-bold uppercase tracking-widest text-white/30 mb-1">Target Cluster</p>
-              <p className="text-white text-sm font-semibold">{ticket.service || '—'}</p>
+              <p className="text-white text-sm font-semibold">{ticket.service || '-'}</p>
             </div>
             <div>
               <p className="text-[10px] font-bold uppercase tracking-widest text-white/30 mb-1">Ticket Type</p>
@@ -383,7 +383,7 @@ function TicketDetail({ ticket, onBack, onRefresh }) {
                   <CheckCircle2 size={11} /> Covered by maintenance plan
                 </span>
               ) : (
-                <span className="text-white/60 text-sm">Billable — not plan-covered</span>
+                <span className="text-white/60 text-sm">Billable: not plan-covered</span>
               )}
             </div>
           </div>
@@ -464,7 +464,7 @@ function TicketDetail({ ticket, onBack, onRefresh }) {
           <div className="bg-white/5 border border-white/10 rounded-2xl p-5 space-y-3">
             <h3 className="text-xs font-bold uppercase tracking-widest text-white/40">Client</h3>
             <div>
-              <p className="text-white font-semibold text-sm">{ticket.user_name || '—'}</p>
+              <p className="text-white font-semibold text-sm">{ticket.user_name || '-'}</p>
               <p className="text-white/40 text-xs">{ticket.user_email}</p>
             </div>
             <div className="text-xs text-white/30">

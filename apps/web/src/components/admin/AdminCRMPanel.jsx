@@ -205,7 +205,7 @@ export default function AdminCRMPanel({ user }) {
       } catch { /* fall through to raw-HTML fallback below */ }
     }
     // Older campaigns (or ones saved before the block editor existed) have
-    // no blocks_json — wrap their existing HTML in a single Text block so
+    // no blocks_json: wrap their existing HTML in a single Text block so
     // nothing is lost, even though it won't be visually deconstructed.
     setBlocks(Array.isArray(hydratedBlocks) && hydratedBlocks.length
       ? hydratedBlocks

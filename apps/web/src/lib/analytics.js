@@ -1,5 +1,5 @@
 // First-party analytics tracker.
-// The collect endpoint is /api/t — deliberately NOT /api/analytics, because
+// The collect endpoint is /api/t, deliberately NOT /api/analytics, because
 // EasyPrivacy-style ad-blocker filter lists block any request path containing
 // "analytics", silently dropping beacons from visitors running content
 // blockers. (The admin dashboard's read endpoints keep the old path.)
@@ -51,7 +51,7 @@ function buildPayload(path, title) {
 }
 
 export function initAnalytics() {
-  // no-op — tracking is handled via trackPageView calls
+  // no-op: tracking is handled via trackPageView calls
 }
 
 export function trackPageView(path, title) {
@@ -66,7 +66,7 @@ export function trackPageView(path, title) {
       keepalive: true,
     }).catch(() => {});
   } catch {
-    // silent fail — never block the user
+    // silent fail: never block the user
   }
 }
 
@@ -78,7 +78,7 @@ export function trackEvent(eventName, params = {}) {
  * Diagnostic used by the admin dashboard's "Send Test Hit" button.
  * Uses fetch (not sendBeacon) so the HTTP status is observable, and a
  * /dev/ path so test hits are excluded from reporting aggregates.
- * Returns { ok, status } — ok=true means the server recorded the hit.
+ * Returns { ok, status }: ok=true means the server recorded the hit.
  */
 export async function sendTestHit() {
   try {

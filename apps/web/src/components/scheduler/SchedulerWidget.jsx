@@ -338,7 +338,7 @@ function TimeSlotPicker({ selectedDate, selectedSlot, onSelect, blackoutDates, b
               onClick={() => !blocked && onSelect(slot)}
               disabled={blocked}
               aria-pressed={active}
-              aria-label={`${slot}${blocked ? ' — unavailable' : ''}`}
+              aria-label={`${slot}${blocked ? ': unavailable' : ''}`}
               className="py-3 px-4 rounded-2xl text-sm font-semibold transition-all duration-200 border focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#22c8e5] focus-visible:outline-offset-2"
               style={{
                 background: active ? GOLD : blocked ? 'rgba(255,255,255,0.03)' : 'rgba(34,200,229,0.06)',
@@ -417,7 +417,7 @@ function ConfirmForm({ selectedDate, selectedSlot, onBack, onSuccess }) {
         });
       } catch (fetchErr) {
         throw new Error(fetchErr.name === 'AbortError'
-          ? 'Request timed out — please try again.'
+          ? 'Request timed out. Please try again.'
           : 'Unable to reach the server. Please try again.');
       } finally {
         clearTimeout(timer);

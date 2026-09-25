@@ -12,9 +12,9 @@ const GOLD = '#22c8e5';
  * PaymentModal
  * Props:
  *  - type:        'contract' | 'ticket'
- *  - id:          number — the contract or ticket ID
- *  - amount:      number — dollar amount (e.g. 2500)
- *  - description: string — e.g. "Brand Identity Package"
+ *  - id:          number: the contract or ticket ID
+ *  - amount:      number: dollar amount (e.g. 2500)
+ *  - description: string: e.g. "Brand Identity Package"
  *  - onClose:     () => void
  */
 export default function PaymentModal({ type, id, amount, description, onClose }) {

@@ -116,7 +116,7 @@ export default function ContractBuilderPanel({ editingContract, duplicatingContr
     setSavedStatus('');
     try {
       const token = localStorage.getItem('evobrand_token');
-      const title = contractTitle.trim() || `Agreement — ${clientInfo.companyName || clientInfo.email} — ${formatDate(project.startDate)}`;
+      const title = contractTitle.trim() || `Agreement · ${clientInfo.companyName || clientInfo.email} · ${formatDate(project.startDate)}`;
       const url = editingContract 
         ? `${API_BASE}/contracts/${editingContract.id}`
         : `${API_BASE}/contracts`;
@@ -387,7 +387,7 @@ export default function ContractBuilderPanel({ editingContract, duplicatingContr
               </button>
             </div>
 
-            {/* Delete — only shown when editing an existing contract */}
+            {/* Delete: only shown when editing an existing contract */}
             {editingContract && (
               <div className="mt-4 pt-4 border-t border-white/5">
                 <button

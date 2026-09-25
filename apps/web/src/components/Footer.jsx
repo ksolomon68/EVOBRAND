@@ -71,7 +71,7 @@ const Footer = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-8">
           {/* Brand Section */}
           <div>
-            <Link to="/" className="inline-block mb-4" aria-label="EVOBRAND — go to home page">
+            <Link to="/" className="inline-block mb-4" aria-label="EVOBRAND home">
               <motion.img
                 src="/logo.png"
                 alt="EVOBRAND"
@@ -128,7 +128,7 @@ const Footer = () => {
               </li>
               <li className="flex items-start space-x-2 text-gray-400 text-sm">
                 <MapPin size={16} className="text-[#22c8e5] mt-1" aria-hidden="true" />
-                <span>Ellis County, Texas</span>
+                <span>Italy, Texas (DFW area)</span>
               </li>
             </ul>
           </div>

@@ -99,7 +99,7 @@ const LoadingState = () => {
             />
           ))}
         </div>
-        <p className="text-white/20 text-xs mt-6 text-center">Live accessibility scan in progress — this takes ~15-20 seconds</p>
+        <p className="text-white/20 text-xs mt-6 text-center">Live accessibility scan in progress. This takes ~15-20 seconds</p>
       </div>
     </div>
   );

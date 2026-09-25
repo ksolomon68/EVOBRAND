@@ -144,7 +144,7 @@ const OurWorkPage = () => {
       industry: 'Non-Profit / Community',
       image: '/projects/walls1.png',
       highlights: ['Public Art', 'Urban Farming', 'Youth Culture', 'Walls Connect'],
-      description: 'Dynamic platform driving community reactivation across 3 states — unifying public art initiatives, urban agriculture, youth culture programs, and neighborhood impact.',
+      description: 'Dynamic platform driving community reactivation across 3 states, unifying public art initiatives, urban agriculture, youth culture programs, and neighborhood impact.',
       link: 'https://evobrandconcepts.com/walls1/'
     },
     {
@@ -311,7 +311,7 @@ const OurWorkPage = () => {
       industry: 'Non-profit',
       image: '/projects/jewels-of-north-texas.jpg',
       highlights: ['11 Chapters', 'Debutante Gala', 'Legacy Event'],
-      description: 'The inaugural debutante presentation by the 11 chapters of the Dallas Center of Excellence within Jack and Jill of America — celebrating young women of extraordinary character.',
+      description: 'The inaugural debutante presentation by the 11 chapters of the Dallas Center of Excellence within Jack and Jill of America, celebrating young women of extraordinary character.',
       link: 'https://evobrandconcepts.com/jewels/'
     }
   ];
@@ -346,8 +346,8 @@ const OurWorkPage = () => {
   return (
     <>
       <SEO
-        title="AI Portfolio & Case Studies | Client Work | EVOBRAND"
-        description="Browse EVOBRAND's portfolio: 500+ projects across web development, SaaS platforms, government contracting, healthcare, e-commerce, and AI-powered solutions. Real clients, real results."
+        title="Our Work: Platforms, Websites and Case Studies"
+        description="Selected EVOBRAND work for government agencies, nonprofits, and businesses: government contracting platforms, membership systems, websites, and custom applications."
         keywords="EVOBRAND portfolio, AI case studies, web development portfolio, Ellis County web design, SaaS development, government contracting platform"
         canonical="https://evobrand.net/our-work"
       />
@@ -362,13 +362,13 @@ const OurWorkPage = () => {
           sub="Real projects. Real results. See how we've helped businesses transform with AI."
         />
 
-        {/* Featured reel — pinned horizontal showcase of flagship builds */}
+        {/* Featured reel: pinned horizontal showcase of flagship builds */}
         <section ref={reelRef} className="relative overflow-hidden bg-[#0f1419]">
           <div className="relative py-16 lg:py-0 lg:min-h-screen lg:flex lg:flex-col lg:justify-center">
             <div className="container mx-auto px-4">
               <Reveal>
                 <p className="text-[11px] font-bold uppercase tracking-[0.25em] text-[#22c8e5] mb-3">
-                  Featured Work — The Reel
+                  Featured Work: The Reel
                 </p>
                 <h2 className="text-3xl md:text-5xl font-bold text-white">
                   Flagship <span className="text-[#22c8e5]">Builds</span>

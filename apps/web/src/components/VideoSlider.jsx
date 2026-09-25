@@ -172,7 +172,7 @@ export default function VideoSlider({ videos = [], onVideoSelect, title, newVide
               onMouseEnter={onCardEnter}
               onMouseLeave={onCardLeave}
               onClick={() => handleCardClick(video.id)}
-              aria-label={`${video.title} — Play video`}
+              aria-label={`${video.title}: Play video`}
             >
               {/* Thumbnail */}
               <img
@@ -212,7 +212,7 @@ export default function VideoSlider({ videos = [], onVideoSelect, title, newVide
                 )}
               </div>
 
-              {/* Title — always shown, animates on hover */}
+              {/* Title: always shown, animates on hover */}
               <p className="vs-title absolute bottom-3 left-3 right-3 text-white text-xs font-semibold leading-tight line-clamp-2 opacity-0 translate-y-2 pointer-events-none" aria-hidden="true">
                 {video.title}
               </p>

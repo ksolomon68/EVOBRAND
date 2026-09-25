@@ -153,7 +153,7 @@ const AuditForm = ({ onComplete, prefillData }) => {
       {/* Step content */}
       <AuditStep stepKey={step}>
         <div className="min-h-[340px]">
-          {/* STEP 1 — The Basics */}
+          {/* STEP 1: The Basics */}
           {step === 1 && (
             <div>
               <h2 className="text-2xl md:text-3xl font-bold text-white mb-2">
@@ -174,7 +174,7 @@ const AuditForm = ({ onComplete, prefillData }) => {
                   {errors.businessName && <p className="text-red-400 text-xs mt-1">{errors.businessName}</p>}
                 </div>
 
-                {/* Website URL — enables live internet scan */}
+                {/* Website URL: enables live internet scan */}
                 <div className="relative">
                   <label className={labelClass}>
                     Website URL
@@ -196,7 +196,7 @@ const AuditForm = ({ onComplete, prefillData }) => {
                   </div>
                   {errors.websiteUrl
                     ? <p className="text-red-400 text-xs mt-1">{errors.websiteUrl}</p>
-                    : <p className="text-white/30 text-xs mt-1">Optional but highly recommended — we'll scan your site for real data</p>
+                    : <p className="text-white/30 text-xs mt-1">Optional but highly recommended: we'll scan your site for real data</p>
                   }
                 </div>
 
@@ -234,7 +234,7 @@ const AuditForm = ({ onComplete, prefillData }) => {
             </div>
           )}
 
-          {/* STEP 2 — Challenges */}
+          {/* STEP 2: Challenges */}
           {step === 2 && (
             <div>
               <h2 className="text-2xl md:text-3xl font-bold text-white mb-2">
@@ -265,7 +265,7 @@ const AuditForm = ({ onComplete, prefillData }) => {
             </div>
           )}
 
-          {/* STEP 3 — Digital Presence */}
+          {/* STEP 3: Digital Presence */}
           {step === 3 && (
             <div>
               <h2 className="text-2xl md:text-3xl font-bold text-white mb-2">
@@ -302,7 +302,7 @@ const AuditForm = ({ onComplete, prefillData }) => {
             </div>
           )}
 
-          {/* STEP 4 — Audience */}
+          {/* STEP 4: Audience */}
           {step === 4 && (
             <div>
               <h2 className="text-2xl md:text-3xl font-bold text-white mb-2">
@@ -364,19 +364,19 @@ const AuditForm = ({ onComplete, prefillData }) => {
                       id="audit-competitor-url"
                     />
                   </div>
-                  <p className="text-white/30 text-xs mt-1">Optional — helps us benchmark your brand position against theirs</p>
+                  <p className="text-white/30 text-xs mt-1">Optional: helps us benchmark your brand position against theirs</p>
                 </div>
               </div>
             </div>
           )}
 
-          {/* STEP 5 — Brand Consistency */}
+          {/* STEP 5: Brand Consistency */}
           {step === 5 && (
             <div>
               <h2 className="text-2xl md:text-3xl font-bold text-white mb-2">
                 How consistent is your brand across touchpoints?
               </h2>
-              <p className="text-white/50 mb-8 ">Be honest — this helps us give better recommendations.</p>
+              <p className="text-white/50 mb-8 ">Be honest: this helps us give better recommendations.</p>
               <div className="space-y-3">
                 {CONSISTENCY_OPTIONS.map((opt) => (
                   <button
@@ -403,7 +403,7 @@ const AuditForm = ({ onComplete, prefillData }) => {
             </div>
           )}
 
-          {/* STEP 6 — Contact */}
+          {/* STEP 6: Contact */}
           {step === 6 && (
             <div>
               <h2 className="text-2xl md:text-3xl font-bold text-white mb-2">

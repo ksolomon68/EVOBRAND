@@ -76,7 +76,7 @@ const PLANS = [
       'WooCommerce / eCommerce support',
       'Content updates & copyedits',
       'Quarterly SEO health check',
-      'Priority queue — always first',
+      'Priority queue: always first',
     ],
     notIncluded: [],
     cta: 'Get Elite Plan',
@@ -87,7 +87,7 @@ const PLANS = [
 const ONE_TIME = [
   {
     name: 'Simple Update',
-    desc: 'Image, document, or text swap — no coding required.',
+    desc: 'Image, document, or text swap. No coding required.',
     price: '$50–$150',
     icon: <FileText size={20} />,
     turnaround: '1–2 business days',
@@ -150,8 +150,8 @@ export default function MaintenancePlansPage() {
   return (
     <>
       <SEO
-        title="WordPress Maintenance & Support Plans — EVOBRAND"
-        description="Keep your WordPress site secure, fast, and up to date with EVOBRAND's maintenance plans. Basic, Pro, and Elite tiers — or pay-as-you-go support tickets."
+        title="WordPress Maintenance & Support Plans | EVOBRAND"
+        description="Keep your WordPress site secure, fast, and up to date with EVOBRAND's maintenance plans. Basic, Pro, and Elite tiers, plus pay-as-you-go support tickets."
       />
 
       {/* ── Hero ──────────────────────────────────────────────────────────────── */}
@@ -171,7 +171,7 @@ export default function MaintenancePlansPage() {
           </motion.h1>
           <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.25, duration: 0.6 }}
             className="text-lg max-w-2xl mx-auto mb-10" style={{ color: 'rgba(232,221,208,0.65)' }}>
-            We handle the updates, security, backups, and fixes — so you can focus on running your business.
+            We handle the updates, security, backups, and fixes, so you can focus on running your business.
             Clients on a WordPress maintenance plan never pay per ticket.
           </motion.p>
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.35 }} className="flex items-center justify-center gap-4">
@@ -268,7 +268,7 @@ export default function MaintenancePlansPage() {
           </p>
 
           <p className="text-center text-sm mt-2" style={{ color: 'rgba(232,221,208,0.35)' }}>
-            Already a maintenance client? Log in to your portal — tickets are covered by your plan at no extra charge.
+            Already a maintenance client? Log in to your portal. Tickets are covered by your plan at no extra charge.
           </p>
 
           <p className="text-center text-xs mt-6 max-w-2xl mx-auto" style={{ color: 'rgba(232,221,208,0.25)' }}>
@@ -343,7 +343,7 @@ export default function MaintenancePlansPage() {
               Ready to Stop Worrying<br />About Your Website?
             </h2>
             <p className="text-lg mb-10" style={{ color: 'rgba(232,221,208,0.55)' }}>
-              Get in touch and we'll recommend the right plan for your business — or set you up with a one-time fix today.
+              Get in touch and we'll recommend the right plan for your business, or set you up with a one-time fix today.
             </p>
             <div className="flex flex-wrap gap-4 justify-center">
               <a href="/contact"

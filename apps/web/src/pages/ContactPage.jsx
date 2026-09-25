@@ -23,7 +23,6 @@ const CONTACT_METHODS = [
     label: 'Phone',
     lines: [
       { text: '+1 214-531-4427', href: 'tel:+12145314427' },
-      { text: 'Mobile: +1 469-360-2723', href: 'tel:+14693602723' },
     ],
   },
   {
@@ -34,7 +33,7 @@ const CONTACT_METHODS = [
   {
     icon: MapPin,
     label: 'Location',
-    lines: [{ text: 'Ellis County, Texas' }],
+    lines: [{ text: 'Italy, Texas (DFW area)' }],
   },
   {
     icon: Clock,
@@ -70,7 +69,7 @@ function ContactForm() {
     if (!file) return;
     if (file.size > MAX_LOGO_BYTES) {
       setStatus('error');
-      setErrorMsg('Logo file is too large — please choose one under 5 MB.');
+      setErrorMsg('Logo file is too large. Please choose one under 5 MB.');
       e.target.value = '';
       return;
     }
@@ -118,7 +117,7 @@ function ContactForm() {
         });
       } catch (fetchErr) {
         throw new Error(fetchErr.name === 'AbortError'
-          ? 'Request timed out — please try again or email us directly.'
+          ? 'Request timed out. Please try again or email us directly.'
           : 'Unable to reach the server. Please email us directly.');
       } finally {
         clearTimeout(timer);
@@ -168,7 +167,7 @@ function ContactForm() {
 
   return (
     <form ref={formRef} onSubmit={handleSubmit} noValidate className="space-y-4" aria-label="Contact form">
-      {/* Honeypot — hidden from sighted/keyboard users, but present in the DOM
+      {/* Honeypot: hidden from sighted/keyboard users, but present in the DOM
           for bots that auto-fill every field. Server rejects silently if set. */}
       <div style={{ position: 'absolute', left: '-9999px', width: '1px', height: '1px', overflow: 'hidden' }} aria-hidden="true">
         <label htmlFor="cf-website">Website</label>
@@ -380,8 +379,8 @@ export default function ContactPage() {
   return (
     <>
       <SEO
-        title="Book a Free AI Consultation | Contact EVOBRAND — Ellis County, TX"
-        description="Ready to transform your business with AI? Contact EVOBRAND for a free 30-minute strategy call. Serving clients nationwide from Ellis County, TX. Call +1 214-531-4427 or email info@evobrand.net."
+        title="Contact EVOBRAND Concepts"
+        description="Ready to transform your business with AI? Contact EVOBRAND for a free 30-minute strategy call. Based in Italy, Texas, serving clients nationwide. Call +1 214-531-4427 or email info@evobrand.net."
         keywords="contact EVOBRAND, AI consultation, book strategy call, Ellis County AI agency contact, free AI consultation"
         canonical="https://evobrand.net/contact"
         structuredData={{
@@ -397,7 +396,7 @@ export default function ContactPage() {
             "email": "info@evobrand.net",
             "address": {
               "@type": "PostalAddress",
-              "addressLocality": "Ellis County",
+              "addressLocality": "Italy",
               "addressRegion": "TX",
               "addressCountry": "US"
             }
@@ -411,7 +410,7 @@ export default function ContactPage() {
           variant="contact"
           eyebrow="Get in Touch"
           lines={[[{ t: "Let's" }, { t: 'Connect', accent: true }]]}
-          sub="Ready to transform your business with AI? Reach out for a free 30-minute consultation — no obligation."
+          sub="Ready to transform your business with AI? Reach out for a free 30-minute consultation. No obligation."
         />
 
         {/* Contact method cards */}

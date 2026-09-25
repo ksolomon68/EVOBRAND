@@ -12,7 +12,7 @@ const BENEFITS = [
   {
     icon: Sparkles,
     title: 'Built For Your Business',
-    text: "No generic template — your demo portal is shaped around the requirements you send us.",
+    text: "No generic template: your demo portal is shaped around the requirements you send us.",
   },
   {
     icon: Palette,
@@ -52,7 +52,7 @@ function DemoPortalForm() {
     if (!file) return;
     if (file.size > MAX_LOGO_BYTES) {
       setStatus('error');
-      setErrorMsg('Logo file is too large — please choose one under 5 MB.');
+      setErrorMsg('Logo file is too large. Please choose one under 5 MB.');
       e.target.value = '';
       return;
     }
@@ -93,7 +93,7 @@ function DemoPortalForm() {
         response = await fetch(API_URL, { method: 'POST', signal: controller.signal, body });
       } catch (fetchErr) {
         throw new Error(fetchErr.name === 'AbortError'
-          ? 'Request timed out — please try again or email us directly.'
+          ? 'Request timed out. Please try again or email us directly.'
           : 'Unable to reach the server. Please email us directly.');
       } finally {
         clearTimeout(timer);
@@ -143,7 +143,7 @@ function DemoPortalForm() {
 
   return (
     <form ref={formRef} onSubmit={handleSubmit} noValidate className="space-y-4" aria-label="Free demo portal request form">
-      {/* Honeypot — hidden from sighted/keyboard users, but present in the DOM
+      {/* Honeypot: hidden from sighted/keyboard users, but present in the DOM
           for bots that auto-fill every field. Server rejects silently if set. */}
       <div style={{ position: 'absolute', left: '-9999px', width: '1px', height: '1px', overflow: 'hidden' }} aria-hidden="true">
         <label htmlFor="dp-website">Website</label>
@@ -341,8 +341,8 @@ export default function FreeDemoPortalPage() {
   return (
     <>
       <SEO
-        title="Free Custom Demo Portal | Custom AI Applications — EVOBRAND"
-        description="Get a free, custom-built demo portal for your business. Share your requirements and logo, and EVOBRAND will build a live demo tailored to you — no cost, no obligation."
+        title="Free Custom Demo Portal | Custom AI Applications | EVOBRAND"
+        description="Get a free, custom-built demo portal for your business. Share your requirements and logo, and EVOBRAND will build a live demo tailored to you at no cost."
         keywords="free demo portal, custom AI application demo, custom portal request, EVOBRAND demo portal, free AI app demo"
         canonical="https://evobrand.net/free-demo-portal"
         structuredData={{
@@ -367,7 +367,7 @@ export default function FreeDemoPortalPage() {
         <PageHero
           eyebrow="Custom AI Applications"
           lines={[[{ t: 'Your' }, { t: 'Free' }, { t: 'Demo', accent: true }, { t: 'Portal', accent: true }]]}
-          sub="Tell us what you need and share your logo — we'll build a live, customized demo portal for your business. Free to request, free to review."
+          sub="Tell us what you need and share your logo. We'll build a live, customized demo portal for your business. Free to request, free to review."
         />
 
         {/* Benefits */}
@@ -439,7 +439,7 @@ export default function FreeDemoPortalPage() {
                 >
                   <ListChecks size={18} style={{ color: GOLD }} className="flex-shrink-0 mt-0.5" aria-hidden="true" />
                   <p className="text-sm" style={{ color: 'rgba(255,255,255,0.6)' }}>
-                    The more detail you give us about your requirements — features, pages, workflows, integrations — the closer your demo will be to what you actually need.
+                    The more detail you give us about your requirements (features, pages, workflows, integrations), the closer your demo will be to what you actually need.
                   </p>
                 </div>
               </Reveal>

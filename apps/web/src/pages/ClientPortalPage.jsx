@@ -312,7 +312,7 @@ const ClientPortalPage = () => {
         }))
       );
     } catch (err) {
-      // Keep stale ticket data — don't blank the list on API error
+      // Keep stale ticket data: don't blank the list on API error
       console.error('Error fetching tickets:', err);
       setTicketsError(true);
     } finally {
@@ -340,7 +340,7 @@ const ClientPortalPage = () => {
       const response = await fetch(`${API_URL}/ticket`, {
         method: 'POST',
         headers: {
-          // Do NOT set Content-Type — browser sets it automatically with the correct multipart boundary
+          // Do NOT set Content-Type. The browser sets it automatically with the correct multipart boundary
           'Authorization': `Bearer ${token}`,
         },
         body,
@@ -360,7 +360,7 @@ const ClientPortalPage = () => {
   const handleClientReply = async (ticketId, message, file) => {
     try {
       const token = localStorage.getItem('evobrand_token');
-      // multipart/form-data whenever a file is attached — Content-Type with
+      // multipart/form-data whenever a file is attached, Content-Type with
       // the multipart boundary is set automatically by fetch, don't set it
       // manually or the boundary gets lost and the upload breaks.
       const body = new FormData();

@@ -4,7 +4,7 @@ import { Helmet } from 'react-helmet';
 const SITE_NAME = 'EVOBRAND';
 const SITE_URL = 'https://evobrand.net';
 const DEFAULT_OG_IMAGE = `${SITE_URL}/og-image.png`;
-const DEFAULT_DESCRIPTION = 'EVOBRAND is your partner in AI transformation — delivering custom AI applications, visual content, intelligent automation, and video production to businesses nationwide from Ellis County, TX.';
+const DEFAULT_DESCRIPTION = 'EVOBRAND Concepts is a senior-led, full-stack digital agency for government agencies, corporations, and nonprofits. SBE, WBE, and MBE certified. 25+ years. Italy, Texas.';
 
 const SEO = ({
   title,
@@ -16,9 +16,10 @@ const SEO = ({
   keywords,
   structuredData,
 }) => {
+  // Pages sometimes include the brand in their own title; only append it once.
   const fullTitle = title
-    ? `${title} | ${SITE_NAME}`
-    : `${SITE_NAME} — AI Transformation Partner | Custom AI Solutions`;
+    ? (title.includes(SITE_NAME) ? title : `${title} | ${SITE_NAME}`)
+    : `${SITE_NAME} Concepts | Senior-led digital agency`;
 
   const canonicalUrl = canonical || (typeof window !== 'undefined' ? window.location.href : SITE_URL);
   const resolvedImage = image.startsWith('http') ? image : `${SITE_URL}${image}`;
@@ -30,7 +31,7 @@ const SEO = ({
       <title>{fullTitle}</title>
       <meta name="description" content={description} />
       {keywords && <meta name="keywords" content={keywords} />}
-      <meta name="author" content="Keisha Solomon — EVOBRAND Concepts LLC" />
+      <meta name="author" content="Keisha Solomon, EVOBRAND Concepts LLC" />
       <link rel="canonical" href={canonicalUrl} />
 
       {/* ── Robots ── */}
@@ -47,7 +48,7 @@ const SEO = ({
       <meta property="og:image" content={resolvedImage} />
       <meta property="og:image:width" content="1200" />
       <meta property="og:image:height" content="630" />
-      <meta property="og:image:alt" content={`${SITE_NAME} — AI Transformation Partner`} />
+      <meta property="og:image:alt" content={`${SITE_NAME} Concepts`} />
       <meta property="og:site_name" content={SITE_NAME} />
       <meta property="og:locale" content="en_US" />
 
@@ -57,7 +58,7 @@ const SEO = ({
       <meta name="twitter:title" content={fullTitle} />
       <meta name="twitter:description" content={description} />
       <meta name="twitter:image" content={resolvedImage} />
-      <meta name="twitter:image:alt" content={`${SITE_NAME} — AI Transformation Partner`} />
+      <meta name="twitter:image:alt" content={`${SITE_NAME} Concepts`} />
       <meta name="twitter:creator" content="@evobrand" />
       <meta name="twitter:site" content="@evobrand" />
 

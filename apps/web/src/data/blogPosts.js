@@ -19,7 +19,7 @@ export const blogPosts = [
 
 <!-- wp:quote -->
 <blockquote class="wp-block-quote">
-<p>"The fundamental ROI of enterprise AI is not measured in how quickly it answers a text prompt—it is measured in how reliably it orchestrates cross-system execution without human fatigue or oversight errors."</p>
+<p>"The fundamental ROI of enterprise AI is not measured in how quickly it answers a text prompt. It is measured in how reliably it orchestrates cross-system execution without human fatigue or oversight errors."</p>
 </blockquote>
 <!-- /wp:quote -->
 
@@ -36,7 +36,7 @@ export const blogPosts = [
 <!-- /wp:heading -->
 
 <!-- wp:paragraph -->
-<p>Standard vector search using naive cosine similarity often fails when querying specific technical part numbers, legal clause codes, or acronyms. Modern enterprise platforms implement <strong>Hybrid Retrieval-Augmented Generation</strong>—combining dense vector embeddings (e.g. OpenAI text-embedding-3, Cohere v3) with sparse keyword search (BM25 or PostgreSQL tsvector) and a Reciprocal Rank Fusion (RRF) reranking step.</p>
+<p>Standard vector search using naive cosine similarity often fails when querying specific technical part numbers, legal clause codes, or acronyms. Modern enterprise platforms implement <strong>Hybrid Retrieval-Augmented Generation</strong>: combining dense vector embeddings (e.g. OpenAI text-embedding-3, Cohere v3) with sparse keyword search (BM25 or PostgreSQL tsvector) and a Reciprocal Rank Fusion (RRF) reranking step.</p>
 <!-- /wp:paragraph -->
 
 <!-- wp:list -->
@@ -114,7 +114,7 @@ export const blogPosts = [
         category: "agentic-ai",
         excerpt: "Explore the mechanics of Agentic AI: multi-agent state loops, tool-calling frameworks, self-reflection loops, and human-in-the-loop approval workflows.",
         content: `<!-- wp:paragraph -->
-<p class="lead font-medium text-lg text-gray-300">Generative AI has evolved past passive text generation. The leading edge of software design is <strong>Agentic AI</strong>—systems capable of autonomous planning, environment interaction, error reflection, and iterative goal completion.</p>
+<p class="lead font-medium text-lg text-gray-300">Generative AI has evolved past passive text generation. The leading edge of software design is <strong>Agentic AI</strong>: systems capable of autonomous planning, environment interaction, error reflection, and iterative goal completion.</p>
 <!-- /wp:paragraph -->
 
 <!-- wp:heading -->
@@ -164,7 +164,7 @@ export const blogPosts = [
 <!-- /wp:heading -->
 
 <!-- wp:paragraph -->
-<p>For high-risk operations—such as sending financial transfers over $10,000 or deploying production database migrations—agentic systems pause execution state at a designated approval node, dispatching a notification to a human manager. Once approved, the agent resumes execution seamlessly.</p>
+<p>For high-risk operations, such as sending financial transfers over $10,000 or deploying production database migrations, agentic systems pause execution state at a designated approval node, dispatching a notification to a human manager. Once approved, the agent resumes execution seamlessly.</p>
 <!-- /wp:paragraph -->
 
 <!-- wp:heading -->
@@ -376,7 +376,7 @@ export const blogPosts = [
         category: "creative-ai",
         excerpt: "Learn how modern design studios combine human art direction with generative AI asset pipelines to maintain strict visual brand consistency.",
         content: `<!-- wp:paragraph -->
-<p class="lead font-medium text-lg text-gray-300">In a multi-channel digital world, a brand identity must dynamically adapt across website hero sections, mobile interfaces, video assets, and social campaigns—all while preserving strict visual coherence.</p>
+<p class="lead font-medium text-lg text-gray-300">In a multi-channel digital world, a brand identity must dynamically adapt across website hero sections, mobile interfaces, video assets, and social campaigns, all while preserving strict visual coherence.</p>
 <!-- /wp:paragraph -->
 
 <!-- wp:heading -->
@@ -573,11 +573,11 @@ export const blogPosts = [
     {
         id: 30468,
         slug: "how-to-build-a-wcag-compliant-wordpress-website-and-why-it-matters-more-than-you-think",
-        title: "How to Build a WCAG-Compliant WordPress Website — and Why It Matters More Than You Think",
+        title: "How to Build a WCAG-Compliant WordPress Website and Why It Matters More Than You Think",
         category: "need-to-know-updates",
         excerpt: "While WordPress powers 43% of the internet, it is not accessible 'out of the box'. Learn how to achieve WCAG 2.1 Level AA compliance across themes and page builders.",
         content: `<!-- wp:paragraph -->
-<p class="lead font-medium text-lg text-gray-300">While WordPress powers 43% of the internet, it is not accessible "out of the box". For organizations like nonprofits, counseling practices, and those working with government programs, failing to meet accessibility standards isn't just a design flaw—it is a legal and funding risk.</p>
+<p class="lead font-medium text-lg text-gray-300">While WordPress powers 43% of the internet, it is not accessible "out of the box". For organizations like nonprofits, counseling practices, and those working with government programs, failing to meet accessibility standards isn't just a design flaw, it is a legal and funding risk.</p>
 <!-- /wp:paragraph -->
 
 <!-- wp:heading -->

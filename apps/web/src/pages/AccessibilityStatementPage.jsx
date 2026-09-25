@@ -60,7 +60,7 @@ const AccessibilityStatementPage = () => {
                 and, where possible, Level AAA.
               </p>
               <p>
-                Accessibility is not a checkbox — it is an ongoing commitment woven into how we design,
+                Accessibility is not a checkbox. It is an ongoing commitment woven into how we design,
                 build, and maintain our services.
               </p>
             </Section>
@@ -96,10 +96,10 @@ const AccessibilityStatementPage = () => {
               </ul>
               <p className="mb-4">We also offer pre-configured accessibility profiles:</p>
               <ul className="list-disc list-inside space-y-1 text-sm ml-2">
-                <li><strong className="text-white">Motor Impaired</strong> — enhanced keyboard navigation and interaction targets</li>
-                <li><strong className="text-white">Visually Impaired</strong> — high contrast and screen reader optimizations</li>
-                <li><strong className="text-white">Color Blind</strong> — desaturated palette for accessible color distinction</li>
-                <li><strong className="text-white">Dyslexia</strong> — specialized font and reading aids</li>
+                <li><strong className="text-white">Motor Impaired</strong>: enhanced keyboard navigation and interaction targets</li>
+                <li><strong className="text-white">Visually Impaired</strong>: high contrast and screen reader optimizations</li>
+                <li><strong className="text-white">Color Blind</strong>: desaturated palette for accessible color distinction</li>
+                <li><strong className="text-white">Dyslexia</strong>: specialized font and reading aids</li>
               </ul>
             </Section>
 
@@ -108,10 +108,10 @@ const AccessibilityStatementPage = () => {
                 We aim to conform to the following standards:
               </p>
               <ul className="list-disc list-inside space-y-2 text-sm ml-2">
-                <li><strong className="text-white">WCAG 2.1 Level AA</strong> — our baseline compliance target</li>
-                <li><strong className="text-white">WCAG 2.1 Level AAA</strong> — pursued where technically feasible</li>
+                <li><strong className="text-white">WCAG 2.1 Level AA</strong>: our baseline compliance target</li>
+                <li><strong className="text-white">WCAG 2.1 Level AAA</strong>: pursued where technically feasible</li>
                 <li><strong className="text-white">Section 508</strong> of the Rehabilitation Act (US federal standards)</li>
-                <li><strong className="text-white">EN 301 549</strong> — European accessibility standard for ICT products and services</li>
+                <li><strong className="text-white">EN 301 549</strong>: European accessibility standard for ICT products and services</li>
               </ul>
               <p className="mt-4">
                 We use semantic HTML5, ARIA landmarks and attributes, keyboard-navigable components,
@@ -196,7 +196,7 @@ const AccessibilityStatementPage = () => {
               </p>
               <ul className="list-disc list-inside space-y-2 text-sm ml-2">
                 <li>
-                  <strong className="text-white">United States:</strong> U.S. Department of Justice, Civil Rights Division —{' '}
+                  <strong className="text-white">United States:</strong> U.S. Department of Justice, Civil Rights Division:{' '}
                   <a
                     href="https://www.ada.gov"
                     target="_blank"

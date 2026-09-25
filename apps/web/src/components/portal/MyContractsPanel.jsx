@@ -22,7 +22,7 @@ const paymentStatusConfig = {
 };
 
 const formatDate = (str) => {
-  if (!str) return '—';
+  if (!str) return '-';
   return new Date(str).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
 };
 
@@ -122,7 +122,7 @@ function ContractModal({ contract, onClose, onSign, isAdmin, onEditContract }) {
           </div>
         </div>
 
-        {/* Contract document — renders identically to ContractBuilderPanel preview */}
+        {/* Contract document: renders identically to ContractBuilderPanel preview */}
         <div className="bg-white rounded p-10 shadow-2xl print-contract-preview" style={{ fontFamily: 'Times New Roman, serif' }}>
           <div className="text-black text-[0.9rem] leading-[1.8]">
             <h4 className="text-xl font-bold mb-2 text-center uppercase tracking-widest border-b-2 border-black pb-4">Services Agreement</h4>
@@ -189,7 +189,7 @@ function ContractModal({ contract, onClose, onSign, isAdmin, onEditContract }) {
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-8 sm:gap-12 mt-8">
               <div>
                 <div className="border-b border-black mb-2 pb-1 text-xl" style={{ fontFamily: "'Brush Script MT', cursive" }}>Keisha Solomon</div>
-                <p className="text-sm font-bold uppercase">Agency — {agency.name}</p>
+                <p className="text-sm font-bold uppercase">Agency: {agency.name}</p>
                 <p className="text-sm">Name: Keisha Solomon</p>
                 <p className="text-sm">Title: CEO, {agency.name}</p>
                 <p className="text-sm">Date: {fmtDate(project.startDate)}</p>
@@ -198,7 +198,7 @@ function ContractModal({ contract, onClose, onSign, isAdmin, onEditContract }) {
                 <div className="border-b border-black mb-2 pb-1 text-xl" style={{ fontFamily: "'Brush Script MT', cursive", minHeight: '2rem' }}>
                   {contract.client_signature || ''}
                 </div>
-                <p className="text-sm font-bold uppercase">Client — {clientInfo.companyName || '[COMPANY]'}</p>
+                <p className="text-sm font-bold uppercase">Client: {clientInfo.companyName || '[COMPANY]'}</p>
                 <p className="text-sm">Name: {contract.client_signature || clientInfo.repName || '[REPRESENTATIVE]'}{clientInfo.title ? `, ${clientInfo.title}` : ''}</p>
                 {contract.client_signed_at && (
                   <p className="text-sm">Date: {new Date(contract.client_signed_at).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}</p>

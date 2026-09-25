@@ -23,7 +23,7 @@ const TICKET_TYPES = [
   {
     id: 'urgent',
     label: 'Urgent Fix',
-    sublabel: 'Critical issue — jump the queue',
+    sublabel: 'Critical issue: jump the queue',
     price: '$299',
     turnaround: '24-hour response',
   },
@@ -130,11 +130,11 @@ const NewTicketForm = ({ onClose, onSubmit, user, usage }) => {
                   </div>
                   {limitReached ? (
                     <div className="flex items-center gap-1.5 text-xs font-bold px-3 py-1.5 rounded-full text-center" style={{ background: 'rgba(251,191,36,0.15)', color: '#fbbf24' }}>
-                      Limit reached — billed at $85/hr
+                      Limit reached: billed at $85/hr
                     </div>
                   ) : (
                     <div className="flex items-center gap-1.5 text-xs font-bold px-3 py-1.5 rounded-full" style={{ background: 'rgba(34,200,229,0.12)', color: '#22c8e5' }}>
-                      <Check size={11} /> Covered — no charge
+                      <Check size={11} /> Covered: no charge
                     </div>
                   )}
                 </div>

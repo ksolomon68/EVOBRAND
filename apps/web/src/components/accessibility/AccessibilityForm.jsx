@@ -30,7 +30,7 @@ const AccessibilityForm = ({ onComplete }) => {
   const validate = () => {
     const errs = {};
     if (!form.businessName.trim()) errs.businessName = 'Required';
-    if (!form.websiteUrl.trim()) errs.websiteUrl = 'Required — we need a URL to scan';
+    if (!form.websiteUrl.trim()) errs.websiteUrl = 'Required: we need a URL to scan';
     else if (!/^https?:\/\/.+\..+/.test(form.websiteUrl.trim())) {
       errs.websiteUrl = 'Enter a valid URL (e.g. https://yoursite.com)';
     }

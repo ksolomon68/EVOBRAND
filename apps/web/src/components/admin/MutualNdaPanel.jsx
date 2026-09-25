@@ -32,7 +32,7 @@ export default function MutualNdaPanel() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
         body: JSON.stringify({
-          title: `Mutual NDA — ${partnerLabel}`,
+          title: `Mutual NDA: ${partnerLabel}`,
           clientEmail: partnerInfo.email,
           contractData: { agreementType: 'mutual-nda', partnerInfo, nda },
         }),

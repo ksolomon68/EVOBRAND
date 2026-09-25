@@ -151,7 +151,7 @@ const NotFoundPage = () => {
   return (
     <>
       <SEO
-        title="404 — Page Not Found | EVOBRAND"
+        title="404: Page Not Found | EVOBRAND"
         description="The page you're looking for doesn't exist or has been moved."
       />
 

@@ -217,7 +217,7 @@ const LoadingState = ({ hasWebsite }) => {
 
         {hasWebsite && (
           <p className="text-white/20 text-xs mt-6 text-center">
-            Live internet scan in progress — this takes ~15 seconds
+            Live internet scan in progress. This takes ~15 seconds
           </p>
         )}
       </div>

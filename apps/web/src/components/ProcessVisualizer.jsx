@@ -8,18 +8,18 @@ import { usePrefersReducedMotion } from '@/components/motion/PageMotion.jsx';
 gsap.registerPlugin(ScrollTrigger);
 
 /**
- * ProcessVisualizer — "The Operational Loop", literally.
+ * ProcessVisualizer: "The Operational Loop", literally.
  *
  * Mirrors the page's actual 4-phase process (01 Discover / 02 Develop /
  * 03 Launch / 04 Optimize) as nodes on a circular orbit around a central
  * AI core. On scroll, the core boots, the loop draws itself, and each
  * phase lights up in order. Then a pulse travels the loop continuously
- * and data packets stream from every phase back into the core — the
+ * and data packets stream from every phase back into the core, the
  * "each phase feeds data back" behavior described in the copy beside it.
  *
  * Decorative (aria-hidden); the real process content is in the step
  * cards above. All continuous animation is disabled under
- * prefers-reduced-motion — the diagram renders complete and static.
+ * prefers-reduced-motion: the diagram renders complete and static.
  */
 
 const CX = 200;
@@ -45,7 +45,7 @@ const ProcessVisualizer = () => {
       const spokes = gsap.utils.toArray('.pv-spoke');
 
       if (reduced) {
-        // Final, static state — fully drawn diagram, no motion.
+        // Final, static state: fully drawn diagram, no motion.
         gsap.set(['.pv-core', ...nodes], { scale: 1, opacity: 1 });
         gsap.set(labels, { opacity: 1 });
         gsap.set('.pv-ring', { strokeDashoffset: 0 });
@@ -82,7 +82,7 @@ const ProcessVisualizer = () => {
       });
 
       // ── Continuous behavior (time-based, not scrubbed) ──────────────
-      // Pulse traveling the loop — the process cycling.
+      // Pulse traveling the loop: the process cycling.
       gsap.set('.pv-traveler', { opacity: 0 });
       gsap.to('.pv-traveler', {
         opacity: 1,
@@ -149,7 +149,7 @@ const ProcessVisualizer = () => {
           </filter>
         </defs>
 
-        {/* Orbit ring — the loop itself (rotated so the draw starts at 12 o'clock) */}
+        {/* Orbit ring: the loop itself (rotated so the draw starts at 12 o'clock) */}
         <circle
           cx={CX}
           cy={CY}

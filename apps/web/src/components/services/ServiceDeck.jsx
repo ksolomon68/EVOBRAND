@@ -392,7 +392,7 @@ function CaseStudyBanner({ caseStudy }) {
         <TrendingUp size={18} style={{ color: CYAN }} />
       </div>
       <div className="flex-1 min-w-0">
-        <p className="text-[10px] font-bold uppercase tracking-[0.25em] mb-1" style={{ color: CYAN }}>{caseStudy.client} — Case Result</p>
+        <p className="text-[10px] font-bold uppercase tracking-[0.25em] mb-1" style={{ color: CYAN }}>{caseStudy.client} · Case result</p>
         <p className="text-sm font-semibold text-white mb-1">{caseStudy.solution}</p>
         <div className="flex flex-wrap gap-2 mt-2">
           {caseStudy.results.map((r) => (
@@ -458,7 +458,7 @@ export default function ServiceDeck({ services, getPlanId, onCheckout }) {
                       </div>
                       <div>
                         <p className="text-[10px] font-bold uppercase tracking-[0.25em] mb-1" style={{ color: CYAN }}>
-                          {String(active + 1).padStart(2, '0')} — of {String(services.length).padStart(2, '0')} Services
+                          {String(active + 1).padStart(2, '0')} of {String(services.length).padStart(2, '0')} Services
                         </p>
                         <KineticHeadline
                           as="h2"
@@ -533,7 +533,7 @@ export default function ServiceDeck({ services, getPlanId, onCheckout }) {
                 </div>
 
                 {/* Case study banner */}
-                <CaseStudyBanner caseStudy={currentService.caseStudy} />
+                {currentService.caseStudy && <CaseStudyBanner caseStudy={currentService.caseStudy} />}
 
                 {/* Mobile: "View Pricing" sticky button */}
                 <div className="md:hidden mt-8 sticky bottom-6 z-30">

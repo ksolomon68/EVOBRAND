@@ -26,7 +26,7 @@ const VARS = `
 const QUESTIONS = [
   {
     q: 'What does EVOBRAND build?',
-    a: 'EVOBRAND builds websites, custom applications, client portals, and AI-powered workflows for businesses and organizations. Everything is designed to make your business easier to run — and easier for customers to choose.',
+    a: 'EVOBRAND builds websites, custom applications, client portals, and AI-powered workflows for businesses and organizations. Everything is designed to make your business easier to run, and easier for customers to choose.',
   },
   {
     q: 'How much does a project cost?',
@@ -34,7 +34,7 @@ const QUESTIONS = [
   },
   {
     q: 'Can you build a custom dashboard or portal?',
-    a: 'Yes — that\'s a core strength. We\'ve built workforce portals, membership platforms, operations dashboards, and AI-assisted client portals. View live demos at evobrand.net/our-work.',
+    a: 'Yes, that\'s a core strength. We\'ve built workforce portals, membership platforms, operations dashboards, and AI-assisted client portals. View live demos at evobrand.net/our-work.',
   },
   {
     q: 'Do you work with nonprofits and government agencies?',
@@ -50,11 +50,11 @@ const QUESTIONS = [
   },
   {
     q: 'How long does a typical project take?',
-    a: 'Simple websites typically launch in 2–4 weeks. Custom applications and portals range from 6–16 weeks depending on scope. We give you a clear timeline during scoping — no vague estimates.',
+    a: 'Simple websites typically launch in 2–4 weeks. Custom applications and portals range from 6–16 weeks depending on scope. We give you a clear timeline during scoping. No vague estimates.',
   },
   {
     q: "What's included in the client portal?",
-    a: 'Every client gets access to a private portal where you can track project progress, review deliverables, sign agreements, and communicate with your project team — all in one place.',
+    a: 'Every client gets access to a private portal where you can track project progress, review deliverables, sign agreements, and communicate with your project team, all in one place.',
   },
 ];
 
@@ -197,7 +197,7 @@ export default function ChatWidget() {
             {view === VIEW.GREET && (
               <>
                 <BotMsg>
-                  Hi, I'm the EVOBRAND Assistant. I can answer questions about our services, process, and past work — or connect you directly with our team.
+                  Hi, I'm the EVOBRAND Assistant. I can answer questions about our services, process, and past work, or connect you directly with our team.
                 </BotMsg>
                 <Chips>
                   {QUESTIONS.map((item) => (
@@ -221,7 +221,7 @@ export default function ChatWidget() {
                   </Chips>
                 ) : (
                   <BotMsg>
-                    Glad that helped. Feel free to ask anything else — or{' '}
+                    Glad that helped. Feel free to ask anything else, or{' '}
                     <a href="/book-consultation" style={{ color: 'var(--accent)', textDecoration: 'underline' }}>
                       book a strategy call
                     </a>{' '}
@@ -235,7 +235,7 @@ export default function ChatWidget() {
             {view === VIEW.HANDOFF && (
               <>
                 <BotMsg>
-                  No problem — let's get you to a real person on our team. You can reach us on WhatsApp or book a call directly.
+                  No problem. Let's get you to a real person on our team. You can reach us on WhatsApp or book a call directly.
                 </BotMsg>
                 <div style={{
                   background: 'var(--surface)', border: '1px solid var(--border)',

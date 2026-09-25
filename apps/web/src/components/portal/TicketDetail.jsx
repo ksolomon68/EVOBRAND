@@ -6,7 +6,7 @@ import PaymentModal from './PaymentModal';
 function Attachment({ url, className = '' }) {
   if (!url) return null;
   // Prod: frontend (static host) and API (separate Node app) are deployed
-  // independently — only /api/* is proxied to the Node app, so uploads must
+  // independently: only /api/* is proxied to the Node app, so uploads must
   // be requested through that prefix or they 404 against the static host.
   const base = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
     ? 'http://localhost:5000'
@@ -282,8 +282,8 @@ const TicketDetail = ({ ticket, onBack, onReply, onClose, user, onRefresh }) => 
                                 {isAdmin && (ticket.user_name || ticket.user_email) && (
                                     <div>
                                         <p className="text-white/20 text-[10px] font-bold uppercase tracking-widest mb-1">Client</p>
-                                        <p className="text-white text-sm font-semibold">{ticket.user_name || '—'}</p>
-                                        <p className="text-white/40 text-xs mt-0.5">{ticket.user_email || '—'}</p>
+                                        <p className="text-white text-sm font-semibold">{ticket.user_name || '-'}</p>
+                                        <p className="text-white/40 text-xs mt-0.5">{ticket.user_email || '-'}</p>
                                         <div className="mt-2">
                                             {ticket.user_support_plan ? (
                                                 <span className="inline-block px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-[#22c8e5]/10 text-[#22c8e5] border border-[#22c8e5]/20">
