@@ -56,7 +56,7 @@ function SiteLayout() {
       <div className="flex flex-col min-h-screen">
         {!isPortal && <Header />}
         <main className="flex-1" id="main-content">
-          <Suspense fallback={<div className="min-h-[60vh]" aria-busy="true" />}>
+          <Suspense fallback={<div className="min-h-[100svh]" aria-busy="true" />}>
           <Routes>
             <Route path="/" element={<HomePage />} />
             <Route path="/services" element={<ServicesPage />} />

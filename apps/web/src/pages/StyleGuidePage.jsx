@@ -30,11 +30,12 @@ export default function StyleGuidePage() {
           lead="Proof before promises."
           emphasis="Senior-led since 1999."
           intro="The section rhythm in one block: a short label, a two-part headline with an emphasized second half, supporting copy, then proof."
-        />
-        <div className="mt-space-l flex flex-wrap gap-space-s">
-          <ButtonLink to="/contact">Start a project</ButtonLink>
-          <ButtonLink to="/our-work" variant="secondary">See the work</ButtonLink>
-        </div>
+        >
+          <div className="mt-space-s flex flex-wrap gap-space-s">
+            <ButtonLink to="/contact">Start a project</ButtonLink>
+            <ButtonLink to="/our-work" variant="secondary">See the work</ButtonLink>
+          </div>
+        </SectionHeading>
       </Section>
 
       <Section
@@ -42,13 +43,13 @@ export default function StyleGuidePage() {
         label="Credential ledger"
         lead="The record,"
         emphasis="not the pitch."
-        intro="Proof points set like an official filing. Values in the display serif, labels in the brand face."
+        intro="Proof points set like an official filing. On scroll, the rules draw, values rise into place and counts tick up. Nothing moves under reduced motion."
       >
         {/* Example values use confirmed facts only. */}
         <ProofLedger
           items={[
             { value: '1999', label: 'Established' },
-            { value: '25+ years', label: 'In operation' },
+            { value: 25, suffix: '+ years', label: 'In operation', count: true },
             { value: 'SBE · WBE · MBE', label: 'Certified' },
             { value: 'Public · Private · Nonprofit', label: 'Client sectors' },
           ]}

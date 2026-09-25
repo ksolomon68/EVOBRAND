@@ -199,6 +199,17 @@
   .evo-heading em {
     display: block;
   }
+  /* Masked lines created by the headline reveal; padding keeps descenders visible. */
+  .evo-reveal-line {
+    padding-bottom: 0.06em;
+    margin-bottom: -0.06em;
+  }
+  /* Set by an inline script for up to 350ms while the motion engine loads,
+     so an above-the-fold headline can reveal instead of flashing. */
+  .motion-pending [data-reveal-heading],
+  .motion-pending [data-reveal-extra] {
+    visibility: hidden;
+  }
 
   .evo-intro {
     max-width: var(--measure);
@@ -244,10 +255,28 @@
     border-top: 1px solid var(--evo-line);
   }
   .evo-ledger > div {
+    position: relative;
     display: grid;
     gap: var(--space-3xs);
     padding: var(--space-m) var(--space-m) var(--space-m) 0;
-    border-bottom: 1px solid var(--evo-line);
+  }
+  .evo-ledger-rule {
+    position: absolute;
+    inset: auto 0 0 0;
+    height: 1px;
+    background: var(--evo-line);
+  }
+  .evo-mask {
+    display: block;
+    overflow: hidden;
+    padding-bottom: 0.08em; /* keeps descenders inside the mask */
+  }
+  .evo-mask-inner {
+    display: block;
+  }
+  .evo-count {
+    display: inline-block;
+    text-align: right;
   }
   .evo-ledger dt {
     order: 2;

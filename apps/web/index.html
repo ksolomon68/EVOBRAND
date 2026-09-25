@@ -4,6 +4,17 @@
 <head>
 	<meta charset="UTF-8" />
 	<link rel="icon" type="image/png" href="/favicon.png" />
+	<script>
+		// Motion: briefly hide above-the-fold headlines while the animation engine loads.
+		// Skipped under reduced motion; always released after 350ms so text never stays hidden.
+		(function () {
+			if (!window.matchMedia || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+			var root = document.documentElement;
+			root.classList.add('motion-pending');
+			window.__releaseMotion = function () { root.classList.remove('motion-pending'); };
+			setTimeout(window.__releaseMotion, 350);
+		})();
+	</script>
 	<meta name="generator" content="EVOBRAND" />
 	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 	<meta name="theme-color" content="#0f1419" />

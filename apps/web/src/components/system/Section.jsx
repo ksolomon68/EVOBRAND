@@ -1,5 +1,6 @@
-import React from 'react';
+import React, { useRef } from 'react';
 import { Link } from 'react-router-dom';
+import { useHeadlineReveal, useLedgerReveal } from '@/components/system/motionHooks.js';
 
 /**
  * Section rhythm used across the marketing pages:
@@ -7,8 +8,8 @@ import { Link } from 'react-router-dom';
  * supporting copy, then proof (children).
  */
 
-export function Eyebrow({ children, className = '' }) {
-  return <p className={`evo-eyebrow ${className}`}>{children}</p>;
+export function Eyebrow({ children, className = '', ...rest }) {
+  return <p className={`evo-eyebrow ${className}`} {...rest}>{children}</p>;
 }
 
 export function SectionHeading({
@@ -18,22 +19,31 @@ export function SectionHeading({
   intro,
   as: Heading = 'h2',
   display = false,
+  reveal = true,
   id,
   className = '',
+  children,
 }) {
+  const rootRef = useRef(null);
+  useHeadlineReveal(rootRef, reveal);
   return (
-    <div className={`grid gap-space-m ${className}`}>
-      {label && <Eyebrow>{label}</Eyebrow>}
-      <Heading id={id} className={`evo-heading ${display ? 'evo-heading--display' : ''}`}>
-        {lead}
+    <div ref={rootRef} className={`grid gap-space-m ${className}`}>
+      {label && <Eyebrow data-reveal-extra>{label}</Eyebrow>}
+      <Heading
+        id={id}
+        data-reveal-heading
+        className={`evo-heading ${display ? 'evo-heading--display' : ''}`}
+      >
+        <span data-reveal-lead className="block">{lead}</span>
         {emphasis && (
           <>
             {' '}
-            <em>{emphasis}</em>
+            <em data-reveal-emphasis>{emphasis}</em>
           </>
         )}
       </Heading>
-      {intro && <p className="evo-intro">{intro}</p>}
+      {intro && <p className="evo-intro" data-reveal-extra>{intro}</p>}
+      {children && <div data-reveal-extra>{children}</div>}
     </div>
   );
 }
@@ -81,17 +91,43 @@ export function Section({
 
 /**
  * Credential ledger: proof points set like an official record.
- * items: [{ value: '1999', label: 'Established' }, ...]
+ * items: [{ value: '1999', label: 'Established' }, { value: 25, suffix: '+ years', label: 'In operation', count: true }]
+ * Items with `count: true` must have a numeric value; they tick up when revealed.
  */
-export function ProofLedger({ items, className = '' }) {
+export function ProofLedger({ items, reveal = true, className = '' }) {
+  const rootRef = useRef(null);
+  useLedgerReveal(rootRef, reveal);
   return (
-    <dl className={`evo-ledger ${className}`}>
-      {items.map((item) => (
-        <div key={item.label}>
-          <dt>{item.label}</dt>
-          <dd>{item.value}</dd>
-        </div>
-      ))}
+    <dl ref={rootRef} className={`evo-ledger ${className}`}>
+      {items.map((item) => {
+        const digits = String(item.value).length;
+        return (
+          <div key={item.label}>
+            <dt>{item.label}</dt>
+            <dd>
+              <span className="evo-mask">
+                <span className="evo-mask-inner">
+                  {item.count ? (
+                    <>
+                      <span
+                        className="evo-count"
+                        style={{ minWidth: `${digits}ch` }}
+                        data-count-to={item.value}
+                      >
+                        {item.value}
+                      </span>
+                      {item.suffix}
+                    </>
+                  ) : (
+                    item.value
+                  )}
+                </span>
+              </span>
+            </dd>
+            <span className="evo-ledger-rule" aria-hidden="true" />
+          </div>
+        );
+      })}
     </dl>
   );
 }
