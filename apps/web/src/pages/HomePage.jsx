@@ -1,100 +1,92 @@
-import React, { useMemo } from 'react';
+import React from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowRight, ArrowUpRight, Workflow, PanelsTopLeft, Palette } from 'lucide-react';
+import { ArrowRight, ArrowUpRight } from 'lucide-react';
 import SEO from '@/components/SEO.jsx';
+import Preloader from '@/components/cinematic/Preloader.jsx';
+import CinematicHero from '@/components/cinematic/CinematicHero.jsx';
+import WorkReel from '@/components/cinematic/WorkReel.jsx';
+import SectionWipe from '@/components/cinematic/SectionWipe.jsx';
+import {
+  ButtonLink,
+  Eyebrow,
+  ProofLedger,
+  Section,
+  SectionHeading,
+} from '@/components/system/Section.jsx';
 
-const work = [
-  {
-    title: 'Chamber Core',
-    type: 'Membership & operations',
-    image: '/projects/chamberos.png',
-    url: 'https://chambercore.net',
-    caption: 'From scattered tasks to one workspace.',
-    description: 'One place for membership, dues, events, and the day-to-day work of a chamber.',
-  },
+const IMG = '/projects/optimized';
+
+const PROJECTS = [
   {
     title: 'PrimeReach',
     type: 'Government contracting',
-    image: '/projects/primereach.png',
+    description: 'A platform connecting prime contractors with qualified small businesses for transportation and infrastructure work.',
     url: 'https://primereachgov.com/',
-    caption: 'Connecting prime contractors with qualified small businesses.',
-    description: 'A platform that connects prime contractors with qualified small businesses.',
+    image: `${IMG}/primereach-1024.webp`,
+    width: 1024,
+    height: 506,
+    alt: 'PrimeReach platform home page',
   },
   {
-    title: 'The AI Executive Sandbox',
-    type: 'Executive AI & leadership',
-    image: '/projects/keishasolomon.png',
-    url: 'https://keishasolomon.com/',
-    caption: 'Build deployable AI assets in every session.',
-    description: 'Applied AI cohort where business leaders build deployable AI assets, workflows, and pipelines.',
-  },
-  {
-    title: 'Pivotal Voice',
-    type: 'Community & civic engagement',
-    image: '/projects/pivotal-voice.jpg',
-    url: 'https://pivotalvoice.org/',
-    caption: 'Connecting residents with the civic information that matters.',
-    description: 'A public platform connecting Ellis County residents with civic information.',
-  },
-];
-
-// Dashboard demos shown in the homepage "Selected work" section: sourced from OurWorkPage
-const demos = [
-  {
-    title: 'EVOCORE',
-    subtitle: 'Dual-Screen Simulator',
-    type: 'Custom business dashboard',
-    image: '/projects/evocore.jpeg',
-    url: 'https://evobrandconcepts.com/evocore/',
-    description: 'Interactive simulator showing how the Mobile Crew App and Admin Portal sync in real-time: dispatch, job costing, payroll, and live revenue.',
+    title: 'ChamberCore',
+    type: 'Membership and operations',
+    description: 'One place for membership, dues, events, governance, and the day-to-day work of a chamber.',
+    url: 'https://chambercore.net',
+    image: `${IMG}/chambercore-1024.webp`,
+    width: 1024,
+    height: 495,
+    alt: 'ChamberCore platform home page',
   },
   {
     title: 'RBCA Workforce Portal',
-    subtitle: 'Second Chance & Community Hub',
-    type: 'Workforce & education platform',
-    image: '/projects/rbca-portal.png',
+    type: 'Workforce development',
+    description: 'A program operations hub for participant records, cohorts, contractors, stipends, and placement tracking.',
     url: 'https://evobrandconcepts.com/rbca1/rbca-portal.html',
-    description: 'All-in-one workforce operations hub: 5-week cohort lifecycle, participant database, contractor network, stipend disbursements, and placement analytics.',
+    image: `${IMG}/rbca-portal-1024.webp`,
+    width: 1024,
+    height: 544,
+    alt: 'RBCA Workforce Portal dashboard',
   },
   {
-    title: 'NOVA Transformation Portal',
-    subtitle: 'Employer & Digital Growth Hub',
-    type: 'Client portal & AI audit',
-    image: '/projects/nova.png',
-    url: 'https://evobrand.net/nova/',
-    description: 'Small business portal with automated digital audits, step-by-step transformation roadmaps, virtual 1-on-1 coaching, and priority growth resources.',
+    title: 'Pivotal Voice',
+    type: 'Civic engagement',
+    description: 'A public platform connecting Ellis County residents with the local information that matters.',
+    url: 'https://pivotalvoice.org/',
+    image: `${IMG}/pivotal-voice-960.webp`,
+    width: 960,
+    height: 457,
+    alt: 'Pivotal Voice civic platform home page',
   },
 ];
 
-
-const services = [
+const CAPABILITIES = [
   {
-    icon: Workflow,
-    title: 'Make everyday work easier.',
-    label: 'AI & automation',
-    body: 'Connect your tools, reduce repetitive tasks, and build AI assistants around the way your team works.',
-    detail: 'Custom applications · Connected workflows · Document tools',
+    index: '01',
+    label: 'Websites & portals',
+    title: 'Make the experience easier to choose—and easier to use.',
+    body: 'Accessible websites and client portals shaped around the decisions people actually need to make.',
   },
   {
-    icon: PanelsTopLeft,
-    title: 'Give people a better experience.',
-    label: 'Websites & client portals',
-    body: 'Create a website or portal that makes it easy for people to find information, take action, and work with you.',
-    detail: 'Web development · Client portals · Accessibility reviews',
+    index: '02',
+    label: 'Applications & automation',
+    title: 'Turn scattered work into one clear operating system.',
+    body: 'Custom applications, connected workflows, and practical AI tools built around how your team works.',
   },
   {
-    icon: Palette,
-    title: 'Make your brand unmistakable.',
+    index: '03',
     label: 'Brand & creative',
-    body: 'Bring your identity, content, and visuals together so every interaction feels like the same business.',
-    detail: 'Brand identity · Visual content · Video & motion',
+    title: 'Build a presence people recognize before they read the name.',
+    body: 'Identity, visual systems, content, video, and motion that make every touchpoint feel like the same organization.',
   },
+];
+
+const PROCESS = [
+  ['Understand the work', 'We map the goal, the people involved, and the friction getting in their way.'],
+  ['Set the direction', 'We turn the problem into a clear scope, visual direction, milestones, and measures of success.'],
+  ['Build in the open', 'You see the work as it develops, respond at the right moments, and launch with shared confidence.'],
 ];
 
 export default function HomePage() {
-  // Randomly pick a featured project on each page load; stable across re-renders
-  const featured = useMemo(() => work[Math.floor(Math.random() * work.length)], []);
-
   return (
     <>
       <SEO
@@ -102,138 +94,137 @@ export default function HomePage() {
         description="EVOBRAND builds websites, custom applications, and practical AI workflows for businesses and organizations. Based in Italy, Texas. Serving clients nationwide."
         canonical="https://evobrand.net/"
       />
-      <div className="evo-home">
+      <Preloader />
 
-        {/* ── Hero ── */}
-        <section className="evo-hero evo-wrap">
-          <div className="evo-hero-copy">
-            <p className="portal-eyebrow">EVOBRAND Concepts · Strategy, design & technology</p>
-            <h1>Better systems.<br /><span>A stronger brand.</span></h1>
-            <p className="evo-lead">
-              Websites, custom applications, and AI workflows that make your business easier to run and easier to choose.
-            </p>
-            <div className="evo-actions">
-              <Link className="evo-button" to="/book-consultation">Book a strategy call <ArrowRight size={17} /></Link>
-              <Link className="evo-link" to="/our-work">View our work <ArrowUpRight size={17} /></Link>
-            </div>
-            <p className="evo-hero-note">Based in Italy, Texas. Serving clients nationwide.</p>
-          </div>
+      <CinematicHero
+        eyebrow="EVOBRAND Concepts · Strategy, design & technology"
+        lead="Better systems."
+        emphasis="A stronger brand."
+        intro="Websites, custom applications, and AI workflows that make your organization easier to run—and easier to choose."
+        primary={{ to: '/book-consultation', label: 'Book a strategy call', cta: 'hero-strategy' }}
+        secondary={{ to: '/our-work', label: 'See the work', cta: 'hero-work' }}
+        media={{
+          src: `${IMG}/caltrans-1900.webp`,
+          srcSet: `${IMG}/caltrans-960.webp 960w, ${IMG}/caltrans-1900.webp 1900w`,
+          width: 1898,
+          height: 909,
+          alt: 'Caltrans BizConnect digital platform home page',
+          label: 'Inside the work · Public sector',
+          title: 'Caltrans BizConnect',
+          caption: 'A statewide digital platform helping small businesses prepare for transportation contracting.',
+        }}
+      />
 
-          {/* Hero feature card: randomly rotates through flagship projects on each page load */}
-          <a
-            href={featured.url}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="evo-feature"
-            aria-label={`Visit ${featured.title}, an EVOBRAND project`}
-          >
-            <div className="evo-feature-top"><span>Inside the work</span><ArrowUpRight size={18} /></div>
-            <img src={featured.image} alt={`${featured.title} website preview`} />
-            <div className="evo-feature-caption">
-              <strong>{featured.caption}</strong>
-              <span>{featured.title} · {featured.type}</span>
-            </div>
-          </a>
-        </section>
+      <WorkReel
+        label="Selected work"
+        lead="Built for real people."
+        emphasis="Put to work every day."
+        intro="Digital platforms for contracting, membership, workforce development, and civic participation."
+        projects={PROJECTS}
+        footer={
+          <>
+            <Eyebrow>The wider portfolio</Eyebrow>
+            <p className="evo-intro">Explore more websites, operational platforms, and working product demos.</p>
+            <ButtonLink to="/our-work" variant="secondary">
+              See all work <ArrowRight size={16} aria-hidden="true" />
+            </ButtonLink>
+          </>
+        }
+      />
 
-        {/* ── Selected Work: Dashboard Demos ── */}
-        <section className="evo-section evo-work" aria-labelledby="work-title">
-          <div className="evo-wrap">
-            <div className="evo-section-heading">
+      <SectionWipe>
+        <Section
+          tone="navy"
+          label="The record"
+          lead="Experience you can verify."
+          emphasis="Work you can open."
+          intro="Senior-led from the first conversation through launch, with a track record spanning public, private, and nonprofit work."
+        >
+          <ProofLedger
+            items={[
+              { value: '1999', label: 'Established' },
+              { value: 25, suffix: '+ years', label: 'In operation', count: true },
+              { value: 'SBE · WBE · MBE', label: 'Certified' },
+              { value: 'Public · Private · Nonprofit', label: 'Client sectors' },
+            ]}
+          />
+        </Section>
+      </SectionWipe>
+
+      <Section id="capabilities" tone="ink" className="studio-capabilities">
+        <div className="studio-capabilities__heading">
+          <SectionHeading
+            label="What we build"
+            lead="Start with the problem."
+            emphasis="Build the right system."
+            intro="Strategy, design, and technology stay connected, so the finished work is useful—not merely impressive."
+          />
+          <ButtonLink to="/services" variant="secondary">
+            Explore services <ArrowRight size={16} aria-hidden="true" />
+          </ButtonLink>
+        </div>
+
+        <div className="studio-capability-list">
+          {CAPABILITIES.map((item) => (
+            <Link className="studio-capability" to="/services" key={item.index}>
+              <span className="studio-capability__index" aria-hidden="true">{item.index}</span>
               <div>
-                <p className="portal-eyebrow">Selected work</p>
-                <h2 id="work-title">Built for real people.<br />Put to work every day.</h2>
+                <Eyebrow>{item.label}</Eyebrow>
+                <h3>{item.title}</h3>
               </div>
-              <Link className="evo-link" to="/our-work#dashboard-demos">See all demos <ArrowUpRight size={17} /></Link>
-            </div>
-            <div className="evo-work-grid">
-              {demos.map((item) => (
-                <a
-                  className="evo-work-item"
-                  href={item.url}
-                  key={item.title}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  <div className="evo-work-image">
-                    <img src={item.image} alt={`${item.title} dashboard demo`} loading="lazy" />
-                  </div>
-                  <p className="portal-eyebrow">{item.type}</p>
-                  <h3>{item.title}<ArrowUpRight size={20} /></h3>
-                  <p className="evo-work-subtitle">{item.subtitle}</p>
-                  <p>{item.description}</p>
-                  <span className="sr-only">Launch live demo (opens in a new tab)</span>
-                </a>
-              ))}
-            </div>
-          </div>
-        </section>
+              <p>{item.body}</p>
+              <span className="studio-capability__arrow" aria-hidden="true"><ArrowUpRight size={22} /></span>
+            </Link>
+          ))}
+        </div>
+      </Section>
 
-        {/* ── Services ── */}
-        <section className="evo-section evo-wrap" aria-labelledby="services-title">
-          <div className="evo-section-heading">
-            <div>
-              <p className="portal-eyebrow">How we can help</p>
-              <h2 id="services-title">Start with the problem.<br />Build the right solution.</h2>
-            </div>
-            <Link className="evo-link" to="/services">Explore all services <ArrowRight size={17} /></Link>
-          </div>
-          <div className="evo-service-grid">
-            {services.map(({ icon: Icon, ...service }) => (
-              <article key={service.label}>
-                <Icon size={25} aria-hidden="true" />
-                <p className="portal-eyebrow">{service.label}</p>
-                <h3>{service.title}</h3>
-                <p>{service.body}</p>
-                <p className="evo-service-detail">{service.detail}</p>
-              </article>
-            ))}
-          </div>
-        </section>
+      <SectionWipe>
+        <Section id="process" tone="slate" className="studio-process">
+          <div className="studio-process__grid">
+            <SectionHeading
+              label="Working together"
+              lead="Clear steps."
+              emphasis="Shared visibility."
+              intro="You always know what we are making, what comes next, and where your feedback fits."
+            >
+              <ButtonLink to="/how-it-works" variant="secondary">
+                How we work <ArrowRight size={16} aria-hidden="true" />
+              </ButtonLink>
+            </SectionHeading>
 
-        {/* ── Process ── */}
-        <section className="evo-section evo-process" aria-labelledby="process-title">
-          <div className="evo-wrap evo-process-grid">
-            <div>
-              <p className="portal-eyebrow">Working together</p>
-              <h2 id="process-title">Clear steps.<br />Shared visibility.</h2>
-              <p>Know what we are building, what comes next, and where your feedback fits.</p>
-              <Link className="evo-link" to="/how-it-works">How we work <ArrowRight size={17} /></Link>
-            </div>
-            <ol>
-              {[
-                ['Understand your work', 'We talk through your goals, current tools, and the problems slowing your team down.'],
-                ['Agree on the plan', 'We define the scope, deliverables, and milestones so you know what to expect.'],
-                ['Build, review, and launch', 'You review the work as it develops. Your client workspace keeps projects, meetings, and agreements together.'],
-              ].map(([title, body], index) => (
+            <ol className="studio-process__list">
+              {PROCESS.map(([title, body], index) => (
                 <li key={title}>
-                  <span>0{index + 1}</span>
-                  <div><h3>{title}</h3><p>{body}</p></div>
+                  <span aria-hidden="true">0{index + 1}</span>
+                  <div>
+                    <h3>{title}</h3>
+                    <p>{body}</p>
+                  </div>
                 </li>
               ))}
             </ol>
           </div>
-        </section>
+        </Section>
+      </SectionWipe>
 
-        {/* ── CTA ── */}
-        <section className="evo-section evo-wrap" aria-labelledby="start-title">
-          <div className="evo-closing">
-            <div>
-              <p className="portal-eyebrow">Let's make it work better</p>
-              <h2 id="start-title">What is getting in<br />your team's way?</h2>
-              <p>Bring your idea, your bottleneck, or your next big project. We'll help you find a practical place to start.</p>
-            </div>
-            <Link className="evo-button" to="/book-consultation">Book a strategy call <ArrowRight size={17} /></Link>
+      <Section tone="deep" className="studio-closing">
+        <div className="studio-closing__grid">
+          <SectionHeading
+            display
+            label="Start a conversation"
+            lead="What is getting in"
+            emphasis="your team’s way?"
+            intro="Bring the idea, the bottleneck, or the next big project. We will help you find a practical place to start."
+          />
+          <div className="studio-closing__action">
+            <ButtonLink to="/book-consultation" data-cta="closing-strategy">
+              Book a strategy call <ArrowRight size={16} aria-hidden="true" />
+            </ButtonLink>
+            <p>Based in Italy, Texas.<br />Serving clients nationwide.</p>
           </div>
-          <div className="evo-resources">
-            <span>Still exploring?</span>
-            <Link to="/auditors">Check your brand or website</Link>
-            <Link to="/videos">Watch our video library</Link>
-            <Link to="/free-demo-portal">Request a custom demo</Link>
-          </div>
-        </section>
-
-      </div>
+        </div>
+      </Section>
     </>
   );
 }

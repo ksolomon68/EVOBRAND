@@ -58,35 +58,37 @@ function SiteLayout() {
         {!isPortal && <Header />}
         <main className="flex-1" id="main-content">
           <Suspense fallback={<div className="min-h-[100svh]" aria-busy="true" />}>
-          <Routes>
-            <Route path="/" element={<HomePage />} />
-            <Route path="/services" element={<ServicesPage />} />
-            <Route path="/how-it-works" element={<HowItWorksPage />} />
-            <Route path="/our-work" element={<OurWorkPage />} />
-            <Route path="/resources" element={<ResourcesPage />} />
-            <Route path="/videos" element={<><SEO title="Video library" description="Explore EVOBRAND videos on branding, automation, AI, and business growth." canonical="https://evobrand.net/videos" /><VideoLibrarySection standalone /></>} />
-            <Route path="/about" element={<AboutPage />} />
-            <Route path="/contact" element={<ContactPage />} />
-            <Route path="/client-portal" element={<ClientPortalPage />} />
-            <Route path="/login" element={<ClientPortalLoginPage />} />
-            <Route path="/reset-password" element={<ResetPasswordPage />} />
-            <Route path="/blog/:slug" element={<BlogPostPage />} />
-            <Route path="/auditors" element={<AuditorsPage />} />
-            <Route path="/auditor" element={<AuditorPage />} />
-            <Route path="/auditor/results/:id" element={<AuditorResultsPage />} />
-            <Route path="/accessibility-checker" element={<AccessibilityCheckerPage />} />
-            <Route path="/accessibility-checker/results/:id" element={<AccessibilityCheckerResultsPage />} />
-            <Route path="/maintenance-plans" element={<MaintenancePlansPage />} />
-            <Route path="/payment-success" element={<PaymentSuccessPage />} />
-            <Route path="/accessibility-statement" element={<AccessibilityStatementPage />} />
-            <Route path="/book-consultation" element={<BookConsultationPage />} />
-            <Route path="/free-demo-portal" element={<FreeDemoPortalPage />} />
-            <Route path="/style-guide" element={<StyleGuidePage />} />
-            <Route path="/motion-lab" element={<MotionLabPage />} />
-            <Route path="/book" element={<Navigate to="/book-consultation" replace />} />
-            <Route path="/contract-builder" element={<Navigate to="/client-portal" replace />} />
-            <Route path="*" element={<NotFoundPage />} />
-          </Routes>
+            <div key={pathname} className="route-scene">
+              <Routes>
+                <Route path="/" element={<HomePage />} />
+                <Route path="/services" element={<ServicesPage />} />
+                <Route path="/how-it-works" element={<HowItWorksPage />} />
+                <Route path="/our-work" element={<OurWorkPage />} />
+                <Route path="/resources" element={<ResourcesPage />} />
+                <Route path="/videos" element={<><SEO title="Video library" description="Explore EVOBRAND videos on branding, automation, AI, and business growth." canonical="https://evobrand.net/videos" /><VideoLibrarySection standalone /></>} />
+                <Route path="/about" element={<AboutPage />} />
+                <Route path="/contact" element={<ContactPage />} />
+                <Route path="/client-portal" element={<ClientPortalPage />} />
+                <Route path="/login" element={<ClientPortalLoginPage />} />
+                <Route path="/reset-password" element={<ResetPasswordPage />} />
+                <Route path="/blog/:slug" element={<BlogPostPage />} />
+                <Route path="/auditors" element={<AuditorsPage />} />
+                <Route path="/auditor" element={<AuditorPage />} />
+                <Route path="/auditor/results/:id" element={<AuditorResultsPage />} />
+                <Route path="/accessibility-checker" element={<AccessibilityCheckerPage />} />
+                <Route path="/accessibility-checker/results/:id" element={<AccessibilityCheckerResultsPage />} />
+                <Route path="/maintenance-plans" element={<MaintenancePlansPage />} />
+                <Route path="/payment-success" element={<PaymentSuccessPage />} />
+                <Route path="/accessibility-statement" element={<AccessibilityStatementPage />} />
+                <Route path="/book-consultation" element={<BookConsultationPage />} />
+                <Route path="/free-demo-portal" element={<FreeDemoPortalPage />} />
+                <Route path="/style-guide" element={<StyleGuidePage />} />
+                <Route path="/motion-lab" element={<MotionLabPage />} />
+                <Route path="/book" element={<Navigate to="/book-consultation" replace />} />
+                <Route path="/contract-builder" element={<Navigate to="/client-portal" replace />} />
+                <Route path="*" element={<NotFoundPage />} />
+              </Routes>
+            </div>
           </Suspense>
         </main>
         {!isPortal && <Footer />}

@@ -16,8 +16,10 @@
 - [Free Custom Demo Portal | Custom AI Applications | EVOBRAND](/freedemoportal): Get a free, custom-built demo portal for your business. Share your requirements and logo, and EVOBRAND will build a live demo tailored to you at no cost.
 - [Free Website Accessibility Checker | WCAG Scan & Report | EVOBRAND](/accessibilitychecker): Scan your website for WCAG 2.1 accessibility issues in under a minute. Real Lighthouse audit data, prioritized fixes, and a 90-day remediation plan, all free.
 - [How Our AI Process Works | Discovery to Launch | EVOBRAND](/howitworks): EVOBRAND
+- [Motion lab](/motionlab): No description available
 - [Our Work: Platforms, Websites and Case Studies](/ourwork): Selected EVOBRAND work for government agencies, nonprofits, and businesses: government contracting platforms, membership systems, websites, and custom applications.
 - [Payment Success - EVOBRAND](/paymentsuccess): Thank you for your purchase. Your payment was verified successfully.
 - [Reset Password](/resetpassword): Reset your EVOBRAND client portal password.
+- [Style guide](/styleguide): No description available
 - [Websites, AI & Automation for Your Business](/home): EVOBRAND builds websites, custom applications, and practical AI workflows for businesses and organizations. Based in Italy, Texas. Serving clients nationwide.
 - [WordPress Maintenance & Support Plans | EVOBRAND](/maintenanceplans): Keep your WordPress site secure, fast, and up to date with EVOBRAND
