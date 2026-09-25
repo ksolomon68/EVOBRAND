@@ -1,7 +1,8 @@
 import React, { useRef, useState } from 'react';
-import { Sparkles, ListChecks, Upload, X, Send, Loader2, CheckCircle2, AlertCircle, Palette, Rocket, ShieldCheck } from 'lucide-react';
+import { Sparkles, ListChecks, Upload, X, Send, Loader2, CheckCircle2, AlertCircle, Palette, ShieldCheck } from 'lucide-react';
 import SEO from '@/components/SEO.jsx';
-import { PageHero, Reveal, TiltCard } from '@/components/motion/PageMotion.jsx';
+import { InnerHero, StepList } from '@/components/inner/InnerKit.jsx';
+import { SectionHeading } from '@/components/system/Section.jsx';
 
 const GOLD = '#22c8e5';
 const NAVY = '#003258';
@@ -363,111 +364,65 @@ export default function FreeDemoPortalPage() {
         }}
       />
 
-      <div className="min-h-screen bg-[#0f1419]">
-        <PageHero
-          eyebrow="Custom AI Applications"
-          lines={[[{ t: 'Your' }, { t: 'Free' }, { t: 'Demo', accent: true }, { t: 'Portal', accent: true }]]}
-          sub="Tell us what you need and share your logo. We'll build a live, customized demo portal for your business. Free to request, free to review."
-        />
+      <InnerHero
+        crumbs={[{ label: 'Services', to: '/services' }, { label: 'Free demo portal' }]}
+        label="Free · Custom · No commitment"
+        lead="See your portal"
+        emphasis="before you commit."
+        intro="Tell us what you need and share your logo. We will build a live, customized demo portal for your organization. Free to request, free to review."
+        actions={[
+          { to: '#request', label: 'Request my demo', cta: 'demo-hero-request' },
+          { to: '/our-work#dashboard-demos', label: 'See example portals', cta: 'demo-hero-examples' },
+        ]}
+        media={{
+          src: '/projects/optimized/rbca-portal-1024.webp',
+          width: 1024,
+          height: 544,
+          alt: 'RBCA Workforce Portal dashboard, an example of a custom portal',
+          caption: 'Example · RBCA Workforce Portal',
+        }}
+      />
 
-        {/* Benefits */}
-        <section className="py-12 border-y" style={{ background: 'rgba(26,35,50,0.5)', borderColor: 'rgba(34,200,229,0.08)' }}>
-          <div className="container mx-auto px-4">
-            <div className="grid sm:grid-cols-3 gap-4">
-              {BENEFITS.map(({ icon: Icon, title, text }, index) => (
-                <Reveal key={title} delay={index * 0.08}>
-                  <TiltCard
-                    className="h-full p-6 rounded-2xl text-center border transition-colors duration-300 hover:border-[#22c8e5]/30"
-                    style={{ background: 'rgba(15,20,25,0.7)', borderColor: 'rgba(34,200,229,0.1)' }}
-                  >
-                    <div
-                      className="w-10 h-10 rounded-full flex items-center justify-center mx-auto mb-3"
-                      style={{ background: 'rgba(34,200,229,0.1)' }}
-                      aria-hidden="true"
-                    >
-                      <Icon size={18} style={{ color: GOLD }} />
-                    </div>
-                    <h3 className="text-white font-bold text-sm mb-2">{title}</h3>
-                    <p className="text-sm" style={{ color: 'rgba(255,255,255,0.55)' }}>{text}</p>
-                  </TiltCard>
-                </Reveal>
-              ))}
+      <section className="evo-block evo-block--slate" aria-labelledby="benefits-heading">
+        <div className="evo-container">
+          <SectionHeading id="benefits-heading" label="Why a demo" lead="Decide with something" emphasis="you can click." />
+          <ul className="value-grid value-grid--3 mt-space-xl">
+            {BENEFITS.map(({ icon: Icon, title, text }) => (
+              <li key={title}>
+                <span className="mega-link__icon" aria-hidden="true"><Icon size={20} strokeWidth={1.6} /></span>
+                <h3>{title}</h3>
+                <p>{text}</p>
+              </li>
+            ))}
+          </ul>
+        </div>
+      </section>
+
+      <section id="request" className="evo-block evo-block--ink" aria-labelledby="request-heading">
+        <div className="evo-container contact-grid">
+          <div className="inner-split__head">
+            <SectionHeading
+              id="request-heading"
+              label="How it works"
+              lead="Three steps"
+              emphasis="to a working preview."
+            />
+            <div className="mt-space-l">
+              <StepList steps={STEPS.map(({ title, text }) => ({ title, body: text }))} />
             </div>
+            <p className="demo-tip">
+              <ListChecks size={18} aria-hidden="true" />
+              The more detail you give us about features, pages, workflows and integrations, the closer your demo will be to what you actually need.
+            </p>
           </div>
-        </section>
 
-        {/* How it works + Form */}
-        <section className="py-20">
-          <div className="container mx-auto px-4">
-            <div className="grid lg:grid-cols-2 gap-10 max-w-6xl mx-auto">
-              {/* How it works */}
-              <Reveal>
-                <div className="flex items-center gap-3 mb-7">
-                  <div
-                    className="w-8 h-8 rounded-full flex items-center justify-center"
-                    style={{ background: 'rgba(34,200,229,0.1)' }}
-                    aria-hidden="true"
-                  >
-                    <Rocket size={15} style={{ color: GOLD }} />
-                  </div>
-                  <h2 className="text-base font-bold tracking-wide" style={{ color: BEIGE }}>
-                    How It Works
-                  </h2>
-                </div>
-
-                <div className="space-y-6">
-                  {STEPS.map(({ step, title, text }) => (
-                    <div key={step} className="flex gap-4">
-                      <span
-                        className="flex-shrink-0 w-10 h-10 rounded-full flex items-center justify-center text-xs font-bold"
-                        style={{ background: 'rgba(34,200,229,0.1)', color: GOLD }}
-                        aria-hidden="true"
-                      >
-                        {step}
-                      </span>
-                      <div>
-                        <h3 className="text-white font-bold text-sm mb-1">{title}</h3>
-                        <p className="text-sm" style={{ color: 'rgba(255,255,255,0.6)' }}>{text}</p>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-
-                <div
-                  className="mt-8 p-5 rounded-2xl border flex gap-3"
-                  style={{ background: 'rgba(34,200,229,0.05)', borderColor: 'rgba(34,200,229,0.15)' }}
-                >
-                  <ListChecks size={18} style={{ color: GOLD }} className="flex-shrink-0 mt-0.5" aria-hidden="true" />
-                  <p className="text-sm" style={{ color: 'rgba(255,255,255,0.6)' }}>
-                    The more detail you give us about your requirements (features, pages, workflows, integrations), the closer your demo will be to what you actually need.
-                  </p>
-                </div>
-              </Reveal>
-
-              {/* Form */}
-              <Reveal
-                delay={0.1}
-                className="rounded-2xl p-8 border"
-                style={{ background: '#1a2332', borderColor: 'rgba(34,200,229,0.12)' }}
-              >
-                <div className="flex items-center gap-3 mb-7">
-                  <div
-                    className="w-8 h-8 rounded-full flex items-center justify-center"
-                    style={{ background: 'rgba(34,200,229,0.1)' }}
-                    aria-hidden="true"
-                  >
-                    <Sparkles size={15} style={{ color: GOLD }} />
-                  </div>
-                  <h2 className="text-base font-bold tracking-wide" style={{ color: BEIGE }}>
-                    Request Your Free Demo Portal
-                  </h2>
-                </div>
-                <DemoPortalForm />
-              </Reveal>
-            </div>
+          <div className="contact-panel">
+            <p className="evo-eyebrow">Request your demo</p>
+            <h2 className="contact-panel__title">Tell us <em>what to build.</em></h2>
+            <DemoPortalForm />
           </div>
-        </section>
-      </div>
+        </div>
+      </section>
     </>
   );
 }

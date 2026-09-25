@@ -3,10 +3,45 @@ import React from 'react';
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Search, Calendar, User, ArrowRight, TrendingUp, BookOpen, Lightbulb, BarChart } from 'lucide-react';
+import { Search, User, ArrowRight, TrendingUp, BookOpen, Lightbulb, BarChart } from 'lucide-react';
 import { blogPosts } from '../data/blogPosts';
 import SEO from '@/components/SEO.jsx';
-import { PageHero } from '@/components/motion/PageMotion.jsx';
+import { CtaBand, InnerHero } from '@/components/inner/InnerKit.jsx';
+import { SectionHeading } from '@/components/system/Section.jsx';
+
+const fallbackImage = (e) => {
+  e.target.onerror = null;
+  e.target.src = 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=1200&q=80';
+};
+
+function PostCard({ post, label, featured, index }) {
+  return (
+    <motion.article
+      className={`post-card ${featured ? 'post-card--featured' : ''}`}
+      initial={{ opacity: 0, y: 30 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, margin: '-40px' }}
+      transition={{ delay: (index % 3) * 0.08, duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+    >
+      <Link to={`/blog/${post.slug}`} className="post-card__link">
+        <div className="post-card__media">
+          <img src={post.image} alt="" loading="lazy" decoding="async" onError={fallbackImage} />
+          {featured && <span className="work-card__index">Featured</span>}
+        </div>
+        <div className="post-card__body">
+          <p className="work-card__meta">{label}</p>
+          <h3 className="post-card__title">{post.title}</h3>
+          <p className="work-card__text">{post.excerpt}</p>
+          <p className="post-card__byline">
+            <span>{post.author}</span>
+            <time dateTime={post.date}>{new Date(post.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</time>
+          </p>
+          <span className="work-card__cta">Read the article <ArrowRight size={15} aria-hidden="true" /></span>
+        </div>
+      </Link>
+    </motion.article>
+  );
+}
 
 const ResourcesPage = () => {
   const [searchQuery, setSearchQuery] = useState('');
@@ -71,220 +106,139 @@ const ResourcesPage = () => {
     }
   };
 
+  const categoryLabel = (id) => categories.find((c) => c.id === id)?.label;
+
   return (
     <>
       <SEO
         title="AI Resources, Blog & Industry Guides | EVOBRAND"
-        description="Free AI resources and expert articles from EVOBRAND. Explore enterprise AI, agentic AI, creative AI, ethics, and industry trends. Stay ahead of the AI revolution."
+        description="Free AI resources and expert articles from EVOBRAND. Explore enterprise AI, agentic AI, creative AI, ethics, and industry trends."
         keywords="AI resources, AI blog, AI guides, enterprise AI, agentic AI, creative AI, AI trends, AI industry news, EVOBRAND blog"
         canonical="https://evobrand.net/resources"
       />
 
-      <div className="min-h-screen bg-[#0f1419]">
-        {/* Hero */}
-        <PageHero
-          variant="resources"
-          eyebrow="Knowledge · AI Research · Whitepapers"
-          lines={[
-            [{ t: 'Resources' }, { t: '&' }, { t: 'Insights', accent: true }],
-          ]}
-          sub="Stay ahead with the latest AI trends, technical masterclasses, and practical execution guides"
-        >
-          <div className="max-w-2xl mx-auto relative mt-8">
-            <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
+      <InnerHero
+        crumbs={[{ label: 'Resources' }]}
+        label="Guides · Research · Video"
+        lead="Practical reading"
+        emphasis="for busy teams."
+        intro="AI trends, technical walkthroughs and execution guides, written for the people who have to make the work happen."
+        actions={[
+          { to: '#articles', label: 'Browse articles', cta: 'resources-hero-browse' },
+          { to: '/videos', label: 'Watch the video library', cta: 'resources-hero-videos' },
+        ]}
+        facts={[
+          { label: 'Articles', value: `${blogPosts.length} guides and essays` },
+          { label: 'Topics', value: `${categories.length - 1} areas, from enterprise AI to ethics` },
+          { label: 'Also here', value: 'Video library and free site tools' },
+        ]}
+      />
+
+      <div className="resource-bar" id="articles">
+        <div className="evo-container resource-bar__inner">
+          <label className="resource-search">
+            <Search size={18} aria-hidden="true" />
+            <span className="sr-only">Search articles</span>
             <input
-              type="text"
+              type="search"
               value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Search articles..."
-              className="w-full pl-12 pr-4 py-4 bg-[#1a2332]/90 backdrop-blur-md text-white border border-gray-700/80 rounded-2xl focus:outline-none focus:border-[#22c8e5] shadow-xl shadow-black/30"
+              onChange={(e) => { setSearchQuery(e.target.value); setCurrentPage(1); }}
+              placeholder="Search articles"
             />
+          </label>
+          <div className="resource-chips" role="group" aria-label="Filter by topic">
+            {categories.map((category) => (
+              <button
+                key={category.id}
+                type="button"
+                aria-pressed={selectedCategory === category.id}
+                onClick={() => { setSelectedCategory(category.id); setCurrentPage(1); }}
+              >
+                {category.label}
+              </button>
+            ))}
           </div>
-        </PageHero>
-
-        {/* Categories */}
-        <section className="py-8 bg-[#1a2332] sticky top-20 z-40">
-          <div className="container mx-auto px-4">
-            <div className="flex overflow-x-auto space-x-4 pb-2">
-              {categories.map((category) => (
-                <button
-                  key={category.id}
-                  onClick={() => {
-                    setSelectedCategory(category.id);
-                    setCurrentPage(1);
-                  }}
-                  className={`flex items-center space-x-2 px-6 py-3 rounded-2xl font-medium transition-all flex-shrink-0 ${selectedCategory === category.id
-                    ? 'bg-[#22c8e5] text-white'
-                    : 'bg-[#0f1419] text-gray-400 hover:text-white'
-                    }`}
-                >
-                  {category.icon}
-                  <span>{category.label}</span>
-                </button>
-              ))}
-            </div>
-          </div>
-        </section>
-
-        {/* Featured Articles */}
-        {selectedCategory === 'all' && !searchQuery && (
-          <section className="py-20 bg-[#0f1419]">
-            <div className="container mx-auto px-4">
-              <h2 className="text-3xl font-bold text-white mb-12">Featured Articles</h2>
-              <div className="grid md:grid-cols-2 gap-8">
-                {featuredPosts.map((post, index) => (
-                  <motion.div
-                    key={post.id}
-                    initial={{ opacity: 0, y: 30 }}
-                    whileInView={{ opacity: 1, y: 0 }}
-                    viewport={{ once: true }}
-                    transition={{ delay: index * 0.1 }}
-                    whileHover={{ y: -10 }}
-                    className="bg-[#1a2332] rounded-xl overflow-hidden cursor-pointer group h-full"
-                  >
-                    <Link to={`/blog/${post.slug}`} className="block h-full">
-                      <div className="relative h-64 overflow-hidden">
-                        <img
-                          src={post.image}
-                          alt={post.title}
-                          onError={(e) => {
-                            e.target.onerror = null;
-                            e.target.src = 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=1200&q=80';
-                          }}
-                          className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
-                        />
-                        <div className="absolute top-4 left-4 bg-[#22c8e5] text-white px-3 py-1 rounded-full text-xs font-semibold">
-                          Featured
-                        </div>
-                      </div>
-                      <div className="p-6">
-                        <h3 className="text-2xl font-bold text-white mb-3 group-hover:text-[#22c8e5] transition-colors">
-                          {post.title}
-                        </h3>
-                        <p className="text-gray-400 mb-4">{post.excerpt}</p>
-                        <div className="flex items-center justify-between text-sm text-evo-fog">
-                          <div className="flex items-center space-x-4">
-                            <span className="flex items-center space-x-1">
-                              <User size={16} />
-                              <span>{post.author}</span>
-                            </span>
-                            <span className="flex items-center space-x-1">
-                              <Calendar size={16} />
-                              <span>{new Date(post.date).toLocaleDateString()}</span>
-                            </span>
-                          </div>
-                          <ArrowRight className="text-[#22c8e5] group-hover:translate-x-2 transition-transform" size={20} />
-                        </div>
-                      </div>
-                    </Link>
-                  </motion.div>
-                ))}
-              </div>
-            </div>
-          </section>
-        )}
-
-        {/* Blog Posts Grid */}
-        <section className="py-20 bg-[#0f1419]">
-          <div className="container mx-auto px-4">
-            <h2 className="text-3xl font-bold text-white mb-12">
-              {searchQuery ? `Search Results (${filteredPosts.length})` : 'Latest Articles'}
-            </h2>
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 mb-12">
-              {paginatedPosts.map((post, index) => (
-                <motion.div
-                  key={post.id}
-                  initial={{ opacity: 0, y: 30 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: index * 0.1 }}
-                  whileHover={{ y: -10 }}
-                  className="bg-[#1a2332] rounded-xl overflow-hidden cursor-pointer group h-full"
-                >
-                  <Link to={`/blog/${post.slug}`} className="block h-full">
-                    <div className="relative h-48 overflow-hidden">
-                      <img
-                        src={post.image}
-                        alt={post.title}
-                        onError={(e) => {
-                          e.target.onerror = null;
-                          e.target.src = 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=1200&q=80';
-                        }}
-                        className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
-                      />
-                    </div>
-                    <div className="p-6">
-                      <span className="text-xs text-[#22c8e5] font-semibold uppercase">
-                        {categories.find(c => c.id === post.category)?.label}
-                      </span>
-                      <h3 className="text-xl font-bold text-white mb-2 mt-2 group-hover:text-[#22c8e5] transition-colors">
-                        {post.title}
-                      </h3>
-                      <p className="text-gray-400 text-sm mb-4">{post.excerpt}</p>
-                      <div className="flex items-center justify-between text-xs text-evo-fog">
-                        <span className="flex items-center space-x-1">
-                          <User size={14} />
-                          <span>{post.author}</span>
-                        </span>
-                        <span className="flex items-center space-x-1">
-                          <Calendar size={14} />
-                          <span>{new Date(post.date).toLocaleDateString()}</span>
-                        </span>
-                      </div>
-                    </div>
-                  </Link>
-                </motion.div>
-              ))}
-            </div>
-
-            {/* Pagination */}
-            {totalPages > 1 && (
-              <div className="flex justify-center space-x-2">
-                {[...Array(totalPages)].map((_, index) => (
-                  <button
-                    key={index}
-                    onClick={() => setCurrentPage(index + 1)}
-                    className={`px-4 py-2 rounded-2xl font-medium transition-all ${currentPage === index + 1
-                      ? 'bg-[#22c8e5] text-white'
-                      : 'bg-[#1a2332] text-gray-400 hover:text-white'
-                      }`}
-                  >
-                    {index + 1}
-                  </button>
-                ))}
-              </div>
-            )}
-          </div>
-        </section>
-
-        {/* Newsletter Signup */}
-        <section className="py-20 bg-[#1a2332]">
-          <div className="container mx-auto px-4">
-            <div className="max-w-2xl mx-auto text-center">
-              <h2 className="text-3xl font-bold text-white mb-4">Stay Updated</h2>
-              <p className="text-gray-400 mb-8">
-                Subscribe to our newsletter for the latest AI insights, case studies, and industry trends
-              </p>
-              <form onSubmit={handleNewsletterSubmit} className="flex flex-col sm:flex-row gap-4">
-                <input
-                  type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  placeholder="Enter your email"
-                  className="flex-1 px-6 py-4 bg-[#0f1419] text-white border border-gray-700 rounded-2xl focus:outline-none focus:border-[#22c8e5]"
-                  required
-                />
-                <button
-                  type="submit"
-                  disabled={status === 'loading'}
-                  className="px-8 py-4 bg-[#22c8e5] text-white rounded-2xl font-semibold hover:bg-[#1ba3c0] transition-colors disabled:opacity-50"
-                >
-                  {status === 'loading' ? 'Subscribing...' : subscribed ? 'Subscribed!' : 'Subscribe'}
-                </button>
-              </form>
-            </div>
-          </div>
-        </section>
+        </div>
       </div>
+
+      {selectedCategory === 'all' && !searchQuery && featuredPosts.length > 0 && (
+        <section className="evo-block evo-block--ink" aria-labelledby="featured-heading">
+          <div className="evo-container">
+            <SectionHeading id="featured-heading" label="Featured" lead="Start" emphasis="with these." />
+            <div className="work-grid work-grid--2 mt-space-xl">
+              {featuredPosts.map((post, i) => <PostCard key={post.id} post={post} label={categoryLabel(post.category)} index={i} featured />)}
+            </div>
+          </div>
+        </section>
+      )}
+
+      <section className="evo-block evo-block--slate" aria-labelledby="latest-heading" aria-live="polite">
+        <div className="evo-container">
+          <SectionHeading
+            id="latest-heading"
+            label={searchQuery ? `${filteredPosts.length} results` : 'Latest'}
+            lead={searchQuery ? 'Results for' : 'Latest'}
+            emphasis={searchQuery ? `“${searchQuery}”` : 'articles.'}
+            reveal={false}
+          />
+          {paginatedPosts.length === 0 ? (
+            <p className="evo-intro mt-space-l">No articles match that search yet. Try another word or topic.</p>
+          ) : (
+            <div className="work-grid work-grid--3 mt-space-xl">
+              {paginatedPosts.map((post, i) => <PostCard key={post.id} post={post} label={categoryLabel(post.category)} index={i} />)}
+            </div>
+          )}
+
+          {totalPages > 1 && (
+            <nav className="resource-pages" aria-label="Article pages">
+              {[...Array(totalPages)].map((_, index) => (
+                <button
+                  key={index}
+                  type="button"
+                  aria-current={currentPage === index + 1 ? 'page' : undefined}
+                  onClick={() => setCurrentPage(index + 1)}
+                >
+                  {index + 1}
+                </button>
+              ))}
+            </nav>
+          )}
+        </div>
+      </section>
+
+      <section className="evo-block evo-block--deep" aria-labelledby="newsletter-heading">
+        <div className="evo-container studio-closing__grid">
+          <SectionHeading
+            id="newsletter-heading"
+            label="Newsletter"
+            lead="New guides,"
+            emphasis="straight to your inbox."
+            intro="AI insights, case studies and industry trends. No spam; unsubscribe any time."
+          />
+          <form onSubmit={handleNewsletterSubmit} className="newsletter-form">
+            <label htmlFor="newsletter-email" className="sr-only">Email address</label>
+            <input
+              id="newsletter-email"
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="you@organization.org"
+              autoComplete="email"
+              required
+            />
+            <button type="submit" className="evo-btn evo-btn--primary" disabled={status === 'loading'}>
+              {status === 'loading' ? 'Subscribing…' : subscribed ? 'Subscribed' : 'Subscribe'}
+            </button>
+          </form>
+        </div>
+      </section>
+
+      <CtaBand
+        label="Put it to work"
+        lead="Reading is a start."
+        emphasis="Let’s build the thing."
+        secondary={{ to: '/auditor', label: 'Run the free brand audit', cta: 'resources-band-audit' }}
+      />
     </>
   );
 };

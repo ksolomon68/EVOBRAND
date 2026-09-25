@@ -141,7 +141,8 @@ const BUTTON_VARIANTS = {
 /** Internal routes use the router; everything else is a plain link. */
 export function ButtonLink({ to, variant = 'primary', children, className = '', ...rest }) {
   const classes = `${BUTTON_VARIANTS[variant] || BUTTON_VARIANTS.primary} ${className}`;
-  if (to.startsWith('/') && !to.startsWith('//')) {
+  // Same-page anchors go through the router too, so ScrollToTop can glide there.
+  if ((to.startsWith('/') && !to.startsWith('//')) || to.startsWith('#')) {
     return (
       <Link to={to} className={classes} {...rest}>
         {children}

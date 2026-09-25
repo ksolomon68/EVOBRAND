@@ -2,11 +2,13 @@
 import React, { Suspense, lazy, useEffect } from 'react';
 import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import ScrollToTop from '@/components/ScrollToTop.jsx';
+import RouteCurtain from '@/components/RouteCurtain.jsx';
 import Header from '@/components/Header.jsx';
 import Footer from '@/components/Footer.jsx';
 import ChatWidget from '@/components/ChatWidget.jsx';
 import HomePage from '@/pages/HomePage.jsx';
 const ServicesPage = lazy(() => import('@/pages/ServicesPage.jsx'));
+const ServiceDetailPage = lazy(() => import('@/pages/ServiceDetailPage.jsx'));
 const HowItWorksPage = lazy(() => import('@/pages/HowItWorksPage.jsx'));
 const OurWorkPage = lazy(() => import('@/pages/OurWorkPage.jsx'));
 const ResourcesPage = lazy(() => import('@/pages/ResourcesPage.jsx'));
@@ -48,6 +50,7 @@ function SiteLayout() {
   return (
     <>
       <ScrollToTop />
+      <RouteCurtain />
       <AnalyticsTracker />
       <a
         href="#main-content"
@@ -63,6 +66,7 @@ function SiteLayout() {
               <Routes>
                 <Route path="/" element={<HomePage />} />
                 <Route path="/services" element={<ServicesPage />} />
+                <Route path="/services/:slug" element={<ServiceDetailPage />} />
                 <Route path="/how-it-works" element={<HowItWorksPage />} />
                 <Route path="/our-work" element={<OurWorkPage />} />
                 <Route path="/resources" element={<ResourcesPage />} />

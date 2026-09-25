@@ -1,9 +1,10 @@
-import React, { useState } from 'react';
-import { motion } from 'framer-motion';
-import { Check, Zap, Shield, Star, ArrowRight, Clock, Wrench, Code, FileText, AlertCircle } from 'lucide-react';
+import React, { useRef, useState } from 'react';
+import { Link } from 'react-router-dom';
+import { Zap, Shield, Star, ArrowRight, Clock, Wrench, Code, FileText, AlertCircle } from 'lucide-react';
 import SEO from '@/components/SEO.jsx';
-import { useNavigate } from 'react-router-dom';
 import PublicCheckoutModal from '@/components/PublicCheckoutModal.jsx';
+import { CtaBand, InnerHero, SplitSection, useStaggerReveal } from '@/components/inner/InnerKit.jsx';
+import { ButtonLink, SectionHeading } from '@/components/system/Section.jsx';
 
 const PLANS = [
   {
@@ -134,16 +135,19 @@ const WHY = [
   },
 ];
 
-const fadeUp = { hidden: { opacity: 0, y: 30 }, visible: (i) => ({ opacity: 1, y: 0, transition: { delay: i * 0.1, duration: 0.5 } }) };
+function Reveal({ children, className }) {
+  const ref = useRef(null);
+  useStaggerReveal(ref);
+  return <div ref={ref} className={className}>{children}</div>;
+}
 
 export default function MaintenancePlansPage() {
   const [annual, setAnnual] = useState(false);
   const [checkoutPlan, setCheckoutPlan] = useState(null);
-  const navigate = useNavigate();
 
   const discountedPrice = (price) => {
     if (price.includes('–') || price.includes('/hr') || price === 'Custom') return price;
-    const num = parseInt(price.replace(/\D/g, ''));
+    const num = parseInt(price.replace(/\D/g, ''), 10);
     return `$${Math.round(num * 10)}`;
   };
 
@@ -152,215 +156,145 @@ export default function MaintenancePlansPage() {
       <SEO
         title="WordPress Maintenance & Support Plans | EVOBRAND"
         description="Keep your WordPress site secure, fast, and up to date with EVOBRAND's maintenance plans. Basic, Pro, and Elite tiers, plus pay-as-you-go support tickets."
+        canonical="https://evobrand.net/maintenance-plans"
       />
 
-      {/* ── Hero ──────────────────────────────────────────────────────────────── */}
-      <section className="relative overflow-hidden" style={{ background: '#0A1628', paddingTop: '120px', paddingBottom: '80px' }}>
-        <div className="absolute inset-0 pointer-events-none">
-          <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[900px] h-[500px] rounded-full opacity-10" style={{ background: 'radial-gradient(ellipse, #22c8e5, transparent 70%)' }} />
-        </div>
-        <div className="max-w-5xl mx-auto px-6 text-center relative">
-          <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
-            <span className="inline-flex items-center gap-2 px-4 py-2 rounded-2xl border text-xs font-bold uppercase tracking-widest mb-6" style={{ borderColor: 'rgba(34,200,229,0.3)', color: '#22c8e5', background: 'rgba(34,200,229,0.06)' }}>
-              <Shield size={12} /> WordPress Maintenance & Support
-            </span>
-          </motion.div>
-          <motion.h1 initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1, duration: 0.6 }}
-            className="text-5xl md:text-6xl font-bold mb-6" style={{ color: '#E8DDD0', lineHeight: 1.1 }}>
-            Your Site, <span style={{ color: '#22c8e5' }}>Always On.</span><br />Always Protected.
-          </motion.h1>
-          <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.25, duration: 0.6 }}
-            className="text-lg max-w-2xl mx-auto mb-10" style={{ color: 'rgba(232,221,208,0.65)' }}>
-            We handle the updates, security, backups, and fixes, so you can focus on running your business.
-            Clients on a WordPress maintenance plan never pay per ticket.
-          </motion.p>
-          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.35 }} className="flex items-center justify-center gap-4">
-            <span className="text-sm font-bold" style={{ color: annual ? 'rgba(232,221,208,0.4)' : '#E8DDD0' }}>Monthly</span>
-            <button
-              onClick={() => setAnnual(!annual)}
-              className="relative w-14 h-7 rounded-full transition-colors"
-              style={{ background: annual ? '#22c8e5' : 'rgba(255,255,255,0.1)' }}
-            >
-              <span className="absolute top-1 w-5 h-5 rounded-full bg-white shadow transition-all" style={{ left: annual ? '30px' : '4px' }} />
-            </button>
-            <span className="text-sm font-bold" style={{ color: annual ? '#E8DDD0' : 'rgba(232,221,208,0.4)' }}>
-              Annual <span className="px-2 py-0.5 rounded-2xl text-xs" style={{ background: 'rgba(34,200,229,0.15)', color: '#22c8e5' }}>Save 2 months</span>
-            </span>
-          </motion.div>
-        </div>
-      </section>
+      <InnerHero
+        crumbs={[{ label: 'Services', to: '/services' }, { label: 'Maintenance plans' }]}
+        label="WordPress maintenance & support"
+        lead="Your site, always on."
+        emphasis="Always protected."
+        intro="We handle the updates, security, backups and fixes, so you can focus on running your organization. Clients on a maintenance plan never pay per ticket."
+        actions={[
+          { to: '#plans', label: 'Compare plans', cta: 'maint-hero-plans' },
+          { to: '/contact', label: 'Ask which plan fits', cta: 'maint-hero-contact' },
+        ]}
+        facts={[
+          { label: 'Plans from', value: '$129 a month' },
+          { label: 'Annual billing', value: 'Two months free' },
+          { label: 'Monitoring', value: 'Uptime watched around the clock' },
+          { label: 'No plan?', value: 'Single fixes from $149' },
+        ]}
+        jumps={[
+          { href: '#plans', label: 'Plans' },
+          { href: '#why', label: 'Why it matters' },
+          { href: '#one-time', label: 'One-time help' },
+        ]}
+      />
 
-      {/* ── Plans ─────────────────────────────────────────────────────────────── */}
-      <section style={{ background: '#0A1628', paddingBottom: '100px' }}>
-        <div className="max-w-6xl mx-auto px-6">
-          <div className="grid md:grid-cols-3 gap-8">
-            {PLANS.map((plan, i) => (
-              <motion.div
-                key={plan.slug}
-                custom={i}
-                initial="hidden"
-                whileInView="visible"
-                viewport={{ once: true }}
-                variants={fadeUp}
-                className="relative rounded-3xl overflow-hidden flex flex-col"
-                style={{
-                  background: plan.highlighted ? 'linear-gradient(135deg, rgba(34,200,229,0.12), rgba(34,200,229,0.04))' : 'rgba(255,255,255,0.03)',
-                  border: plan.highlighted ? '2px solid #22c8e5' : '1px solid rgba(255,255,255,0.08)',
-                  boxShadow: plan.highlighted ? '0 0 60px -10px rgba(34,200,229,0.2)' : 'none',
-                }}
+      <section id="plans" className="evo-block evo-block--ink" aria-labelledby="plans-heading">
+        <div className="evo-container">
+          <div className="work-section-head">
+            <SectionHeading
+              id="plans-heading"
+              label="Plans"
+              lead="Pick the level"
+              emphasis="of care you need."
+              intro="Every plan covers updates, security and monitoring. Higher tiers add faster response and development hours."
+            />
+            <div className="billing-switch">
+              <span aria-hidden="true" className={annual ? '' : 'is-on'}>Monthly</span>
+              <button
+                type="button"
+                role="switch"
+                aria-checked={annual}
+                aria-label="Annual billing, save two months"
+                onClick={() => setAnnual(!annual)}
               >
-                {plan.highlighted && (
-                  <div className="text-center py-2 text-xs font-bold uppercase tracking-widest" style={{ background: '#22c8e5', color: '#0A1628' }}>
-                    Most Popular
-                  </div>
-                )}
-                <div className="p-8 flex-1 flex flex-col">
-                  <div className="flex items-center gap-3 mb-4" style={{ color: '#22c8e5' }}>
-                    {plan.icon}
-                    <span className="font-bold text-sm uppercase tracking-widest" style={{ color: 'rgba(232,221,208,0.5)' }}>{plan.name}</span>
-                  </div>
-                  <div className="mb-2">
-                    <span className="text-5xl font-bold" style={{ color: '#E8DDD0' }}>
-                      {annual ? discountedPrice(plan.price) : plan.price}
-                    </span>
-                    <span className="text-sm ml-1" style={{ color: 'rgba(232,221,208,0.4)' }}>{annual ? '/yr' : plan.period}</span>
-                  </div>
-                  <p className="text-sm mb-8" style={{ color: 'rgba(232,221,208,0.5)' }}>{plan.tagline}</p>
-
-                  <ul className="space-y-3 mb-8 flex-1">
-                    {plan.features.map((f, fi) => (
-                      <li key={fi} className="flex items-start gap-3 text-sm" style={{ color: 'rgba(232,221,208,0.8)' }}>
-                        <Check size={16} className="mt-0.5 flex-shrink-0" style={{ color: '#22c8e5' }} />
-                        {f}
-                      </li>
-                    ))}
-                    {plan.notIncluded.map((f, fi) => (
-                      <li key={fi} className="flex items-start gap-3 text-sm line-through" style={{ color: 'rgba(232,221,208,0.25)' }}>
-                        <span className="w-4 h-4 mt-0.5 flex-shrink-0 flex items-center justify-center rounded-full text-xs" style={{ background: 'rgba(255,255,255,0.05)', color: 'rgba(232,221,208,0.2)' }}>×</span>
-                        {f}
-                      </li>
-                    ))}
-                  </ul>
-
-                  <button
-                    onClick={() => setCheckoutPlan({
-                      planId: `maintenance-${plan.slug}`,
-                      planName: plan.name,
-                      price: annual ? discountedPrice(plan.price) : plan.price,
-                      type: 'recurring',
-                      interval: annual ? 'year' : 'month',
-                    })}
-                    className="w-full text-center py-4 rounded-2xl font-bold text-sm uppercase tracking-widest transition-all"
-                    style={plan.highlighted
-                      ? { background: '#22c8e5', color: '#0A1628' }
-                      : { background: 'rgba(34,200,229,0.1)', color: '#22c8e5', border: '1px solid rgba(34,200,229,0.3)' }
-                    }
-                  >
-                    {plan.cta}
-                  </button>
-                </div>
-              </motion.div>
-            ))}
-          </div>
-
-          <p className="text-center text-sm mt-8" style={{ color: 'rgba(232,221,208,0.35)' }}>
-            Save 2 months with annual billing
-          </p>
-
-          <p className="text-center text-sm mt-2" style={{ color: 'rgba(232,221,208,0.35)' }}>
-            Already a maintenance client? Log in to your portal. Tickets are covered by your plan at no extra charge.
-          </p>
-
-          <p className="text-center text-xs mt-6 max-w-2xl mx-auto" style={{ color: 'rgba(232,221,208,0.25)' }}>
-            "Fair-use" support tickets means unlimited requests within reasonable monthly volume, with overages billed at standard hourly rates.
-          </p>
-        </div>
-      </section>
-
-      {/* ── Why maintenance matters ───────────────────────────────────────────── */}
-      <section style={{ background: '#060e1a', padding: '100px 0' }}>
-        <div className="max-w-5xl mx-auto px-6">
-          <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="text-center mb-16">
-            <h2 className="text-4xl font-bold mb-4" style={{ color: '#E8DDD0' }}>Why Maintenance <span style={{ color: '#22c8e5' }}>Isn't Optional</span></h2>
-            <p className="text-lg" style={{ color: 'rgba(232,221,208,0.5)' }}>Neglecting your site is a liability. Here's what's at stake.</p>
-          </motion.div>
-          <div className="grid md:grid-cols-2 gap-8">
-            {WHY.map((w, i) => (
-              <motion.div key={i} custom={i} initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp}
-                className="p-8 rounded-2xl" style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)' }}>
-                <h3 className="font-bold text-lg mb-3" style={{ color: '#22c8e5' }}>{w.title}</h3>
-                <p style={{ color: 'rgba(232,221,208,0.6)', lineHeight: 1.7 }}>{w.body}</p>
-              </motion.div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* ── One-time pricing ──────────────────────────────────────────────────── */}
-      <section style={{ background: '#0A1628', padding: '100px 0' }}>
-        <div className="max-w-5xl mx-auto px-6">
-          <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="text-center mb-16">
-            <h2 className="text-4xl font-bold mb-4" style={{ color: '#E8DDD0' }}>Not Ready for a Plan?</h2>
-            <p className="text-lg" style={{ color: 'rgba(232,221,208,0.5)' }}>Pay only for what you need, when you need it.</p>
-          </motion.div>
-          <div className="grid md:grid-cols-2 gap-6">
-            {ONE_TIME.map((item, i) => (
-              <motion.div key={i} custom={i} initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp}
-                className="flex items-start gap-5 p-7 rounded-2xl"
-                style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.07)' }}>
-                <div className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0" style={{ background: 'rgba(34,200,229,0.1)', color: '#22c8e5' }}>
-                  {item.icon}
-                </div>
-                <div className="flex-1">
-                  <div className="flex items-center justify-between mb-1">
-                    <h3 className="font-bold" style={{ color: '#E8DDD0' }}>{item.name}</h3>
-                    <span className="font-bold text-lg" style={{ color: '#22c8e5' }}>{item.price}</span>
-                  </div>
-                  <p className="text-sm mb-2" style={{ color: 'rgba(232,221,208,0.55)' }}>{item.desc}</p>
-                  <div className="flex items-center gap-1.5 text-xs" style={{ color: 'rgba(232,221,208,0.35)' }}>
-                    <Clock size={11} />
-                    {item.turnaround}
-                  </div>
-                </div>
-              </motion.div>
-            ))}
-          </div>
-          <div className="text-center mt-10">
-            <a href="/client-portal"
-              className="inline-flex items-center gap-2 px-8 py-4 rounded-2xl font-bold text-sm uppercase tracking-widest transition-all"
-              style={{ background: 'rgba(34,200,229,0.1)', color: '#22c8e5', border: '1px solid rgba(34,200,229,0.3)' }}>
-              Raise a Ticket <ArrowRight size={16} />
-            </a>
-          </div>
-        </div>
-      </section>
-
-      {/* ── CTA ───────────────────────────────────────────────────────────────── */}
-      <section style={{ background: '#060e1a', padding: '100px 0' }}>
-        <div className="max-w-3xl mx-auto px-6 text-center">
-          <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}>
-            <h2 className="text-4xl font-bold mb-6" style={{ color: '#E8DDD0' }}>
-              Ready to Stop Worrying<br />About Your Website?
-            </h2>
-            <p className="text-lg mb-10" style={{ color: 'rgba(232,221,208,0.55)' }}>
-              Get in touch and we'll recommend the right plan for your business, or set you up with a one-time fix today.
-            </p>
-            <div className="flex flex-wrap gap-4 justify-center">
-              <a href="/contact"
-                className="inline-flex items-center gap-2 px-8 py-4 rounded-2xl font-bold text-sm uppercase tracking-widest transition-all"
-                style={{ background: '#22c8e5', color: '#0A1628' }}>
-                Get a Maintenance Plan <ArrowRight size={16} />
-              </a>
-              <a href="/client-portal"
-                className="inline-flex items-center gap-2 px-8 py-4 rounded-2xl font-bold text-sm uppercase tracking-widest transition-all"
-                style={{ background: 'rgba(255,255,255,0.05)', color: '#E8DDD0', border: '1px solid rgba(255,255,255,0.1)' }}>
-                Log In to Portal
-              </a>
+                <span />
+              </button>
+              <span aria-hidden="true" className={annual ? 'is-on' : ''}>Annual <em>2 months free</em></span>
             </div>
-          </motion.div>
+          </div>
+
+          <Reveal className="tier-grid">
+            {PLANS.map((plan) => (
+              <article key={plan.slug} className={`tier ${plan.highlighted ? 'tier--featured' : ''}`} data-reveal-item>
+                {plan.highlighted && <span className="tier__flag">Most popular</span>}
+                <h3 className="tier__name">{plan.name}</h3>
+                <p className="tier__price">
+                  <strong>{annual ? discountedPrice(plan.price) : plan.price}</strong>
+                  <span>{annual ? 'per year' : 'per month'} · {plan.tagline}</span>
+                </p>
+                <ul className="inner-ticks">
+                  {plan.features.map((f) => <li key={f}>{f}</li>)}
+                  {plan.notIncluded.map((f) => <li key={f} className="is-excluded">Not included: {f}</li>)}
+                </ul>
+                <button
+                  type="button"
+                  className={`evo-btn ${plan.highlighted ? 'evo-btn--primary' : 'evo-btn--secondary'}`}
+                  onClick={() => setCheckoutPlan({
+                    planId: `maintenance-${plan.slug}`,
+                    planName: plan.name,
+                    price: annual ? discountedPrice(plan.price) : plan.price,
+                    type: 'recurring',
+                    interval: annual ? 'year' : 'month',
+                  })}
+                >
+                  {plan.cta} <ArrowRight size={16} aria-hidden="true" />
+                </button>
+              </article>
+            ))}
+          </Reveal>
+
+          <div className="plan-notes">
+            <p>Already a maintenance client? <Link to="/client-portal">Log in to your portal</Link>. Tickets are covered by your plan at no extra charge.</p>
+            <p>&ldquo;Fair-use&rdquo; support tickets means unlimited requests within reasonable monthly volume, with overages billed at standard hourly rates.</p>
+          </div>
         </div>
       </section>
-      {/* Public Checkout Modal */}
+
+      <SplitSection
+        id="why"
+        tone="slate"
+        label="Why it matters"
+        lead="Maintenance"
+        emphasis="is not optional."
+        intro="Neglecting a site is a liability. Here is what is at stake."
+      >
+        <Reveal className="value-grid value-grid--2">
+          {WHY.map((w) => (
+            <div key={w.title} data-reveal-item>
+              <h3>{w.title}</h3>
+              <p>{w.body}</p>
+            </div>
+          ))}
+        </Reveal>
+      </SplitSection>
+
+      <SplitSection
+        id="one-time"
+        tone="ink"
+        label="One-time help"
+        lead="Not ready for a plan?"
+        emphasis="Pay as you go."
+        intro="Pay only for what you need, when you need it."
+        aside={<ButtonLink to="/client-portal" variant="secondary">Raise a ticket</ButtonLink>}
+      >
+        <Reveal className="price-rows">
+          {ONE_TIME.map((item) => (
+            <div key={item.name} className="price-row" data-reveal-item>
+              <span className="mega-link__icon" aria-hidden="true">{item.icon}</span>
+              <div>
+                <h3>{item.name}</h3>
+                <p>{item.desc}</p>
+                <p className="price-row__time"><Clock size={12} aria-hidden="true" /> {item.turnaround}</p>
+              </div>
+              <strong>{item.price}</strong>
+            </div>
+          ))}
+        </Reveal>
+      </SplitSection>
+
+      <CtaBand
+        label="Maintenance"
+        lead="Stop worrying"
+        emphasis="about your website."
+        intro="Get in touch and we will recommend the right plan, or set you up with a one-time fix today."
+        primary={{ to: '/contact', label: 'Get a maintenance plan', cta: 'maint-band-plan' }}
+        secondary={{ to: '/client-portal', label: 'Log in to the portal', cta: 'maint-band-portal' }}
+      />
+
       {checkoutPlan && (
         <PublicCheckoutModal
           planId={checkoutPlan.planId}

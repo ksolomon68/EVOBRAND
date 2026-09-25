@@ -1,12 +1,13 @@
 
 import React from 'react';
-import { useState, useRef, useEffect } from 'react';
+import { useRef, useEffect } from 'react';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { motion, MotionConfig } from 'framer-motion';
-import { Filter, TrendingUp, Clock, DollarSign, Star, ExternalLink, LayoutDashboard } from 'lucide-react';
+import { ExternalLink } from 'lucide-react';
 import SEO from '@/components/SEO.jsx';
-import { PageHero, Reveal } from '@/components/motion/PageMotion.jsx';
+import { CtaBand, InnerHero } from '@/components/inner/InnerKit.jsx';
+import { ButtonLink, SectionHeading } from '@/components/system/Section.jsx';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -27,7 +28,7 @@ const OurWorkPage = () => {
         ease: 'none',
         scrollTrigger: {
           trigger: section,
-          start: 'top top',
+          start: 'top 80px', // below the sticky header
           end: () => `+=${getDistance()}`,
           pin: true,
           scrub: 0.8,
@@ -321,7 +322,6 @@ const OurWorkPage = () => {
       name: 'Marcus T.',
       company: 'Civic Initiative',
       role: 'Project Director',
-      image: 'https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&q=80&w=200',
       quote: 'Keisha and the EVOBRAND team were exactly what we needed. They took a complex set of requirements for our public portal and built a platform our community actually loves using. The communication was stellar from day one.',
       rating: 5
     },
@@ -329,7 +329,6 @@ const OurWorkPage = () => {
       name: 'Elena Rodriguez',
       company: 'Growth Partners',
       role: 'Founder',
-      image: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&q=80&w=200',
       quote: "We struggled for months trying to piece together a coherent brand identity. EVOBRAND stepped in, mapped out a clear strategy, and completely overhauled our web presence. Our conversion rate has literally doubled since the relaunch.",
       rating: 5
     },
@@ -337,7 +336,6 @@ const OurWorkPage = () => {
       name: 'David S.',
       company: 'B2B Solutions Group',
       role: 'Operations Lead',
-      image: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&q=80&w=200',
       quote: 'Finding an agency that actually understands both complex backend systems and high-end design is rare. EVOBRAND delivered a custom web application that replaced three legacy tools we were using. We couldn\'t be happier with the result.',
       rating: 5
     }
@@ -353,241 +351,155 @@ const OurWorkPage = () => {
       />
 
       <MotionConfig reducedMotion="user">
-      <div className="min-h-screen bg-[#0f1419]">
-        {/* Hero */}
-        <PageHero
-          variant="work"
-          eyebrow="Web · SaaS · Government · Nonprofit"
-          lines={[[{ t: 'Our' }, { t: 'Work', accent: true }]]}
-          sub="Real projects. Real results. See how we've helped businesses transform with AI."
+        <InnerHero
+          crumbs={[{ label: 'Our work' }]}
+          label="Web · SaaS · Government · Nonprofit"
+          lead="Built for real people."
+          emphasis="Put to work every day."
+          intro="Platforms for contracting, membership, workforce development and civic participation, plus websites for businesses and nonprofits. Every project here is live; open any of them."
+          actions={[
+            { to: '/book-consultation', label: 'Start a project', cta: 'work-hero-start' },
+            { to: '/free-demo-portal', label: 'Get a free demo portal', cta: 'work-hero-demo' },
+          ]}
+          media={{
+            src: '/projects/optimized/caltrans-1900.webp',
+            srcSet: '/projects/optimized/caltrans-960.webp 960w, /projects/optimized/caltrans-1900.webp 1900w',
+            width: 1898,
+            height: 909,
+            alt: 'Caltrans BizConnect home page',
+            caption: 'Caltrans BizConnect · Statewide small business platform',
+          }}
+          jumps={[
+            { href: '#flagship', label: 'Flagship platforms' },
+            { href: '#dashboard-demos', label: 'Dashboard demos' },
+            { href: '#recent-launches', label: 'Recent launches' },
+            { href: '#testimonials', label: 'What clients say' },
+          ]}
         />
 
         {/* Featured reel: pinned horizontal showcase of flagship builds */}
-        <section ref={reelRef} className="relative overflow-hidden bg-[#0f1419]">
-          <div className="relative py-16 lg:py-0 lg:min-h-screen lg:flex lg:flex-col lg:justify-center">
-            <div className="container mx-auto px-4">
-              <Reveal>
-                <p className="text-[11px] font-bold uppercase tracking-[0.25em] text-[#22c8e5] mb-3">
-                  Featured Work: The Reel
-                </p>
-                <h2 className="text-3xl md:text-5xl font-bold text-white">
-                  Flagship <span className="text-[#22c8e5]">Builds</span>
-                </h2>
-              </Reveal>
+        <section id="flagship" ref={reelRef} className="work-reel" aria-labelledby="flagship-heading">
+          <div className="work-reel__stage">
+            <div className="evo-container work-reel__head">
+              <SectionHeading
+                id="flagship-heading"
+                label="01 · Flagship platforms"
+                lead="Products we built"
+                emphasis="and still run."
+              />
+              <div className="work-reel__progress" aria-hidden="true"><span ref={reelProgressRef} /></div>
             </div>
 
-            <div className="mt-10 overflow-hidden">
-              <div
-                ref={reelTrackRef}
-                className="flex flex-col lg:flex-row gap-6 container mx-auto px-4 lg:max-w-none lg:w-max lg:mx-0 lg:pl-[max(1rem,calc((100vw-1168px)/2))] lg:pr-[max(1rem,calc((100vw-1168px)/2))]"
-              >
+            <div className="work-reel__viewport">
+              <div ref={reelTrackRef} className="work-reel__track">
                 {flagshipItems.map((item, i) => (
-                  <a
-                    key={item.id}
-                    href={item.link}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="group lg:w-[620px] lg:shrink-0 rounded-2xl overflow-hidden border border-white/5 bg-[#141d2b] hover:border-[#22c8e5]/40 transition-colors block"
-                  >
-                    <div className="relative h-56 lg:h-72 overflow-hidden">
-                      <img
-                        src={item.image}
-                        alt={item.title}
-                        className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-                      />
-                      <div className="absolute inset-0 bg-gradient-to-t from-[#141d2b] via-transparent to-transparent" />
-                      <span className="absolute top-4 left-4 text-[11px] font-bold tracking-[0.25em] text-[#22c8e5] bg-[#0f1419]/80 px-3 py-1.5 rounded-full border border-[#22c8e5]/20">
-                        {String(i + 1).padStart(2, '0')} / {String(flagshipItems.length).padStart(2, '0')}
-                      </span>
+                  <a key={item.id} href={item.link} target="_blank" rel="noopener noreferrer" className="work-card work-card--wide">
+                    <div className="work-card__media">
+                      <img src={item.image} alt={`${item.title} home page`} loading="lazy" decoding="async" />
+                      <span className="work-card__index">{String(i + 1).padStart(2, '0')} / {String(flagshipItems.length).padStart(2, '0')}</span>
                     </div>
-                    <div className="p-6 lg:p-8">
-                      <h3 className="text-2xl font-bold text-white mb-2">{item.title}</h3>
-                      <p className="text-gray-400 text-sm mb-4 line-clamp-2">{item.description}</p>
-                      <div className="flex flex-wrap gap-2">
-                        {item.highlights.map((h) => (
-                          <span key={h} className="text-[11px] font-semibold px-2.5 py-1 rounded-full bg-[#0f1419] border border-[#22c8e5]/15 text-[#22c8e5]">
-                            {h}
-                          </span>
-                        ))}
-                      </div>
+                    <div className="work-card__body">
+                      <p className="work-card__meta">{item.category} · {item.industry}</p>
+                      <h3 className="work-card__title">{item.title}</h3>
+                      <p className="work-card__text">{item.description}</p>
+                      <ul className="work-card__chips">
+                        {item.highlights.map((h) => <li key={h}>{h}</li>)}
+                      </ul>
+                      <span className="work-card__cta">Visit the live site <ExternalLink size={15} aria-hidden="true" /><span className="sr-only"> (opens in new tab)</span></span>
                     </div>
                   </a>
                 ))}
-              </div>
-
-              <div className="hidden lg:block container mx-auto px-4 mt-8">
-                <div className="h-0.5 w-full rounded-full bg-white/10">
-                  <div
-                    ref={reelProgressRef}
-                    className="h-full rounded-full bg-[#22c8e5]"
-                    style={{ transform: 'scaleX(0)', transformOrigin: 'left', boxShadow: '0 0 8px rgba(34,200,229,0.5)' }}
-                  />
-                </div>
               </div>
             </div>
           </div>
         </section>
 
         {/* Dashboard Demos */}
-        <section id="dashboard-demos" className="py-20 bg-[#111823] border-y border-white/10 relative overflow-hidden">
-          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[700px] bg-[#22c8e5]/5 rounded-full blur-3xl pointer-events-none" />
-
-          <div className="container mx-auto px-4 relative z-10">
-            <div className="max-w-3xl mb-12">
-              <Reveal>
-                <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#22c8e5]/10 border border-[#22c8e5]/25 text-[#22c8e5] text-xs font-bold uppercase tracking-widest mb-4">
-                  <LayoutDashboard className="w-4 h-4" />
-                  Live Applications & Portals
-                </div>
-                <h2 className="text-3xl md:text-5xl font-bold text-white mb-4">
-                  Dashboard <span className="text-[#22c8e5]">Demos</span>
-                </h2>
-                <p className="text-gray-300 text-base md:text-lg">
-                  Explore live custom portals, workforce management consoles, community hubs, and operations dashboards built by EVOBRAND.
-                </p>
-              </Reveal>
+        <section id="dashboard-demos" className="evo-block evo-block--slate" aria-labelledby="demos-heading">
+          <div className="evo-container">
+            <div className="work-section-head">
+              <SectionHeading
+                id="demos-heading"
+                label="02 · Dashboard demos"
+                lead="Live portals"
+                emphasis="you can click through."
+                intro="Custom portals, workforce consoles, community hubs and operations dashboards. Each one is a working demo."
+              />
+              <ButtonLink to="/free-demo-portal" variant="secondary">Request your own demo</ButtonLink>
             </div>
 
-            <div className="grid md:grid-cols-2 gap-8">
+            <div className="work-grid work-grid--2">
               {dashboardDemos.map((demo, index) => (
-                <motion.div
+                <motion.a
                   key={demo.id}
+                  href={demo.link}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="work-card"
                   initial={{ opacity: 0, y: 30 }}
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true, margin: '-40px' }}
-                  transition={{ delay: index * 0.1, duration: 0.5 }}
-                  className="group relative rounded-2xl overflow-hidden bg-[#16202e] border border-white/10 hover:border-[#22c8e5]/40 transition-all duration-300 shadow-xl flex flex-col justify-between"
+                  transition={{ delay: (index % 2) * 0.1, duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
                 >
-                  <div>
-                    <div className="relative h-64 md:h-72 overflow-hidden bg-[#0f1419]">
-                      <img
-                        src={demo.image}
-                        alt={demo.title}
-                        className="w-full h-full object-cover object-top transition-transform duration-500 group-hover:scale-105"
-                      />
-                      <div className="absolute inset-0 bg-gradient-to-t from-[#16202e] via-transparent to-transparent opacity-90" />
-                      <div className="absolute top-4 left-4 flex flex-wrap items-center gap-2">
-                        <span className="px-3 py-1 rounded-full text-xs font-semibold bg-[#0f1419]/80 text-[#22c8e5] border border-[#22c8e5]/25 backdrop-blur-md">
-                          {demo.category}
-                        </span>
-                        <span className="flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 backdrop-blur-md">
-                          <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-                          Live Demo
-                        </span>
-                      </div>
-                    </div>
-
-                    <div className="p-6 md:p-8">
-                      <div className="mb-3">
-                        <h3 className="text-2xl font-bold text-white group-hover:text-[#22c8e5] transition-colors">
-                          {demo.title}
-                        </h3>
-                        <p className="text-xs font-semibold uppercase tracking-wider text-[#22c8e5]/80 mt-1">
-                          {demo.subtitle}
-                        </p>
-                      </div>
-
-                      <p className="text-gray-300 text-sm leading-relaxed mb-6">
-                        {demo.description}
-                      </p>
-
-                      <div className="flex flex-wrap gap-2 mb-6">
-                        {demo.highlights.map((h) => (
-                          <span
-                            key={h}
-                            className="text-[11px] font-semibold px-2.5 py-1 rounded-full bg-[#0f1419] border border-[#22c8e5]/20 text-gray-300"
-                          >
-                            {h}
-                          </span>
-                        ))}
-                      </div>
-                    </div>
+                  <div className="work-card__media">
+                    <img src={demo.image} alt={`${demo.title} dashboard`} loading="lazy" decoding="async" />
+                    <span className="work-card__live"><span aria-hidden="true" />Live demo</span>
                   </div>
-
-                  <div className="px-6 pb-6 md:px-8 md:pb-8 pt-0">
-                    <a
-                      href={demo.link}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="inline-flex items-center justify-center gap-2 w-full px-5 py-3.5 rounded-xl bg-[#22c8e5] text-[#003258] font-bold text-sm hover:bg-[#38d4ef] hover:shadow-[0_0_20px_rgba(34,200,229,0.4)] transition-all"
-                    >
-                      Launch Live Demo
-                      <ExternalLink className="w-4 h-4" />
-                    </a>
+                  <div className="work-card__body">
+                    <p className="work-card__meta">{demo.subtitle} · {demo.industry}</p>
+                    <h3 className="work-card__title">{demo.title}</h3>
+                    <p className="work-card__text">{demo.description}</p>
+                    <ul className="work-card__chips">
+                      {demo.highlights.map((h) => <li key={h}>{h}</li>)}
+                    </ul>
+                    <span className="work-card__cta">Launch the demo <ExternalLink size={15} aria-hidden="true" /><span className="sr-only"> (opens in new tab)</span></span>
                   </div>
-                </motion.div>
+                </motion.a>
               ))}
             </div>
           </div>
         </section>
 
         {/* Recent Launches */}
-        <section id="recent-launches" className="py-20 bg-[#0f1419]">
-          <div className="container mx-auto px-4">
-            <div className="max-w-3xl mb-12">
-              <Reveal>
-                <p className="text-[11px] font-bold uppercase tracking-[0.25em] text-[#22c8e5] mb-3">
-                  Portfolio & Client Solutions
-                </p>
-                <h2 className="text-3xl md:text-5xl font-bold text-white mb-4">
-                  Recent <span className="text-[#22c8e5]">Launches</span>
-                </h2>
-                <p className="text-gray-300 text-base md:text-lg">
-                  Explore our latest custom websites, non-profit portals, e-commerce platforms, and specialized digital solutions.
-                </p>
-              </Reveal>
+        <section id="recent-launches" className="evo-block evo-block--ink" aria-labelledby="launches-heading">
+          <div className="evo-container">
+            <div className="work-section-head">
+              <SectionHeading
+                id="launches-heading"
+                label="03 · Recent launches"
+                lead="Websites for businesses,"
+                emphasis="nonprofits and campaigns."
+                intro="Custom websites, nonprofit portals, e-commerce and specialized digital work."
+              />
+              <ButtonLink to="/services/web-development" variant="secondary">Web development service</ButtonLink>
             </div>
 
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+            <div className="work-grid work-grid--3">
               {recentLaunches.map((item, index) => {
-                const cardProps = {
-                  key: item.id,
-                  initial: { opacity: 0, y: 30 },
-                  whileInView: { opacity: 1, y: 0 },
-                  viewport: { once: true, margin: '-40px' },
-                  transition: { delay: (index % 3) * 0.08, duration: 0.5 },
-                  whileHover: { y: -10 },
-                  className: `bg-[#1a2332] rounded-xl overflow-hidden group block border border-white/5 hover:border-[#22c8e5]/30 transition-colors ${item.link ? 'cursor-pointer' : 'cursor-default'}`,
-                };
-                const inner = (
-                  <>
-                    <div className="relative h-48 overflow-hidden">
-                      <img
-                        src={item.image}
-                        alt={item.title}
-                        className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
-                      />
-                      <div className="absolute top-4 right-4 bg-[#22c8e5] text-white px-3 py-1 rounded-full text-xs font-semibold">
-                        {item.category}
-                      </div>
+                const Tag = item.link ? motion.a : motion.div;
+                const linkProps = item.link ? { href: item.link, target: '_blank', rel: 'noopener noreferrer' } : {};
+                return (
+                  <Tag
+                    key={item.id}
+                    {...linkProps}
+                    className="work-card work-card--compact"
+                    initial={{ opacity: 0, y: 30 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true, margin: '-40px' }}
+                    transition={{ delay: (index % 3) * 0.08, duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+                  >
+                    <div className="work-card__media">
+                      <img src={item.image} alt={`${item.title} website`} loading="lazy" decoding="async" />
                     </div>
-                    <div className="p-6">
-                      <h3 className="text-xl font-bold text-white mb-2">{item.title}</h3>
-                      <p className="text-gray-400 text-sm mb-4">{item.description}</p>
-                      {item.highlights && (
-                        <div className="flex flex-wrap gap-2 mb-4">
-                          {item.highlights.map((h) => (
-                            <span
-                              key={h}
-                              className="text-[11px] font-semibold px-2.5 py-1 rounded-full bg-[#0f1419] border border-[#22c8e5]/15 text-[#22c8e5]"
-                            >
-                              {h}
-                            </span>
-                          ))}
-                        </div>
+                    <div className="work-card__body">
+                      <p className="work-card__meta">{item.category} · {item.industry}</p>
+                      <h3 className="work-card__title">{item.title}</h3>
+                      <p className="work-card__text">{item.description}</p>
+                      {item.link && (
+                        <span className="work-card__cta">Visit the site <ExternalLink size={15} aria-hidden="true" /><span className="sr-only"> (opens in new tab)</span></span>
                       )}
-                      <span className="text-xs text-evo-fog">{item.industry}</span>
                     </div>
-                  </>
-                );
-                return item.link ? (
-                  <motion.a {...cardProps} href={item.link} target="_blank" rel="noopener noreferrer">
-                    {inner}
-                  </motion.a>
-                ) : (
-                  <motion.div {...cardProps}>
-                    {inner}
-                  </motion.div>
+                  </Tag>
                 );
               })}
             </div>
@@ -595,57 +507,40 @@ const OurWorkPage = () => {
         </section>
 
         {/* Testimonials */}
-        <section className="py-20 bg-[#1a2332]">
-          <div className="container mx-auto px-4">
-            <h2 className="text-3xl font-bold text-white mb-12 text-center">Client Testimonials</h2>
-            <div className="grid md:grid-cols-3 gap-8">
-              {testimonials.map((testimonial, index) => (
-                <motion.div
-                  key={index}
+        <section id="testimonials" className="evo-block evo-block--deep" aria-labelledby="testimonials-heading">
+          <div className="evo-container">
+            <SectionHeading id="testimonials-heading" label="04 · What clients say" lead="In their" emphasis="own words." />
+            <div className="quote-grid">
+              {testimonials.map((t, index) => (
+                <motion.figure
+                  key={t.name}
+                  className="quote-card"
                   initial={{ opacity: 0, y: 30 }}
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true }}
-                  transition={{ delay: index * 0.1 }}
-                  className="bg-[#0f1419] p-6 rounded-xl"
+                  transition={{ delay: index * 0.1, duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
                 >
-                  <div className="flex items-center space-x-4 mb-4">
-                    <img
-                      src={testimonial.image}
-                      alt={testimonial.name}
-                      className="w-16 h-16 rounded-full object-cover"
-                    />
-                    <div>
-                      <p className="font-bold text-white">{testimonial.name}</p>
-                      <p className="text-sm text-gray-400">{testimonial.role}</p>
-                      <p className="text-sm text-[#22c8e5]">{testimonial.company}</p>
-                    </div>
-                  </div>
-                  <div className="flex space-x-1 mb-3">
-                    {[...Array(testimonial.rating)].map((_, i) => (
-                      <Star key={i} className="text-[#ffc800] fill-current" size={16} />
-                    ))}
-                  </div>
-                  <p className="text-gray-300 italic">"{testimonial.quote}"</p>
-                </motion.div>
+                  <blockquote>“{t.quote}”</blockquote>
+                  <figcaption>
+                    <span className="quote-card__mono" aria-hidden="true">{t.name.split(' ').map((w) => w[0]).join('').slice(0, 2)}</span>
+                    <span>
+                      <strong>{t.name}</strong>
+                      <span>{t.role}, {t.company}</span>
+                    </span>
+                  </figcaption>
+                </motion.figure>
               ))}
             </div>
           </div>
         </section>
 
-        {/* CTA */}
-        <section className="py-20 bg-gradient-to-br from-[#1a2332] to-[#22c8e5]">
-          <div className="container mx-auto px-4 text-center">
-            <h2 className="text-4xl font-bold text-white mb-6">Start Your Project</h2>
-            <p className="text-xl text-white/90 mb-8">Join our growing list of successful clients</p>
-            <a
-              href="/contact"
-              className="inline-block px-8 py-4 bg-white text-[#1a2332] rounded-2xl font-bold hover:shadow-lg hover:bg-gray-100 transition-all"
-            >
-              Get Started Today
-            </a>
-          </div>
-        </section>
-      </div>
+        <CtaBand
+          label="Start your project"
+          lead="Your platform"
+          emphasis="could be next."
+          intro="Tell us what needs to work. We will map it with you and show you what it could look like, often with a live demo before you commit."
+          secondary={{ to: '/free-demo-portal', label: 'Get a free demo portal', cta: 'work-band-demo' }}
+        />
       </MotionConfig>
     </>
   );

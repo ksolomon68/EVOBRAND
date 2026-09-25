@@ -1,9 +1,8 @@
-import React from 'react';
-import { Link } from 'react-router-dom';
-import { motion } from 'framer-motion';
-import { Sparkles, Accessibility, ArrowRight, Zap, ShieldCheck } from 'lucide-react';
+import React, { useRef } from 'react';
+import { Sparkles, Accessibility, ArrowRight } from 'lucide-react';
 import SEO from '@/components/SEO.jsx';
-import { PageHero, Reveal } from '@/components/motion/PageMotion.jsx';
+import { CtaBand, InnerHero, LinkCards, SplitSection, useStaggerReveal } from '@/components/inner/InnerKit.jsx';
+import { ButtonLink } from '@/components/system/Section.jsx';
 
 const TOOLS = [
   {
@@ -28,84 +27,99 @@ const TOOLS = [
   },
 ];
 
-const AuditorsPage = () => {
+function ToolCards() {
+  const ref = useRef(null);
+  useStaggerReveal(ref);
   return (
-    <>
-      <SEO
-        title="Free AI Auditors | Brand & Accessibility Scans | EVOBRAND"
-        description="Two free, AI-powered audit tools from EVOBRAND: a brand auditor that scores your digital presence, and an accessibility checker that scans your site against WCAG 2.1. Instant results, no sign-up."
-        keywords="free brand audit, accessibility checker, WCAG checker, AI audit tools, EVOBRAND auditors"
-        canonical="https://evobrand.net/auditors"
-        structuredData={{
-          "@context": "https://schema.org",
-          "@type": "CollectionPage",
-          "name": "EVOBRAND Auditors",
-          "url": "https://evobrand.net/auditors",
-          "description": "Free AI-powered brand and accessibility audit tools from EVOBRAND.",
-        }}
-      />
-
-      <div className="min-h-screen bg-[#04080f]">
-        {/* Hero */}
-        <PageHero
-          variant="audit"
-          eyebrow="Free · Instant · No Sign-Up"
-          lines={[
-            [{ t: 'Know' }, { t: 'Where' }, { t: 'You' }],
-            [{ t: 'Actually', accent: true }, { t: 'Stand', accent: true }],
-          ]}
-          sub="Two free, AI-driven diagnostic scanners. Get actionable scores, competitor benchmarks, and 90-day execution roadmaps in under 4 minutes."
-        />
-
-        {/* Tool cards */}
-        <div className="container mx-auto px-4 max-w-5xl pb-24">
-          <div className="grid md:grid-cols-2 gap-6">
-            {TOOLS.map((tool, i) => (
-              <motion.div
-                key={tool.to}
-                initial={{ opacity: 0, y: 30 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6, delay: 0.15 + i * 0.1, ease: 'easeOut' }}
-                className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-3xl p-8 flex flex-col hover:border-[#22C8E5]/30 transition-colors"
-              >
-                <div className="w-12 h-12 rounded-xl bg-[#22C8E5]/10 flex items-center justify-center mb-6" aria-hidden="true">
-                  <tool.icon size={24} className="text-[#22C8E5]" />
-                </div>
-                <span className="text-[#22C8E5] text-[11px] font-bold tracking-[0.2em] uppercase mb-3">
-                  {tool.eyebrow}
-                </span>
-                <h2 className="text-2xl font-bold text-white mb-3">{tool.title}</h2>
-                <p className="text-white/60 text-sm leading-relaxed mb-6">{tool.description}</p>
-                <ul className="space-y-2.5 mb-8 flex-1">
-                  {tool.bullets.map((b) => (
-                    <li key={b} className="flex items-start gap-2.5 text-white/50 text-sm leading-relaxed">
-                      <span className="w-1.5 h-1.5 bg-[#22C8E5] rounded-full mt-1.5 flex-shrink-0" />
-                      {b}
-                    </li>
-                  ))}
-                </ul>
-                <Link
-                  to={tool.to}
-                  className="inline-flex items-center justify-center gap-2 w-full px-6 py-3.5 bg-[#22C8E5] text-[#003258] rounded-2xl font-bold uppercase tracking-wider text-sm hover:bg-[#1db5d0] transition-colors"
-                >
-                  {tool.cta}
-                  <ArrowRight size={16} />
-                </Link>
-              </motion.div>
-            ))}
-          </div>
-
-          {/* Trust signals */}
-          <div className="flex flex-wrap justify-center gap-6 mt-10 text-evo-fog text-xs">
-            <span className="flex items-center gap-1.5"><Zap size={13} /> Results in seconds</span>
-            <span className="flex items-center gap-1.5"><ShieldCheck size={13} /> Your data is private</span>
-            <span>📧 Reports emailed to you</span>
-            <span>📞 No spam, ever</span>
-          </div>
-        </div>
-      </div>
-    </>
+    <div ref={ref} className="tool-grid">
+      {TOOLS.map((tool, i) => {
+        const Icon = tool.icon;
+        return (
+          <article key={tool.to} className="tool-card" data-reveal-item>
+            <div className="tool-card__top">
+              <span className="phase__icon" aria-hidden="true"><Icon size={26} strokeWidth={1.6} /></span>
+              <span className="tool-card__num" aria-hidden="true">0{i + 1}</span>
+            </div>
+            <p className="phase__meta">{tool.eyebrow}</p>
+            <h2 className="tool-card__title">{tool.title}</h2>
+            <p className="tool-card__text">{tool.description}</p>
+            <ul className="inner-ticks">
+              {tool.bullets.map((b) => <li key={b}>{b}</li>)}
+            </ul>
+            <ButtonLink to={tool.to} data-cta={`tools-${tool.to.slice(1)}`}>
+              {tool.cta} <ArrowRight size={16} aria-hidden="true" />
+            </ButtonLink>
+          </article>
+        );
+      })}
+    </div>
   );
-};
+}
+
+const AuditorsPage = () => (
+  <>
+    <SEO
+      title="Free Audit Tools | Brand & Accessibility Scans | EVOBRAND"
+      description="Two free audit tools from EVOBRAND: a brand auditor that scores your digital presence, and an accessibility checker that scans your site against WCAG 2.1. Instant results, no sign-up."
+      keywords="free brand audit, accessibility checker, WCAG checker, AI audit tools, EVOBRAND auditors"
+      canonical="https://evobrand.net/auditors"
+      structuredData={{
+        '@context': 'https://schema.org',
+        '@type': 'CollectionPage',
+        name: 'EVOBRAND Auditors',
+        url: 'https://evobrand.net/auditors',
+        description: 'Free AI-powered brand and accessibility audit tools from EVOBRAND.',
+      }}
+    />
+
+    <InnerHero
+      crumbs={[{ label: 'Free tools' }]}
+      label="Free · Instant · No sign-up"
+      lead="Know where"
+      emphasis="you actually stand."
+      intro="Two free diagnostic scanners. Get actionable scores, competitor benchmarks and a 90-day plan in a few minutes."
+      actions={[
+        { to: '/auditor', label: 'Start the brand audit', cta: 'tools-hero-brand' },
+        { to: '/accessibility-checker', label: 'Check accessibility', cta: 'tools-hero-a11y' },
+      ]}
+      facts={[
+        { label: 'Time', value: 'Results in minutes' },
+        { label: 'Cost', value: 'Free, no sign-up' },
+        { label: 'Privacy', value: 'Your data stays private' },
+        { label: 'Delivery', value: 'Reports emailed to you' },
+      ]}
+    />
+
+    <section className="evo-block evo-block--ink" aria-label="Tools">
+      <div className="evo-container">
+        <ToolCards />
+      </div>
+    </section>
+
+    <SplitSection
+      id="next"
+      tone="slate"
+      label="After the scan"
+      lead="Found something?"
+      emphasis="We can fix it."
+      intro="Every report comes with a plan. If you would rather hand it off, these are the services that pick it up."
+    >
+      <LinkCards
+        columns={2}
+        items={[
+          { to: '/services/wcag-accessibility', icon: Accessibility, meta: 'From $2,500', title: 'WCAG accessibility', body: 'Audit, remediation, screen reader testing and ongoing compliance.', cta: 'Explore the service' },
+          { to: '/services/web-development', icon: Sparkles, meta: 'From $3,000', title: 'Website rebuild', body: 'Websites and portals shaped around the decisions people need to make.', cta: 'Explore the service' },
+        ]}
+      />
+    </SplitSection>
+
+    <CtaBand
+      label="Talk it through"
+      lead="Turn the report"
+      emphasis="into a plan."
+      intro="Bring your results to a thirty-minute strategy call. We will walk through what matters most and what it would take."
+    />
+  </>
+);
 
 export default AuditorsPage;

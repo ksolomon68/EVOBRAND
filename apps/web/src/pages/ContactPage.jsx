@@ -2,7 +2,8 @@ import React, { useState, useRef } from 'react';
 import { Mail, Phone, MapPin, Clock, Facebook, Youtube, Linkedin, Instagram, Send, Loader2, CheckCircle2, AlertCircle, Upload, X } from 'lucide-react';
 import SchedulerWidget from '@/components/scheduler/SchedulerWidget.jsx';
 import SEO from '@/components/SEO.jsx';
-import { PageHero, Reveal, TiltCard } from '@/components/motion/PageMotion.jsx';
+import { InnerHero } from '@/components/inner/InnerKit.jsx';
+import { SectionHeading } from '@/components/system/Section.jsx';
 
 const GOLD = '#22c8e5';
 const NAVY = '#003258';
@@ -404,147 +405,74 @@ export default function ContactPage() {
         }}
       />
 
-      <div className="min-h-screen bg-[#0f1419]">
-        {/* Hero */}
-        <PageHero
-          variant="contact"
-          eyebrow="Get in Touch"
-          lines={[[{ t: "Let's" }, { t: 'Connect', accent: true }]]}
-          sub="Ready to transform your business with AI? Reach out for a free 30-minute consultation. No obligation."
-        />
+      <InnerHero
+        crumbs={[{ label: 'Contact' }]}
+        label="Get in touch"
+        lead="Let’s talk about"
+        emphasis="what needs to work."
+        intro="Send a message or book a free 30-minute strategy call. No obligation, and you will hear back within one business day."
+        actions={[
+          { to: '#message', label: 'Send a message', cta: 'contact-hero-message' },
+          { to: '#schedule', label: 'Pick a call time', cta: 'contact-hero-schedule' },
+        ]}
+        facts={CONTACT_METHODS.map(({ label, lines }) => ({
+          label,
+          value: lines.map(({ text, href }) => (href ? <a key={text} href={href} className="contact-fact-link">{text}</a> : <span key={text}>{text}</span>)),
+        }))}
+      />
 
-        {/* Contact method cards */}
-        <section className="py-12 border-y" style={{ background: 'rgba(26,35,50,0.5)', borderColor: `rgba(34,200,229,0.08)` }}>
-          <div className="container mx-auto px-4">
-            <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
-              {CONTACT_METHODS.map(({ icon: Icon, label, lines }, index) => (
-                <Reveal key={label} delay={index * 0.06}>
-                  <TiltCard
-                    className="h-full p-6 rounded-2xl text-center border transition-colors duration-300 hover:border-[#22c8e5]/30"
-                    style={{ background: 'rgba(15,20,25,0.7)', borderColor: 'rgba(34,200,229,0.1)' }}
-                  >
-                    <div
-                      className="w-10 h-10 rounded-full flex items-center justify-center mx-auto mb-3"
-                      style={{ background: 'rgba(34,200,229,0.1)' }}
-                      aria-hidden="true"
-                    >
-                      <Icon size={18} style={{ color: GOLD }} />
-                    </div>
-                    <h3 className="text-white font-bold text-sm mb-2">{label}</h3>
-                    {lines.map(({ text, href }) =>
-                      href ? (
-                        <a
-                          key={text}
-                          href={href}
-                          className="flex items-center min-h-[44px] text-sm transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#22c8e5] rounded"
-                          style={{ color: 'rgba(255,255,255,0.55)' }}
-                          onMouseEnter={(e) => (e.target.style.color = GOLD)}
-                          onMouseLeave={(e) => (e.target.style.color = 'rgba(255,255,255,0.55)')}
-                        >
-                          {text}
-                        </a>
-                      ) : (
-                        <p key={text} className="text-sm" style={{ color: 'rgba(255,255,255,0.55)' }}>
-                          {text}
-                        </p>
-                      )
-                    )}
-                  </TiltCard>
-                </Reveal>
-              ))}
+      <section className="evo-block evo-block--ink" aria-label="Contact options">
+        <div className="evo-container contact-grid">
+          <div id="message" className="contact-panel">
+            <p className="evo-eyebrow">Send a message</p>
+            <h2 className="contact-panel__title">Tell us about <em>the project.</em></h2>
+            <ContactForm />
+            <div className="contact-next">
+              <p className="phase__meta">What happens next</p>
+              <ol>
+                {[
+                  'We review your inquiry within 1 business day',
+                  'A strategist reaches out to learn more',
+                  'We propose a roadmap for your project',
+                  'You receive a detailed timeline and investment estimate',
+                ].map((item, i) => (
+                  <li key={item}><span aria-hidden="true">{String(i + 1).padStart(2, '0')}</span>{item}</li>
+                ))}
+              </ol>
             </div>
           </div>
-        </section>
 
-        {/* Main content: form + scheduler */}
-        <section className="py-20">
-          <div className="container mx-auto px-4">
-            <div className="grid lg:grid-cols-2 gap-10 max-w-6xl mx-auto">
-              {/* Contact Form */}
-              <Reveal
-                className="rounded-2xl p-8 border"
-                style={{ background: '#1a2332', borderColor: 'rgba(34,200,229,0.12)' }}
-              >
-                <div className="flex items-center gap-3 mb-7">
-                  <div
-                    className="w-8 h-8 rounded-full flex items-center justify-center"
-                    style={{ background: 'rgba(34,200,229,0.1)' }}
-                    aria-hidden="true"
-                  >
-                    <Mail size={15} style={{ color: GOLD }} />
-                  </div>
-                  <h2 className="text-base font-bold tracking-wide" style={{ color: BEIGE }}>
-                    Send Us a Message
-                  </h2>
-                </div>
-                <ContactForm />
-
-                {/* What to expect */}
-                <div className="mt-8 pt-7 border-t" style={{ borderColor: 'rgba(34,200,229,0.1)' }}>
-                  <p className="text-xs font-bold uppercase tracking-widest mb-4" style={{ color: 'var(--evo-accent)' }}>
-                    What Happens Next
-                  </p>
-                  <ul className="space-y-2.5">
-                    {[
-                      'We review your inquiry within 1 business day',
-                      'A strategist reaches out to learn more',
-                      'We propose a custom AI solution roadmap',
-                      'You receive a detailed timeline & investment estimate',
-                    ].map((item, i) => (
-                      <li key={i} className="flex items-start gap-3 text-sm" style={{ color: 'rgba(255,255,255,0.6)' }}>
-                        <span
-                          className="w-4 h-4 rounded-full flex items-center justify-center text-[10px] font-bold flex-shrink-0 mt-0.5"
-                          style={{ background: 'rgba(34,200,229,0.15)', color: GOLD }}
-                          aria-hidden="true"
-                        >
-                          {i + 1}
-                        </span>
-                        {item}
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              </Reveal>
-
-              {/* Scheduler */}
-              <Reveal delay={0.1}>
-                <SchedulerWidget />
-              </Reveal>
-            </div>
+          <div id="schedule" className="contact-panel">
+            <p className="evo-eyebrow">Book a call</p>
+            <h2 className="contact-panel__title">Pick a time <em>that suits you.</em></h2>
+            <SchedulerWidget />
           </div>
-        </section>
+        </div>
+      </section>
 
-        {/* Social */}
-        <section className="py-12 border-t" style={{ borderColor: 'rgba(34,200,229,0.08)' }}>
-          <div className="container mx-auto px-4 text-center">
-            <p className="text-xs font-bold uppercase tracking-[0.25em] mb-5" style={{ color: 'var(--evo-accent)' }}>
-              Follow Our Journey
-            </p>
-            <div className="flex justify-center gap-6">
-              {[
-                { icon: Facebook, href: 'http://facebook.com/evobrandconcepts', label: 'Facebook' },
-                { icon: Linkedin, href: 'https://www.linkedin.com/company/evobrand-concepts/', label: 'LinkedIn' },
-                { icon: Instagram, href: 'https://www.instagram.com/evobrandconcepts', label: 'Instagram' },
-                { icon: Youtube, href: 'https://www.youtube.com/channel/UC8z66n8_seQVY5PjBEDMM7w', label: 'YouTube' },
-              ].map(({ icon: Icon, href, label }) => (
-                <a
-                  key={label}
-                  href={href}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  aria-label={`EVOBRAND on ${label}`}
-                  className="w-10 h-10 rounded-full flex items-center justify-center border transition-all duration-200 focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#22c8e5] focus-visible:outline-offset-2"
-                  style={{ borderColor: 'rgba(34,200,229,0.2)', color: 'var(--fog)' }}
-                  onMouseEnter={(e) => { e.currentTarget.style.borderColor = GOLD; e.currentTarget.style.color = GOLD; e.currentTarget.style.background = 'rgba(34,200,229,0.1)'; }}
-                  onMouseLeave={(e) => { e.currentTarget.style.borderColor = 'rgba(34,200,229,0.2)'; e.currentTarget.style.color = 'rgba(255,255,255,0.4)'; e.currentTarget.style.background = 'transparent'; }}
-                >
-                  <Icon size={18} aria-hidden="true" />
+      <section className="evo-block evo-block--slate contact-social" aria-labelledby="social-heading">
+        <div className="evo-container contact-social__inner">
+          <SectionHeading id="social-heading" label="Follow along" lead="Behind the work," emphasis="as it happens." />
+          <ul className="social-list">
+            {[
+              { icon: Facebook, href: 'http://facebook.com/evobrandconcepts', label: 'Facebook' },
+              { icon: Linkedin, href: 'https://www.linkedin.com/company/evobrand-concepts/', label: 'LinkedIn' },
+              { icon: Instagram, href: 'https://www.instagram.com/evobrandconcepts', label: 'Instagram' },
+              { icon: Youtube, href: 'https://www.youtube.com/channel/UC8z66n8_seQVY5PjBEDMM7w', label: 'YouTube' },
+            ].map(({ icon: Icon, href, label }) => (
+              <li key={label}>
+                <a href={href} target="_blank" rel="noopener noreferrer" className="mega-link">
+                  <span className="mega-link__icon" aria-hidden="true"><Icon size={18} /></span>
+                  <span className="mega-link__text">
+                    <span className="mega-link__title">{label}</span>
+                    <span className="mega-link__body">EVOBRAND on {label}<span className="sr-only"> (opens in new tab)</span></span>
+                  </span>
                 </a>
-              ))}
-            </div>
-          </div>
-        </section>
-      </div>
+              </li>
+            ))}
+          </ul>
+        </div>
+      </section>
     </>
   );
 }
