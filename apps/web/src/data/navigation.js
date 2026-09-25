@@ -1,6 +1,7 @@
 import {
   BadgeCheck,
   BookOpen,
+  GraduationCap,
   CalendarCheck,
   Compass,
   Gauge,
@@ -73,6 +74,7 @@ export const NAV_GROUPS = [
       cta: { to: '/our-work', label: 'See all work' },
     },
     items: [
+      { to: '/our-work#academy', icon: GraduationCap, title: 'EVOBRAND Academy', body: 'The AI Executive Sandbox cohort' },
       { to: '/our-work#flagship', icon: Rocket, title: 'Flagship platforms', body: 'ChamberCore, PrimeReach and more' },
       { to: '/our-work#dashboard-demos', icon: LayoutDashboard, title: 'Dashboard demos', body: 'Live portals you can click through' },
       { to: '/our-work#recent-launches', icon: Newspaper, title: 'Recent launches', body: 'Websites for businesses and nonprofits' },
