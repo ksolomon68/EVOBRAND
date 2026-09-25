@@ -11,6 +11,7 @@ const REDUCED = '(prefers-reduced-motion: reduce)';
 
 let enginePromise = null;
 let engine = null;
+let failed = false;
 
 export function prefersReducedMotion() {
   return typeof window !== 'undefined' && window.matchMedia(REDUCED).matches;
@@ -58,6 +59,7 @@ export function loadMotion() {
       return engine;
     })
     .catch(() => {
+      failed = true;
       releaseHeldHeadlines();
       return null;
     });
@@ -77,6 +79,28 @@ export function useMotion() {
     };
   }, []);
   return value;
+}
+
+/**
+ * Engine plus load status: 'loading', 'ready', or 'off' (reduced motion or a
+ * failed load). Use 'off' to switch a scene to its static layout.
+ */
+export function useMotionState() {
+  const initial = () => {
+    if (engine) return { engine, status: 'ready' };
+    if (failed || prefersReducedMotion()) return { engine: null, status: 'off' };
+    return { engine: null, status: 'loading' };
+  };
+  const [state, setState] = useState(initial);
+  useEffect(() => {
+    if (state.status !== 'loading') return undefined;
+    let alive = true;
+    loadMotion().then((e) => alive && setState(e ? { engine: e, status: 'ready' } : { engine: null, status: 'off' }));
+    return () => {
+      alive = false;
+    };
+  }, [state.status]);
+  return state;
 }
 
 /** The engine if it has already loaded, else null. */
