@@ -28,6 +28,7 @@ const AccessibilityStatementPage = lazy(() => import('@/pages/AccessibilityState
 const BookConsultationPage = lazy(() => import('@/pages/BookConsultationPage.jsx'));
 const FreeDemoPortalPage = lazy(() => import('@/pages/FreeDemoPortalPage.jsx'));
 const MotionLabPage = lazy(() => import('@/pages/MotionLabPage.jsx'));
+const MotionBlueprintPage = lazy(() => import('@/pages/MotionBlueprintPage.jsx'));
 const StyleGuidePage = lazy(() => import('@/pages/StyleGuidePage.jsx'));
 const VideoLibrarySection = lazy(() => import('@/components/VideoLibrarySection.jsx'));
 import SEO from '@/components/SEO.jsx';
@@ -84,6 +85,7 @@ function SiteLayout() {
                 <Route path="/free-demo-portal" element={<FreeDemoPortalPage />} />
                 <Route path="/style-guide" element={<StyleGuidePage />} />
                 <Route path="/motion-lab" element={<MotionLabPage />} />
+                <Route path="/motion-lab/blueprint" element={<MotionBlueprintPage />} />
                 <Route path="/book" element={<Navigate to="/book-consultation" replace />} />
                 <Route path="/contract-builder" element={<Navigate to="/client-portal" replace />} />
                 <Route path="*" element={<NotFoundPage />} />
