@@ -1,6 +1,7 @@
 import React from 'react';
 import { Award, Lightbulb, Route, Target, Users } from 'lucide-react';
 import SEO from '@/components/SEO.jsx';
+import FrameScrub from '@/components/cinematic/FrameScrub.jsx';
 import { CtaBand, InnerHero, LinkCards, SplitSection, StepList, useStaggerReveal } from '@/components/inner/InnerKit.jsx';
 import { ProofLedger, SectionHeading } from '@/components/system/Section.jsx';
 
@@ -112,14 +113,16 @@ export default function AboutPage() {
         </div>
       </section>
 
-      <SplitSection
+      <FrameScrub
         id="leadership"
-        tone="deep"
-        label="Leadership"
-        lead="Keisha Solomon,"
-        emphasis="Founder."
+        labelledBy="leadership-heading"
+        src="/brand/leadership"
+        frames={76}
+        focus={0.66}
+        alt="Keisha Solomon, founder of EVOBRAND Concepts, in the studio."
       >
-        {/* TODO(content): headshot and a short bio for Keisha Solomon. */}
+        <SectionHeading id="leadership-heading" label="Leadership" lead="Keisha Solomon," emphasis="Founder." />
+        {/* TODO(content): a short bio for Keisha Solomon. */}
         <div className="inner-prose">
           <p className="inner-quote">Keisha has led the business since 1999 and leads every EVOBRAND engagement directly.</p>
           <p>
@@ -127,7 +130,7 @@ export default function AboutPage() {
             makes the design decisions, and stays accountable after launch.
           </p>
         </div>
-      </SplitSection>
+      </FrameScrub>
 
       <section id="certifications" className="evo-block evo-block--navy" aria-labelledby="cert-heading">
         <div className="evo-container">

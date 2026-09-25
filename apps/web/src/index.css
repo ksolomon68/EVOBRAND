@@ -2005,6 +2005,56 @@ html {
   .link-card, .link-card::before, .link-card__cta svg { transition: none; }
 }
 
+/* Scroll-scrubbed image sequence behind a section (FrameScrub.jsx).
+   Static by default: a normal section over the poster frame. Once the motion
+   engine is live the section grows tall and the stage pins while it plays. */
+.frame-scrub { position: relative; background: var(--evo-bg-deep); }
+.frame-scrub__stage {
+  position: relative;
+  display: flex;
+  align-items: center;
+  min-height: 100svh;
+  overflow: hidden;
+}
+.frame-scrub__poster,
+.frame-scrub__canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+.frame-scrub__poster { object-fit: cover; object-position: var(--frame-focus, 50%) center; }
+.frame-scrub__canvas { display: none; }
+.frame-scrub__shade {
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(90deg,
+      color-mix(in srgb, var(--evo-bg-deep) 94%, transparent) 0%,
+      color-mix(in srgb, var(--evo-bg-deep) 78%, transparent) 32%,
+      transparent 62%),
+    linear-gradient(180deg, var(--evo-bg-deep) 0%, transparent 14%, transparent 86%, var(--evo-bg-deep) 100%);
+}
+.frame-scrub__content { position: relative; padding-block: var(--space-3xl); }
+.frame-scrub__content > * { max-width: 34rem; }
+.frame-scrub__content .inner-prose { margin-top: var(--space-l); }
+
+.frame-scrub--live { height: 260svh; }
+.frame-scrub--live .frame-scrub__stage { position: sticky; top: 0; height: 100svh; }
+.frame-scrub--live .frame-scrub__canvas { display: block; }
+
+@media (max-width: 767px) {
+  /* Portrait crop: the subject fills the top, copy sits on a bottom fade. */
+  .frame-scrub__stage { align-items: flex-end; }
+  .frame-scrub__shade {
+    background: linear-gradient(180deg,
+      var(--evo-bg-deep) 0%, transparent 18%, transparent 35%,
+      color-mix(in srgb, var(--evo-bg-deep) 88%, transparent) 62%,
+      var(--evo-bg-deep) 100%);
+  }
+  .frame-scrub--live { height: 220svh; }
+}
+
 /* Page change curtain */
 .route-curtain {
   position: fixed;
