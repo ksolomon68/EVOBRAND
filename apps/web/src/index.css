@@ -1518,13 +1518,12 @@ html {
 }
 
 /* Content blocks sit on the tinted field. */
-.bp-block { padding: var(--space-3xl) var(--gutter); }
+.bp-block { padding-block: var(--space-3xl); }
 .bp-block__inner {
   display: grid;
   gap: var(--space-xl);
-  max-width: 1400px;
+  width: min(1240px, 100% - 2 * var(--gutter));
   margin-inline: auto;
-  padding-left: var(--space-l);
 }
 
 /* Flip reel */
@@ -1534,15 +1533,13 @@ html {
   display: grid;
   align-content: center;
   gap: var(--space-l);
-  padding: var(--space-2xl) var(--gutter);
+  padding-block: var(--space-2xl);
 }
 .flip-reel__head {
   display: grid;
   gap: var(--space-m);
-  width: 100%;
-  max-width: 1400px;
+  width: min(1240px, 100% - 2 * var(--gutter));
   margin-inline: auto;
-  padding-left: var(--space-l);
 }
 .flip-reel__meta { display: grid; gap: var(--space-s); }
 .flip-reel__status {
@@ -1575,7 +1572,7 @@ html {
 .flip-reel__track {
   display: grid;
   gap: var(--space-l);
-  max-width: 1400px;
+  width: min(1240px, 100% - 2 * var(--gutter));
   margin-inline: auto;
 }
 
@@ -1703,7 +1700,7 @@ html {
     width: max-content;
     max-width: none;
     margin-inline: 0;
-    padding-inline: max(var(--gutter), calc((100vw - 1400px) / 2 + var(--space-l))) 12vw;
+    padding-inline: max(var(--gutter), calc((100vw - 1240px) / 2)) 12vw;
   }
   .flip-reel:not(.flip-reel--static) .flip-card {
     width: clamp(20rem, 27vw, 26rem);
@@ -1716,7 +1713,6 @@ html {
   .bp-backdrop__art { width: 130vw; right: -45vw; opacity: 0.55; }
   .bp-hero__copy { padding: var(--space-m); }
   .flip-card { height: 32rem; }
-  .bp-block__inner, .flip-reel__head { padding-left: 0; }
 }
 @media (prefers-reduced-motion: reduce) {
   .flip-card__inner, .flip-card__media img, .bp-hero__body { transition: none; }
@@ -2810,3 +2806,7 @@ body:has(.cta-band) .site-footer__statement { display: none; }
 @media (max-width: 1023px) { .video-teaser { grid-template-columns: 1fr; } }
 @media (max-width: 480px) { .video-teaser__card { grid-template-columns: auto 1fr; } .video-teaser__arrow { display: none; } }
 @media (prefers-reduced-motion: reduce) { .video-teaser__play::after { animation: none; opacity: 0; } }
+
+/* Homepage sections sit on the blueprint's tinted field, so the colour
+   shifts between them instead of cutting from block to block. */
+.bp-page .evo-block { background: transparent; }
