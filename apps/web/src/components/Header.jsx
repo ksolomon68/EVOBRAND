@@ -5,6 +5,7 @@ import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
 import { ArrowUpRight, ChevronDown, Menu, Users, X } from 'lucide-react';
 import { getLoadedMotion } from '@/lib/motion.js';
 import { NAV_GROUPS, PORTAL_LINK } from '@/data/navigation.js';
+import MegaArt from '@/components/MegaArt.jsx';
 
 const EASE = [0.22, 1, 0.36, 1];
 const OPEN_DELAY = 90;
@@ -12,13 +13,13 @@ const CLOSE_DELAY = 220;
 
 const isGroupActive = (group, pathname) => group.match.some((prefix) => pathname === prefix || pathname.startsWith(`${prefix}/`));
 
-/** Left column of a panel: a framed card with an image, a serif line and one CTA. */
-function FeatureCard({ feature, onNavigate }) {
+/** Left column of a panel: a line illustration, a serif line and one CTA. */
+function FeatureCard({ groupId, feature, onNavigate }) {
   return (
-    <div className={`mega-feature ${feature.image ? '' : 'mega-feature--plain'}`}>
-      {feature.image && <img src={feature.image} alt="" loading="lazy" decoding="async" />}
+    <div className="mega-feature">
       <div className="mega-feature__body">
         <p className="mega-feature__eyebrow">{feature.eyebrow}</p>
+        <MegaArt id={groupId} />
         <p className="mega-feature__line">
           {feature.lead} <em>{feature.emphasis}</em>
         </p>
@@ -46,7 +47,7 @@ function MegaPanel({ group, reduce, onNavigate }) {
       exit={reduce ? { opacity: 0 } : { opacity: 0, y: -6, transition: { duration: 0.16 } }}
       transition={{ duration: 0.5, ease: EASE }}
     >
-      <FeatureCard feature={group.feature} onNavigate={onNavigate} />
+      <FeatureCard groupId={group.id} feature={group.feature} onNavigate={onNavigate} />
       <div className="mega-panel__main">
         <div className="mega-panel__head">
           <p className="mega-panel__title">{group.title}</p>

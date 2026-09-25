@@ -22,8 +22,6 @@ import { SERVICES } from '@/data/services.js';
 // a grid of links on the right, and the client portal bar underneath.
 // `match` lists path prefixes that mark the group active.
 
-const IMG = '/projects/optimized';
-
 export const NAV_GROUPS = [
   {
     id: 'about',
@@ -54,7 +52,6 @@ export const NAV_GROUPS = [
       eyebrow: 'Strategy · Design · Technology',
       lead: 'Start with the problem.',
       emphasis: 'Build the right system.',
-      image: `${IMG}/chambercore-1024.webp`,
       cta: { to: '/book-consultation', label: 'Book a strategy call' },
     },
     items: [
@@ -73,7 +70,6 @@ export const NAV_GROUPS = [
       eyebrow: 'Inside the work',
       lead: 'Platforms that',
       emphasis: 'carry real programs.',
-      image: `${IMG}/caltrans-960.webp`,
       cta: { to: '/our-work', label: 'See all work' },
     },
     items: [
@@ -93,7 +89,6 @@ export const NAV_GROUPS = [
       eyebrow: 'Free · Instant · No sign-up',
       lead: 'Check your site',
       emphasis: 'in a few minutes.',
-      image: `${IMG}/rbca-portal-1024.webp`,
       cta: { to: '/auditor', label: 'Start the brand audit' },
     },
     items: [
@@ -113,7 +108,6 @@ export const NAV_GROUPS = [
       eyebrow: 'Guides · Research · Video',
       lead: 'Practical reading',
       emphasis: 'for busy teams.',
-      image: `${IMG}/pivotal-voice-960.webp`,
       cta: { to: '/resources', label: 'Browse resources' },
     },
     items: [
