@@ -16,43 +16,59 @@ const RISK_BADGE = {
   Critical: 'background:#fee2e2;color:#dc2626',
 };
 
+// Report text includes page markup (Lighthouse titles like "`<td>` elements…"
+// and element snippets), so every value is escaped before it goes in the HTML.
+const esc = (value) => String(value ?? '')
+  .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+
+// Same rules as AccessibilityResults: a missing score stays missing rather
+// than being replaced with a made-up one.
 function normalizePDFReport(report) {
-  const score = Number.isFinite(Number(report.overall_score)) ? Number(report.overall_score) : 60;
+  const score = report.overall_score === null || report.overall_score === undefined || !Number.isFinite(Number(report.overall_score))
+    ? null
+    : Number(report.overall_score);
   const pourEntries = report.pour && typeof report.pour === 'object' ? Object.values(report.pour) : [];
   return {
     ...report,
     overall_score: score,
-    grade: report.grade || 'C',
-    risk_level: report.risk_level || 'Moderate',
-    headline: report.headline || 'Your accessibility scan is complete.',
-    pour: pourEntries.length > 0 ? pourEntries : [
-      { label: 'Perceivable', score, insight: 'Based on automated scan results.' },
-      { label: 'Operable', score, insight: 'Based on automated scan results.' },
-      { label: 'Understandable', score, insight: 'Based on automated scan results.' },
-      { label: 'Robust', score, insight: 'Based on automated scan results.' },
-    ],
+    grade: score === null ? null : report.grade || null,
+    risk_level: score === null ? null : report.risk_level || null,
+    headline: report.headline || '',
+    pour: pourEntries,
     critical_issues: Array.isArray(report.critical_issues) ? report.critical_issues : [],
     quick_wins: Array.isArray(report.quick_wins) ? report.quick_wins : [],
     roadmap: Array.isArray(report.roadmap) ? report.roadmap : [],
-    disclaimer: report.disclaimer || 'This is an automated and heuristic scan, not a substitute for a full manual WCAG audit or legal advice.',
+    disclaimer: report.disclaimer || 'This report is based on an automated scan and is not a substitute for a full manual WCAG audit or legal advice.',
     cta: report.cta || 'Ready to make your site accessible to everyone?',
+    scan_meta: report.scan_meta || null,
   };
+}
+
+function scanSummary(meta) {
+  if (!meta) return '';
+  const basis = meta.basis === 'lighthouse'
+    ? `Google Lighthouse${meta.lighthouse_version ? ` ${meta.lighthouse_version}` : ''} · ${meta.device || 'mobile'}`
+    : meta.basis === 'html' ? 'Basic HTML checks only' : 'Scan did not complete';
+  const when = meta.scanned_at ? new Date(meta.scanned_at).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }) : '';
+  return [`Page scanned: ${meta.scanned_url || meta.requested_url}`, basis, when].filter(Boolean).join(' · ');
 }
 
 function buildPourBars(pour) {
   return pour.map((cat) => {
-    const pct = Math.min(100, Math.max(0, cat.score || 0));
+    const measured = typeof cat.score === 'number';
+    const pct = measured ? Math.min(100, Math.max(0, cat.score)) : 0;
     const barColor = pct >= 75 ? '#22d3a0' : pct >= 50 ? BRAND_CYAN : '#f59e0b';
+    const counts = measured && cat.total ? `<span style="font-size:11px;color:#64748b;font-weight:500;margin-left:8px;">${cat.passed} of ${cat.total} checks passed</span>` : '';
     return `
       <div style="margin-bottom:20px;">
         <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:6px;">
-          <span style="font-size:13px;font-weight:600;color:#1e293b;">${cat.label}</span>
-          <span style="font-size:18px;font-weight:800;color:${BRAND_BLUE};">${pct}</span>
+          <span style="font-size:13px;font-weight:600;color:#1e293b;">${esc(cat.label)}${counts}</span>
+          <span style="font-size:18px;font-weight:800;color:${BRAND_BLUE};">${measured ? pct : '—'}</span>
         </div>
         <div style="height:8px;background:#e2e8f0;border-radius:99px;overflow:hidden;">
           <div style="height:8px;background:${barColor};border-radius:99px;width:${pct}%;"></div>
         </div>
-        <p style="font-size:11px;color:#64748b;margin-top:4px;">${cat.insight || ''}</p>
+        <p style="font-size:11px;color:#64748b;margin-top:4px;">${esc(cat.insight)}</p>
       </div>
     `;
   }).join('');
@@ -73,12 +89,14 @@ function buildPrintHTML(rawReport, businessName, date) {
     return `
       <div style="background:white;border-radius:12px;padding:20px 24px;margin-bottom:16px;border:1px solid #e2e8f0;border-left:4px solid ${BRAND_CYAN};break-inside:avoid;box-shadow:0 1px 3px rgba(0,0,0,0.06);">
         <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:8px;">
-          <div style="font-size:15px;font-weight:700;color:${BRAND_BLUE};">${issue.title}</div>
-          <span style="font-size:10px;font-weight:700;${sevStyle};padding:3px 10px;border-radius:99px;white-space:nowrap;">${issue.severity}</span>
+          <div style="font-size:15px;font-weight:700;color:${BRAND_BLUE};">${esc(issue.title)}</div>
+          <span style="font-size:10px;font-weight:700;${sevStyle};padding:3px 10px;border-radius:99px;white-space:nowrap;">${esc(issue.severity)}</span>
         </div>
-        ${issue.wcag ? `<div style="font-size:11px;color:${BRAND_CYAN};font-family:monospace;margin-bottom:8px;">WCAG ${issue.wcag}</div>` : ''}
-        <div style="font-size:12px;color:#4b5563;line-height:1.7;margin-bottom:8px;">${issue.detail}</div>
-        <div style="font-size:12px;color:#374151;line-height:1.7;"><strong>Fix:</strong> ${issue.fix}</div>
+        ${issue.wcag ? `<div style="font-size:11px;color:${BRAND_CYAN};font-family:monospace;margin-bottom:8px;">${issue.wcag_failure === false ? '' : 'WCAG '}${esc(issue.wcag)}</div>` : ''}
+        <div style="font-size:12px;color:#4b5563;line-height:1.7;margin-bottom:8px;">${esc(issue.detail)}</div>
+        <div style="font-size:12px;color:#374151;line-height:1.7;"><strong>Fix:</strong> ${esc(issue.fix)}</div>
+        ${(issue.examples || []).length ? `<div style="margin-top:10px;font-size:10px;color:#64748b;">Example${issue.examples.length > 1 ? 's' : ''} from the page:</div>
+        ${issue.examples.map((ex) => `<div style="font-family:monospace;font-size:10px;color:#334155;background:#f1f5f9;border-radius:6px;padding:6px 8px;margin-top:4px;word-break:break-all;">${esc(ex)}</div>`).join('')}` : ''}
       </div>
     `;
   }).join('');
@@ -88,15 +106,15 @@ function buildPrintHTML(rawReport, businessName, date) {
       <div style="flex-shrink:0;width:20px;height:20px;border-radius:50%;background:#dcfce7;display:flex;align-items:center;justify-content:center;margin-top:1px;">
         <span style="color:#16a34a;font-size:11px;font-weight:700;">✓</span>
       </div>
-      <span style="font-size:13px;color:#374151;line-height:1.6;">${w}</span>
+      <span style="font-size:13px;color:#374151;line-height:1.6;">${esc(w)}</span>
     </div>
   `).join('');
 
   const roadmapCards = report.roadmap.map((phase) => `
     <div style="background:white;border:1px solid #e2e8f0;border-radius:12px;padding:20px;margin-bottom:14px;break-inside:avoid;">
-      <div style="font-size:10px;font-weight:700;color:${BRAND_CYAN};text-transform:uppercase;letter-spacing:1.5px;margin-bottom:4px;">${phase.phase}</div>
-      <div style="font-size:15px;font-weight:700;color:${BRAND_BLUE};margin-bottom:10px;">${phase.focus}</div>
-      <ul>${(phase.actions || []).map((a) => `<li style="font-size:12px;color:#4b5563;line-height:1.9;">• ${a}</li>`).join('')}</ul>
+      <div style="font-size:10px;font-weight:700;color:${BRAND_CYAN};text-transform:uppercase;letter-spacing:1.5px;margin-bottom:4px;">${esc(phase.phase)}</div>
+      <div style="font-size:15px;font-weight:700;color:${BRAND_BLUE};margin-bottom:10px;">${esc(phase.focus)}</div>
+      <ul>${(phase.actions || []).map((a) => `<li style="font-size:12px;color:#4b5563;line-height:1.9;">• ${esc(a)}</li>`).join('')}</ul>
     </div>
   `).join('');
 
@@ -106,7 +124,7 @@ function buildPrintHTML(rawReport, businessName, date) {
 <html lang="en">
 <head>
   <meta charset="utf-8">
-  <title>EVOBRAND Accessibility Report: ${businessName}</title>
+  <title>EVOBRAND Accessibility Report: ${esc(businessName)}</title>
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Rajdhani:wght@600;700&family=Inter:wght@400;500;600;700;900&display=swap');
     * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -156,23 +174,24 @@ function buildPrintHTML(rawReport, businessName, date) {
       <div>
         <img class="cover-logo-img" src="${window.location.origin}/logo.png" alt="EVOBRAND" onerror="this.style.display='none'" />
         <div class="cover-eyebrow">Accessibility Report · Confidential</div>
-        <div class="cover-business">${businessName}</div>
-        <div class="cover-date">Generated ${date}</div>
-        <div class="cover-score-row">
+        <div class="cover-business">${esc(businessName)}</div>
+        <div class="cover-date">Generated ${esc(date)}</div>
+        <div class="cover-date">${esc(scanSummary(report.scan_meta))}</div>
+        ${report.overall_score !== null ? `<div class="cover-score-row">
           <div class="score-card">
             <div class="score-card-label">Accessibility Score</div>
             <div class="big-score">${report.overall_score}<span style="font-size:28px;color:rgba(34,200,229,0.5)">/100</span></div>
           </div>
-          <div class="grade-card">
-            <div class="grade-ring"><span class="grade-letter">${report.grade}</span></div>
+          ${report.grade ? `<div class="grade-card">
+            <div class="grade-ring"><span class="grade-letter">${esc(report.grade)}</span></div>
             <div class="grade-sub">${gradeLabel}</div>
-          </div>
-          <div class="risk-card">
+          </div>` : ''}
+          ${report.risk_level ? `<div class="risk-card">
             <div class="risk-label">Risk Level</div>
-            <div class="risk-value">${report.risk_level}</div>
-          </div>
-        </div>
-        <div class="cover-headline">"${report.headline}"</div>
+            <div class="risk-value">${esc(report.risk_level)}</div>
+          </div>` : ''}
+        </div>` : `<div class="cover-score-row"><div class="score-card"><div class="score-card-label">Accessibility Score</div><div style="font-size:18px;color:white;font-weight:600;">Not scored</div></div></div>`}
+        ${report.headline ? `<div class="cover-headline">${esc(report.headline)}</div>` : ''}
       </div>
       <div class="cover-footer">Confidential · EVOBRAND Concepts · evobrand.net</div>
     </div>
@@ -184,7 +203,7 @@ function buildPrintHTML(rawReport, businessName, date) {
       <img class="page-logo" src="${window.location.origin}/logo.png" alt="EVOBRAND" onerror="this.style.display='none'" />
     </div>
     <div class="section-label">Score by POUR Principle</div>
-    <div style="margin-top:8px;">${pourBars}</div>
+    <div style="margin-top:8px;">${pourBars || '<p style="font-size:12px;color:#64748b;">Not measured for this scan.</p>'}</div>
   </div>
 
   ${issueCards ? `
@@ -204,13 +223,13 @@ function buildPrintHTML(rawReport, businessName, date) {
     </div>
     ${quickWinsList ? `<div class="section-label">Quick Wins</div><div style="margin-bottom:28px;">${quickWinsList}</div>` : ''}
     ${roadmapCards ? `<div class="section-label">90-Day Remediation Plan</div><div style="margin-top:12px;">${roadmapCards}</div>` : ''}
-    <div class="disclaimer">${report.disclaimer}</div>
+    <div class="disclaimer">${esc(report.disclaimer)}</div>
   </div>
 
   <div class="cta-page">
     <div class="cta-eyebrow">Next Steps</div>
     <div class="cta-title">Make Your Site<br/>Accessible to Everyone</div>
-    <div class="cta-text">${report.cta}</div>
+    <div class="cta-text">${esc(report.cta)}</div>
     <div class="cta-pill">evobrand.net</div>
     <div class="cta-contact">
       Keisha Solomon · CEO, EVOBRAND Concepts<br/>

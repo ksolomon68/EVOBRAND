@@ -99,32 +99,42 @@ const LoadingState = () => {
             />
           ))}
         </div>
-        <p className="text-evo-fog text-xs mt-6 text-center">Live accessibility scan in progress. This takes ~15-20 seconds</p>
+        <p className="text-evo-fog text-xs mt-6 text-center">Live accessibility scan in progress. This can take up to a minute.</p>
       </div>
     </div>
   );
 };
 
+// A missing score stays missing: the scan either measured something or it
+// didn't, and a stand-in number would read as a real result.
 const normalizeReport = (report) => {
   const pourEntries = report.pour && typeof report.pour === 'object' ? Object.values(report.pour) : [];
+  const score = report.overall_score === null || report.overall_score === undefined || !Number.isFinite(Number(report.overall_score))
+    ? null
+    : Number(report.overall_score);
   return {
     ...report,
-    overall_score: Number.isFinite(Number(report.overall_score)) ? Number(report.overall_score) : 0,
-    grade: report.grade || 'C',
-    risk_level: report.risk_level || 'Moderate',
-    headline: report.headline || 'Your accessibility scan is complete.',
-    pour: pourEntries.length > 0 ? pourEntries : [
-      { label: 'Perceivable', score: 60, insight: 'Based on automated scan results.' },
-      { label: 'Operable', score: 60, insight: 'Based on automated scan results.' },
-      { label: 'Understandable', score: 60, insight: 'Based on automated scan results.' },
-      { label: 'Robust', score: 60, insight: 'Based on automated scan results.' },
-    ],
+    overall_score: score,
+    grade: score === null ? null : report.grade || null,
+    risk_level: score === null ? null : report.risk_level || null,
+    headline: report.headline || '',
+    pour: pourEntries,
     critical_issues: Array.isArray(report.critical_issues) ? report.critical_issues : [],
     quick_wins: Array.isArray(report.quick_wins) ? report.quick_wins : [],
     roadmap: Array.isArray(report.roadmap) ? report.roadmap : [],
-    disclaimer: report.disclaimer || 'This is an automated and heuristic scan, not a substitute for a full manual WCAG audit or legal advice.',
+    disclaimer: report.disclaimer || 'This report is based on an automated scan and is not a substitute for a full manual WCAG audit or legal advice.',
     cta: report.cta || 'Ready to make your site accessible to everyone?',
+    scan_meta: report.scan_meta || null,
   };
+};
+
+const scanSummary = (meta) => {
+  if (!meta) return null;
+  const basis = meta.basis === 'lighthouse'
+    ? `Google Lighthouse${meta.lighthouse_version ? ` ${meta.lighthouse_version}` : ''}, ${meta.device || 'mobile'} view`
+    : meta.basis === 'html' ? 'Basic HTML checks only' : 'Scan did not complete';
+  const when = meta.scanned_at ? new Date(meta.scanned_at).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }) : null;
+  return { url: meta.scanned_url || meta.requested_url, basis, when };
 };
 
 const AccessibilityResults = ({ report, isLoading, onDownloadPDF }) => {
@@ -132,8 +142,11 @@ const AccessibilityResults = ({ report, isLoading, onDownloadPDF }) => {
   if (!report) return null;
 
   const r = normalizeReport(report);
+  const scored = r.overall_score !== null;
   const gradeColor = GRADE_COLORS[r.grade] || '#22C8E5';
   const riskColor = RISK_COLORS[r.risk_level] || '#facc15';
+  const meta = scanSummary(r.scan_meta);
+  const measuredPour = r.pour.some((cat) => typeof cat.score === 'number');
 
   return (
     <div className="min-h-screen bg-[#04080f] pt-8 pb-20">
@@ -146,61 +159,88 @@ const AccessibilityResults = ({ report, isLoading, onDownloadPDF }) => {
           transition={{ duration: 0.8, ease: 'easeOut' }}
           className="text-center mb-16"
         >
-          <div className="relative inline-block mb-6">
-            <div className="absolute inset-0 blur-3xl rounded-full opacity-30" style={{ background: '#22C8E5' }} />
-            <div className="relative flex items-center justify-center gap-6">
-              <span className="font-bold leading-none" style={{ fontSize: 'clamp(80px, 15vw, 140px)', color: '#22C8E5' }}>
-                <ScoreCounter target={r.overall_score} duration={2.5} />
-              </span>
-              <div className="flex flex-col items-center">
-                <div
-                  className="w-16 h-16 rounded-full flex items-center justify-center border-2 font-bold text-3xl"
-                  style={{ borderColor: gradeColor, color: gradeColor, background: `${gradeColor}15` }}
-                >
-                  {r.grade}
+          {scored ? (
+            <>
+              <div className="relative inline-block mb-6">
+                <div className="absolute inset-0 blur-3xl rounded-full opacity-30" style={{ background: '#22C8E5' }} />
+                <div className="relative flex items-center justify-center gap-6">
+                  {/* The count-up is visual only; screen readers get the final score. */}
+                  <span className="sr-only">Accessibility score: {r.overall_score} out of 100{r.grade ? `, grade ${r.grade}` : ''}.</span>
+                  <span aria-hidden="true" className="font-bold leading-none" style={{ fontSize: 'clamp(80px, 15vw, 140px)', color: '#22C8E5' }}>
+                    <ScoreCounter target={r.overall_score} duration={2.5} />
+                  </span>
+                  {r.grade && (
+                    <div aria-hidden="true" className="flex flex-col items-center">
+                      <div
+                        className="w-16 h-16 rounded-full flex items-center justify-center border-2 font-bold text-3xl"
+                        style={{ borderColor: gradeColor, color: gradeColor, background: `${gradeColor}15` }}
+                      >
+                        {r.grade}
+                      </div>
+                      <span className="text-evo-fog text-xs mt-1">Grade</span>
+                    </div>
+                  )}
                 </div>
-                <span className="text-evo-fog text-xs mt-1">Grade</span>
               </div>
-            </div>
-          </div>
-          <p className="text-evo-fog text-sm uppercase tracking-widest mb-3">Accessibility Score</p>
-          <div className="flex justify-center mb-4">
-            <span
-              className="inline-flex items-center gap-2 text-xs font-bold px-4 py-1.5 rounded-full uppercase tracking-widest"
-              style={{ background: `${riskColor}18`, color: riskColor, border: `1px solid ${riskColor}40` }}
-            >
-              <ShieldAlert size={13} />
-              {r.risk_level} Risk
-            </span>
-          </div>
-          <h2 className="text-2xl md:text-3xl font-bold text-white max-w-2xl mx-auto leading-tight">{r.headline}</h2>
+              <p className="text-evo-fog text-sm uppercase tracking-widest mb-3">Accessibility Score</p>
+              {r.risk_level && (
+                <div className="flex justify-center mb-4">
+                  <span
+                    className="inline-flex items-center gap-2 text-xs font-bold px-4 py-1.5 rounded-full uppercase tracking-widest"
+                    style={{ background: `${riskColor}18`, color: riskColor, border: `1px solid ${riskColor}40` }}
+                  >
+                    <ShieldAlert size={13} aria-hidden="true" />
+                    {r.risk_level} Risk
+                  </span>
+                </div>
+              )}
+            </>
+          ) : (
+            <p className="text-evo-fog text-sm uppercase tracking-widest mb-4">
+              {r.status === 'failed' ? 'Scan could not complete' : 'Limited scan · not scored'}
+            </p>
+          )}
+          {r.headline && <h2 className="text-2xl md:text-3xl font-bold text-white max-w-2xl mx-auto leading-tight">{r.headline}</h2>}
+          {meta && (
+            <p className="text-evo-fog text-xs mt-5 max-w-2xl mx-auto break-words">
+              Page scanned: <span className="text-white/70">{meta.url}</span> · {meta.basis}{meta.when ? ` · ${meta.when}` : ''}
+            </p>
+          )}
         </motion.div>
 
         {/* POUR Breakdown */}
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.7, delay: 0.2 }}
-          className="grid sm:grid-cols-2 lg:grid-cols-4 gap-5 mb-16"
-        >
-          {r.pour.map((cat, i) => (
-            <div key={cat.label || i} className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-5">
-              <div className="flex items-center justify-between mb-2">
-                <span className="font-bold text-white text-sm">{cat.label}</span>
-                <span className="font-bold text-[#22C8E5] text-xl">{cat.score}</span>
-              </div>
-              <div className="w-full h-1.5 bg-white/10 rounded-full mb-3 overflow-hidden">
-                <motion.div
-                  className="h-full rounded-full bg-[#22C8E5]"
-                  initial={{ width: 0 }}
-                  animate={{ width: `${cat.score}%` }}
-                  transition={{ duration: 1, delay: 0.3 + i * 0.1, ease: 'easeOut' }}
-                />
-              </div>
-              <p className="text-white/50 text-xs leading-relaxed">{cat.insight}</p>
-            </div>
-          ))}
-        </motion.div>
+        {measuredPour && (
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.7, delay: 0.2 }}
+            className="grid sm:grid-cols-2 lg:grid-cols-4 gap-5 mb-16"
+          >
+            {r.pour.map((cat, i) => {
+              const measured = typeof cat.score === 'number';
+              return (
+                <div key={cat.label || i} className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-5">
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="font-bold text-white text-sm">{cat.label}</span>
+                    <span className="font-bold text-[#22C8E5] text-xl">{measured ? cat.score : '—'}</span>
+                  </div>
+                  <div className="w-full h-1.5 bg-white/10 rounded-full mb-3 overflow-hidden">
+                    <motion.div
+                      className="h-full rounded-full bg-[#22C8E5]"
+                      initial={{ width: 0 }}
+                      animate={{ width: `${measured ? cat.score : 0}%` }}
+                      transition={{ duration: 1, delay: 0.3 + i * 0.1, ease: 'easeOut' }}
+                    />
+                  </div>
+                  {measured && cat.total > 0 && (
+                    <p className="text-white/70 text-xs mb-1">{cat.passed} of {cat.total} checks passed</p>
+                  )}
+                  <p className="text-white/50 text-xs leading-relaxed">{cat.insight}</p>
+                </div>
+              );
+            })}
+          </motion.div>
+        )}
 
         {/* Critical Issues */}
         {r.critical_issues.length > 0 && (
@@ -230,10 +270,20 @@ const AccessibilityResults = ({ report, isLoading, onDownloadPDF }) => {
                     </span>
                   </div>
                   {issue.wcag && (
-                    <p className="text-[#22C8E5]/70 text-xs font-mono mb-3">WCAG {issue.wcag}</p>
+                    <p className="text-[#22C8E5]/70 text-xs font-mono mb-3">{issue.wcag_failure === false ? '' : 'WCAG '}{issue.wcag}</p>
                   )}
                   <p className="text-white/60 text-sm leading-relaxed mb-2">{issue.detail}</p>
                   <p className="text-evo-fog text-sm leading-relaxed"><span className="text-white/60 font-semibold">Fix: </span>{issue.fix}</p>
+                  {Array.isArray(issue.examples) && issue.examples.length > 0 && (
+                    <details className="mt-3">
+                      <summary className="text-xs text-white/60 cursor-pointer">
+                        Show {issue.examples.length === 1 ? 'the flagged element' : `${issue.examples.length} flagged elements`}
+                      </summary>
+                      {issue.examples.map((ex, j) => (
+                        <code key={j} className="block mt-2 text-xs text-white/70 bg-black/30 rounded-lg px-3 py-2 break-all">{ex}</code>
+                      ))}
+                    </details>
+                  )}
                 </motion.div>
               ))}
             </div>

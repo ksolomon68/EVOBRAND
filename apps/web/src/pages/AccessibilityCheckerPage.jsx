@@ -99,7 +99,7 @@ const AccessibilityCheckerPage = () => {
     <>
       <SEO
         title="Free Website Accessibility Checker | WCAG Scan & Report | EVOBRAND"
-        description="Scan your website for WCAG 2.1 accessibility issues in under a minute. Real Lighthouse audit data, prioritized fixes, and a 90-day remediation plan, all free."
+        description="Scan any page of your website for WCAG 2.1 accessibility issues in about a minute. Real Google Lighthouse data, the exact elements that fail, prioritized fixes, and a 90-day remediation plan, all free."
         keywords="accessibility checker, WCAG checker, ADA compliance scan, website accessibility audit, free accessibility report, EVOBRAND accessibility"
         canonical="https://evobrand.net/accessibility-checker"
         structuredData={{
@@ -161,7 +161,7 @@ const AccessibilityCheckerPage = () => {
                 />
                 <Reveal delay={0.45}>
                   <p className="text-white/60 text-lg max-w-xl mx-auto">
-                    Scan your website against WCAG 2.1 in under a minute. Real Lighthouse audit data, prioritized fixes, and a 90-day remediation plan.
+                    Scan any page against automated WCAG 2.1 checks in about a minute. Real Google Lighthouse data, the exact elements that fail, and a 90-day remediation plan.
                   </p>
                 </Reveal>
               </div>
@@ -184,7 +184,7 @@ const AccessibilityCheckerPage = () => {
 
               <div className="flex flex-wrap justify-center gap-6 mt-8 text-evo-fog text-xs">
                 <span>🔒 Your data is private</span>
-                <span>⚡ Results in seconds</span>
+                <span>⚡ Results in about a minute</span>
                 <span>📧 Report emailed to you</span>
                 <span>📞 No spam, ever</span>
               </div>
