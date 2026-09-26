@@ -95,7 +95,7 @@ export default function Footer() {
             <p className="site-footer__label">Start here</p>
             <a href="mailto:info@evobrand.net">info@evobrand.net</a>
             <a href="tel:+12145314427">+1 214-531-4427</a>
-            <p>Italy, Texas · DFW area<br />Serving clients nationwide</p>
+            <p>Dallas–Fort Worth, Texas<br />Serving clients nationwide</p>
             <Link to="/client-portal">Client portal <ArrowUpRight size={14} aria-hidden="true" /></Link>
           </div>
 

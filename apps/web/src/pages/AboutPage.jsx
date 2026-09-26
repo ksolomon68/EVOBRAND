@@ -1,9 +1,10 @@
-import React from 'react';
-import { Award, Lightbulb, Route, Target, Users } from 'lucide-react';
+import React, { useLayoutEffect, useRef } from 'react';
+import { ArrowUpRight, Award, Lightbulb, Route, Target, Users } from 'lucide-react';
 import SEO from '@/components/SEO.jsx';
 import FrameScrub from '@/components/cinematic/FrameScrub.jsx';
-import { CtaBand, InnerHero, LinkCards, SplitSection, StepList, useStaggerReveal } from '@/components/inner/InnerKit.jsx';
+import { CtaBand, InnerHero, LinkCards, SplitSection, useStaggerReveal } from '@/components/inner/InnerKit.jsx';
 import { ProofLedger, SectionHeading } from '@/components/system/Section.jsx';
+import { useMotion } from '@/lib/motion.js';
 
 const CORE_VALUES = [
   { icon: Target, title: 'Plain answers', body: 'Clear scope, honest timelines, and written decisions. You always know where the project stands.' },
@@ -21,9 +22,16 @@ const CERTIFICATIONS = [
 ];
 
 const HISTORY = [
-  { meta: '1999', title: 'The foundation', body: 'The business started in 1999 as EVOBRAND Marketing, a creative agency doing brand and digital work.' },
-  { meta: '2010', title: 'EVOBRAND Concepts', body: 'In 2010 the business moved to Italy, Texas, in the DFW area, and became EVOBRAND Concepts LLC.' },
-  { meta: 'Today', title: 'Full-stack delivery', body: 'A full-stack digital agency for government agencies, corporations, and nonprofits. Strategy, design, development, and the platforms that keep programs running, including ChamberCore and PrimeReach.' },
+  { meta: '1999', title: 'Code was the foundation', body: 'With credentials in Computer Science and Computer Information Systems, Keisha began coding when websites were still built largely by hand in HTML. She founded EVOBRAND Marketing in 1999 to bring that technical foundation to brand and digital work.' },
+  { meta: '2003', title: 'Early WordPress contributor', body: 'Keisha was one of the first contributors to WordPress, helping shape the open-source platform during its earliest years.' },
+  { meta: '2010', title: 'EVOBRAND Concepts', body: 'After years of building across the Dallas–Fort Worth area, the business became EVOBRAND Concepts LLC in 2010 and expanded its work across strategy, design, and development.' },
+  {
+    meta: 'Today',
+    title: 'Animation, systems, and AI',
+    body: 'Keisha’s longtime passion for animation now shapes how she brings digital ideas to life. Today, she enjoys implementing AI throughout her workflows while continuing to lead EVOBRAND’s strategy, design, development, and platform work.',
+    link: 'https://evobrandacademy.com',
+    linkLabel: 'Explore the AI literacy course',
+  },
 ];
 
 function Values() {
@@ -42,12 +50,153 @@ function Values() {
   );
 }
 
+function StoryExperience() {
+  const motion = useMotion();
+  const rootRef = useRef(null);
+
+  useLayoutEffect(() => {
+    const root = rootRef.current;
+    if (!motion || !root) return undefined;
+
+    const { gsap } = motion;
+    const chapters = gsap.utils.toArray('[data-story-step]', root);
+    const progress = root.querySelector('[data-story-progress]');
+    const currentYear = root.querySelector('[data-story-year]');
+    const currentChapter = root.querySelector('[data-story-chapter]');
+    let activeIndex = -1;
+
+    const setActive = (index) => {
+      if (index === activeIndex) return;
+      activeIndex = index;
+      chapters.forEach((chapter, chapterIndex) => chapter.classList.toggle('is-active', chapterIndex === index));
+      if (currentYear) currentYear.textContent = HISTORY[index]?.meta || '';
+      if (currentChapter) currentChapter.textContent = `Chapter ${String(index + 1).padStart(2, '0')}`;
+    };
+
+    setActive(0);
+
+    const media = gsap.matchMedia();
+    media.add('(prefers-reduced-motion: no-preference)', () => {
+      const progressTween = gsap.fromTo(progress,
+        { scaleY: 0, transformOrigin: 'top center' },
+        {
+          scaleY: 1,
+          ease: 'none',
+          scrollTrigger: {
+            trigger: root,
+            start: 'top 62%',
+            end: 'bottom 38%',
+            scrub: 0.65,
+            onUpdate: (self) => setActive(Math.min(chapters.length - 1, Math.floor(self.progress * chapters.length))),
+          },
+        });
+
+      const chapterTimelines = chapters.map((chapter) => {
+        const year = chapter.querySelector('.story-experience__year');
+        const copy = chapter.querySelector('.story-experience__copy');
+        const glow = chapter.querySelector('.story-experience__glow');
+        const node = chapter.querySelector('.story-experience__node');
+
+        return gsap.timeline({
+          scrollTrigger: {
+            trigger: chapter,
+            start: 'top 80%',
+            end: 'bottom 30%',
+            scrub: 0.7,
+          },
+        })
+          .fromTo(chapter,
+            { autoAlpha: 0.3, x: 52, scale: 0.965 },
+            { autoAlpha: 1, x: 0, scale: 1, duration: 0.43, ease: 'none' })
+          .fromTo(year,
+            { y: 44, rotation: -3 },
+            { y: 0, rotation: 0, duration: 0.43, ease: 'none' }, 0)
+          .fromTo(copy,
+            { y: 32 },
+            { y: 0, duration: 0.43, ease: 'none' }, 0)
+          .fromTo(glow,
+            { autoAlpha: 0, scale: 0.82 },
+            { autoAlpha: 1, scale: 1, duration: 0.43, ease: 'none' }, 0)
+          .fromTo(node,
+            { scale: 0.65 },
+            { scale: 1, duration: 0.43, ease: 'none' }, 0)
+          .to(chapter, { autoAlpha: 0.48, x: -16, scale: 0.98, duration: 0.57, ease: 'none' })
+          .to(glow, { autoAlpha: 0.08, scale: 1.1, duration: 0.57, ease: 'none' }, '<');
+      });
+
+      return () => {
+        progressTween.scrollTrigger?.kill();
+        progressTween.revert();
+        chapterTimelines.forEach((timeline) => {
+          timeline.scrollTrigger?.kill();
+          timeline.revert();
+        });
+      };
+    }, root);
+
+    return () => {
+      media.revert();
+      chapters.forEach((chapter) => chapter.classList.remove('is-active'));
+    };
+  }, [motion]);
+
+  return (
+    <section ref={rootRef} id="story" className="evo-block evo-block--ink story-experience" aria-labelledby="story-heading">
+      <div className="story-experience__grid" aria-hidden="true" />
+      <div className="evo-container story-experience__layout">
+        <div className="story-experience__intro">
+          <SectionHeading
+            id="story-heading"
+            label="Our story"
+            lead="Twenty-five years in,"
+            emphasis="still led by the founder."
+            intro="The work has changed shape many times. Who leads it has not."
+          />
+
+          <div className="story-experience__status" aria-hidden="true">
+            <p data-story-chapter>Chapter 01</p>
+            <div>
+              <strong data-story-year>1999</strong>
+              <span>/ {String(HISTORY.length).padStart(2, '0')}</span>
+            </div>
+            <small>One founder. One continuous line.</small>
+          </div>
+        </div>
+
+        <div className="story-experience__timeline">
+          <div className="story-experience__rail" aria-hidden="true"><span data-story-progress /></div>
+          <ol>
+            {HISTORY.map((chapter, index) => (
+              <li key={chapter.meta} className="story-experience__chapter" data-story-step>
+                <span className="story-experience__node" aria-hidden="true">{String(index + 1).padStart(2, '0')}</span>
+                <span className="story-experience__glow" aria-hidden="true" />
+                <span className="story-experience__kicker">Chapter {String(index + 1).padStart(2, '0')}</span>
+                <span className="story-experience__year" aria-hidden="true">{chapter.meta}</span>
+                <div className="story-experience__copy">
+                  <p>{chapter.meta}</p>
+                  <h3>{chapter.title}</h3>
+                  <p>{chapter.body}</p>
+                  {chapter.link && (
+                    <a className="story-experience__link" href={chapter.link} target="_blank" rel="noopener noreferrer">
+                      {chapter.linkLabel} <ArrowUpRight size={15} aria-hidden="true" />
+                    </a>
+                  )}
+                </div>
+              </li>
+            ))}
+          </ol>
+        </div>
+      </div>
+    </section>
+  );
+}
+
 export default function AboutPage() {
   return (
     <>
       <SEO
         title="About EVOBRAND Concepts"
-        description="EVOBRAND Concepts is a full-stack digital agency led by Keisha Solomon, with 25+ years of work for government agencies, corporations, and nonprofits. SBE, WBE, and MBE certified. Based in Italy, Texas."
+        description="EVOBRAND Concepts is a full-stack digital agency led by Keisha Solomon, with 25+ years of work for government agencies, corporations, and nonprofits. SBE, WBE, and MBE certified. Based in the Dallas–Fort Worth area."
         keywords="about EVOBRAND Concepts, Keisha Solomon, digital agency Texas, SBE WBE MBE certified agency, government web development"
         canonical="https://evobrand.net/about"
         structuredData={{
@@ -60,7 +209,7 @@ export default function AboutPage() {
           description: 'Full-stack digital agency serving government agencies, corporations, and nonprofits.',
           email: 'info@evobrand.net',
           telephone: '+1-214-531-4427',
-          address: { '@type': 'PostalAddress', addressLocality: 'Italy', addressRegion: 'TX', addressCountry: 'US' },
+          address: { '@type': 'PostalAddress', addressRegion: 'TX', addressCountry: 'US' },
           founder: { '@type': 'Person', name: 'Keisha Solomon' },
           sameAs: ['https://www.linkedin.com/company/evobrand-concepts/'],
         }}
@@ -68,7 +217,7 @@ export default function AboutPage() {
 
       <InnerHero
         crumbs={[{ label: 'About' }]}
-        label="Since 1999 · Italy, Texas"
+        label="Since 1999 · Dallas–Fort Worth"
         lead="Full-stack digital agency."
         emphasis="Senior-led for 25+ years."
         intro="EVOBRAND Concepts plans, designs, and builds websites, platforms, and brand systems for government agencies, corporations, and nonprofits."
@@ -78,7 +227,7 @@ export default function AboutPage() {
         ]}
         facts={[
           { label: 'Established', value: '1999' },
-          { label: 'Based in', value: 'Italy, Texas · DFW' },
+          { label: 'Based in', value: 'Dallas–Fort Worth, Texas' },
           { label: 'Certified', value: 'SBE · WBE · MBE' },
           { label: 'Clients', value: 'Public, private and nonprofit' },
         ]}
@@ -90,15 +239,7 @@ export default function AboutPage() {
         ]}
       />
 
-      <SplitSection
-        id="story"
-        label="Our story"
-        lead="Twenty-five years in,"
-        emphasis="still led by the founder."
-        intro="The work has changed shape many times. Who leads it has not."
-      >
-        <StepList steps={HISTORY} />
-      </SplitSection>
+      <StoryExperience />
 
       <section id="values" className="evo-block evo-block--slate" aria-labelledby="values-heading">
         <div className="evo-container">

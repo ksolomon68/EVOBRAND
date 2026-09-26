@@ -61,7 +61,7 @@ export default function MotionLabPage() {
       <Preloader />
 
       <CinematicHero
-        eyebrow="EVOBRAND Concepts · Italy, Texas"
+        eyebrow="EVOBRAND Concepts · Dallas–Fort Worth"
         lead="Digital systems"
         emphasis="for public work."
         intro="A senior-led, full-stack agency for government agencies, corporations, and nonprofits. SBE, WBE, and MBE certified. In operation since 1999."

@@ -34,7 +34,7 @@ const CONTACT_METHODS = [
   {
     icon: MapPin,
     label: 'Location',
-    lines: [{ text: 'Italy, Texas (DFW area)' }],
+    lines: [{ text: 'Dallas–Fort Worth, Texas' }],
   },
   {
     icon: Clock,
@@ -381,8 +381,8 @@ export default function ContactPage() {
     <>
       <SEO
         title="Contact EVOBRAND Concepts"
-        description="Ready to transform your business with AI? Contact EVOBRAND for a free 30-minute strategy call. Based in Italy, Texas, serving clients nationwide. Call +1 214-531-4427 or email info@evobrand.net."
-        keywords="contact EVOBRAND, AI consultation, book strategy call, Ellis County AI agency contact, free AI consultation"
+        description="Ready to transform your business with AI? Contact EVOBRAND for a free 30-minute strategy call. Based in the Dallas–Fort Worth area, serving clients nationwide. Call +1 214-531-4427 or email info@evobrand.net."
+        keywords="contact EVOBRAND, AI consultation, book strategy call, Dallas Fort Worth AI agency contact, free AI consultation"
         canonical="https://evobrand.net/contact"
         structuredData={{
           "@context": "https://schema.org",
@@ -397,7 +397,6 @@ export default function ContactPage() {
             "email": "info@evobrand.net",
             "address": {
               "@type": "PostalAddress",
-              "addressLocality": "Italy",
               "addressRegion": "TX",
               "addressCountry": "US"
             }

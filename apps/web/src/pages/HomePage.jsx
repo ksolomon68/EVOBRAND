@@ -157,7 +157,7 @@ export default function HomePage() {
     <div ref={rootRef} className={`bp-page ${status === 'off' ? 'bp-page--static' : ''}`}>
       <SEO
         title="Websites, AI & Automation for Your Business"
-        description="EVOBRAND builds websites, custom applications, and practical AI workflows for businesses and organizations. Based in Italy, Texas. Serving clients nationwide."
+        description="EVOBRAND builds websites, custom applications, and practical AI workflows for businesses and organizations. Based in the Dallas–Fort Worth area. Serving clients nationwide."
         canonical="https://evobrand.net/"
       />
       <ScrollSequenceBackdrop

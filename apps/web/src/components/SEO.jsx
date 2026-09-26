@@ -4,7 +4,7 @@ import { Helmet } from 'react-helmet';
 const SITE_NAME = 'EVOBRAND';
 const SITE_URL = 'https://evobrand.net';
 const DEFAULT_OG_IMAGE = `${SITE_URL}/og-image.png`;
-const DEFAULT_DESCRIPTION = 'EVOBRAND Concepts is a senior-led, full-stack digital agency for government agencies, corporations, and nonprofits. SBE, WBE, and MBE certified. 25+ years. Italy, Texas.';
+const DEFAULT_DESCRIPTION = 'EVOBRAND Concepts is a senior-led, full-stack digital agency for government agencies, corporations, and nonprofits. SBE, WBE, and MBE certified. 25+ years. Dallas–Fort Worth, Texas.';
 
 const SEO = ({
   title,

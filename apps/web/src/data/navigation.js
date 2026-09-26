@@ -31,7 +31,7 @@ export const NAV_GROUPS = [
     match: ['/about', '/how-it-works'],
     title: 'About the studio',
     feature: {
-      eyebrow: 'Since 1999 · Italy, Texas',
+      eyebrow: 'Since 1999 · Dallas–Fort Worth',
       lead: 'Senior-led',
       emphasis: 'for 25+ years.',
       cta: { to: '/about', label: 'Read our story' },
