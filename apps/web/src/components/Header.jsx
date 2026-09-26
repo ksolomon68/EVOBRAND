@@ -51,9 +51,6 @@ function MegaPanel({ group, reduce, onNavigate }) {
       <div className="mega-panel__main">
         <div className="mega-panel__head">
           <p className="mega-panel__title">{group.title}</p>
-          <Link to={group.to} className="mega-panel__overview" onClick={onNavigate}>
-            View overview <ArrowUpRight size={16} aria-hidden="true" />
-          </Link>
         </div>
         <motion.ul className="mega-grid" variants={listVariants} initial={reduce ? false : 'closed'} animate="open">
           {group.items.map((item) => {
@@ -225,11 +222,6 @@ export default function Header() {
                           transition={{ duration: 0.4, ease: EASE }}
                         >
                           <ul>
-                            <li>
-                              <Link to={group.to} className="site-menu__overview">
-                                {group.title} overview <ArrowUpRight size={16} aria-hidden="true" />
-                              </Link>
-                            </li>
                             {group.items.map((item) => {
                               const Icon = item.icon;
                               return (

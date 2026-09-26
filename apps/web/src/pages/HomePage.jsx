@@ -2,14 +2,13 @@ import React, { useLayoutEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowRight, ArrowUpRight } from 'lucide-react';
 import SEO from '@/components/SEO.jsx';
-import BlueprintBackdrop from '@/components/blueprint/BlueprintBackdrop.jsx';
 import FlipReel from '@/components/blueprint/FlipReel.jsx';
+import ScrollSequenceBackdrop from '@/components/cinematic/ScrollSequenceBackdrop.jsx';
 import { useMotionState } from '@/lib/motion.js';
 import { ButtonLink, Eyebrow, ProofLedger, Section, SectionHeading } from '@/components/system/Section.jsx';
 
-// Homepage: "Blueprint to build". A dashboard draws itself behind the hero as
-// you scroll, the page tint shifts section by section, and the work reel
-// flips to case notes. Every project fact comes from copy already on the site.
+// Homepage: a cinematic sequence advances with the page while the hero pins
+// and the work reel flips to case notes.
 
 const IMG = '/projects/optimized';
 
@@ -96,14 +95,6 @@ const PROCESS = [
   ['Build in the open', 'You see the work as it develops, respond at the right moments, and launch with shared confidence.'],
 ];
 
-// Background tints per section. Mixed toward the brand primitives.
-const TONES = {
-  ink: '#0f1419',
-  deep: '#04080f',
-  navy: '#003258',
-  slate: '#1a2332',
-};
-
 export default function HomePage() {
   const { engine, status } = useMotionState();
   const rootRef = useRef(null);
@@ -112,18 +103,11 @@ export default function HomePage() {
 
   useLayoutEffect(() => {
     const root = rootRef.current;
-    const backdrop = document.querySelector('.bp-backdrop');
-    if (!engine || !root || !backdrop) return undefined;
+    if (!engine || !root) return undefined;
     const { gsap, ScrollTrigger } = engine;
-    const cleanups = [];
 
     const ctx = gsap.context(() => {
-      const art = backdrop.querySelector('.bp-backdrop__art');
-      const strokes = (sel) => backdrop.querySelectorAll(`${sel} .bp-draw`);
-      gsap.set(backdrop.querySelectorAll('.bp-draw'), { strokeDasharray: 1, strokeDashoffset: 1 });
-      gsap.set(backdrop.querySelectorAll('.bp-fill, .bp-label'), { autoAlpha: 0 });
-
-      // 1. The hero pins while the blueprint draws itself, then fills in.
+      // 1. The hero pins while the background sequence advances with scroll.
       const hero = root.querySelector('.bp-hero');
       const tl = gsap.timeline({
         defaults: { ease: 'none' },
@@ -136,32 +120,10 @@ export default function HomePage() {
           onUpdate: (self) => setStep(self.progress < 0.34 ? 0 : self.progress < 0.68 ? 1 : 2),
         },
       });
-      tl.to(strokes('.bp-phase--1'), { strokeDashoffset: 0, duration: 1, stagger: 0.04 }, 0)
-        .to(strokes('.bp-phase--marks'), { strokeDashoffset: 0, duration: 0.8 }, 0.4)
-        .to(backdrop.querySelectorAll('.bp-label'), { autoAlpha: 1, duration: 0.4, stagger: 0.05 }, 0.8)
-        .to(strokes('.bp-phase--2'), { strokeDashoffset: 0, duration: 1, stagger: 0.03 }, 1.1)
-        .to(backdrop.querySelectorAll('.bp-fill'), { autoAlpha: 1, duration: 0.8, stagger: 0.06 }, 2.2)
-        .to(art, { scale: 1.04, duration: 3.2 }, 0)
-        .to({}, { duration: 0.4 }); // hold on the finished build before releasing the pin
+      tl.to({}, { duration: 3.6 });
 
-      // 2. Once the work arrives the drawing steps back to a watermark.
-      gsap.to(art, {
-        autoAlpha: 0.16,
-        ease: 'none',
-        scrollTrigger: { trigger: root.querySelector('.flip-reel'), start: 'top 90%', end: 'top 30%', scrub: true },
-      });
-      // ...and clears away entirely before the text-heavy sections, so no
-      // lines sit behind body copy.
-      gsap.fromTo(art, { autoAlpha: 0.16 }, {
-        autoAlpha: 0,
-        ease: 'none',
-        immediateRender: false,
-        scrollTrigger: { trigger: root.querySelector('[data-bp-name="Record"]'), start: 'top 90%', end: 'top 40%', scrub: true },
-      });
-
-      // 3. The field changes tint as each section takes over.
+      // 2. Keep the progress-thread chapter in sync with each section.
       root.querySelectorAll('[data-bp-tone]').forEach((section) => {
-        const color = TONES[section.dataset.bpTone] || TONES.ink;
         const name = section.dataset.bpName;
         ScrollTrigger.create({
           trigger: section,
@@ -169,13 +131,12 @@ export default function HomePage() {
           end: 'bottom 55%',
           onToggle: (self) => {
             if (!self.isActive) return;
-            gsap.to(backdrop, { backgroundColor: color, duration: 0.9, ease: 'power2.out', overwrite: 'auto' });
             if (name) setChapter(name);
           },
         });
       });
 
-      // 4. The thread fills with the whole page's progress.
+      // 3. The thread fills with the whole page's progress.
       gsap.fromTo(root.querySelector('.bp-thread__fill'), { scaleY: 0 }, {
         scaleY: 1,
         ease: 'none',
@@ -183,27 +144,12 @@ export default function HomePage() {
       });
     }, root);
 
-    // 5. A soft cyan glow follows the pointer on devices with a mouse.
-    if (window.matchMedia('(hover: hover) and (pointer: fine)').matches) {
-      const glow = backdrop.querySelector('.bp-backdrop__glow');
-      gsap.set(glow, { autoAlpha: 1, xPercent: -50, yPercent: -50 });
-      const gx = gsap.quickTo(glow, 'x', { duration: 0.8, ease: 'power3.out' });
-      const gy = gsap.quickTo(glow, 'y', { duration: 0.8, ease: 'power3.out' });
-      const move = (e) => {
-        gx(e.clientX);
-        gy(e.clientY);
-      };
-      window.addEventListener('pointermove', move);
-      cleanups.push(() => window.removeEventListener('pointermove', move));
-    }
-
     // The reel's triggers were created first (child effects run before the
     // parent's), so put every trigger back in page order before measuring.
     ScrollTrigger.sort();
     ScrollTrigger.refresh();
     return () => {
       ctx.revert();
-      cleanups.forEach((fn) => fn());
     };
   }, [engine]);
 
@@ -214,7 +160,12 @@ export default function HomePage() {
         description="EVOBRAND builds websites, custom applications, and practical AI workflows for businesses and organizations. Based in Italy, Texas. Serving clients nationwide."
         canonical="https://evobrand.net/"
       />
-      <BlueprintBackdrop drawn={status === 'off'} />
+      <ScrollSequenceBackdrop
+        src="/brand/home-sequence-hd"
+        frames={151}
+        focus={0.5}
+        alt="A cinematic EVOBRAND team building the future together."
+      />
 
       <div className="bp-thread" aria-hidden="true">
         <span className="bp-thread__rail"><span className="bp-thread__fill" /></span>
