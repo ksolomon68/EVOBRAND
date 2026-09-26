@@ -1406,6 +1406,35 @@ html {
 /* Static (reduced motion or engine off): the finished drawing, dimmed. */
 .bp-backdrop--drawn .bp-backdrop__art { opacity: 0.22; }
 
+/* Homepage scroll sequence: fixed beneath every section so the footage stays
+   visible through the translucent content and project cards. */
+.sequence-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  overflow: hidden;
+  background: var(--ink-950);
+  pointer-events: none;
+}
+.sequence-backdrop__poster,
+.sequence-backdrop__canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+.sequence-backdrop__poster {
+  object-fit: cover;
+  object-position: center;
+}
+.sequence-backdrop__canvas { display: none; }
+.sequence-backdrop--live .sequence-backdrop__canvas { display: block; }
+.sequence-backdrop__shade {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.75);
+}
+
 /* Progress thread down the left edge. */
 .bp-thread { display: none; }
 @media (min-width: 1024px) {
@@ -1461,9 +1490,10 @@ html {
   margin-left: max(0px, calc((100vw - 1400px) / 2));
   padding: var(--space-l);
   border-radius: var(--evo-radius);
-  background: linear-gradient(100deg, color-mix(in srgb, var(--ink-950) 82%, transparent), color-mix(in srgb, var(--ink-950) 40%, transparent));
-  -webkit-backdrop-filter: blur(6px);
-  backdrop-filter: blur(6px);
+  border: 1px solid color-mix(in srgb, var(--paper) 14%, transparent);
+  background: linear-gradient(100deg, color-mix(in srgb, var(--ink-950) 66%, transparent), color-mix(in srgb, var(--ink-950) 28%, transparent));
+  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
 }
 .bp-hero__steps {
   display: grid;
@@ -1596,7 +1626,11 @@ html {
   padding: var(--space-m);
   border: 1px solid var(--evo-line);
   border-radius: 20px;
-  background: linear-gradient(180deg, var(--slate-800), var(--ink-950));
+  background: linear-gradient(180deg,
+    color-mix(in srgb, var(--slate-800) 78%, transparent),
+    color-mix(in srgb, var(--ink-950) 72%, transparent));
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
   -webkit-backface-visibility: hidden;
   backface-visibility: hidden;
   overflow: hidden;
@@ -1606,7 +1640,7 @@ html {
   background:
     linear-gradient(to right, color-mix(in srgb, var(--cyan-400) 6%, transparent) 1px, transparent 1px) 0 0 / 32px 32px,
     linear-gradient(to bottom, color-mix(in srgb, var(--cyan-400) 6%, transparent) 1px, transparent 1px) 0 0 / 32px 32px,
-    var(--navy-700);
+    color-mix(in srgb, var(--navy-700) 78%, transparent);
 }
 .flip-card__top {
   display: flex;
