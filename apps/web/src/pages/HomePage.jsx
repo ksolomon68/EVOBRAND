@@ -197,7 +197,7 @@ export default function HomePage() {
             <ButtonLink to="/our-work" variant="secondary">See the work</ButtonLink>
           </div>
         </div>
-        {status !== 'off' && <p className="bp-hero__cue" aria-hidden="true">Scroll to draw</p>}
+        {status !== 'off' && <p className="bp-hero__cue" aria-hidden="true">Scroll</p>}
       </section>
 
       <FlipReel
@@ -298,9 +298,9 @@ export default function HomePage() {
             />
             <div className="studio-closing__action">
               <ButtonLink to="/book-consultation" data-cta="closing-strategy">
-                Book a strategy call <ArrowRight size={16} aria-hidden="true" />
+                Let's Talk <ArrowRight size={16} aria-hidden="true" />
               </ButtonLink>
-              <p>Based in Italy, Texas.<br />Serving clients nationwide.</p>
+              <p>Serving clients nationwide.</p>
             </div>
           </div>
         </Section>

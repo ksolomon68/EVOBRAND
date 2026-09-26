@@ -1,11 +1,12 @@
-import React, { useRef, useState } from 'react';
+import React, { useLayoutEffect, useRef, useState } from 'react';
 import { Navigate, useParams } from 'react-router-dom';
 import { ArrowRight } from 'lucide-react';
 import SEO from '@/components/SEO.jsx';
 import PublicCheckoutModal from '@/components/PublicCheckoutModal.jsx';
 import { SERVICES, planIdFor, serviceBySlug } from '@/data/services.js';
-import { CtaBand, InnerHero, LinkCards, SplitSection, StepList, useStaggerReveal } from '@/components/inner/InnerKit.jsx';
+import { CtaBand, InnerHero, LinkCards, SplitSection, useStaggerReveal } from '@/components/inner/InnerKit.jsx';
 import { ButtonLink, SectionHeading } from '@/components/system/Section.jsx';
+import { useMotion } from '@/lib/motion.js';
 
 function Tier({ plan, onBuy, recurring }) {
   const custom = plan.price === 'Custom';
@@ -35,6 +36,141 @@ function TierGrid({ children }) {
   const ref = useRef(null);
   useStaggerReveal(ref);
   return <div ref={ref} className="tier-grid">{children}</div>;
+}
+
+function ServiceProcessExperience({ service }) {
+  const motion = useMotion();
+  const rootRef = useRef(null);
+
+  useLayoutEffect(() => {
+    const root = rootRef.current;
+    if (!motion || !root) return undefined;
+
+    const { gsap } = motion;
+    const steps = gsap.utils.toArray('[data-process-step]', root);
+    const progress = root.querySelector('[data-process-progress]');
+    const current = root.querySelector('[data-process-current]');
+    const currentTitle = root.querySelector('[data-process-title]');
+    let activeIndex = -1;
+
+    const setActive = (index) => {
+      if (index === activeIndex) return;
+      activeIndex = index;
+      steps.forEach((step, stepIndex) => step.classList.toggle('is-active', stepIndex === index));
+      if (current) current.textContent = String(index + 1).padStart(2, '0');
+      if (currentTitle) currentTitle.textContent = service.process[index]?.step || '';
+    };
+
+    setActive(0);
+
+    const media = gsap.matchMedia();
+    media.add('(prefers-reduced-motion: no-preference)', () => {
+      const progressTween = gsap.fromTo(progress,
+        { scaleX: 0, transformOrigin: 'left center' },
+        {
+          scaleX: 1,
+          ease: 'none',
+          scrollTrigger: {
+            trigger: root,
+            start: 'top 62%',
+            end: 'bottom 42%',
+            scrub: 0.6,
+          },
+        });
+
+      const stepTimelines = steps.map((step, index) => {
+        const aura = step.querySelector('.service-process__aura');
+        const number = step.querySelector('.service-process__number');
+        const copy = step.querySelector('.service-process__copy');
+
+        return gsap.timeline({
+          scrollTrigger: {
+            trigger: step,
+            start: 'top 78%',
+            end: 'bottom 32%',
+            scrub: 0.65,
+            onEnter: () => setActive(index),
+            onEnterBack: () => setActive(index),
+          },
+        })
+          .fromTo(step,
+            { autoAlpha: 0.34, x: 48, scale: 0.96 },
+            { autoAlpha: 1, x: 0, scale: 1, duration: 0.42, ease: 'none' })
+          .fromTo(aura,
+            { autoAlpha: 0, scale: 0.82 },
+            { autoAlpha: 1, scale: 1, duration: 0.32, ease: 'none' }, 0)
+          .fromTo(number,
+            { y: 24, rotation: -5 },
+            { y: 0, rotation: 0, duration: 0.42, ease: 'none' }, 0)
+          .fromTo(copy,
+            { y: 28 },
+            { y: 0, duration: 0.42, ease: 'none' }, 0)
+          .to(step, { autoAlpha: 0.5, x: -18, scale: 0.975, duration: 0.58, ease: 'none' })
+          .to(aura, { autoAlpha: 0.12, scale: 1.08, duration: 0.58, ease: 'none' }, '<');
+      });
+
+      return () => {
+        progressTween.scrollTrigger?.kill();
+        progressTween.revert();
+        stepTimelines.forEach((timeline) => {
+          timeline.scrollTrigger?.kill();
+          timeline.revert();
+        });
+      };
+    }, root);
+
+    return () => {
+      media.revert();
+      steps.forEach((step) => step.classList.remove('is-active'));
+    };
+  }, [motion, service]);
+
+  const total = String(service.process.length).padStart(2, '0');
+
+  return (
+    <section ref={rootRef} id="process" className="evo-block evo-block--slate service-process" aria-labelledby="process-heading">
+      <div className="service-process__grid" aria-hidden="true" />
+      <div className="evo-container service-process__layout">
+        <div className="service-process__story">
+          <SectionHeading
+            id="process-heading"
+            label="How it runs"
+            lead="Five steps,"
+            emphasis="no surprises."
+            intro={`Most ${service.title.toLowerCase()} projects take ${service.timeline}. You see the work at every step.`}
+          >
+            <ButtonLink to="/how-it-works" variant="secondary">Our full process</ButtonLink>
+          </SectionHeading>
+
+          <div className="service-process__status" aria-hidden="true">
+            <div className="service-process__readout">
+              <span className="service-process__current" data-process-current>01</span>
+              <span className="service-process__total">/ {total}</span>
+            </div>
+            <p data-process-title>{service.process[0]?.step}</p>
+            <div className="service-process__track">
+              <span data-process-progress />
+            </div>
+          </div>
+        </div>
+
+        <ol className="service-process__steps">
+          {service.process.map((step, index) => (
+            <li key={step.step} className="service-process__step" data-process-step>
+              <span className="service-process__aura" aria-hidden="true" />
+              <span className="service-process__phase">Phase {String(index + 1).padStart(2, '0')}</span>
+              <span className="service-process__number" aria-hidden="true">{String(index + 1).padStart(2, '0')}</span>
+              <div className="service-process__copy">
+                <h3>{step.step}</h3>
+                <p>{step.description}</p>
+              </div>
+              <span className="service-process__corner" aria-hidden="true" />
+            </li>
+          ))}
+        </ol>
+      </div>
+    </section>
+  );
 }
 
 export default function ServiceDetailPage() {
@@ -108,17 +244,7 @@ export default function ServiceDetailPage() {
         </ol>
       </SplitSection>
 
-      <SplitSection
-        id="process"
-        tone="slate"
-        label="How it runs"
-        lead="Five steps,"
-        emphasis="no surprises."
-        intro={`Most ${service.title.toLowerCase()} projects take ${service.timeline}. You see the work at every step.`}
-        aside={<ButtonLink to="/how-it-works" variant="secondary">Our full process</ButtonLink>}
-      >
-        <StepList steps={service.process.map((p) => ({ title: p.step, body: p.description }))} />
-      </SplitSection>
+      <ServiceProcessExperience service={service} />
 
       <section id="pricing" className="evo-block evo-block--ink" aria-labelledby="pricing-heading">
         <div className="evo-container">
