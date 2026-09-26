@@ -35,7 +35,10 @@ export function loadMotion() {
       gsap.registerPlugin(ScrollTrigger, SplitText);
 
       // Smooth scrolling, driven by GSAP's ticker so ScrollTrigger stays in sync.
-      const lenis = new Lenis({ duration: 1.05, smoothWheel: true });
+      // allowNestedScroll hands the wheel to any scrollable element under the
+      // pointer (the client portal's panels, modals, dropdowns); without it
+      // Lenis cancels the wheel there and only the page itself can scroll.
+      const lenis = new Lenis({ duration: 1.05, smoothWheel: true, allowNestedScroll: true });
       lenis.on('scroll', ScrollTrigger.update);
       const raf = (time) => lenis.raf(time * 1000);
       gsap.ticker.add(raf);
