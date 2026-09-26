@@ -12,17 +12,16 @@ const CORE_VALUES = [
   { icon: Award, title: 'Accountable', body: 'Every project starts with agreed outcomes, and we report against them.' },
 ];
 
-// TODO(content): add the certifying agency, certificate number and expiration
-// for each certification. Leave `agency` empty to hide that line on the page.
+// Certified by the North Central Texas Regional Certification Agency.
+// Leave `agency` empty to hide that line on the page.
 const CERTIFICATIONS = [
-  { code: 'SBE', title: 'Small Business Enterprise', agency: '' },
-  { code: 'WBE', title: "Women's Business Enterprise", agency: '' },
-  { code: 'MBE', title: 'Minority Business Enterprise', agency: '' },
+  { code: 'SBE', title: 'Small Business Enterprise', agency: 'NCTRCA' },
+  { code: 'WBE', title: "Women's Business Enterprise", agency: 'NCTRCA' },
+  { code: 'MBE', title: 'Minority Business Enterprise', agency: 'NCTRCA' },
 ];
 
 const HISTORY = [
-  // TODO(content): the original business name, if you want it mentioned.
-  { meta: '1999', title: 'The foundation', body: 'The business started in 1999 as a creative agency doing brand and digital work.' },
+  { meta: '1999', title: 'The foundation', body: 'The business started in 1999 as EVOBRAND Marketing, a creative agency doing brand and digital work.' },
   { meta: '2010', title: 'EVOBRAND Concepts', body: 'In 2010 the business moved to Italy, Texas, in the DFW area, and became EVOBRAND Concepts LLC.' },
   { meta: 'Today', title: 'Full-stack delivery', body: 'A full-stack digital agency for government agencies, corporations, and nonprofits. Strategy, design, development, and the platforms that keep programs running, including ChamberCore and PrimeReach.' },
 ];
@@ -122,12 +121,13 @@ export default function AboutPage() {
         alt="Keisha Solomon, founder of EVOBRAND Concepts, in the studio."
       >
         <SectionHeading id="leadership-heading" label="Leadership" lead="Keisha Solomon," emphasis="Founder." />
-        {/* TODO(content): a short bio for Keisha Solomon. */}
         <div className="inner-prose">
           <p className="inner-quote">Keisha has led the business since 1999 and leads every EVOBRAND engagement directly.</p>
           <p>
-            That means the person you meet in the first conversation is the person who scopes the work,
-            makes the design decisions, and stays accountable after launch.
+            Keisha founded the company as EVOBRAND Marketing and has spent more than 25 years building brands,
+            websites, and digital platforms for government agencies, corporations, and nonprofits. Under her
+            leadership, EVOBRAND built ChamberCore, which runs chambers of commerce, and PrimeReach, which connects
+            government prime contractors with qualified small businesses.
           </p>
         </div>
       </FrameScrub>

@@ -2035,24 +2035,41 @@ html {
       transparent 62%),
     linear-gradient(180deg, var(--evo-bg-deep) 0%, transparent 14%, transparent 86%, var(--evo-bg-deep) 100%);
 }
-.frame-scrub__content { position: relative; padding-block: var(--space-3xl); }
+/* Top padding clears the 80px sticky header. */
+.frame-scrub__content { position: relative; padding-block: calc(80px + var(--space-m)) var(--space-l); }
 .frame-scrub__content > * { max-width: 34rem; }
-.frame-scrub__content .inner-prose { margin-top: var(--space-l); }
+.frame-scrub__content .inner-prose { margin-top: var(--space-m); }
+.frame-scrub__content .inner-quote { font-size: var(--step-2); }
 
 .frame-scrub--live { height: 260svh; }
 .frame-scrub--live .frame-scrub__stage { position: sticky; top: 0; height: 100svh; }
 .frame-scrub--live .frame-scrub__canvas { display: block; }
 
+/* Too short to pin the copy without clipping it: scroll normally instead. */
+@media (max-height: 720px) {
+  .frame-scrub--live { height: auto; }
+  .frame-scrub--live .frame-scrub__stage { position: relative; height: auto; }
+}
+
 @media (max-width: 767px) {
-  /* Portrait crop: the subject fills the top, copy sits on a bottom fade. */
-  .frame-scrub__stage { align-items: flex-end; }
-  .frame-scrub__shade {
-    background: linear-gradient(180deg,
-      var(--evo-bg-deep) 0%, transparent 18%, transparent 35%,
-      color-mix(in srgb, var(--evo-bg-deep) 88%, transparent) 62%,
-      var(--evo-bg-deep) 100%);
+  /* Phones: no pin. A portrait crop of the sequence sits above the copy and
+     plays as the section scrolls through. */
+  .frame-scrub__stage,
+  .frame-scrub--live .frame-scrub__stage {
+    display: block;
+    position: relative;
+    height: auto;
+    min-height: 0;
+    padding-top: 115vw;
   }
-  .frame-scrub--live { height: 220svh; }
+  .frame-scrub--live { height: auto; }
+  .frame-scrub__poster,
+  .frame-scrub__canvas,
+  .frame-scrub__shade { bottom: auto; height: 115vw; }
+  .frame-scrub__shade {
+    background: linear-gradient(180deg, var(--evo-bg-deep) 0%, transparent 15%, transparent 70%, var(--evo-bg-deep) 100%);
+  }
+  .frame-scrub__content { padding-block: 0 var(--space-2xl); }
 }
 
 /* Page change curtain */

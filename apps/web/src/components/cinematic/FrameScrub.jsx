@@ -39,8 +39,7 @@ export default function FrameScrub({ id, src, frames, focus = 0.5, alt, classNam
       const w = img.naturalWidth * scale;
       const h = img.naturalHeight * scale;
       const x = Math.min(0, Math.max(cw - w, cw / 2 - w * focus));
-      ctx.drawImage(img, x, (ch - h) / 2, w, h);
-    };
+      ctx.drawImage(img, x, (ch - h) / 2, w, h);    };
     const requestDraw = () => { if (!raf) raf = requestAnimationFrame(draw); };
 
     const resize = () => {
@@ -72,10 +71,14 @@ export default function FrameScrub({ id, src, frames, focus = 0.5, alt, classNam
     resize();
     window.addEventListener('resize', resize);
 
+    // Pinned (desktop): play while the stage is held. Unpinned (phones, short
+    // screens): play while the section crosses the viewport.
+    const pinned = () => getComputedStyle(section.firstElementChild).position === 'sticky';
     const trigger = ScrollTrigger.create({
       trigger: section,
-      start: 'top top',
-      end: 'bottom bottom',
+      start: () => (pinned() ? 'top top' : 'top 75%'),
+      end: () => (pinned() ? 'bottom bottom' : 'bottom 25%'),
+      invalidateOnRefresh: true,
       onUpdate: (self) => {
         const next = Math.round(self.progress * (frames - 1));
         if (next === current) return;
