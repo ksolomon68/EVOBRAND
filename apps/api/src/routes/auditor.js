@@ -6,6 +6,7 @@ const { sendEmail } = require('../utils/mailer');
 const { addToLeadsIfNew } = require('../utils/crmHelpers');
 
 const GEMINI_KEY = process.env.GEMINI_API_KEY || process.env.GOOGLE_AI_API_KEY || '';
+const GEMINI_MODEL = process.env.GEMINI_MODEL || 'gemini-2.5-flash';
 const SERPER_API_KEY = process.env.SERPER_API_KEY || '';
 const PAGESPEED_API_KEY = process.env.PAGESPEED_API_KEY || '';
 const SITE_URL = process.env.APP_URL || 'https://evobrandconcepts.com';
@@ -415,14 +416,14 @@ async function generateReport(data, presence) {
 
   try {
     const genAI = new GoogleGenerativeAI(GEMINI_KEY);
-    const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
+    const model = genAI.getGenerativeModel({ model: GEMINI_MODEL, generationConfig: { responseMimeType: 'application/json' } });
     const result = await model.generateContent(buildPrompt(data, presence));
     const text = result.response.text();
     const cleanedText = text.replace(/```json/g, '').replace(/```/g, '').trim();
     const raw = JSON.parse(cleanedText);
     return normalizeAiReport(raw);
   } catch (err) {
-    console.error('[Audit] Gemini generation failed, falling back to mock:', err.message);
+    console.error(`[Audit] ${GEMINI_MODEL} generation failed, falling back to mock:`, err.message);
     return buildMockReport(data);
   }
 }
