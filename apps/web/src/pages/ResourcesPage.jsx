@@ -3,16 +3,23 @@ import React from 'react';
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Search, User, ArrowRight, TrendingUp, BookOpen, Lightbulb, BarChart } from 'lucide-react';
+import { Search, User, ArrowRight, TrendingUp, BookOpen, Lightbulb, BarChart, Sparkles, Accessibility } from 'lucide-react';
 import { blogPosts } from '../data/blogPosts';
 import SEO from '@/components/SEO.jsx';
-import { CtaBand, InnerHero } from '@/components/inner/InnerKit.jsx';
+import { CtaBand, InnerHero, LinkCards } from '@/components/inner/InnerKit.jsx';
 import { SectionHeading } from '@/components/system/Section.jsx';
+import VideoLibrarySection from '@/components/VideoLibrarySection.jsx';
 
 const fallbackImage = (e) => {
   e.target.onerror = null;
-  e.target.src = 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=1200&q=80';
+  e.target.src = 'https://images.unsplash.com/photo-1522071820081-009f0129c71c?auto=format&fit=crop&w=1200&q=80';
 };
+
+const formatDate = (date) => new Date(`${date}T12:00:00`).toLocaleDateString('en-US', {
+  month: 'short',
+  day: 'numeric',
+  year: 'numeric',
+});
 
 function PostCard({ post, label, featured, index }) {
   return (
@@ -25,7 +32,7 @@ function PostCard({ post, label, featured, index }) {
     >
       <Link to={`/blog/${post.slug}`} className="post-card__link">
         <div className="post-card__media">
-          <img src={post.image} alt="" loading="lazy" decoding="async" onError={fallbackImage} />
+          <img src={post.image} alt="" loading={featured ? 'eager' : 'lazy'} decoding="async" onError={fallbackImage} />
           {featured && <span className="work-card__index">Featured</span>}
         </div>
         <div className="post-card__body">
@@ -34,7 +41,7 @@ function PostCard({ post, label, featured, index }) {
           <p className="work-card__text">{post.excerpt}</p>
           <p className="post-card__byline">
             <span>{post.author}</span>
-            <time dateTime={post.date}>{new Date(post.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</time>
+            <time dateTime={post.date}>{formatDate(post.date)}</time>
           </p>
           <span className="work-card__cta">Read the article <ArrowRight size={15} aria-hidden="true" /></span>
         </div>
@@ -57,7 +64,8 @@ const ResourcesPage = () => {
     { id: 'next-gen-tech', label: 'Next-Gen Tech', icon: <TrendingUp size={20} /> },
     { id: 'creative-ai', label: 'Creative AI', icon: <Lightbulb size={20} /> },
     { id: 'ethics-law', label: 'Ethics & Law', icon: <BookOpen size={20} /> },
-    { id: 'industry-trends', label: 'Industry Trends', icon: <TrendingUp size={20} /> }
+    { id: 'industry-trends', label: 'Industry Trends', icon: <TrendingUp size={20} /> },
+    { id: 'need-to-know-updates', label: 'Website Essentials', icon: <BookOpen size={20} /> }
   ];
 
   const filteredPosts = blogPosts.filter(post => {
@@ -111,9 +119,9 @@ const ResourcesPage = () => {
   return (
     <>
       <SEO
-        title="AI Resources, Blog & Industry Guides | EVOBRAND"
-        description="Free AI resources and expert articles from EVOBRAND. Explore enterprise AI, agentic AI, creative AI, ethics, and industry trends."
-        keywords="AI resources, AI blog, AI guides, enterprise AI, agentic AI, creative AI, AI trends, AI industry news, EVOBRAND blog"
+        title="Business Technology Guides | EVOBRAND"
+        description="Practical guides for business owners on AI, automation, websites, accessibility, brand strategy, and choosing better digital systems."
+        keywords="business technology guides, AI for business, business automation, website accessibility, website strategy, EVOBRAND resources"
         canonical="https://evobrand.net/resources"
       />
 
@@ -122,10 +130,10 @@ const ResourcesPage = () => {
         label="Guides · Research · Video"
         lead="Practical reading"
         emphasis="for busy teams."
-        intro="AI trends, technical walkthroughs and execution guides, written for the people who have to make the work happen."
+        intro="Clear, practical guidance on AI, automation, websites, accessibility, and digital decisions—written for the people responsible for making the work happen."
         actions={[
           { to: '#articles', label: 'Browse articles', cta: 'resources-hero-browse' },
-          { to: '/our-work/videos', label: 'Watch the video library', cta: 'resources-hero-videos' },
+          { to: '#videos', label: 'Explore videos & free tools', cta: 'resources-hero-videos' },
         ]}
         facts={[
           { label: 'Articles', value: `${blogPosts.length} guides and essays` },
@@ -206,14 +214,53 @@ const ResourcesPage = () => {
         </div>
       </section>
 
-      <section className="evo-block evo-block--deep" aria-labelledby="newsletter-heading">
+      <div id="videos">
+        <VideoLibrarySection />
+      </div>
+
+      <section id="tools" className="evo-block evo-block--ink" aria-labelledby="tools-heading">
+        <div className="evo-container">
+          <SectionHeading
+            id="tools-heading"
+            label="Free website tools"
+            lead="Find the gaps."
+            emphasis="Leave with a plan."
+            intro="Run a focused check on your brand or website accessibility, then use the prioritized recommendations to decide what to fix first."
+          />
+          <div className="mt-space-xl">
+            <LinkCards
+              columns={2}
+              items={[
+                {
+                  to: '/auditor',
+                  icon: Sparkles,
+                  meta: 'Free · No sign-up',
+                  title: 'Brand Auditor',
+                  body: 'Review your website, positioning, and digital presence. Get a clear score and a practical 90-day action plan.',
+                  cta: 'Run the brand audit',
+                },
+                {
+                  to: '/accessibility-checker',
+                  icon: Accessibility,
+                  meta: 'Free · WCAG scan',
+                  title: 'Accessibility Checker',
+                  body: 'Scan your website for machine-detectable accessibility issues and see which fixes deserve attention first.',
+                  cta: 'Check my website',
+                },
+              ]}
+            />
+          </div>
+        </div>
+      </section>
+
+      <section id="newsletter" className="evo-block evo-block--deep" aria-labelledby="newsletter-heading">
         <div className="evo-container studio-closing__grid">
           <SectionHeading
             id="newsletter-heading"
             label="Newsletter"
             lead="New guides,"
             emphasis="straight to your inbox."
-            intro="AI insights, case studies and industry trends. No spam; unsubscribe any time."
+            intro="Useful ideas for running a stronger business with better technology. No hype, no spam, and you can unsubscribe any time."
           />
           <form onSubmit={handleNewsletterSubmit} className="newsletter-form">
             <label htmlFor="newsletter-email" className="sr-only">Email address</label>

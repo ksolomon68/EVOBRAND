@@ -3,10 +3,10 @@
 - [About EVOBRAND Concepts](/about): EVOBRAND Concepts is a full-stack digital agency led by Keisha Solomon, with 25+ years of work for government agencies, corporations, and nonprofits. SBE, WBE, and MBE certified. Based in the Dallas–Fort Worth area.
 - [Accessibility Report](/accessibilitycheckerresults): View your personalized WCAG accessibility report from EVOBRAND.
 - [Accessibility Statement | EVOBRAND](/accessibilitystatement): EVOBRAND
-- [AI Resources, Blog & Industry Guides | EVOBRAND](/resources): Free AI resources and expert articles from EVOBRAND. Explore enterprise AI, agentic AI, creative AI, ethics, and industry trends.
 - [Audit Results](/auditorresults): View your personalized AI-powered brand audit report from EVOBRAND.
 - [Blog Post](/blogpost): No description available
 - [Book a Free Strategy Consultation | EVOBRAND](/bookconsultation): Schedule a free 30-minute consultation with EVOBRAND to discuss websites, automation, custom AI applications and your digital goals.
+- [Business Technology Guides | EVOBRAND](/resources): Practical guides for business owners on AI, automation, websites, accessibility, brand strategy, and choosing better digital systems.
 - [Client Portal](/clientportal): EVOBRAND Client Portal - Secure access to your projects and meetings.
 - [Client Portal Login](/clientportallogin): Access your EVOBRAND client portal.
 - [Contact EVOBRAND Concepts](/contact): Ready to transform your business with AI? Contact EVOBRAND for a free 30-minute strategy call. Based in the Dallas–Fort Worth area, serving clients nationwide. Call +1 214-531-4427 or email info@evobrand.net.

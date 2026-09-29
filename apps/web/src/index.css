@@ -2914,6 +2914,46 @@ html {
 .post-card--featured .post-card__title { font-size: var(--step-3); }
 .post-card__link:hover .post-card__title { color: var(--evo-accent); }
 .post-card__byline { display: flex; flex-wrap: wrap; gap: 0.4rem 1rem; font-size: var(--step--2); color: var(--evo-subtle); }
+.article-takeaway,
+.article-summary,
+.article-next-step {
+  margin-block: var(--space-l);
+  padding: var(--space-m);
+  border: 1px solid color-mix(in srgb, var(--cyan-400) 32%, var(--rule));
+  border-radius: 18px;
+  background: color-mix(in srgb, var(--cyan-400) 7%, var(--ink-950));
+}
+.article-takeaway > p:last-child,
+.article-summary p,
+.article-next-step p { margin: 0; color: var(--evo-text); font-size: var(--step-0); line-height: 1.65; }
+.article-body { color: var(--evo-muted); font-size: var(--step-0); line-height: 1.75; }
+.article-body > * + * { margin-top: var(--space-s); }
+.article-body h2 { margin-top: var(--space-xl); font-family: var(--font-display); font-size: var(--step-3); line-height: 1.15; color: var(--evo-text); }
+.article-body h3 { margin-top: var(--space-l); font-family: var(--font-display); font-size: var(--step-1); line-height: 1.25; color: var(--evo-text); }
+.article-body strong { color: var(--evo-text); font-weight: 650; }
+.article-body ul,
+.article-body ol { display: grid; gap: 0.65rem; margin-block: var(--space-m); padding-left: 1.4rem; }
+.article-body ul { list-style: disc; }
+.article-body ol { list-style: decimal; }
+.article-body li { padding-left: 0.25rem; }
+.article-body a { color: var(--evo-accent); text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 0.2em; }
+.article-newsletter {
+  display: grid;
+  gap: var(--space-s);
+  margin-top: var(--space-xl);
+  padding: clamp(1.5rem, 4vw, 2.5rem);
+  border-radius: 24px;
+  background: var(--ink-950);
+  border: 1px solid var(--rule);
+}
+.article-newsletter h2,
+.article-related h2 { font-family: var(--font-display); font-size: var(--step-3); line-height: 1.15; color: var(--evo-text); }
+.article-newsletter > p:not(.evo-eyebrow) { max-width: 58ch; color: var(--evo-muted); }
+.article-newsletter__status { min-height: 1.5em; color: var(--evo-accent); font-size: var(--step--1); }
+.article-related { display: grid; gap: var(--space-m); margin-top: var(--space-xl); }
+.article-related > div { display: grid; gap: 1px; border: 1px solid var(--rule); border-radius: 18px; overflow: hidden; background: var(--rule); }
+.article-related a { display: flex; align-items: center; justify-content: space-between; gap: var(--space-s); padding: var(--space-m); color: var(--evo-text); background: var(--slate-800); transition: color 0.2s ease, background-color 0.2s ease; }
+.article-related a:hover { color: var(--evo-accent); background: var(--slate-700); }
 .newsletter-form { display: flex; flex-wrap: wrap; gap: var(--space-s); align-self: end; }
 .newsletter-form input {
   flex: 1 1 14rem;
