@@ -10,24 +10,24 @@ const canHover = () => window.matchMedia('(hover: hover) and (pointer: fine)').m
 /**
  * One project as a card that turns over. Front: the work. Back: case notes.
  * Mouse users flip it by hovering; everyone else uses the button. The hidden
- * face is inert, so keyboard and screen reader users only meet the face they see.
+ * face is both inert and hidden from the accessibility tree, so keyboard and
+ * screen reader users only meet the face they see.
  */
 function FlipCard({ project, index, total }) {
   const [flipped, setFlipped] = useState(false);
   const host = new URL(project.url).hostname.replace(/^www\./, '');
 
   return (
-    <article
+    <div
       className={`flip-card ${flipped ? 'is-flipped' : ''}`}
-      aria-label={project.title}
       onPointerEnter={(e) => e.pointerType === 'mouse' && canHover() && setFlipped(true)}
       onPointerLeave={(e) => e.pointerType === 'mouse' && canHover() && setFlipped(false)}
     >
       <div className="flip-card__inner">
-        <div className="flip-card__face flip-card__front" inert={flipped ? '' : undefined}>
+        <div className="flip-card__face flip-card__front" inert={flipped ? '' : undefined} aria-hidden={flipped}>
           <div className="flip-card__top">
             <span className="flip-card__label">{project.type}</span>
-            <span className="flip-card__index" aria-hidden="true">{pad(index + 1)} / {pad(total)}</span>
+            <span className="flip-card__index">{pad(index + 1)} / {pad(total)}</span>
           </div>
           <div className="flip-card__media">
             <img
@@ -48,10 +48,10 @@ function FlipCard({ project, index, total }) {
           </div>
         </div>
 
-        <div className="flip-card__face flip-card__back" inert={flipped ? undefined : ''}>
+        <div className="flip-card__face flip-card__back" inert={flipped ? undefined : ''} aria-hidden={!flipped}>
           <div className="flip-card__top">
             <span className="flip-card__label">Case notes</span>
-            <span className="flip-card__index" aria-hidden="true">{pad(index + 1)} / {pad(total)}</span>
+            <span className="flip-card__index">{pad(index + 1)} / {pad(total)}</span>
           </div>
           <div className="flip-card__notes">
             <h3 className="flip-card__title">{project.title}</h3>
@@ -72,7 +72,7 @@ function FlipCard({ project, index, total }) {
           </div>
         </div>
       </div>
-    </article>
+    </div>
   );
 }
 
@@ -172,10 +172,10 @@ export default function FlipReel({ label, lead, emphasis, intro, projects }) {
         </div>
         <div className="flip-reel__meta">
           <p className="evo-intro">{intro}</p>
-          <div className="flip-reel__status" aria-hidden="true">
+          <div className="flip-reel__status">
             <span className="flip-reel__hint">Scroll to slide · Hover a card to flip</span>
-            <span className="flip-reel__bar"><span /></span>
-            <span className="flip-reel__count">{pad(active + 1)} / {pad(projects.length)}</span>
+            <span className="flip-reel__bar" aria-hidden="true"><span /></span>
+            <span className="flip-reel__count" aria-live="polite">{pad(active + 1)} / {pad(projects.length)}</span>
           </div>
         </div>
       </div>

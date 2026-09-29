@@ -167,9 +167,9 @@ export default function HomePage() {
         alt="A cinematic EVOBRAND team building the future together."
       />
 
-      <div className="bp-thread" aria-hidden="true">
-        <span className="bp-thread__rail"><span className="bp-thread__fill" /></span>
-        <span className="bp-thread__label">{chapter}</span>
+      <div className="bp-thread">
+        <span className="bp-thread__rail" aria-hidden="true"><span className="bp-thread__fill" /></span>
+        <span className="bp-thread__label" aria-live="polite">{chapter}</span>
       </div>
 
       <section className="bp-hero" data-bp-tone="ink" data-bp-name="Blueprint" aria-labelledby="bp-hero-heading">
@@ -187,17 +187,17 @@ export default function HomePage() {
                 <span className="bp-hero__num">{n}</span>
                 <span>
                   <strong>{title}</strong>
-                  <span className="bp-hero__body">{body}</span>
+                  <span className="bp-hero__body" aria-hidden={i !== step}>{body}</span>
                 </span>
               </li>
             ))}
           </ol>
           <div className="flex flex-wrap gap-space-s">
             <ButtonLink to="/book-consultation">Book a strategy call</ButtonLink>
-            <ButtonLink to="/our-work" variant="secondary">See the work</ButtonLink>
+            <ButtonLink to="/our-work" variant="secondary">View EVOBRAND work</ButtonLink>
           </div>
         </div>
-        {status !== 'off' && <p className="bp-hero__cue" aria-hidden="true">Scroll</p>}
+        {status !== 'off' && <p className="bp-hero__cue">Scroll</p>}
       </section>
 
       <FlipReel

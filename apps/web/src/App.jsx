@@ -58,7 +58,7 @@ function SiteLayout() {
       </a>
       <div className="flex flex-col min-h-screen">
         {!isPortal && <Header />}
-        <main className="flex-1" id="main-content">
+        <main className="flex-1" id="main-content" tabIndex={-1}>
           <Suspense fallback={<div className="min-h-[100svh]" aria-busy="true" />}>
             <div key={pathname} className="route-scene">
               <Routes>

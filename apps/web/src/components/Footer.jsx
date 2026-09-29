@@ -69,7 +69,7 @@ export default function Footer() {
 
         <div className="site-footer__grid">
           <div className="site-footer__brand">
-            <Link to="/" aria-label="EVOBRAND home"><img src="/logo.png" alt="EVOBRAND" /></Link>
+            <Link to="/"><img src="/logo.png" alt="EVOBRAND home" /></Link>
             <p>Websites, applications, and practical AI workflows, designed around how your organization really works.</p>
             <div className="site-footer__socials">
               {SOCIALS.map(([label, href, Icon]) => (
@@ -80,7 +80,7 @@ export default function Footer() {
             </div>
           </div>
 
-          <nav className="site-footer__links" aria-label="Footer navigation">
+          <nav className="site-footer__links" aria-label="Footer">
             <p className="site-footer__label">Explore</p>
             <Link to="/services">Services</Link>
             <Link to="/our-work">Our work</Link>
@@ -93,7 +93,9 @@ export default function Footer() {
 
           <div className="site-footer__contact">
             <p className="site-footer__label">Start here</p>
-            <a href="mailto:info@evobrand.net">info@evobrand.net</a>
+            <a href="mailto:info@evobrand.net">
+              info@evobrand.net<span className="sr-only"> (opens your email application)</span>
+            </a>
             <a href="tel:+12145314427">+1 214-531-4427</a>
             <p>Dallas–Fort Worth, Texas<br />Serving clients nationwide</p>
             <Link to="/client-portal">Client portal <ArrowUpRight size={14} aria-hidden="true" /></Link>

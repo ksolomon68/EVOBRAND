@@ -131,6 +131,39 @@ export const DASHBOARD_DEMOS = [
     highlights: ['Digital Audits', 'Transformation Roadmap', 'Virtual Coaching Room', 'Resource Matching'],
     description: 'Small business portal providing automated digital audits, step-by-step transformation roadmaps, virtual 1-on-1 coaching integration, and priority growth resources.',
     link: 'https://evobrand.net/nova/'
+  },
+  {
+    id: 308,
+    title: 'AACPA Member Hub',
+    subtitle: 'Contractor & Bid Portal',
+    category: 'Dashboard Demo',
+    industry: 'Association & Procurement',
+    image: '/projects/aacpa.png',
+    highlights: ['Member Directory', 'Opportunity Pipeline', 'Project Ignite', 'Partner Network'],
+    description: 'Interactive member hub and procurement portal connecting Asian American contractors with active bid opportunities, mentorship pairings, and partner networks.',
+    link: 'https://evobrandconcepts.com/aacpa'
+  },
+  {
+    id: 309,
+    title: 'NCTRCA Certification Portal',
+    subtitle: 'Regional Hub & Pipeline CRM',
+    category: 'Dashboard Demo',
+    industry: 'Government & Certification',
+    image: '/projects/nctrca.png',
+    highlights: ['Regional Overview', 'Certification Pipeline', 'Campaign Tools', 'Firm Analytics'],
+    description: 'Comprehensive regional certification portal and CRM unifying applicant workflows, review stages, email campaign automation, and certification agency metrics.',
+    link: 'https://evobrandconcepts.com/nctrca'
+  },
+  {
+    id: 310,
+    title: 'Sunny Side Living',
+    subtitle: 'Resident Care & Facility Operations',
+    category: 'Dashboard Demo',
+    industry: 'Healthcare & Senior Living',
+    image: '/projects/sunnyside.png',
+    highlights: ['Daily Census Tracker', 'Care Task Queue', 'Incident Tracker', 'Staff Rosters'],
+    description: 'Integrated senior living operations dashboard managing resident census capacity, shift rosters, overdue care task queues, and facility incident logs.',
+    link: 'https://evobrandconcepts.com/sunnyside/sunny-side-dashboard.html'
   }
 ];
 

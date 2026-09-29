@@ -186,7 +186,7 @@ export default function Header() {
           aria-label="Site navigation"
         >
           <div className="site-menu__top evo-container">
-            <Link to="/" className="site-brand" aria-label="EVOBRAND home">
+            <Link to="/" className="site-brand">
               <img src="/logo.png" alt="EVOBRAND" />
             </Link>
             <button ref={closeButtonRef} type="button" className="site-menu__close tap-target" onClick={() => setMobileMenuOpen(false)} aria-label="Close navigation menu">
@@ -195,24 +195,32 @@ export default function Header() {
           </div>
           <div className="site-menu__body evo-container">
             <p className="evo-eyebrow">Navigate</p>
-            <nav aria-label="Mobile navigation" className="site-menu__groups">
+            <nav aria-label="Mobile" className="site-menu__groups">
               {NAV_GROUPS.map((group, index) => {
                 const expanded = mobileGroup === group.id;
                 return (
                   <div key={group.id} className={`site-menu__group ${isGroupActive(group, pathname) ? 'is-active' : ''}`}>
-                    <button
-                      type="button"
-                      className="site-menu__trigger"
-                      aria-expanded={expanded}
-                      aria-controls={`mobile-${group.id}`}
-                      onClick={() => setMobileGroup(expanded ? null : group.id)}
-                    >
+                    <div className={`site-menu__trigger ${expanded ? 'is-expanded' : ''}`}>
                       <span aria-hidden="true">0{index + 1}</span>
-                      {group.label}
-                      <ChevronDown className="site-menu__chevron" size={22} aria-hidden="true" />
-                    </button>
-                    <AnimatePresence initial={false}>
-                      {expanded && (
+                      <Link
+                        to={group.to}
+                        className="site-menu__parent"
+                        aria-current={pathname === group.to ? 'page' : undefined}
+                      >
+                        {group.label}
+                      </Link>
+                      <button
+                        type="button"
+                        className="site-menu__toggle tap-target"
+                        aria-label={`${expanded ? 'Close' : 'Open'} ${group.label} submenu`}
+                        aria-expanded={expanded}
+                        aria-controls={`mobile-${group.id}`}
+                        onClick={() => setMobileGroup(expanded ? null : group.id)}
+                      >
+                        <ChevronDown className="site-menu__chevron" size={22} aria-hidden="true" />
+                      </button>
+                    </div>
+                    {expanded ? (
                         <motion.div
                           id={`mobile-${group.id}`}
                           className="site-menu__panel"
@@ -238,8 +246,7 @@ export default function Header() {
                             })}
                           </ul>
                         </motion.div>
-                      )}
-                    </AnimatePresence>
+                      ) : <div id={`mobile-${group.id}`} hidden />}
                   </div>
                 );
               })}
@@ -280,30 +287,42 @@ export default function Header() {
         onBlur={onHeaderBlur}
       >
         <div className="site-header__inner evo-container">
-          <Link to="/" className="site-brand" aria-label="EVOBRAND home">
+          <Link to="/" className="site-brand">
             <img src="/logo.png" alt="EVOBRAND" />
             <span>Senior-led<br />since 1999</span>
           </Link>
 
-          <nav className="site-header__nav" aria-label="Primary navigation">
+          <nav className="site-header__nav" aria-label="Primary">
             {NAV_GROUPS.map((group) => {
               const open = openId === group.id;
               return (
-                <div className="mega-item" key={group.id}>
-                  <button
-                    type="button"
-                    className={`mega-trigger ${isGroupActive(group, pathname) ? 'is-active' : ''} ${open ? 'is-open' : ''}`}
-                    aria-expanded={open}
-                    aria-controls={`mega-${group.id}`}
-                    onClick={() => (open ? closeNow() : (clearTimer(), setOpenId(group.id)))}
-                    onPointerEnter={(e) => e.pointerType === 'mouse' && openLater(group.id)}
-                  >
-                    {group.label}
-                    <ChevronDown size={15} aria-hidden="true" />
-                  </button>
-                  <AnimatePresence>
-                    {open && <MegaPanel group={group} reduce={reduce} onNavigate={closeNow} />}
-                  </AnimatePresence>
+                <div
+                  className="mega-item"
+                  key={group.id}
+                  onPointerEnter={(e) => e.pointerType === 'mouse' && openLater(group.id)}
+                >
+                  <div className={`mega-trigger ${isGroupActive(group, pathname) ? 'is-active' : ''} ${open ? 'is-open' : ''}`}>
+                    <Link
+                      to={group.to}
+                      className="mega-trigger__link"
+                      aria-current={pathname === group.to ? 'page' : undefined}
+                    >
+                      {group.label}
+                    </Link>
+                    <button
+                      type="button"
+                      className="mega-trigger__toggle"
+                      aria-label={`${open ? 'Close' : 'Open'} ${group.label} submenu`}
+                      aria-expanded={open}
+                      aria-controls={`mega-${group.id}`}
+                      onClick={() => (open ? closeNow() : (clearTimer(), setOpenId(group.id)))}
+                    >
+                      <ChevronDown size={15} aria-hidden="true" />
+                    </button>
+                  </div>
+                  {open
+                    ? <MegaPanel group={group} reduce={reduce} onNavigate={closeNow} />
+                    : <div id={`mega-${group.id}`} hidden />}
                 </div>
               );
             })}
@@ -327,7 +346,10 @@ export default function Header() {
           </button>
         </div>
       </header>
-      {typeof document !== 'undefined' && createPortal(mobileNav, document.body)}
+      {typeof document !== 'undefined' && createPortal(
+        mobileMenuOpen ? mobileNav : <div id="mobile-nav" hidden />,
+        document.body,
+      )}
       {typeof document !== 'undefined' && createPortal(scrim, document.body)}
     </>
   );
