@@ -2439,7 +2439,7 @@ html {
   .story-experience__chapter { min-height: 28rem; padding: 4.5rem var(--space-m) var(--space-xl); }
   .story-experience__node { left: -2.75rem; width: 1.5rem; height: 1.5rem; font-size: 0; }
   .story-experience__year { right: 0.5rem; font-size: clamp(5rem, 25vw, 8rem); }
-  .story-experience__copy h3 { font-size: clamp(2.5rem, 13vw, 3.6rem); }
+  .story-experience__copy h3 { font-size: clamp(2rem, 10.5vw, 3.2rem); }
   .mega-panel { display: none; } /* phones use the full-screen menu */
 }
 @media (prefers-reduced-motion: reduce) {
