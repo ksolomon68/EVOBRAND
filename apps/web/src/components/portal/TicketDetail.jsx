@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { ArrowLeft, Clock, Send, CheckCircle2, AlertCircle, Shield, MessageSquare, Loader2, DollarSign, CreditCard, Paperclip, X } from 'lucide-react';
 import PaymentModal from './PaymentModal';
+import { formatCST } from '../../lib/datetime';
 
 function Attachment({ url, className = '' }) {
   if (!url) return null;
@@ -177,7 +178,7 @@ const TicketDetail = ({ ticket, onBack, onReply, onClose, user, onRefresh }) => 
                                         <div className="flex items-center gap-3 mb-2 flex-row-reverse">
                                             <div className="w-8 h-8 rounded-lg flex items-center justify-center text-[10px] font-bold bg-[#22c8e5] text-[#003258]">YOU</div>
                                             <span className="text-[10px] font-bold text-evo-fog uppercase tracking-widest">
-                                                {new Date(ticket.created_at).toLocaleString([], { hour: '2-digit', minute: '2-digit' })}
+                                                {formatCST(ticket.created_at, { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit', timeZoneName: 'short' })}
                                             </span>
                                         </div>
                                         <div className="p-5 rounded-2xl text-sm leading-relaxed bg-[#22c8e5]/10 border border-[#22c8e5]/20 text-white rounded-tr-none">
@@ -204,7 +205,7 @@ const TicketDetail = ({ ticket, onBack, onReply, onClose, user, onRefresh }) => 
                                                 {!msg.sender_is_admin ? 'YOU' : 'EVOBRAND'}
                                             </div>
                                             <span className="text-[10px] font-bold text-evo-fog uppercase tracking-widest">
-                                                {new Date(msg.timestamp || msg.created_at).toLocaleString([], { hour: '2-digit', minute: '2-digit' })}
+                                                {formatCST(msg.timestamp || msg.created_at, { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit', timeZoneName: 'short' })}
                                             </span>
                                         </div>
                                         <div className={`p-5 rounded-2xl text-sm leading-relaxed ${
@@ -299,7 +300,7 @@ const TicketDetail = ({ ticket, onBack, onReply, onClose, user, onRefresh }) => 
                                 )}
                                 <div>
                                     <p className="text-evo-fog text-[10px] font-bold uppercase tracking-widest mb-1">Opened</p>
-                                    <p className="text-white text-sm font-medium">{new Date(ticket.created_at).toLocaleDateString()}</p>
+                                    <p className="text-white text-sm font-medium">{formatCST(ticket.created_at, { month: 'numeric', day: 'numeric', year: 'numeric' })}</p>
                                 </div>
                                 <div>
                                     <p className="text-evo-fog text-[10px] font-bold uppercase tracking-widest mb-1">Service</p>

@@ -4,6 +4,7 @@ import {
   AlertCircle, Ticket, Mail, Calendar, Users, Eye, FileText,
   ArrowRight, Clock, CheckCircle2, Circle, Loader2
 } from 'lucide-react';
+import { parseServerDate } from '../../lib/datetime';
 
 const GOLD = '#22c8e5';
 
@@ -16,7 +17,7 @@ function authHeaders() {
 }
 
 function timeAgo(dateStr) {
-  const diff = Date.now() - new Date(dateStr).getTime();
+  const diff = Date.now() - parseServerDate(dateStr).getTime();
   const m = Math.floor(diff / 60000);
   if (m < 1) return 'just now';
   if (m < 60) return `${m}m ago`;
