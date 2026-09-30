@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Bell } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { formatCST } from '../../lib/datetime';
 
 const GOLD = '#b49969';
 const API_BASE = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
@@ -171,7 +172,7 @@ export default function NotificationDropdown({ onNavigate }) {
                           {notif.message}
                         </p>
                         <p className="text-[10px] text-evo-fog uppercase tracking-widest font-bold mt-2">
-                          {new Date(notif.created_at).toLocaleString()}
+                          {formatCST(notif.created_at)}
                         </p>
                       </div>
                     </div>

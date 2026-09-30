@@ -3,6 +3,7 @@ import {
   Loader2, ShieldAlert, ArrowLeft, Send, DollarSign,
   CheckCircle2, Clock, AlertCircle, Users, Tag, Paperclip, Shield, Zap, Star, X
 } from 'lucide-react';
+import { formatCST } from '../../lib/datetime';
 
 const API_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
   ? 'http://localhost:5000/api/support'
@@ -34,25 +35,6 @@ const TICKET_TYPE_META = {
 };
 function ticketTypeLabel(type) {
   return TICKET_TYPE_META[type]?.label || type || 'Standard';
-}
-
-// America/Chicago auto-handles CST/CDT (UTC-6 / UTC-5) across DST, this is
-// what visitors mean by "CST" in everyday use.
-function formatCST(dateStr) {
-  if (!dateStr) return '-';
-  // The API returns naive "YYYY-MM-DD HH:MM:SS" strings (the DB session runs
-  // in UTC) with no timezone marker. `new Date()` parses that shape as local
-  // browser time rather than UTC, so mark it explicitly UTC before converting.
-  const iso = /Z|[+-]\d\d:\d\d$/.test(dateStr) ? dateStr : `${dateStr.replace(' ', 'T')}Z`;
-  return new Date(iso).toLocaleString('en-US', {
-    timeZone: 'America/Chicago',
-    month: 'short',
-    day: 'numeric',
-    year: 'numeric',
-    hour: 'numeric',
-    minute: '2-digit',
-    timeZoneName: 'short',
-  });
 }
 
 const statusColor = (s) => ({

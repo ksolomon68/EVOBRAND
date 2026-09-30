@@ -1,6 +1,7 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { Clock, AlertCircle, CheckCircle2, ChevronRight, Hash } from 'lucide-react';
+import { formatCST } from '../../lib/datetime';
 
 const TicketList = ({ tickets, onViewTicket }) => {
     const getPriorityColor = (priority) => {
@@ -54,7 +55,7 @@ const TicketList = ({ tickets, onViewTicket }) => {
                                 <div className="flex items-center gap-4">
                                     <span className="text-slate-300 text-xs font-bold uppercase tracking-widest">{ticket.service}</span>
                                     <div className="w-1 h-1 rounded-full bg-white/10" />
-                                    <span className="text-slate-300 text-xs">{new Date(ticket.lastUpdated).toLocaleDateString()}</span>
+                                    <span className="text-slate-300 text-xs">{formatCST(ticket.lastUpdated, { month: 'numeric', day: 'numeric', year: 'numeric' })}</span>
                                 </div>
                             </div>
                         </div>
