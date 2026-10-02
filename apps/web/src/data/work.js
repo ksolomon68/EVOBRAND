@@ -164,6 +164,17 @@ export const DASHBOARD_DEMOS = [
     highlights: ['Daily Census Tracker', 'Care Task Queue', 'Incident Tracker', 'Staff Rosters'],
     description: 'Integrated senior living operations dashboard managing resident census capacity, shift rosters, overdue care task queues, and facility incident logs.',
     link: 'https://evobrandconcepts.com/sunnyside/sunny-side-dashboard.html'
+  },
+  {
+    id: 311,
+    title: 'EVOSphere',
+    subtitle: 'Real Estate Brokerage Platform',
+    category: 'Dashboard Demo',
+    industry: 'Real Estate & PropTech',
+    image: '/projects/evosphere.png',
+    highlights: ['Brokerage Overview', 'AI Matching', 'Sales Pipeline', 'Sphere Intelligence'],
+    description: 'Full-featured real estate brokerage platform with an agent overview dashboard, live sales pipeline, AI-powered property matching, and Sphere Intelligence insights — all in one connected workspace.',
+    link: 'https://evobrandconcepts.com/evoshere/'
   }
 ];
 
