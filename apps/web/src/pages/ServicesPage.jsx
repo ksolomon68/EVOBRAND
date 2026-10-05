@@ -71,6 +71,7 @@ export default function ServicesPage() {
         }}
         jumps={[
           ...SERVICE_GROUPS.map((g) => ({ href: `#${g.id}`, label: g.label })),
+          { href: '#nonprofits', label: 'Nonprofits' },
           { href: '#process', label: 'How we engage' },
         ]}
       />
@@ -94,6 +95,17 @@ export default function ServicesPage() {
           />
         </SplitSection>
       ))}
+
+      <SplitSection
+        id="nonprofits"
+        tone="slate"
+        label="Nonprofit mission growth"
+        lead="Connect search"
+        emphasis="to mission impact."
+        intro="Support for eligible nonprofits, from Google Ad Grant readiness through launch and ongoing growth."
+      >
+        <LinkCards columns={2} items={[{ to: '/google-ad-grants', icon: MonitorSmartphone, title: 'Google Ad Grants for Nonprofits', body: 'Connect up to $10,000 per month in Google Search advertising to donors, volunteers and program participants.', cta: 'Explore the service' }, { to: '/google-ad-grants#assessment', icon: Wrench, title: 'Free readiness assessment', body: 'Get a preliminary eligibility screen, website and tracking readiness, and practical next steps.', cta: 'Check your nonprofit’s eligibility' }]} />
+      </SplitSection>
 
       <SplitSection
         id="process"

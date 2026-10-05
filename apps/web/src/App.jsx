@@ -8,6 +8,7 @@ import Footer from '@/components/Footer.jsx';
 import ChatWidget from '@/components/ChatWidget.jsx';
 import HomePage from '@/pages/HomePage.jsx';
 const ServicesPage = lazy(() => import('@/pages/ServicesPage.jsx'));
+const GoogleAdGrantsPage = lazy(() => import('@/pages/GoogleAdGrantsPage.jsx'));
 const ServiceDetailPage = lazy(() => import('@/pages/ServiceDetailPage.jsx'));
 const HowItWorksPage = lazy(() => import('@/pages/HowItWorksPage.jsx'));
 const OurWorkPage = lazy(() => import('@/pages/OurWorkPage.jsx'));
@@ -64,6 +65,8 @@ function SiteLayout() {
               <Routes>
                 <Route path="/" element={<HomePage />} />
                 <Route path="/services" element={<ServicesPage />} />
+                <Route path="/google-ad-grants" element={<GoogleAdGrantsPage />} />
+                <Route path="/services/google-ad-grants" element={<Navigate to="/google-ad-grants" replace />} />
                 <Route path="/services/:slug" element={<ServiceDetailPage />} />
                 <Route path="/how-it-works" element={<HowItWorksPage />} />
                 <Route path="/our-work" element={<OurWorkPage />} />

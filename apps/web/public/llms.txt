@@ -14,6 +14,7 @@
 - [Free Audit Tools | Brand & Accessibility Scans | EVOBRAND](/auditors): Two free audit tools from EVOBRAND: a brand auditor that scores your digital presence, and an accessibility checker that scans your site against WCAG 2.1. Instant results, no sign-up.
 - [Free Custom Demo Portal | Custom AI Applications | EVOBRAND](/freedemoportal): Get a free, custom-built demo portal for your business. Share your requirements and logo, and EVOBRAND will build a live demo tailored to you at no cost.
 - [Free Website Accessibility Checker | WCAG Scan & Report | EVOBRAND](/accessibilitychecker): Scan any page of your website for WCAG 2.1 accessibility issues in about a minute. Real Google Lighthouse data, the exact elements that fail, prioritized fixes, and a 90-day remediation plan, all free.
+- [Google Ad Grants for Nonprofits | EVOBRAND Concepts](/googleadgrants): Turn up to $10,000 per month in Google Search advertising into measurable mission impact. Assess readiness, launch campaigns and grow with EVOBRAND.
 - [Motion lab](/motionlab): No description available
 - [Our Work: Platforms, Websites, Academy and Case Studies](/ourwork): Selected EVOBRAND work for government agencies, nonprofits, and businesses: government contracting platforms, membership systems, live dashboard demos, websites, and EVOBRAND Academy
 - [Payment Success - EVOBRAND](/paymentsuccess): Thank you for your purchase. Your payment was verified successfully.

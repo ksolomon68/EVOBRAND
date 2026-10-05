@@ -47,7 +47,7 @@ export const NAV_GROUPS = [
     id: 'services',
     label: 'Services',
     to: '/services',
-    match: ['/services', '/maintenance-plans'],
+    match: ['/services', '/maintenance-plans', '/google-ad-grants'],
     title: 'Services',
     feature: {
       eyebrow: 'Strategy · Design · Technology',
@@ -57,6 +57,7 @@ export const NAV_GROUPS = [
     },
     items: [
       ...SERVICES.map((s) => ({ to: `/services/${s.slug}`, icon: s.icon, title: s.title, body: s.menuBlurb })),
+      { to: '/google-ad-grants', icon: Gauge, title: 'Google Ad Grants for Nonprofits', body: 'Readiness, launch and growth for mission impact' },
       { to: '/maintenance-plans', icon: Wrench, title: 'Maintenance plans', body: 'Updates, security and support every month' },
       { to: '/free-demo-portal', icon: MonitorSmartphone, title: 'Free demo portal', body: 'See your own portal before you commit' },
     ],
@@ -96,6 +97,7 @@ export const NAV_GROUPS = [
     },
     items: [
       { to: '/auditor', icon: Gauge, title: 'Brand auditor', body: 'Scores, benchmarks and a 90-day plan' },
+      { to: '/google-ad-grants#assessment', icon: BadgeCheck, title: 'Ad Grant readiness', body: 'A preliminary nonprofit eligibility and readiness screen' },
       { to: '/accessibility-checker', icon: Accessibility, title: 'Accessibility checker', body: 'Find WCAG barriers on any page' },
       { to: '/free-demo-portal', icon: ScanSearch, title: 'Free demo portal', body: 'Your logo, your workflow, a live preview' },
       { to: '/book-consultation', icon: CalendarCheck, title: 'Strategy call', body: 'Thirty minutes, no obligation' },

@@ -10,6 +10,7 @@ const NAVY = '#003258';
 const BEIGE = '#ffffff';
 
 const SERVICES = [
+  'Google Ad Grants for Nonprofits',
   'Custom AI Applications',
   'AI Visual Content Creation',
   'Intelligent Document Generation',
