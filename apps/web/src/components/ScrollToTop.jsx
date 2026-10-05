@@ -10,7 +10,7 @@ const HEADER_OFFSET = 96;
  * Lazy routes may take a moment, so it retries for about a second.
  */
 const ScrollToTop = () => {
-  const { pathname, hash } = useLocation();
+  const { pathname, hash, key } = useLocation();
 
   useEffect(() => {
     if (!hash) {
@@ -26,12 +26,15 @@ const ScrollToTop = () => {
         return;
       }
       const lenis = getLoadedMotion()?.lenis;
-      if (lenis) lenis.scrollTo(el, { offset: -HEADER_OFFSET, duration: 1.1 });
+      if (lenis) {
+        lenis.resize();
+        lenis.scrollTo(el, { offset: -HEADER_OFFSET, duration: 1.1, force: true });
+      }
       else window.scrollTo(0, el.getBoundingClientRect().top + window.scrollY - HEADER_OFFSET);
     };
     frame = requestAnimationFrame(seek);
     return () => cancelAnimationFrame(frame);
-  }, [pathname, hash]);
+  }, [pathname, hash, key]);
 
   return null;
 };
