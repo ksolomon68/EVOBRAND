@@ -49,7 +49,7 @@ export default function GoogleAdGrantsPage() {
       <p className="grant-prose">Reports connect mission-aligned visits to completed actions, highlight where supporters drop off and recommend the next improvement. Awareness is considered alongside engagement and mission goals. These are reporting goals, not promised results.</p>
     </SplitSection>
     <SplitSection id="javon" tone="slate" label="Meet your service lead" lead="Meet" emphasis="Javon Solomon." intro="Javon helps lead EVOBRAND’s Google Ad Grants service and holds HubSpot certifications in Content Marketing, Digital Marketing and Digital Advertising. He brings a foundation in content, campaign strategy and digital advertising to helping nonprofits connect their online presence to meaningful mission outcomes.">
-      <figure className="grant-javon-portrait"><img src="/team/javon-solomon.png" alt="Javon Solomon seated at his desk" width="1145" height="1374" loading="lazy" decoding="async" /></figure>
+      <figure className="grant-javon-portrait"><img src="/team/javon-solomon-friendly.png" alt="Javon Solomon seated at his desk" width="1254" height="1254" loading="lazy" decoding="async" /></figure>
       <ul className="grant-certifications" aria-label="Javon’s HubSpot certifications">
         {CERTIFICATIONS.map(cert => <li key={cert.slug}><a href={`https://app-na2.hubspot.com/academy/achievements/${cert.achievement}/en/1/javon-solomon/${cert.slug}`} target="_blank" rel="noopener noreferrer"><img src={`/team/${cert.badge}.png`} alt="" loading="lazy" decoding="async" /><span>HubSpot Certified<br /><strong>{cert.name}</strong></span><span className="grant-certification-link">View credential ↗</span></a></li>)}
       </ul>
@@ -59,4 +59,5 @@ export default function GoogleAdGrantsPage() {
     <SplitSection id="questions" tone="slate" label="Frequently asked questions" lead="Understand the program." emphasis="Choose your next step."><Faq items={FAQ} /><p className="grant-prose">EVOBRAND is an independent service provider and is not affiliated with or endorsed by Google. Program policies can change. Review <a href="https://www.google.com/grants/faq/" target="_blank" rel="noopener noreferrer">Google’s Ad Grants FAQ</a>, <a href="https://support.google.com/nonprofits/answer/3215869?hl=en" target="_blank" rel="noopener noreferrer">eligibility guidelines</a> and <a href="https://support.google.com/nonprofits/answer/1657899?hl=en" target="_blank" rel="noopener noreferrer">website policy</a>. Guidance reviewed October 5, 2026.</p></SplitSection>
   </>;
 }
+
 
