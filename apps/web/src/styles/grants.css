@@ -1,4 +1,14 @@
 .grant-section { scroll-margin-top: 110px; }
+.grant-javon-portrait { margin: 0 0 1.5rem; }
+.grant-javon-portrait img { display: block; width: 100%; max-height: 540px; object-fit: cover; object-position: center 30%; border-radius: 20px; }
+.grant-certifications { list-style: none; padding: 0; margin: 0; display: grid; gap: 1rem; }
+.grant-certifications a { display: flex; align-items: center; gap: 1rem; padding: 1rem; border: 1px solid rgba(34,200,229,.3); border-radius: 12px; color: white; text-decoration: none; }
+.grant-certifications a:hover { border-color: #22c8e5; background: rgba(34,200,229,.06); }
+.grant-certifications a:focus-visible { outline: 2px solid #22c8e5; outline-offset: 4px; }
+.grant-certifications img { width: 72px; height: 72px; object-fit: contain; }
+.grant-certifications span { line-height: 1.5; font-size: .85rem; }
+.grant-certification-link { margin-left: auto; color: #22c8e5; }
+@media (max-width: 640px) { .grant-certifications a { flex-wrap: wrap; } .grant-certification-link { margin-left: 88px; } }
 .grant-title { font-family: var(--font-display, Georgia, serif); font-size: clamp(2rem, 4vw, 3.5rem); line-height: 1.15; margin-bottom: 2rem; text-wrap: balance; }
 .grant-assessment, .grant-results { max-width: 960px; }
 .grant-results { scroll-margin-top: 110px; }

@@ -6,6 +6,11 @@ import GrantAssessment from '@/components/GrantAssessment.jsx';
 import '@/styles/grants.css';
 
 const ASSESS = '/google-ad-grants#assessment';
+const CERTIFICATIONS = [
+  { name: 'Content Marketing', achievement: '8hv281vm', slug: 'content-marketing-certified', badge: '354c6b4c21904f49a4cf6e1af9975860' },
+  { name: 'Digital Advertising', achievement: '8lbf3g96', slug: 'digital-advertising-certified', badge: '854607ec4ec14c2783621b78802798ee' },
+  { name: 'Digital Marketing', achievement: 'kd7mydbn', slug: 'digital-marketing-certified', badge: '4a2d8da396a34945a03704e6cab1cc99' },
+];
 const FAQ = [
   { q: 'What is the Google Ad Grant?', a: 'Google Ad Grants gives eligible nonprofits access to up to $10,000 per month in Google Search advertising to help people discover their mission. It is an advertising benefit, not a cash grant.' },
   { q: 'How much advertising does Google provide?', a: 'The program offers up to $10,000 USD per month in Google Search advertising. Actual use depends on search demand, campaign eligibility and performance. Full monthly utilization is not guaranteed.' },
@@ -37,15 +42,21 @@ export default function GoogleAdGrantsPage() {
     ]} /></SplitSection>
     <SplitSection id="ecosystem" tone="deep" label="Why EVOBRAND" lead="Connect the campaign" emphasis="to the whole experience." intro="Advertising + Web Technology + UX + Analytics + Automation + AI. We can support the full conversion journey, from a search to a completed mission action.">
       <p className="grant-prose">A campaign may need clearer content, a better donation funnel, an accessible mobile experience, a dedicated landing page or reliable tracking. We can also connect CRM workflows and use AI automation to support timely follow-up. Recommendations start with observed or reported gaps and your organization’s priorities.</p>
-      <p className="grant-prose">This EVOBRAND service is spearheaded by Javon Solomon, our Social Media Content Creator, as he develops specialization in nonprofit Google Ad Grant strategy and management.</p>
       <LinkCards columns={2} items={[{ to: '/services/web-development', title: 'Website & conversion experience', body: 'Make mission actions clear and easy to complete.' }, { to: '/services/custom-ai-applications', title: 'Connected workflows & AI', body: 'Support the people and processes behind each inquiry.' }]} />
     </SplitSection>
     <SplitSection id="impact" label="Measure what matters" lead="Count the actions." emphasis="Understand the impact." intro="Reporting should help your leadership team make decisions about the mission, beyond advertising activity.">
       <ul className="grant-outcomes">{['Donors', 'Volunteer inquiries', 'Program participants', 'Event registrations', 'Members & email supporters', 'Community awareness'].map(v => <li key={v}>{v}</li>)}</ul>
       <p className="grant-prose">Reports connect mission-aligned visits to completed actions, highlight where supporters drop off and recommend the next improvement. Awareness is considered alongside engagement and mission goals. These are reporting goals, not promised results.</p>
     </SplitSection>
+    <SplitSection id="javon" tone="slate" label="Meet your service lead" lead="Meet" emphasis="Javon Solomon." intro="Javon helps lead EVOBRAND’s Google Ad Grants service and holds HubSpot certifications in Content Marketing, Digital Marketing and Digital Advertising. He brings a foundation in content, campaign strategy and digital advertising to helping nonprofits connect their online presence to meaningful mission outcomes.">
+      <figure className="grant-javon-portrait"><img src="/team/javon-solomon.png" alt="Javon Solomon seated at his desk" width="1145" height="1374" loading="lazy" decoding="async" /></figure>
+      <ul className="grant-certifications" aria-label="Javon’s HubSpot certifications">
+        {CERTIFICATIONS.map(cert => <li key={cert.slug}><a href={`https://app-na2.hubspot.com/academy/achievements/${cert.achievement}/en/1/javon-solomon/${cert.slug}`} target="_blank" rel="noopener noreferrer"><img src={`/team/${cert.badge}.png`} alt="" loading="lazy" decoding="async" /><span>HubSpot Certified<br /><strong>{cert.name}</strong></span><span className="grant-certification-link">View credential ↗</span></a></li>)}
+      </ul>
+    </SplitSection>
     <CtaBand label="Your next step" lead="See if your nonprofit" emphasis="is ready." intro="Get a preliminary eligibility result, website and tracking readiness, a 0–100 planning score and recommendations based on your answers." primary={{ to: ASSESS, label: 'See If Your Nonprofit Is Ready', cta: 'grant-band-assess' }} secondary={{ to: '/book-consultation', label: 'Talk With EVOBRAND', cta: 'grant-band-talk' }} />
     <section id="assessment" className="evo-block evo-block--ink grant-section" aria-labelledby="grant-assessment-heading"><div className="evo-container"><p className="phase__meta">Google Ad Grant Readiness Assessment</p><h2 id="grant-assessment-heading" className="grant-title">A practical first look at your readiness.</h2><GrantAssessment /></div></section>
     <SplitSection id="questions" tone="slate" label="Frequently asked questions" lead="Understand the program." emphasis="Choose your next step."><Faq items={FAQ} /><p className="grant-prose">EVOBRAND is an independent service provider and is not affiliated with or endorsed by Google. Program policies can change. Review <a href="https://www.google.com/grants/faq/" target="_blank" rel="noopener noreferrer">Google’s Ad Grants FAQ</a>, <a href="https://support.google.com/nonprofits/answer/3215869?hl=en" target="_blank" rel="noopener noreferrer">eligibility guidelines</a> and <a href="https://support.google.com/nonprofits/answer/1657899?hl=en" target="_blank" rel="noopener noreferrer">website policy</a>. Guidance reviewed October 5, 2026.</p></SplitSection>
   </>;
 }
+
