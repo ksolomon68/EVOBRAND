@@ -105,25 +105,47 @@ function zonedDateTimeToUtc(dateStr, h, m, timeZone) {
   return new Date(guess.getTime() - offsetMin * 60000);
 }
 
-// Fetch busy intervals from Google Calendar for [startDateStr, endDateStr] (inclusive, YYYY-MM-DD,
-// interpreted in CALENDAR_TZ). Returns [] if credentials aren't configured or the lookup fails —
-// callers treat that as "no Google-side blocks known" rather than an error.
+// Include every calendar readable by the connected account, plus the explicitly
+// configured booking calendar (which may not appear in the account's calendar list).
+async function getAvailabilityCalendars(calendar = getClient()) {
+  if (!calendar) throw new Error('Google Calendar is not configured');
+  const calendars = new Map();
+  let pageToken;
+  do {
+    const response = await calendar.calendarList.list({ maxResults: 250, pageToken });
+    for (const item of response.data.items || []) {
+      if (!item.deleted && item.id) calendars.set(item.id, { id: item.id, name: item.summary || item.id, primary: !!item.primary });
+    }
+    pageToken = response.data.nextPageToken;
+  } while (pageToken);
+  const configuredId = process.env.GOOGLE_CALENDAR_ID || 'primary';
+  if (!calendars.has(configuredId) && !(configuredId === 'primary' && [...calendars.values()].some((c) => c.primary))) {
+    calendars.set(configuredId, { id: configuredId, name: configuredId });
+  }
+  return [...calendars.values()];
+}
+
+// Google freebusy is limited to 50 calendars per request. Do not silently treat
+// a failed calendar expansion as available time.
 async function getBusyIntervals(startDateStr, endDateStr) {
   const calendar = getClient();
-  if (!calendar) return [];
-
-  const calendarId = process.env.GOOGLE_CALENDAR_ID || 'primary';
+  if (!calendar) throw new Error('Google Calendar is not configured');
+  const calendars = await getAvailabilityCalendars(calendar);
   const timeMin = zonedDateTimeToUtc(startDateStr, 0, 0, CALENDAR_TZ).toISOString();
-  const timeMax = zonedDateTimeToUtc(endDateStr, 23, 59, CALENDAR_TZ).toISOString();
-
-  const res = await calendar.freebusy.query({
-    requestBody: { timeMin, timeMax, items: [{ id: calendarId }] },
-  });
-
-  const result = res.data.calendars?.[calendarId];
-  if (!result || result.errors?.length) throw new Error('Google Calendar availability is unavailable');
-  const busy = result.busy || [];
-  return busy.map((b) => ({ start: new Date(b.start), end: new Date(b.end) }));
+  const nextDay = new Date(endDateStr + 'T12:00:00Z');
+  nextDay.setUTCDate(nextDay.getUTCDate() + 1);
+  const timeMax = zonedDateTimeToUtc(nextDay.toISOString().slice(0, 10), 0, 0, CALENDAR_TZ).toISOString();
+  const busy = [];
+  for (let i = 0; i < calendars.length; i += 50) {
+    const batch = calendars.slice(i, i + 50);
+    const response = await calendar.freebusy.query({ requestBody: { timeMin, timeMax, items: batch.map((c) => ({ id: c.id })) } });
+    for (const entry of batch) {
+      const result = response.data.calendars?.[entry.id];
+      if (!result || result.errors?.length) throw new Error('Unable to check availability for ' + entry.name);
+      busy.push(...(result.busy || []).map((b) => ({ start: new Date(b.start), end: new Date(b.end) })));
+    }
+  }
+  return busy;
 }
 
 // Does the given office-hours slot (e.g. "2:00 PM", 30 min) overlap any Google Calendar busy interval?
@@ -140,6 +162,7 @@ function isSlotBusy(dateStr, slotStr, durationMin, busyIntervals) {
 
 module.exports = {
   slotStart: (date, time) => { const parsed = parseTime(time); return zonedDateTimeToUtc(date, parsed.h, parsed.m, CALENDAR_TZ); },
+  getAvailabilityCalendars,
   createCalendarEvent,
   deleteCalendarEvent,
   getBusyIntervals,

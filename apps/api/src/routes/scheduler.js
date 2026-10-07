@@ -5,7 +5,7 @@ const { getEmailTemplate } = require('../utils/emailTemplate');
 const { sendEmail } = require('../utils/mailer');
 const { createNotification, notifyAdmins } = require('../utils/notifications');
 const { authenticateToken } = require('../middleware/auth');
-const { createCalendarEvent, deleteCalendarEvent, getBusyIntervals, isSlotBusy, slotStart } = require('../utils/googleCalendar');
+const { createCalendarEvent, deleteCalendarEvent, getBusyIntervals, isSlotBusy, slotStart, getAvailabilityCalendars } = require('../utils/googleCalendar');
 
 // Office-hours slots offered by the scheduler — kept in sync with SchedulerWidget.jsx's TIME_SLOTS.
 const TIME_SLOTS = ['12:00 PM', '1:00 PM', '2:00 PM', '3:00 PM', '4:00 PM', '5:00 PM'];
@@ -101,7 +101,7 @@ router.get('/calendar-status', authenticateToken, requireSchedulerAdmin, async (
     const today = new Intl.DateTimeFormat('en-CA', { timeZone: 'America/Chicago' }).format(new Date());
     await getBusyIntervals(today, today);
     const [rows] = await pool.query("SELECT COUNT(*) AS pending FROM meetings WHERE google_event_id IS NULL AND status != 'canceled' AND date >= ?", [today]);
-    res.json({ connected: true, pending: rows[0].pending });
+    res.json({ connected: true, pending: rows[0].pending, calendars: await getAvailabilityCalendars() });
   } catch (error) { res.json({ connected: false, error: 'Google Calendar could not be reached. Check the calendar connection before accepting bookings.' }); }
 });
 
@@ -276,7 +276,8 @@ router.get('/booked-slots', async (req, res) => {
         if (isSlotBusy(date, slot, SLOT_DURATION_MIN, busyIntervals)) bookedSlots.add(slot);
       }
     } catch (calErr) {
-      console.error('Google Calendar freebusy lookup failed (non-fatal):', calErr.message);
+      console.error('Google Calendar freebusy lookup failed:', calErr.message);
+      return res.status(503).json({ error: 'Calendar availability could not be verified. Please try again later.' });
     }
 
     res.json([...bookedSlots]);

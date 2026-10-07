@@ -781,6 +781,7 @@ export default function SchedulerWidget() {
     return { year: d.getFullYear(), month: d.getMonth() + 1 };
   });
   const [booking, setBooking] = useState(null);
+  const [availabilityError, setAvailabilityError] = useState('');
   // step 4 = success, step 5 = create account (guests only)
   const panelRef = useRef(null);
 
@@ -810,18 +811,22 @@ export default function SchedulerWidget() {
       .catch(() => {});
   }, [calendarMonth]);
 
-  // Fetch booked slots whenever selected date changes
+  // Clear stale results and ignore responses for dates the visitor has left.
   useEffect(() => {
     if (!selectedDate) return;
-    fetch(`${API_BASE}/scheduler/booked-slots?date=${selectedDate}`)
-      .then((res) => {
-        if (!res.ok || !res.headers.get('content-type')?.includes('application/json')) return [];
-        return res.json();
+    const controller = new AbortController();
+    setBookedSlots(TIME_SLOTS);
+    setSelectedSlot('');
+    setAvailabilityError('');
+    fetch(`${API_BASE}/scheduler/booked-slots?date=${selectedDate}`, { signal: controller.signal, cache: 'no-store' })
+      .then(async (res) => {
+        if (!res.ok) throw new Error('Calendar availability could not be verified. Please try again later.');
+        const data = await res.json();
+        if (!Array.isArray(data)) throw new Error('Calendar availability could not be verified. Please try again later.');
+        if (!controller.signal.aborted) setBookedSlots(data);
       })
-      .then((data) => {
-        if (Array.isArray(data)) setBookedSlots(data);
-      })
-      .catch(() => {});
+      .catch((error) => { if (!controller.signal.aborted) setAvailabilityError(error.message); });
+    return () => controller.abort();
   }, [selectedDate]);
 
   // Animate panel transition between steps
@@ -870,6 +875,7 @@ export default function SchedulerWidget() {
 
       {step < 4 && <StepIndicator step={step} />}
 
+      {availabilityError && <p role="alert" className="text-sm text-red-300 mb-4">{availabilityError}</p>}
       <div ref={panelRef}>
         {step === 1 && (
           <div>

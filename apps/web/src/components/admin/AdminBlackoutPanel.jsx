@@ -568,8 +568,9 @@ export default function AdminBlackoutPanel({ user }) {
             {syncing ? 'Syncing…' : 'Sync to Google Calendar'}
           </button>
           <p className="text-xs" role="status" style={{ color: calendarStatus?.connected ? GOLD : '#f87171' }}>
-            {calendarStatus ? (calendarStatus.connected ? 'Google Calendar connected · busy events block bookings automatically' : calendarStatus.error) : 'Checking Google Calendar connection…'}
+            {calendarStatus ? (calendarStatus.connected ? 'Google Calendar connected · busy events across connected calendars block bookings' : calendarStatus.error) : 'Checking Google Calendar connection…'}
           </p>
+          {calendarStatus?.connected && <p className="text-xs max-w-sm" style={{ color: BEIGE }}>Checking: {calendarStatus.calendars?.map((c) => c.name).join(', ') || 'Google calendars'}</p>}
           {calendarStatus?.connected && <p className="text-xs" style={{ color: BEIGE }}>{calendarStatus.pending} upcoming bookings awaiting sync · Central Time</p>}
           {syncStatus && !syncStatus.error && (
             <p className="text-xs" style={{ color: 'rgba(255,255,255,0.5)' }}>
