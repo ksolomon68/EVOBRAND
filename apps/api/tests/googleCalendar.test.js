@@ -13,7 +13,7 @@ test('availability covers paginated calendars, batches requests and rejects part
   const calls = [];
   let fail = false;
   google.calendar = () => ({
-    calendarList: { list: async ({ pageToken }) => ({ data: pageToken ? { items: [{ id: 'work', summary: 'Work' }] } : {
+    calendarList: { list: async ({ pageToken }) => ({ data: pageToken ? { items: [{ id: 'work', summary: 'Work' }, { id: 'en.usa#holiday@group.v.calendar.google.com', summary: 'Holidays in United States' }] } : {
       items: Array.from({ length: 50 }, (_, i) => ({ id: `cal${i}`, primary: i === 0 })), nextPageToken: 'next'
     } }) },
     freebusy: { query: async ({ requestBody }) => {
@@ -27,6 +27,7 @@ test('availability covers paginated calendars, batches requests and rejects part
   });
   try {
     assert.equal((await getAvailabilityCalendars()).length, 51);
+    assert.equal((await getAvailabilityCalendars()).some((c) => c.name === 'Holidays in United States'), false);
     const busy = await getBusyIntervals('2026-10-08', '2026-10-08');
     assert.deepEqual(calls.map((c) => c.items.length), [50, 1]);
     assert.equal(calls[0].timeMin, '2026-10-08T05:00:00.000Z');

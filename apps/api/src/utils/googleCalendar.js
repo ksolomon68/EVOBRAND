@@ -114,6 +114,9 @@ async function getAvailabilityCalendars(calendar = getClient()) {
   do {
     const response = await calendar.calendarList.list({ maxResults: 250, pageToken });
     for (const item of response.data.items || []) {
+      // Google's informational holiday feeds have no usable free/busy resource.
+      // Match their reserved ID, never the name of a user's calendar.
+      if (item.id && /#holiday@group\.v\.calendar\.google\.com$/i.test(item.id)) continue;
       if (!item.deleted && item.id) calendars.set(item.id, { id: item.id, name: item.summary || item.id, primary: !!item.primary });
     }
     pageToken = response.data.nextPageToken;
