@@ -120,7 +120,9 @@ async function getBusyIntervals(startDateStr, endDateStr) {
     requestBody: { timeMin, timeMax, items: [{ id: calendarId }] },
   });
 
-  const busy = res.data.calendars?.[calendarId]?.busy || [];
+  const result = res.data.calendars?.[calendarId];
+  if (!result || result.errors?.length) throw new Error('Google Calendar availability is unavailable');
+  const busy = result.busy || [];
   return busy.map((b) => ({ start: new Date(b.start), end: new Date(b.end) }));
 }
 
@@ -137,6 +139,7 @@ function isSlotBusy(dateStr, slotStr, durationMin, busyIntervals) {
 }
 
 module.exports = {
+  slotStart: (date, time) => { const parsed = parseTime(time); return zonedDateTimeToUtc(date, parsed.h, parsed.m, CALENDAR_TZ); },
   createCalendarEvent,
   deleteCalendarEvent,
   getBusyIntervals,

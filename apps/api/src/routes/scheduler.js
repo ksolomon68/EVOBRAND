@@ -5,7 +5,7 @@ const { getEmailTemplate } = require('../utils/emailTemplate');
 const { sendEmail } = require('../utils/mailer');
 const { createNotification, notifyAdmins } = require('../utils/notifications');
 const { authenticateToken } = require('../middleware/auth');
-const { createCalendarEvent, deleteCalendarEvent, getBusyIntervals, isSlotBusy } = require('../utils/googleCalendar');
+const { createCalendarEvent, deleteCalendarEvent, getBusyIntervals, isSlotBusy, slotStart } = require('../utils/googleCalendar');
 
 // Office-hours slots offered by the scheduler — kept in sync with SchedulerWidget.jsx's TIME_SLOTS.
 const TIME_SLOTS = ['12:00 PM', '1:00 PM', '2:00 PM', '3:00 PM', '4:00 PM', '5:00 PM'];
@@ -59,8 +59,54 @@ router.get('/blackout-dates', async (req, res) => {
   }
 });
 
+async function requireSchedulerAdmin(req, res, next) {
+  try {
+    const [rows] = await pool.query('SELECT is_admin, email FROM users WHERE id = ?', [req.user.id]);
+    if (!rows[0] || !(rows[0].is_admin == 1 || rows[0].email === 'ks@evobrand.net')) return res.status(403).json({ error: 'Admin only' });
+    next();
+  } catch (error) { res.status(500).json({ error: 'Unable to verify admin access' }); }
+}
+
+router.post('/blackout-dates/batch', authenticateToken, requireSchedulerAdmin, async (req, res) => {
+  const { dates, times, reason } = req.body;
+  const validDate = (d) => typeof d === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(d) && !isNaN(Date.parse(d)) && new Date(d).toISOString().slice(0, 10) === d;
+  if (!Array.isArray(dates) || !dates.length || dates.length > 366 || !dates.every(validDate) ||
+      !Array.isArray(times) || !times.length || times.length > TIME_SLOTS.length || !times.every((t) => t === null || TIME_SLOTS.includes(t)) ||
+      (reason != null && (typeof reason !== 'string' || reason.length > 255))) {
+    return res.status(400).json({ error: 'Choose valid dates and time slots, and a reason under 256 characters.' });
+  }
+  let connection;
+  try {
+    connection = await pool.getConnection();
+    await connection.beginTransaction();
+    let added = 0;
+    for (const date of new Set(dates)) for (const time of new Set(times)) {
+      const [existing] = await connection.query('SELECT id FROM blackout_dates WHERE date = ? AND (time <=> ? OR time IS NULL)', [date, time]);
+      if (existing.length) continue;
+      await connection.query('INSERT INTO blackout_dates (date, time, reason) VALUES (?, ?, ?)', [date, time, reason || null]);
+      added++;
+    }
+    await connection.commit();
+    res.json({ added });
+  } catch (error) {
+    if (connection) await connection.rollback();
+    res.status(500).json({ error: 'No blocks were saved. Please try again.' });
+  } finally { if (connection) connection.release(); }
+});
+
+router.get('/calendar-status', authenticateToken, requireSchedulerAdmin, async (req, res) => {
+  try {
+    const configured = !!(process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET && process.env.GOOGLE_REFRESH_TOKEN);
+    if (!configured) return res.json({ connected: false, error: 'Google Calendar connection needs to be configured.' });
+    const today = new Intl.DateTimeFormat('en-CA', { timeZone: 'America/Chicago' }).format(new Date());
+    await getBusyIntervals(today, today);
+    const [rows] = await pool.query("SELECT COUNT(*) AS pending FROM meetings WHERE google_event_id IS NULL AND status != 'canceled' AND date >= ?", [today]);
+    res.json({ connected: true, pending: rows[0].pending });
+  } catch (error) { res.json({ connected: false, error: 'Google Calendar could not be reached. Check the calendar connection before accepting bookings.' }); }
+});
+
 // Add blackout date
-router.post('/blackout-dates', async (req, res) => {
+router.post('/blackout-dates', authenticateToken, requireSchedulerAdmin, async (req, res) => {
   const { date, time, reason } = req.body;
   if (!date) return res.status(400).json({ error: 'Date is required' });
 
@@ -77,7 +123,7 @@ router.post('/blackout-dates', async (req, res) => {
 });
 
 // Delete blackout date
-router.delete('/blackout-dates/:id', async (req, res) => {
+router.delete('/blackout-dates/:id', authenticateToken, requireSchedulerAdmin, async (req, res) => {
   const { id } = req.params;
   try {
     await pool.query('DELETE FROM blackout_dates WHERE id = ?', [id]);
@@ -187,7 +233,8 @@ router.get('/booked-dates', async (req, res) => {
     try {
       busyIntervals = await getBusyIntervals(startDate, endDate);
     } catch (calErr) {
-      console.error('Google Calendar freebusy lookup failed (non-fatal):', calErr.message);
+      console.error('Google Calendar freebusy lookup failed:', calErr.message);
+      return res.status(503).json({ error: 'Calendar availability could not be verified. Please try again later.' });
     }
 
     if (busyIntervals.length) {
@@ -251,6 +298,17 @@ router.post('/book', async (req, res) => {
   }
 
   try {
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(date) || !TIME_SLOTS.includes(time) || (duration != null && Number(duration) !== SLOT_DURATION_MIN)) {
+      return res.status(400).json({ error: 'Choose a valid appointment date and 30-minute time slot.' });
+    }
+    const [blocks] = await pool.query("SELECT time FROM blackout_dates WHERE date = ?", [date]);
+    const [bookings] = await pool.query("SELECT time, duration FROM meetings WHERE date = ? AND status != 'canceled'", [date]);
+    let busy;
+    try { busy = await getBusyIntervals(date, date); }
+    catch (error) { return res.status(503).json({ error: 'Calendar availability could not be verified. Please try again later.' }); }
+    if (blocks.some((b) => !b.time || b.time === time) || bookings.some((b) => isSlotBusy(date, time, SLOT_DURATION_MIN, [{ start: slotStart(date, b.time), end: new Date(slotStart(date, b.time).getTime() + (b.duration || 30) * 60000) }])) || isSlotBusy(date, time, SLOT_DURATION_MIN, busy)) {
+      return res.status(409).json({ error: 'This time is no longer available. Please choose another slot.' });
+    }
     let resolvedUserId = user_id || null;
 
     // For guest bookings, find or create a user record
@@ -456,7 +514,7 @@ router.post('/sync-calendar', authenticateToken, async (req, res) => {
       SELECT m.*, u.name as client_name, u.email as client_email
       FROM meetings m
       LEFT JOIN users u ON m.user_id = u.id
-      WHERE m.google_event_id IS NULL AND m.status != 'canceled'
+      WHERE m.google_event_id IS NULL AND m.status != 'canceled' AND m.date >= CURRENT_DATE()
       ORDER BY m.date ASC
     `);
 

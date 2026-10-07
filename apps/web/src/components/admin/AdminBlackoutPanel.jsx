@@ -13,7 +13,7 @@ const BEIGE = '#ffffff';
 const APPT_COLOR = '#f59e0b';
 
 const TIME_SLOTS = [
-  '10:00 AM', '11:00 AM', '12:00 PM',
+  '12:00 PM',
   '1:00 PM',  '2:00 PM',  '3:00 PM', '4:00 PM', '5:00 PM',
 ];
 const MONTHS = [
@@ -102,7 +102,7 @@ function DatePicker({ value, onChange, appointmentDates = EMPTY_SET, blackoutDat
         {cells.map((day, idx) => {
           if (!day) return <div key={`e${idx}`} aria-hidden="true" />;
           const dateStr = toISO(view.year, view.month, day);
-          const selected = value === dateStr;
+          const selected = Array.isArray(value) ? value.includes(dateStr) : value === dateStr;
           const isPast = dateStr < todayStr;
           const hasAppt = appointmentDates.has(dateStr);
           const isBlackedOut = blackoutDates.has(dateStr);
@@ -168,9 +168,11 @@ function DatePicker({ value, onChange, appointmentDates = EMPTY_SET, blackoutDat
 // ─── Add Blackout Form ────────────────────────────────────────────────────────
 
 function AddBlackoutForm({ onAdded, appointmentDates, blackoutDates }) {
-  const [date, setDate] = useState('');
+  const [dates, setDates] = useState([]);
+  const date = dates.length ? dates[0] : '';
+  const toggleDate = (value) => setDates((prev) => prev.includes(value) ? prev.filter((d) => d !== value) : [...prev, value]);
   const [mode, setMode] = useState('day');
-  const [slot, setSlot] = useState('');
+  const [slots, setSlots] = useState([]);
   const [reason, setReason] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -178,27 +180,28 @@ function AddBlackoutForm({ onAdded, appointmentDates, blackoutDates }) {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!date) { setError('Please select a date.'); return; }
-    if (mode === 'slot' && !slot) { setError('Please select a time slot.'); return; }
+    if (mode === 'slot' && !slots.length) { setError('Please select a time slot.'); return; }
 
     setLoading(true);
     setError('');
 
     try {
-      const res = await fetch(`${API_BASE}/scheduler/blackout-dates`, {
+      const res = await fetch(`${API_BASE}/scheduler/blackout-dates/batch`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${localStorage.getItem('evobrand_token')}` },
         body: JSON.stringify({
-          date: date,
-          time: mode === 'slot' ? slot : null,
+          dates,
+          times: mode === 'slot' ? slots : [null],
           reason: reason.trim() || null,
         }),
       });
 
-      if (!res.ok) throw new Error('Failed to add blackout date');
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Failed to add blackout dates');
 
       onAdded();
-      setDate('');
-      setSlot('');
+      setDates([]);
+      setSlots([]);
       setReason('');
     } catch (dbErr) {
       setError(dbErr.message);
@@ -216,23 +219,23 @@ function AddBlackoutForm({ onAdded, appointmentDates, blackoutDates }) {
   return (
     <form onSubmit={handleSubmit} noValidate>
       <h3 className="text-sm font-bold uppercase tracking-widest mb-4" style={{ color: GOLD }}>
-        Block a Date or Time
+        Block Multiple Dates or Times
       </h3>
 
       <div className="mb-4 p-4 rounded-xl border" style={{ background: 'rgba(10,22,40,0.5)', borderColor: 'rgba(34,200,229,0.12)' }}>
-        <DatePicker value={date} onChange={setDate} appointmentDates={appointmentDates} blackoutDates={blackoutDates} />
+        <DatePicker value={dates} onChange={toggleDate} appointmentDates={appointmentDates} blackoutDates={blackoutDates} />
       </div>
 
       {date && (
         <p className="text-xs mb-4 font-semibold" style={{ color: GOLD }}>
-          Selected: {new Date(date + 'T12:00:00').toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })}
+          {dates.length} dates selected. Click any date to select or deselect it.
         </p>
       )}
 
       <div className="flex gap-2 mb-4" role="group" aria-label="Blackout scope">
         {[
           { key: 'day', label: 'Entire Day' },
-          { key: 'slot', label: 'Specific Slot' },
+          { key: 'slot', label: 'Specific Slots' },
         ].map(({ key, label }) => (
           <button
             key={key}
@@ -256,10 +259,12 @@ function AddBlackoutForm({ onAdded, appointmentDates, blackoutDates }) {
           <label htmlFor="ab-slot" className="block text-xs font-bold uppercase tracking-widest mb-1.5" style={{ color: 'rgba(34,200,229,0.7)' }}>
             Time Slot
           </label>
-          <select id="ab-slot" value={slot} onChange={(e) => setSlot(e.target.value)} className={inputClass} style={{ ...inputStyle, appearance: 'none' }}>
-            <option value="">Select slot</option>
-            {TIME_SLOTS.map((s) => <option key={s} value={s}>{s}</option>)}
-          </select>
+          <div className="grid grid-cols-2 gap-2" role="group" aria-label="Time slots in Central Time">
+            {TIME_SLOTS.map((slot) => <label key={slot} className="flex gap-2 items-center text-sm" style={{ color: BEIGE }}>
+              <input type="checkbox" checked={slots.includes(slot)} onChange={() => setSlots((prev) => prev.includes(slot) ? prev.filter((s) => s !== slot) : [...prev, slot])} />{slot}
+            </label>)}
+          </div>
+          <p className="text-xs mt-2" style={{ color: GOLD }}>Selected times apply to every selected date. Central Time.</p>
         </div>
       )}
 
@@ -296,7 +301,7 @@ function AddBlackoutForm({ onAdded, appointmentDates, blackoutDates }) {
         }}
       >
         {loading ? <Loader2 size={14} className="animate-spin" aria-hidden="true" /> : <Plus size={14} aria-hidden="true" />}
-        <span>{loading ? 'Adding...' : 'Add Blackout'}</span>
+        <span>{loading ? 'Adding...' : `Block ${dates.length * (mode === 'slot' ? slots.length : 1)} spots`}</span>
       </button>
     </form>
   );
@@ -436,6 +441,7 @@ export default function AdminBlackoutPanel({ user }) {
   const [loading, setLoading] = useState(true);
   const [apptLoading, setApptLoading] = useState(true);
   const [syncStatus, setSyncStatus] = useState(null);
+  const [calendarStatus, setCalendarStatus] = useState(null);
   const [syncing, setSyncing] = useState(false);
   const panelRef = useRef(null);
   const isAdmin = user?.is_admin === 1 || user?.is_admin === true || user?.user_metadata?.role === 'admin';
@@ -493,12 +499,19 @@ export default function AdminBlackoutPanel({ user }) {
     }
   }, []);
 
+  useEffect(() => {
+    if (!isAdmin) return;
+    fetch(`${API_BASE}/scheduler/calendar-status`, { headers: { Authorization: `Bearer ${localStorage.getItem('evobrand_token')}` } })
+      .then(async (res) => { const data = await res.json(); if (!res.ok) throw new Error(data.error); setCalendarStatus(data); })
+      .catch(() => setCalendarStatus({ error: 'Unable to verify Google Calendar connection.' }));
+  }, [isAdmin, syncStatus]);
+
   useEffect(() => { fetchBlackouts(); }, [fetchBlackouts]);
   useEffect(() => { fetchAppointments(); }, [fetchAppointments]);
 
   const handleDelete = async (id) => {
     try {
-      const res = await fetch(`${API_BASE}/scheduler/blackout-dates/${id}`, { method: 'DELETE' });
+      const res = await fetch(`${API_BASE}/scheduler/blackout-dates/${id}`, { method: 'DELETE', headers: { Authorization: `Bearer ${localStorage.getItem('evobrand_token')}` } });
       if (res.ok) setBlackouts((prev) => prev.filter((b) => b.id !== id));
     } catch (err) {
       console.error('Failed to delete blackout date', err);
@@ -554,6 +567,10 @@ export default function AdminBlackoutPanel({ user }) {
             <RefreshCw size={14} className={syncing ? 'animate-spin' : ''} />
             {syncing ? 'Syncing…' : 'Sync to Google Calendar'}
           </button>
+          <p className="text-xs" role="status" style={{ color: calendarStatus?.connected ? GOLD : '#f87171' }}>
+            {calendarStatus ? (calendarStatus.connected ? 'Google Calendar connected · busy events block bookings automatically' : calendarStatus.error) : 'Checking Google Calendar connection…'}
+          </p>
+          {calendarStatus?.connected && <p className="text-xs" style={{ color: BEIGE }}>{calendarStatus.pending} upcoming bookings awaiting sync · Central Time</p>}
           {syncStatus && !syncStatus.error && (
             <p className="text-xs" style={{ color: 'rgba(255,255,255,0.5)' }}>
               {syncStatus.synced} synced · {syncStatus.failed} failed of {syncStatus.total} appointments
