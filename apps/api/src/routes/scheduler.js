@@ -102,7 +102,7 @@ router.get('/calendar-status', authenticateToken, requireSchedulerAdmin, async (
     await getBusyIntervals(today, today);
     const [rows] = await pool.query("SELECT COUNT(*) AS pending FROM meetings WHERE google_event_id IS NULL AND status != 'canceled' AND date >= ?", [today]);
     res.json({ connected: true, pending: rows[0].pending, calendars: await getAvailabilityCalendars() });
-  } catch (error) { res.json({ connected: false, error: 'Google Calendar could not be reached. Check the calendar connection before accepting bookings.' }); }
+  } catch (error) { res.json({ connected: false, error: 'Google Calendar check failed: ' + (error.code === 403 ? 'Google denied calendar access. The connected account needs permission to list and read its calendars.' : error.message || 'Unknown calendar error') }); }
 });
 
 // Add blackout date

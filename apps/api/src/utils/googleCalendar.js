@@ -141,7 +141,7 @@ async function getBusyIntervals(startDateStr, endDateStr) {
     const response = await calendar.freebusy.query({ requestBody: { timeMin, timeMax, items: batch.map((c) => ({ id: c.id })) } });
     for (const entry of batch) {
       const result = response.data.calendars?.[entry.id];
-      if (!result || result.errors?.length) throw new Error('Unable to check availability for ' + entry.name);
+      if (!result || result.errors?.length) throw new Error('Unable to check availability for ' + entry.name + ': ' + (result?.errors?.map((e) => e.reason).join(', ') || 'missing response'));
       busy.push(...(result.busy || []).map((b) => ({ start: new Date(b.start), end: new Date(b.end) })));
     }
   }
