@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Users, Mail, Plus, Trash2, Send, CheckCircle2, AlertCircle, Loader2, Eye, MousePointerClick, Pencil, X, Check, FileText, Copy } from 'lucide-react';
 import CampaignBlockEditor, { createBlock, blocksToHtml } from './CampaignBlockEditor.jsx';
+import CampaignLivePreview from './CampaignLivePreview.jsx';
 
 const API_BASE = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' 
   ? 'http://localhost:5000' 
@@ -711,6 +712,7 @@ export default function AdminCRMPanel({ user }) {
           })()}
 
           <div className="space-y-6">
+            <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_480px] items-start">
             {/* Compose Panel */}
             <div className="bg-[#0f1419] rounded-2xl border border-white/5 p-6">
               <div className="flex items-center justify-between mb-5">
@@ -808,6 +810,20 @@ export default function AdminCRMPanel({ user }) {
                   )}
                 </div>
               </form>
+            </div>
+
+            {/* Live preview stays in view while editing */}
+            <div className="xl:sticky xl:top-6">
+              <CampaignLivePreview
+                apiBase={API_BASE}
+                subject={draft.subject}
+                blocks={blocks}
+                accentColor={accentColor}
+                headingFont={headingFont}
+                lists={lists}
+                targetListIds={campaignListIds}
+              />
+            </div>
             </div>
 
             {/* Campaign History */}

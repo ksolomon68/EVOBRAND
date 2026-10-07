@@ -483,6 +483,22 @@ router.post('/campaigns/:id/send', async (req, res) => {
   }
 });
 
+// Render a live in-browser preview of a draft that has not been saved yet.
+// Stateless: uses the exact same shell as a real send, with no tracking and
+// no recipient, so what the admin sees is what subscribers receive.
+router.post('/preview-html', (req, res) => {
+  const { subject = '', html_content = '', accent_color, heading_font } = req.body || {};
+  try {
+    const title = String(subject || '(No subject)');
+    res.json({
+      html: getEmailTemplate(title, String(html_content), null, SITE_URL, null, accent_color || undefined, heading_font || undefined),
+    });
+  } catch (error) {
+    console.error('Error rendering CRM campaign live preview:', error);
+    res.status(500).json({ error: 'Failed to render preview' });
+  }
+});
+
 // Preview a campaign (sends only to admin, no tracking injected)
 router.post('/campaigns/:id/preview', async (req, res) => {
   const { id } = req.params;
