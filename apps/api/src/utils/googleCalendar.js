@@ -151,6 +151,48 @@ async function getBusyIntervals(startDateStr, endDateStr) {
   return busy;
 }
 
+// Fetch a bounded upcoming agenda with expanded recurring occurrences.
+// A calendar with only free/busy permissions can still block bookings even when
+// its event details cannot be displayed; report that without hiding other calendars.
+async function getUpcomingCalendarEvents(now = new Date()) {
+  const calendar = getClient();
+  if (!calendar) throw new Error('Google Calendar is not configured');
+  const calendars = await getAvailabilityCalendars(calendar);
+  const timeMin = now.toISOString();
+  const timeMax = new Date(now.getTime() + 30 * 86400000).toISOString();
+  const events = [];
+  const warnings = [];
+  for (const source of calendars) {
+    let pageToken;
+    try {
+      do {
+        const response = await calendar.events.list({
+          calendarId: source.id, timeMin, timeMax, singleEvents: true,
+          orderBy: 'startTime', maxResults: 250, pageToken,
+        });
+        for (const event of response.data.items || []) {
+          if (event.status === 'cancelled' || !event.start || !event.end) continue;
+          events.push({
+            id: event.id, calendarId: source.id, calendarName: source.name,
+            title: event.summary || 'Busy event',
+            start: event.start.dateTime || event.start.date,
+            end: event.end.dateTime || event.end.date,
+            allDay: !!event.start.date,
+            busy: event.transparency !== 'transparent',
+            url: /^https:\/\/calendar\.google\.com\//.test(event.htmlLink || '') ? event.htmlLink : null,
+          });
+        }
+        pageToken = response.data.nextPageToken;
+      } while (pageToken);
+    } catch (error) {
+      warnings.push('Event details could not be loaded from ' + source.name + '. Availability is checked separately.');
+    }
+  }
+  const instant = (event) => event.allDay ? zonedDateTimeToUtc(event.start, 0, 0, CALENDAR_TZ).getTime() : new Date(event.start).getTime();
+  events.sort((a, b) => instant(a) - instant(b));
+  return { events, warnings, timeMin, timeMax };
+}
+
 // Does the given office-hours slot (e.g. "2:00 PM", 30 min) overlap any Google Calendar busy interval?
 function isSlotBusy(dateStr, slotStr, durationMin, busyIntervals) {
   if (!busyIntervals.length) return false;
@@ -165,6 +207,7 @@ function isSlotBusy(dateStr, slotStr, durationMin, busyIntervals) {
 
 module.exports = {
   slotStart: (date, time) => { const parsed = parseTime(time); return zonedDateTimeToUtc(date, parsed.h, parsed.m, CALENDAR_TZ); },
+  getUpcomingCalendarEvents,
   getAvailabilityCalendars,
   createCalendarEvent,
   deleteCalendarEvent,

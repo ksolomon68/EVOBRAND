@@ -433,10 +433,33 @@ function AppointmentList({ appointments }) {
   );
 }
 
+function GoogleEventList({ events }) {
+  const dateFormat = new Intl.DateTimeFormat('en-US', { timeZone: 'America/Chicago', weekday: 'short', month: 'short', day: 'numeric' });
+  const timeFormat = new Intl.DateTimeFormat('en-US', { timeZone: 'America/Chicago', hour: 'numeric', minute: '2-digit', timeZoneName: 'short' });
+  if (!events.length) return <p className="text-sm py-4" style={{ color: 'rgba(255,255,255,0.5)' }}>No Google events in the next 30 days.</p>;
+  return <ul className="space-y-2 max-h-[32rem] overflow-y-auto" aria-label="Upcoming Google Calendar events">
+    {events.map((event) => <li key={event.calendarId + ':' + event.id} className="p-4 rounded-xl border" style={{ background: 'rgba(10,22,40,0.6)', borderColor: 'rgba(34,200,229,0.15)' }}>
+      <div className="flex justify-between gap-3">
+        <p className="text-sm font-semibold" style={{ color: BEIGE }}>{event.title}</p>
+        <span className="text-xs shrink-0" style={{ color: event.busy ? GOLD : 'rgba(255,255,255,0.5)' }}>{event.busy ? 'Blocks bookings' : 'Free'}</span>
+      </div>
+      <p className="text-xs mt-2" style={{ color: 'rgba(255,255,255,0.7)' }}>
+        {event.allDay ? formatBookingDate(event.start) + ' · All day' : dateFormat.format(new Date(event.start)) + ' · ' + timeFormat.format(new Date(event.start)) + ' – ' + dateFormat.format(new Date(event.end)) + ' ' + timeFormat.format(new Date(event.end))}
+      </p>
+      <p className="text-xs mt-1" style={{ color: 'rgba(255,255,255,0.5)' }}>{event.calendarName}</p>
+      {event.url && <a href={event.url} target="_blank" rel="noopener noreferrer" className="text-xs inline-block mt-2 underline" style={{ color: GOLD }}>Open in Google Calendar</a>}
+    </li>)}
+  </ul>;
+}
+
 // ─── Main Panel ───────────────────────────────────────────────────────────────
 
 export default function AdminBlackoutPanel({ user }) {
   const [blackouts, setBlackouts] = useState([]);
+  const [googleEvents, setGoogleEvents] = useState([]);
+  const [eventsLoading, setEventsLoading] = useState(true);
+  const [eventsError, setEventsError] = useState('');
+  const [eventsWarnings, setEventsWarnings] = useState([]);
   const [appointments, setAppointments] = useState([]);
   const [loading, setLoading] = useState(true);
   const [apptLoading, setApptLoading] = useState(true);
@@ -479,6 +502,22 @@ export default function AdminBlackoutPanel({ user }) {
         setApptLoading(false);
       });
   }, []);
+
+  const fetchGoogleEvents = useCallback(async () => {
+    setEventsLoading(true);
+    setEventsError('');
+    setEventsWarnings([]);
+    try {
+      const response = await fetch(`${API_BASE}/scheduler/calendar-events`, { cache: 'no-store', headers: { Authorization: `Bearer ${localStorage.getItem('evobrand_token')}` } });
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.error || 'Unable to load Google events.');
+      setGoogleEvents(data.events || []);
+      setEventsWarnings(data.warnings || []);
+    } catch (error) { setEventsError(error.message); }
+    finally { setEventsLoading(false); }
+  }, []);
+
+  useEffect(() => { if (isAdmin) fetchGoogleEvents(); }, [isAdmin, syncStatus, fetchGoogleEvents]);
 
   const handleSyncCalendar = useCallback(async () => {
     const token = localStorage.getItem('evobrand_token');
@@ -598,6 +637,17 @@ export default function AdminBlackoutPanel({ user }) {
 
         {/* Right column: Appointments + Blackouts */}
         <div className="flex flex-col gap-8">
+          <section aria-label="Google Calendar agenda">
+            <div className="flex items-center justify-between mb-3">
+              <h3 className="text-sm font-bold uppercase tracking-widest" style={{ color: GOLD }}>Google Calendar Events</h3>
+              <button type="button" disabled={eventsLoading} onClick={fetchGoogleEvents} className="text-xs font-semibold px-3 py-2 rounded-lg border" style={{ color: GOLD, borderColor: GOLD }}>Refresh</button>
+            </div>
+            <p className="text-xs mb-4" style={{ color: 'rgba(255,255,255,0.5)' }}>Next 30 days · Central Time</p>
+            {eventsLoading ? <p role="status" className="text-sm" style={{ color: BEIGE }}>Loading Google events…</p> : eventsError ? <p role="alert" className="text-sm text-red-300">{eventsError}</p> : <>
+              {eventsWarnings.map((warning) => <p key={warning} role="status" className="text-xs text-amber-300 mb-3">{warning}</p>)}
+              <GoogleEventList events={googleEvents} />
+            </>}
+          </section>
           {/* Scheduled Appointments */}
           <div>
             <div className="flex items-center justify-between mb-4">

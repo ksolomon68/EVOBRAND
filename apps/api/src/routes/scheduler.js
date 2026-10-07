@@ -5,7 +5,7 @@ const { getEmailTemplate } = require('../utils/emailTemplate');
 const { sendEmail } = require('../utils/mailer');
 const { createNotification, notifyAdmins } = require('../utils/notifications');
 const { authenticateToken } = require('../middleware/auth');
-const { createCalendarEvent, deleteCalendarEvent, getBusyIntervals, isSlotBusy, slotStart, getAvailabilityCalendars } = require('../utils/googleCalendar');
+const { createCalendarEvent, deleteCalendarEvent, getBusyIntervals, isSlotBusy, slotStart, getAvailabilityCalendars, getUpcomingCalendarEvents } = require('../utils/googleCalendar');
 
 // Office-hours slots offered by the scheduler — kept in sync with SchedulerWidget.jsx's TIME_SLOTS.
 const TIME_SLOTS = ['12:00 PM', '1:00 PM', '2:00 PM', '3:00 PM', '4:00 PM', '5:00 PM'];
@@ -92,6 +92,19 @@ router.post('/blackout-dates/batch', authenticateToken, requireSchedulerAdmin, a
     if (connection) await connection.rollback();
     res.status(500).json({ error: 'No blocks were saved. Please try again.' });
   } finally { if (connection) connection.release(); }
+});
+
+router.get('/calendar-events', authenticateToken, requireSchedulerAdmin, async (req, res) => {
+  res.set('Cache-Control', 'no-store');
+  try {
+    const agenda = await getUpcomingCalendarEvents();
+    // Booking appointments already have their own dashboard cards.
+    const [rows] = await pool.query("SELECT google_event_id FROM meetings WHERE google_event_id IS NOT NULL AND status != 'canceled'");
+    const bookingEvents = new Set(rows.map((row) => row.google_event_id));
+    res.json({ ...agenda, events: agenda.events.filter((event) => !bookingEvents.has(event.id)) });
+  } catch (error) {
+    res.status(502).json({ error: 'Google Calendar events could not be loaded. Check your calendar connection and try Refresh.' });
+  }
 });
 
 router.get('/calendar-status', authenticateToken, requireSchedulerAdmin, async (req, res) => {
