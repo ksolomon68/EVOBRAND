@@ -312,6 +312,11 @@ const RecommendationCard = ({ rec, delay }) => (
     </div>
     <h3 className="font-bold text-white text-xl mb-3">{rec.title}</h3>
     <p className="text-white/60 text-sm leading-relaxed">{rec.detail}</p>
+    {rec.steps?.length > 0 && <div className="mt-5"><h4 className="font-semibold text-white text-sm mb-3">Steps to take</h4><ol className="list-decimal pl-5 space-y-2 text-white/70 text-sm leading-relaxed">{rec.steps.map((step, i) => <li key={i}>{step}</li>)}</ol></div>}
+    <dl className="mt-5 space-y-3 text-sm leading-relaxed">
+      {[[ 'Suggested timing', rec.timeline ], [ 'Suggested owner', rec.owner ], [ 'Deliverable', rec.deliverable ], [ 'Measure progress', rec.success_measure ]].filter(([, value]) => value).map(([label, value]) => <div key={label}><dt className="font-semibold text-white">{label}</dt><dd className="text-white/60">{value}</dd></div>)}
+    </dl>
+    {rec.evobrand_help && <div className="mt-5 pt-4 border-t border-white/10"><h4 className="text-[#22C8E5] text-sm font-semibold mb-2">How EVOBRAND can help</h4><p className="text-white/70 text-sm leading-relaxed">{rec.evobrand_help}</p><Link to="/book-consultation" className="inline-flex items-center gap-2 text-[#22C8E5] text-sm font-semibold mt-3 hover:underline">Discuss this priority <ArrowRight size={14} /></Link></div>}
     {rec.roiNote && (
       <p className="text-[#22C8E5]/80 text-xs leading-relaxed mt-4 pt-4 border-t border-white/10 flex items-start gap-2">
         <TrendingUp size={13} className="flex-shrink-0 mt-0.5" />
@@ -418,6 +423,8 @@ const normalizeRecs = (raw) => {
       effort: r.effort || r.effort_level || r.effortLevel || 'Medium',
       title: r.title || r.name || r.recommendation || r.action || r.summary || `Recommendation ${i + 1}`,
       detail: r.detail || r.description || r.details || r.body || '',
+      steps: Array.isArray(r.steps) ? r.steps.filter((s) => typeof s === 'string' && s.trim()).slice(0, 5) : [],
+      ...Object.fromEntries(['timeline', 'owner', 'deliverable', 'success_measure', 'evobrand_help'].map((key) => [key, typeof r[key] === 'string' ? r[key] : ''])),
       roiNote: r.roi_note || r.roiNote || '',
     }));
 };
@@ -587,7 +594,9 @@ const AuditResults = ({ report, onDownloadPDF, isLoading, hasWebsite, prefillEma
           <h3 className="font-bold text-white text-2xl md:text-3xl mb-6">
             Your Action Plan
           </h3>
-          <div className="grid md:grid-cols-3 gap-5">
+          <p className="text-white/60 text-sm leading-relaxed mb-6">Start with the first priority and review progress before moving to the next phase. Adapt suggested timing and ownership to your team.</p>
+          {normalized.report_note && <p className="text-amber-200 text-sm mb-6">{normalized.report_note}</p>}
+          <div className="grid lg:grid-cols-3 gap-5">
             {normalized.recommendations.map((rec, i) => (
               <RecommendationCard key={i} rec={rec} delay={1.2 + i * 0.1} />
             ))}
@@ -607,10 +616,11 @@ const AuditResults = ({ report, onDownloadPDF, isLoading, hasWebsite, prefillEma
           <p className="text-white/80 text-lg mb-6 max-w-2xl mx-auto leading-relaxed">
             {normalized.cta}
           </p>
+          <p className="text-white/60 text-sm max-w-2xl mx-auto mb-6 leading-relaxed">Bring your audit and the business goal you want to accomplish. We can discuss your first priority, clarify the work involved, and explore how EVOBRAND can help you put this plan into action.</p>
           <div className="flex flex-col sm:flex-row gap-6 sm:gap-4 justify-center mb-6">
             <div className="flex flex-col items-center">
               <Link
-                to="/contact"
+                to="/book-consultation"
                 className="inline-flex items-center justify-center w-full sm:w-auto gap-2 px-8 py-4 bg-[#22C8E5] text-[#003258] rounded-2xl font-bold uppercase tracking-wider hover:bg-[#1db5d0] transition-colors"
                 id="audit-book-call-btn"
               >

@@ -1,24 +1,16 @@
 const express = require('express');
 const router = express.Router();
-const { GoogleGenerativeAI } = require('@google/generative-ai');
 const pool = require('../db/connection');
 const { sendEmail } = require('../utils/mailer');
 const { addToLeadsIfNew } = require('../utils/crmHelpers');
 
-const GEMINI_KEY = process.env.GEMINI_API_KEY || process.env.GOOGLE_AI_API_KEY || '';
-const GEMINI_MODEL = process.env.GEMINI_MODEL || 'gemini-2.5-flash';
 const PAGESPEED_API_KEY = process.env.PAGESPEED_API_KEY || '';
 const SITE_URL = process.env.APP_URL || 'https://evobrandconcepts.com';
-
-if (!GEMINI_KEY) {
-  console.warn('[Accessibility] GEMINI_API_KEY / GOOGLE_AI_API_KEY not set — reports will use scan-generated wording instead of AI-written summaries.');
-}
 
 // ─── WCAG reference data ──────────────────────────────────────────────────────
 //
 // Every number and citation in a report comes from the scan and these tables.
-// The AI only rewrites summaries around them, so it can't invent a score,
-// an issue or a success criterion.
+// Report prose is deterministic so summaries cannot invent findings.
 
 const WCAG_CRITERIA = {
   '1.1.1': ['Non-text Content', 'A'],
@@ -196,8 +188,11 @@ function visibleText(html) {
 // for JavaScript-rendered pages, whose raw HTML is an empty shell (checking it
 // would report missing headings and images that do exist once the page loads).
 function staticHeuristics(html) {
+  html = html.replace(/<!--[\s\S]*?-->/g, '').replace(/<(script|style|noscript|template)\b[^>]*>[\s\S]*?<\/\1>/gi, (tag) => /^<script\b/i.test(tag) ? tag.slice(0, tag.indexOf('>') + 1) + '</script>' : '');
   const htmlTag = (html.match(/<html\b[^>]*>/i) || [''])[0];
-  const hasLang = /\slang\s*=\s*["']?[a-z]{2,3}(-[a-z0-9]+)*["']?/i.test(htmlTag);
+  const langValue = (htmlTag.match(/\slang\s*=\s*(?:"([^"]*)"|'([^']*)'|([^\s>]+))/i) || []).slice(1).find((v) => v !== undefined);
+  // Raw HTML can establish presence, but validity requires the rendered audit.
+  const hasLang = typeof langValue === 'string' && langValue.trim().length > 0;
 
   const viewportTag = [...html.matchAll(/<meta\b[^>]*>/gi)]
     .map((m) => m[0])
@@ -227,7 +222,7 @@ function staticHeuristics(html) {
     .filter((t) => !/type\s*=\s*["']?(hidden|submit|button|reset|image)\b/i.test(t));
   const fieldsMissingLabel = fields.filter((t) => {
     if (wrapped.has(t)) return false;
-    if (/\s(aria-label|aria-labelledby|title)\s*=/i.test(t)) return false;
+    if (/\s(aria-label|aria-labelledby|title)\s*=\s*(["'])[^"'\s][^"']*\2/i.test(t)) return false;
     const id = (t.match(/\sid\s*=\s*["']([^"']+)["']/i) || [])[1];
     return !(id && labelFor.has(id));
   }).length;
@@ -263,7 +258,7 @@ async function scanLighthouseAccessibility(url) {
     const category = lh && lh.categories && lh.categories.accessibility;
     // A runtime error means Lighthouse scored an error page (or nothing), not
     // the site, so its numbers would be misleading.
-    if (data.error || !lh || lh.runtimeError || !category || typeof category.score !== 'number') {
+    if (data.error || !lh || lh.runtimeError || !category || !Number.isFinite(category.score) || category.score < 0 || category.score > 1) {
       const reason = (data.error && data.error.message) || (lh && lh.runtimeError && lh.runtimeError.code) || 'no accessibility score';
       console.error(`[Accessibility] PageSpeed could not score ${url}: ${reason}`);
       return result;
@@ -333,10 +328,11 @@ function lighthouseFindings(lighthouse) {
 
   const issues = failing.map((a) => {
     const rule = RULES[a.id] || {};
-    const count = a.affectedCount ? `${a.affectedCount} element${a.affectedCount === 1 ? '' : 's'} on this page failed. ` : '';
+    const count = a.affectedCount ? `${a.affectedCount} reported item${a.affectedCount === 1 ? '' : 's'} for this failing check. ` : '';
     const unweighted = a.weight > 0 ? '' : ' Lighthouse doesn\'t count this check in its score.';
     return {
       id: a.id,
+      verification_required: false,
       title: a.title,
       wcag: a.id in RULES ? citation(rule.sc) : '',
       wcag_failure: !!rule.sc,
@@ -382,7 +378,7 @@ function heuristicFindings(h) {
     issues.push({ id: 'html-has-lang', title: 'Page is missing an <html lang> attribute', wcag: citation('3.1.1'), wcag_failure: true, severity: 'Serious', detail: 'Screen readers can\'t choose the right pronunciation without a declared page language.', fix: FIXES['html-has-lang'] });
   }
   if (h.zoomDisabled) {
-    issues.push({ id: 'meta-viewport', title: 'Pinch-zoom is disabled', wcag: citation('1.4.4'), wcag_failure: true, severity: 'Critical', detail: 'Low-vision visitors on phones can\'t zoom in to read the page.', fix: FIXES['meta-viewport'] });
+    issues.push({ id: 'meta-viewport', title: 'Viewport settings may restrict zoom', wcag: citation('1.4.4'), wcag_failure: true, severity: 'Critical', detail: 'The raw HTML includes zoom restrictions. Verify zoom behavior in a browser because enforcement varies by browser.', fix: FIXES['meta-viewport'] });
   }
   if (!h.clientRendered) {
     if (!h.hasTitle) {
@@ -395,7 +391,7 @@ function heuristicFindings(h) {
       issues.push({ id: 'label', title: `${h.fieldsMissingLabel} form field${h.fieldsMissingLabel === 1 ? '' : 's'} without a label`, wcag: citation('4.1.2'), wcag_failure: true, severity: 'Critical', detail: 'Screen reader and voice-control users can\'t tell what these fields are for.', fix: FIXES['label'] });
     }
   }
-  return issues.sort((x, y) => SEVERITY_RANK[x.severity] - SEVERITY_RANK[y.severity]);
+  return issues.map((issue) => ({ ...issue, verification_required: true })).sort((x, y) => SEVERITY_RANK[x.severity] - SEVERITY_RANK[y.severity]);
 }
 
 // ─── Report ───────────────────────────────────────────────────────────────────
@@ -408,20 +404,20 @@ function gradeFor(score) {
   return 'F';
 }
 
-// How exposed the page looks to complaints, from confirmed WCAG failures only.
-function riskFor(score, issues) {
+// Suggested repair order from observed barriers; not legal or compliance risk.
+function priorityFor(score, issues) {
   const wcag = issues.filter((i) => i.wcag_failure);
-  if (wcag.length === 0) return 'Low';
+  if (wcag.length === 0) return 'Manual review needed';
   if (score < 70 || wcag.filter((i) => i.severity === 'Critical').length >= 2) return 'High';
   return 'Moderate';
 }
 
-const DISCLAIMER = 'This report is based on an automated scan of one page. Automated tools catch only part of WCAG 2.1 AA, so a manual review with a keyboard and screen reader is still needed to confirm compliance. This is not legal advice.';
+const DISCLAIMER = 'This is an automated check of one page in a mobile view, not a site-wide WCAG conformance assessment. The score reflects applicable Lighthouse checks, not the percentage of WCAG requirements met. Findings reference WCAG A/AA criteria where mapped, including WCAG 2.2 when marked; best practices are separate. Even a score of 100 requires manual keyboard, screen-reader, zoom, and user-journey testing. Remediation priority reflects observed barriers, not legal risk.';
 
 function roadmapFor(issues) {
   const urgent = issues.filter((i) => i.severity === 'Critical' || i.severity === 'Serious');
   const rest = issues.filter((i) => !urgent.includes(i));
-  const titles = (list) => list.slice(0, 3).map((i) => `Fix: ${i.title.replace(/\.$/, '')}`);
+  const titles = (list) => list.map((i) => `${i.verification_required ? 'Verify and repair if confirmed' : 'Fix'}: ${i.title.replace(/\.$/, '')}`);
   const phases = [];
   if (urgent.length) phases.push({ focus: 'Critical and serious failures', actions: titles(urgent) });
   if (rest.length) phases.push({ focus: 'Remaining issues', actions: titles(rest) });
@@ -434,7 +430,18 @@ function roadmapFor(issues) {
     ],
   });
   const windows = ['Days 1-30', 'Days 31-60', 'Days 61-90'];
-  return phases.map((p, i) => ({ phase: windows[i], ...p }));
+  return phases.map((p, i) => ({ phase: windows[i], ...p, actions: [...p.actions, 'Re-test the affected page and customer journey; record what passed and what still needs review.'] }));
+}
+
+function supportFor(issues) {
+  const ids = new Set(issues.map((issue) => issue.id));
+  const services = [];
+  if (ids.has('color-contrast') || ids.has('target-size') || ids.has('meta-viewport')) services.push('Improve flagged color combinations, mobile controls, and zoom behavior while preserving your brand identity.');
+  if (issues.some((issue) => /label|name|aria|interactive/.test(issue.id))) services.push('Repair accessible labels, control names, and component markup, then test the affected forms and interactions.');
+  if (issues.some((issue) => /image|heading|landmark|title|lang|list|table|caption/.test(issue.id))) services.push('Improve flagged page structure and content alternatives with your content and website team.');
+  services.push(issues.length ? 'Turn the flagged checks into a prioritized repair list with owners, scope, and verification steps.' : 'Review key pages and customer journeys manually to identify barriers this automated scan cannot measure.');
+  services.push('Plan keyboard, screen-reader, zoom, and mobile testing, and repeat automated checks after changes.');
+  return services;
 }
 
 function buildReport(scan) {
@@ -447,6 +454,8 @@ function buildReport(scan) {
     pages: 1,
     scanned_at: (lh.meta && lh.meta.fetchTime) || new Date().toISOString(),
     lighthouse_version: lh.meta ? lh.meta.lighthouseVersion : null,
+    checks_not_completed: lh.audits.filter((a) => a.mode === 'error').map((a) => a.title || a.id),
+    manual_checks: lh.audits.filter((a) => a.mode === 'manual').map((a) => a.title || a.id),
   };
 
   if (lh.fetched) {
@@ -457,16 +466,18 @@ function buildReport(scan) {
       status: 'complete',
       overall_score: lh.score,
       grade: gradeFor(lh.score),
-      risk_level: riskFor(lh.score, issues),
+      risk_level: null,
+      remediation_priority: priorityFor(lh.score, issues),
       headline: issues.length === 0
         ? `Google Lighthouse scored this page ${lh.score}/100 and found no failing automated checks.`
-        : `Google Lighthouse scored this page ${lh.score}/100 and found ${found}, ${wcagCount === issues.length ? (issues.length === 1 ? 'a WCAG failure' : 'all WCAG failures') : `${wcagCount} of them WCAG failures`}.`,
+        : `Google Lighthouse scored this page ${lh.score}/100 and found ${found}, ${wcagCount === issues.length ? (issues.length === 1 ? 'one mapped to a WCAG criterion' : 'all mapped to WCAG criteria') : `${wcagCount} of them mapped to WCAG criteria`}.`,
       pour,
       critical_issues: issues,
       quick_wins: [...new Set(issues.map((i) => i.fix))].slice(0, 5),
       roadmap: roadmapFor(issues),
       disclaimer: DISCLAIMER,
-      cta: issues.length ? 'Want help fixing these? Book a free strategy call with Keisha.' : 'Want a manual review to confirm the rest? Book a free strategy call with Keisha.',
+      cta: issues.length ? 'Bring these findings to a free strategy call with Keisha. EVOBRAND can help prioritize repairs, improve your website, and plan verification of the affected customer journeys.' : 'No failing automated checks were found. EVOBRAND can help plan a manual review of navigation, forms, and key customer journeys before you decide what work is needed.',
+      evobrand_support: supportFor(issues),
       scan_meta: scanMeta,
     };
   }
@@ -489,7 +500,8 @@ function buildReport(scan) {
       quick_wins: issues.map((i) => i.fix).slice(0, 5),
       roadmap: roadmapFor(issues),
       disclaimer: `This limited report comes from the page's raw HTML only. ${DISCLAIMER}`,
-      cta: 'Want a complete review? Book a free strategy call with Keisha.',
+      cta: 'EVOBRAND can help verify these preliminary findings, review the rendered site, and scope any repairs. Bring this report to a free strategy call with Keisha.',
+      evobrand_support: supportFor(issues),
       scan_meta: scanMeta,
     };
   }
@@ -504,72 +516,17 @@ function buildReport(scan) {
     critical_issues: [],
     quick_wins: [],
     roadmap: [],
+    evobrand_support: ['Help verify the submitted URL and arrange a manual review when automated access fails.'],
     disclaimer: 'No data was collected, so this is not an assessment of the site. Check that the URL is correct and publicly reachable, then try again.',
     cta: 'Want a person to take a look instead? Book a free strategy call with Keisha.',
     scan_meta: scanMeta,
   };
 }
 
-// The AI may reword the summaries, never the facts: scores, grade, risk,
-// issues and citations always come from buildReport.
-function buildPrompt(data, report) {
-  const facts = {
-    score: report.overall_score,
-    grade: report.grade,
-    principles: Object.fromEntries(Object.entries(report.pour).map(([k, v]) => [k, { score: v.score, passed: v.passed, total: v.total }])),
-    issues: report.critical_issues.map((i) => ({ title: i.title, wcag: i.wcag, severity: i.severity, detail: i.detail, fix: i.fix })),
-  };
-  return `You are an accessibility specialist at EVOBRAND Concepts writing the summary text for an automated accessibility report. Write plainly and precisely. Never add issues, numbers or WCAG criteria that are not in the data, never claim the site is or isn't compliant, and never give legal advice.
-
-Business: ${data.businessName}
-Industry: ${data.industry || 'Not specified'}
-Page scanned: ${report.scan_meta.scanned_url} (one page, mobile, Google Lighthouse)
-
-Scan data (authoritative, do not change it):
-${JSON.stringify(facts, null, 2)}
-
-Respond ONLY with a JSON object, no markdown:
-{
-  "headline": "one sentence summarizing the result, using only the numbers above",
-  "insights": { "perceivable": "1-2 sentences", "operable": "1-2 sentences", "understandable": "1-2 sentences", "robust": "1-2 sentences" },
-  "quick_wins": ["3-5 low-effort fixes, each tied to an issue above"],
-  "roadmap": [ { "phase": "Days 1-30", "focus": "short theme", "actions": ["3 actions"] }, { "phase": "Days 31-60", "focus": "...", "actions": ["..."] }, { "phase": "Days 61-90", "focus": "...", "actions": ["3 actions, including keyboard and screen reader testing"] } ],
-  "cta": "one sentence inviting them to book a call with Keisha about remediation"
-}
-For a principle with a null score, say it wasn't measured.`;
-}
-
-const isText = (v) => typeof v === 'string' && v.trim().length > 0;
-
+// Findings and guidance stay grounded in scan data; generative prose cannot
+// change measured facts or introduce unsupported accessibility claims.
 async function generateReport(data, scan) {
-  const report = buildReport(scan);
-  if (!GEMINI_KEY || report.status !== 'complete') return report;
-  try {
-    const genAI = new GoogleGenerativeAI(GEMINI_KEY);
-    const model = genAI.getGenerativeModel({ model: GEMINI_MODEL, generationConfig: { responseMimeType: 'application/json' } });
-    const result = await model.generateContent(buildPrompt(data, report));
-    const ai = JSON.parse(result.response.text().replace(/```json|```/g, '').trim());
-
-    if (isText(ai.headline)) report.headline = ai.headline.trim();
-    if (isText(ai.cta)) report.cta = ai.cta.trim();
-    if (ai.insights && typeof ai.insights === 'object') {
-      Object.keys(report.pour).forEach((k) => {
-        if (isText(ai.insights[k])) report.pour[k].insight = ai.insights[k].trim();
-      });
-    }
-    if (Array.isArray(ai.quick_wins) && ai.quick_wins.filter(isText).length) {
-      report.quick_wins = ai.quick_wins.filter(isText).slice(0, 5);
-    }
-    if (Array.isArray(ai.roadmap)) {
-      const roadmap = ai.roadmap
-        .filter((p) => p && isText(p.phase) && Array.isArray(p.actions))
-        .map((p) => ({ phase: p.phase, focus: isText(p.focus) ? p.focus : '', actions: p.actions.filter(isText) }));
-      if (roadmap.length) report.roadmap = roadmap;
-    }
-  } catch (err) {
-    console.error(`[Accessibility] ${GEMINI_MODEL} summary failed, using scan-generated wording:`, err.message);
-  }
-  return report;
+  return buildReport(scan);
 }
 
 // ─── Email ────────────────────────────────────────────────────────────────────
@@ -580,7 +537,7 @@ const escapeHtml = (value) => String(value ?? '')
 async function sendReportEmails(data, report, id) {
   const resultsUrl = `${SITE_URL}/accessibility-checker/results/${id}`;
   const fromAddr = `"EVOBRAND" <${process.env.RESEND_FROM_EMAIL || 'info@evobrand.net'}>`;
-  const riskColor = { Low: '#4ade80', Moderate: '#facc15', High: '#fb923c', Critical: '#f87171' }[report.risk_level] || '#facc15';
+  const riskColor = { Low: '#4ade80', Moderate: '#facc15', High: '#fb923c', Critical: '#f87171' }[report.remediation_priority] || '#facc15';
   const scored = report.overall_score !== null;
   const scoreText = scored ? `${report.overall_score}/100 (${report.grade})` : 'Not scored';
   const e = escapeHtml;
@@ -597,7 +554,7 @@ async function sendReportEmails(data, report, id) {
     <p style="color:rgba(255,255,255,0.4);font-size:13px;margin:8px 0 0;">Grade: <strong style="color:#22C8E5;">${e(report.grade)}</strong> · Google Lighthouse, mobile</p>
   </div>
   <div style="text-align:center;margin-bottom:28px;">
-    <span style="display:inline-block;background:${riskColor}22;color:${riskColor};font-size:12px;font-weight:700;padding:6px 16px;border-radius:20px;text-transform:uppercase;letter-spacing:1px;">${e(report.risk_level)} Risk</span>
+    <span style="display:inline-block;background:${riskColor}22;color:${riskColor};font-size:12px;font-weight:700;padding:6px 16px;border-radius:20px;text-transform:uppercase;letter-spacing:1px;">${e(report.remediation_priority)} · Remediation priority</span>
   </div>` : ''}
   <p style="color:rgba(255,255,255,0.5);font-size:12px;margin:0 0 20px;">Page scanned: ${e(report.scan_meta.scanned_url)}</p>
   ${report.critical_issues.length ? `<h2 style="color:#fff;font-size:18px;margin-bottom:14px;">Top Issues Found</h2>
@@ -605,9 +562,10 @@ async function sendReportEmails(data, report, id) {
   <div style="text-align:center;margin:28px 0;">
     <a href="${resultsUrl}" style="display:inline-block;background:#22C8E5;color:#003258;padding:14px 32px;border-radius:12px;font-weight:bold;text-decoration:none;font-size:15px;text-transform:uppercase;letter-spacing:1px;">View Full Report →</a>
   </div>
+  ${(report.evobrand_support || []).length ? `<h2 style="font-size:18px;color:#fff;">How EVOBRAND can help</h2><ul>${report.evobrand_support.map((item) => `<li style="font-size:13px;line-height:1.7;color:#ddd;">${e(item)}</li>`).join('')}</ul>` : ''}
   <div style="border:1px solid rgba(255,255,255,0.08);border-radius:12px;padding:22px;text-align:center;">
     <p style="color:rgba(255,255,255,0.7);font-size:14px;line-height:1.7;margin:0 0 14px;">${e(report.cta)}</p>
-    <a href="${SITE_URL}/contact" style="display:inline-block;border:2px solid #22C8E5;color:#22C8E5;padding:10px 24px;border-radius:10px;font-weight:bold;text-decoration:none;font-size:13px;">Book a Free Strategy Call</a>
+    <a href="${SITE_URL}/book-consultation" style="display:inline-block;border:2px solid #22C8E5;color:#22C8E5;padding:10px 24px;border-radius:10px;font-weight:bold;text-decoration:none;font-size:13px;">Book a Free Strategy Call</a>
   </div>
   <p style="color:rgba(255,255,255,0.25);font-size:11px;text-align:center;margin-top:24px;line-height:1.6;">${e(report.disclaimer)}</p>
   <p style="color:rgba(255,255,255,0.2);font-size:11px;text-align:center;margin-top:12px;">Keisha Solomon · CEO, EVOBRAND Concepts · Ellis County, TX · evobrand.net</p>
@@ -623,7 +581,7 @@ async function sendReportEmails(data, report, id) {
     <tr><td style="padding:9px;border-bottom:1px solid #e5e7eb;color:#6b7280;">Email</td><td style="padding:9px;border-bottom:1px solid #e5e7eb;">${e(data.contactEmail)}</td></tr>
     <tr><td style="padding:9px;border-bottom:1px solid #e5e7eb;color:#6b7280;">Scan</td><td style="padding:9px;border-bottom:1px solid #e5e7eb;">${e(report.status)}</td></tr>
     <tr><td style="padding:9px;border-bottom:1px solid #e5e7eb;color:#6b7280;">Score</td><td style="padding:9px;border-bottom:1px solid #e5e7eb;color:#22C8E5;font-weight:700;font-size:20px;">${e(scoreText)}</td></tr>
-    <tr><td style="padding:9px;border-bottom:1px solid #e5e7eb;color:#6b7280;">Risk Level</td><td style="padding:9px;border-bottom:1px solid #e5e7eb;font-weight:700;">${e(report.risk_level || 'Not assessed')}</td></tr>
+    <tr><td style="padding:9px;border-bottom:1px solid #e5e7eb;color:#6b7280;">Remediation Priority</td><td style="padding:9px;border-bottom:1px solid #e5e7eb;font-weight:700;">${e(report.remediation_priority || 'Not assessed')}</td></tr>
     <tr><td style="padding:9px;border-bottom:1px solid #e5e7eb;color:#6b7280;">Wants Call</td><td style="padding:9px;border-bottom:1px solid #e5e7eb;font-weight:700;">${data.wantsCall ? '✅ YES' : 'No'}</td></tr>
   </table>
   <p style="margin:16px 0 6px;color:#374151;font-size:13px;"><a href="${resultsUrl}" style="color:#22C8E5;">View Client Report →</a></p>
@@ -704,7 +662,13 @@ router.get('/check/:id', async (req, res) => {
     const row = rows[0];
     const fullReport = typeof row.full_report === 'string' ? JSON.parse(row.full_report) : row.full_report;
 
-    res.json({ ...fullReport, id: row.id, businessName: row.business_name, websiteUrl: row.website_url });
+    // Rebuild saved reports from their original scan evidence, without a new
+    // network scan, so old AI summaries and risk labels cannot override facts.
+    const evidence = fullReport.scan;
+    const updated = evidence && evidence.lighthouse && Array.isArray(evidence.lighthouse.audits)
+      ? buildReport(evidence)
+      : { ...fullReport, risk_level: null, evobrand_support: supportFor(Array.isArray(fullReport.critical_issues) ? fullReport.critical_issues : []) };
+    res.json({ ...fullReport, ...updated, id: row.id, businessName: row.business_name, websiteUrl: row.website_url });
   } catch (error) {
     console.error('Error fetching accessibility report:', error);
     res.status(500).json({ error: 'Failed to load accessibility report' });

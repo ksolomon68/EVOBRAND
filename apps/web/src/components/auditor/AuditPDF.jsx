@@ -56,6 +56,8 @@ function normalizePDFReport(report) {
       effort: r.effort || 'Medium',
       title: r.title || r.name || r.recommendation || DEFAULT_RECS[i]?.title || `Recommendation ${i + 1}`,
       detail: r.detail || r.description || r.details || DEFAULT_RECS[i]?.detail || '',
+      steps: Array.isArray(r.steps) ? r.steps.filter((s) => typeof s === 'string' && s.trim()).slice(0, 5) : [],
+      ...Object.fromEntries(['timeline', 'owner', 'deliverable', 'success_measure', 'evobrand_help'].map((key) => [key, typeof r[key] === 'string' ? r[key] : ''])),
       roiNote: r.roi_note || r.roiNote || '',
     }));
     if (recs.every((r) => !r.title || r.title.startsWith('Recommendation'))) recs = DEFAULT_RECS;
@@ -138,6 +140,8 @@ function buildPrintHTML(rawReport, businessName, date) {
               <span style="font-size:10px;font-weight:700;${impactStyle};padding:3px 10px;border-radius:99px;margin-right:6px;">${rec.impact} Impact</span>
               <span style="font-size:10px;font-weight:700;background:#f1f5f9;color:#64748b;padding:3px 10px;border-radius:99px;">${rec.effort} Effort</span>
             </div>
+            ${rec.steps?.length ? `<div style="font-size:12px;color:#374151;line-height:1.7;margin:12px 0;"><strong>Steps to take</strong><ol style="padding-left:20px;">${rec.steps.map((step) => `<li>${step}</li>`).join('')}</ol></div>` : ''}
+            ${[['Suggested timing', rec.timeline], ['Suggested owner', rec.owner], ['Deliverable', rec.deliverable], ['Measure progress', rec.success_measure], ['How EVOBRAND can help', rec.evobrand_help]].filter(([, value]) => value).map(([label, value]) => `<p style="font-size:12px;color:#4b5563;line-height:1.7;margin-bottom:8px;"><strong>${label}:</strong> ${value}</p>`).join('')}
             ${rec.roiNote ? `<div style="font-size:11px;color:${BRAND_BLUE};font-weight:600;border-top:1px solid #f1f5f9;padding-top:8px;">${rec.roiNote}</div>` : ''}
           </div>
         </div>
@@ -362,6 +366,8 @@ function buildPrintHTML(rawReport, businessName, date) {
       <img class="page-logo" src="${window.location.origin}/logo.png" alt="EVOBRAND" onerror="this.style.display='none'" />
     </div>
     <div class="section-label">Prioritized Recommendations</div>
+    <p style="font-size:12px;color:#4b5563;line-height:1.7;">Start with the first priority. Adapt suggested timing and ownership to your team.</p>
+    ${report.report_note ? `<p style="font-size:12px;color:#92400e;margin-top:12px;">${report.report_note}</p>` : ''}
     <div style="margin-top:16px;">${recCards}</div>
   </div>
 
@@ -381,7 +387,7 @@ function buildPrintHTML(rawReport, businessName, date) {
     <div class="cta-eyebrow">Next Steps</div>
     <div class="cta-title">Ready to Elevate<br/>Your Brand?</div>
     <div class="cta-text">${report.cta}</div>
-    <div class="cta-pill">evobrand.net</div>
+    <a class="cta-pill" href="https://evobrandconcepts.com/book-consultation">Book a Free Strategy Call</a>
     <div class="cta-contact">
       Keisha Solomon · CEO, EVOBRAND Concepts<br/>
       info@evobrand.net

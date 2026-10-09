@@ -99,8 +99,8 @@ const AccessibilityCheckerPage = () => {
     <>
       <SEO
         title="Free Website Accessibility Checker | WCAG Scan & Report | EVOBRAND"
-        description="Scan any page of your website for WCAG 2.1 accessibility issues in about a minute. Real Google Lighthouse data, the exact elements that fail, prioritized fixes, and a 90-day remediation plan, all free."
-        keywords="accessibility checker, WCAG checker, ADA compliance scan, website accessibility audit, free accessibility report, EVOBRAND accessibility"
+        description="Scan any page of your website for WCAG A/AA accessibility issues in about a minute. Real Google Lighthouse data, the exact elements that fail, prioritized fixes, and a suggested remediation plan, all free."
+        keywords="accessibility checker, WCAG checker,  website accessibility audit, free accessibility report, EVOBRAND accessibility"
         canonical="https://evobrand.net/accessibility-checker"
         structuredData={{
           "@context": "https://schema.org",
@@ -147,7 +147,7 @@ const AccessibilityCheckerPage = () => {
               <div className="relative container mx-auto px-4 pt-20 pb-16 text-center">
                 <Reveal>
                   <span className="inline-block px-4 py-1.5 rounded-full bg-[#22C8E5]/10 border border-[#22C8E5]/20 text-[#22C8E5] text-[11px] font-bold tracking-[0.25em] uppercase mb-6">
-                    AI-Powered · Free · Real WCAG Scan
+                    Evidence-Based · Free · Lighthouse Scan
                   </span>
                 </Reveal>
                 <KineticHeadline
@@ -161,7 +161,7 @@ const AccessibilityCheckerPage = () => {
                 />
                 <Reveal delay={0.45}>
                   <p className="text-white/60 text-lg max-w-xl mx-auto">
-                    Scan any page against automated WCAG 2.1 checks in about a minute. Real Google Lighthouse data, the exact elements that fail, and a 90-day remediation plan.
+                    Scan any page against automated WCAG A/AA checks in about a minute. Real Google Lighthouse data, the exact elements that fail, and a suggested remediation plan.
                   </p>
                 </Reveal>
               </div>

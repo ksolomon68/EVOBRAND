@@ -17,7 +17,7 @@ const SCAN_PHASES = [
   { icon: '🌐', label: 'Fetching your website...', sub: 'Checking availability & markup' },
   { icon: '🔍', label: 'Running Lighthouse accessibility audit...', sub: 'Checking against WCAG success criteria' },
   { icon: '🏗️', label: 'Analyzing page structure...', sub: 'Headings, landmarks, forms, ARIA' },
-  { icon: '🧠', label: 'AI compiling your report...', sub: 'Prioritizing fixes by impact' },
+  { icon: '🧠', label: 'Preparing your evidence-based report...', sub: 'Prioritizing fixes by impact' },
 ];
 
 const FilmGrain = () => (
@@ -116,12 +116,13 @@ const normalizeReport = (report) => {
     ...report,
     overall_score: score,
     grade: score === null ? null : report.grade || null,
-    risk_level: score === null ? null : report.risk_level || null,
+    remediation_priority: report.remediation_priority || null,
     headline: report.headline || '',
     pour: pourEntries,
     critical_issues: Array.isArray(report.critical_issues) ? report.critical_issues : [],
     quick_wins: Array.isArray(report.quick_wins) ? report.quick_wins : [],
     roadmap: Array.isArray(report.roadmap) ? report.roadmap : [],
+    evobrand_support: Array.isArray(report.evobrand_support) ? report.evobrand_support.filter((item) => typeof item === 'string') : [],
     disclaimer: report.disclaimer || 'This report is based on an automated scan and is not a substitute for a full manual WCAG audit or legal advice.',
     cta: report.cta || 'Ready to make your site accessible to everyone?',
     scan_meta: report.scan_meta || null,
@@ -144,7 +145,7 @@ const AccessibilityResults = ({ report, isLoading, onDownloadPDF }) => {
   const r = normalizeReport(report);
   const scored = r.overall_score !== null;
   const gradeColor = GRADE_COLORS[r.grade] || '#22C8E5';
-  const riskColor = RISK_COLORS[r.risk_level] || '#facc15';
+  const riskColor = RISK_COLORS[r.remediation_priority] || '#facc15';
   const meta = scanSummary(r.scan_meta);
   const measuredPour = r.pour.some((cat) => typeof cat.score === 'number');
 
@@ -182,15 +183,15 @@ const AccessibilityResults = ({ report, isLoading, onDownloadPDF }) => {
                   )}
                 </div>
               </div>
-              <p className="text-evo-fog text-sm uppercase tracking-widest mb-3">Accessibility Score</p>
-              {r.risk_level && (
+              <p className="text-evo-fog text-sm uppercase tracking-widest mb-3">Lighthouse Automated Score</p>
+              {r.remediation_priority && (
                 <div className="flex justify-center mb-4">
                   <span
                     className="inline-flex items-center gap-2 text-xs font-bold px-4 py-1.5 rounded-full uppercase tracking-widest"
                     style={{ background: `${riskColor}18`, color: riskColor, border: `1px solid ${riskColor}40` }}
                   >
                     <ShieldAlert size={13} aria-hidden="true" />
-                    {r.risk_level} Risk
+                    {r.remediation_priority} · Remediation priority
                   </span>
                 </div>
               )}
@@ -208,6 +209,11 @@ const AccessibilityResults = ({ report, isLoading, onDownloadPDF }) => {
           )}
         </motion.div>
 
+        <section className="bg-white/5 border border-white/10 rounded-2xl p-6 mb-10">
+          <h3 className="text-white font-bold text-lg mb-3">What this scan covers</h3>
+          <p className="text-white/70 text-sm leading-relaxed">{r.disclaimer}</p>
+          {r.scan_meta?.checks_not_completed?.length > 0 && <p className="text-amber-200 text-sm mt-3">Checks that could not complete: {r.scan_meta.checks_not_completed.join('; ')}. These require review and were not counted as passing.</p>}
+        </section>
         {/* POUR Breakdown */}
         {measuredPour && (
           <motion.div
@@ -272,6 +278,7 @@ const AccessibilityResults = ({ report, isLoading, onDownloadPDF }) => {
                   {issue.wcag && (
                     <p className="text-[#22C8E5]/70 text-xs font-mono mb-3">{issue.wcag_failure === false ? '' : 'WCAG '}{issue.wcag}</p>
                   )}
+                  {issue.verification_required && <p className="text-amber-200 text-xs mb-3">Potential issue from raw HTML — verify on the rendered page.</p>}
                   <p className="text-white/60 text-sm leading-relaxed mb-2">{issue.detail}</p>
                   <p className="text-evo-fog text-sm leading-relaxed"><span className="text-white/60 font-semibold">Fix: </span>{issue.fix}</p>
                   {Array.isArray(issue.examples) && issue.examples.length > 0 && (
@@ -321,7 +328,7 @@ const AccessibilityResults = ({ report, isLoading, onDownloadPDF }) => {
             transition={{ duration: 0.5, delay: 0.9 }}
             className="mb-16"
           >
-            <h3 className="font-bold text-white text-2xl md:text-3xl mb-6">Your 90-Day Remediation Plan</h3>
+            <h3 className="font-bold text-white text-2xl md:text-3xl mb-6">Your Suggested Remediation Plan</h3>
             <div className="grid md:grid-cols-3 gap-5">
               {r.roadmap.map((phase, i) => (
                 <motion.div
@@ -347,6 +354,12 @@ const AccessibilityResults = ({ report, isLoading, onDownloadPDF }) => {
           </motion.div>
         )}
 
+        {r.evobrand_support.length > 0 && <section className="bg-white/5 border border-[#22C8E5]/30 rounded-2xl p-6 md:p-8 mb-12">
+          <h3 className="font-bold text-white text-2xl mb-4">How EVOBRAND can help</h3>
+          <p className="text-white/70 text-sm mb-4 leading-relaxed">Bring your report to a strategy call. We can review the evidence, agree on the scope, and discuss practical website improvements.</p>
+          <ul className="list-disc pl-5 space-y-3 text-white/70 text-sm leading-relaxed">{r.evobrand_support.map((item, i) => <li key={i}>{item}</li>)}</ul>
+          <Link to="/book-consultation" className="inline-flex text-[#22C8E5] font-semibold mt-5 hover:underline">Discuss your website improvements →</Link>
+        </section>}
         {/* CTA */}
         <motion.div
           initial={{ opacity: 0, y: 30 }}
@@ -357,7 +370,7 @@ const AccessibilityResults = ({ report, isLoading, onDownloadPDF }) => {
           <p className="text-white/80 text-lg mb-6 max-w-2xl mx-auto leading-relaxed">{r.cta}</p>
           <div className="flex flex-col sm:flex-row gap-6 sm:gap-4 justify-center mb-6">
             <Link
-              to="/contact"
+              to="/book-consultation"
               className="inline-flex items-center justify-center w-full sm:w-auto gap-2 px-8 py-4 bg-[#22C8E5] text-[#003258] rounded-2xl font-bold uppercase tracking-wider hover:bg-[#1db5d0] transition-colors"
             >
               <Calendar size={18} />

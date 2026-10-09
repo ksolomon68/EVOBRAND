@@ -32,12 +32,13 @@ function normalizePDFReport(report) {
     ...report,
     overall_score: score,
     grade: score === null ? null : report.grade || null,
-    risk_level: score === null ? null : report.risk_level || null,
+    remediation_priority: report.remediation_priority || null,
     headline: report.headline || '',
     pour: pourEntries,
     critical_issues: Array.isArray(report.critical_issues) ? report.critical_issues : [],
     quick_wins: Array.isArray(report.quick_wins) ? report.quick_wins : [],
     roadmap: Array.isArray(report.roadmap) ? report.roadmap : [],
+    evobrand_support: Array.isArray(report.evobrand_support) ? report.evobrand_support.filter((item) => typeof item === 'string') : [],
     disclaimer: report.disclaimer || 'This report is based on an automated scan and is not a substitute for a full manual WCAG audit or legal advice.',
     cta: report.cta || 'Ready to make your site accessible to everyone?',
     scan_meta: report.scan_meta || null,
@@ -82,7 +83,7 @@ function buildPrintHTML(rawReport, businessName, date) {
     : report.grade === 'D' ? '#fb923c'
     : '#f87171';
   const gradeLabel = { A: 'Excellent', B: 'Good', C: 'Average', D: 'Needs Work', F: 'Critical' }[report.grade] || '';
-  const riskStyle = RISK_BADGE[report.risk_level] || RISK_BADGE.Moderate;
+  const riskStyle = RISK_BADGE[report.remediation_priority] || RISK_BADGE.Moderate;
 
   const issueCards = report.critical_issues.map((issue) => {
     const sevStyle = SEVERITY_BADGE[issue.severity] || SEVERITY_BADGE.Moderate;
@@ -93,6 +94,7 @@ function buildPrintHTML(rawReport, businessName, date) {
           <span style="font-size:10px;font-weight:700;${sevStyle};padding:3px 10px;border-radius:99px;white-space:nowrap;">${esc(issue.severity)}</span>
         </div>
         ${issue.wcag ? `<div style="font-size:11px;color:${BRAND_CYAN};font-family:monospace;margin-bottom:8px;">${issue.wcag_failure === false ? '' : 'WCAG '}${esc(issue.wcag)}</div>` : ''}
+        ${issue.verification_required ? '<p style="font-size:11px;color:#92400e;margin-bottom:8px;">Potential issue from raw HTML — verify on the rendered page.</p>' : ''}
         <div style="font-size:12px;color:#4b5563;line-height:1.7;margin-bottom:8px;">${esc(issue.detail)}</div>
         <div style="font-size:12px;color:#374151;line-height:1.7;"><strong>Fix:</strong> ${esc(issue.fix)}</div>
         ${(issue.examples || []).length ? `<div style="margin-top:10px;font-size:10px;color:#64748b;">Example${issue.examples.length > 1 ? 's' : ''} from the page:</div>
@@ -179,16 +181,16 @@ function buildPrintHTML(rawReport, businessName, date) {
         <div class="cover-date">${esc(scanSummary(report.scan_meta))}</div>
         ${report.overall_score !== null ? `<div class="cover-score-row">
           <div class="score-card">
-            <div class="score-card-label">Accessibility Score</div>
+            <div class="score-card-label">Lighthouse Automated Score</div>
             <div class="big-score">${report.overall_score}<span style="font-size:28px;color:rgba(34,200,229,0.5)">/100</span></div>
           </div>
           ${report.grade ? `<div class="grade-card">
             <div class="grade-ring"><span class="grade-letter">${esc(report.grade)}</span></div>
             <div class="grade-sub">${gradeLabel}</div>
           </div>` : ''}
-          ${report.risk_level ? `<div class="risk-card">
-            <div class="risk-label">Risk Level</div>
-            <div class="risk-value">${esc(report.risk_level)}</div>
+          ${report.remediation_priority ? `<div class="risk-card">
+            <div class="risk-label">Remediation Priority</div>
+            <div class="risk-value">${esc(report.remediation_priority)}</div>
           </div>` : ''}
         </div>` : `<div class="cover-score-row"><div class="score-card"><div class="score-card-label">Accessibility Score</div><div style="font-size:18px;color:white;font-weight:600;">Not scored</div></div></div>`}
         ${report.headline ? `<div class="cover-headline">${esc(report.headline)}</div>` : ''}
@@ -199,10 +201,11 @@ function buildPrintHTML(rawReport, businessName, date) {
 
   <div class="page">
     <div class="page-header">
-      <div class="page-title">WCAG Performance Breakdown</div>
+      <div class="page-title">Automated Checks by Principle</div>
       <img class="page-logo" src="${window.location.origin}/logo.png" alt="EVOBRAND" onerror="this.style.display='none'" />
     </div>
     <div class="section-label">Score by POUR Principle</div>
+    <div class="disclaimer">${esc(report.disclaimer)}${report.scan_meta?.checks_not_completed?.length ? `<p>Checks that could not complete: ${esc(report.scan_meta.checks_not_completed.join('; '))}. These require review.</p>` : ''}</div>
     <div style="margin-top:8px;">${pourBars || '<p style="font-size:12px;color:#64748b;">Not measured for this scan.</p>'}</div>
   </div>
 
@@ -222,15 +225,16 @@ function buildPrintHTML(rawReport, businessName, date) {
       <img class="page-logo" src="${window.location.origin}/logo.png" alt="EVOBRAND" onerror="this.style.display='none'" />
     </div>
     ${quickWinsList ? `<div class="section-label">Quick Wins</div><div style="margin-bottom:28px;">${quickWinsList}</div>` : ''}
-    ${roadmapCards ? `<div class="section-label">90-Day Remediation Plan</div><div style="margin-top:12px;">${roadmapCards}</div>` : ''}
+    ${roadmapCards ? `<div class="section-label">Suggested Remediation Plan</div><div style="margin-top:12px;">${roadmapCards}</div>` : ''}
     <div class="disclaimer">${esc(report.disclaimer)}</div>
   </div>
 
+  ${report.evobrand_support.length ? `<div class="page"><div class="page-header"><div class="page-title">How EVOBRAND Can Help</div></div><p style="font-size:13px;line-height:1.7;margin-bottom:16px;">Bring your report to a strategy call to review the evidence, agree on scope, and discuss practical website improvements.</p><ul>${report.evobrand_support.map((item) => `<li style="font-size:13px;line-height:1.8;margin-bottom:12px;">• ${esc(item)}</li>`).join('')}</ul><a href="https://evobrandconcepts.com/book-consultation">Discuss your website improvements</a></div>` : ''}
   <div class="cta-page">
     <div class="cta-eyebrow">Next Steps</div>
     <div class="cta-title">Make Your Site<br/>Accessible to Everyone</div>
     <div class="cta-text">${esc(report.cta)}</div>
-    <div class="cta-pill">evobrand.net</div>
+    <a class="cta-pill" href="https://evobrandconcepts.com/book-consultation">Book a Free Strategy Call</a>
     <div class="cta-contact">
       Keisha Solomon · CEO, EVOBRAND Concepts<br/>
       info@evobrand.net
