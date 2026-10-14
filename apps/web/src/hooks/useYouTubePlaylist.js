@@ -198,11 +198,14 @@ const withFallbackDates = () =>
 const byNewestFirst = (a, b) => new Date(b.publishedAt).getTime() - new Date(a.publishedAt).getTime();
 
 const useYouTubePlaylist = (playlistId) => {
-  const [videos, setVideos] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+  const [videos, setVideos] = useState(withFallbackDates);
+  const loading = false;
+  const error = null;
 
   useEffect(() => {
+    const controller = new AbortController();
+    // Bound the entire refresh, including pagination, and cancel on unmount.
+    const timeoutId = setTimeout(() => controller.abort(), 10000);
     const fetchVideos = async () => {
       const apiKey = import.meta.env.VITE_YOUTUBE_API_KEY;
       const cacheKey = `${CACHE_KEY_PREFIX}${playlistId}`;
@@ -215,7 +218,6 @@ const useYouTubePlaylist = (playlistId) => {
       if (!apiKey) {
         console.warn('VITE_YOUTUBE_API_KEY is missing in .env file. Using fallback videos dataset.');
         setVideos(withFallbackDates());
-        setLoading(false);
         return;
       }
 
@@ -224,10 +226,11 @@ const useYouTubePlaylist = (playlistId) => {
         const cachedStr = sessionStorage.getItem(cacheKey);
         if (cachedStr && !forceRefresh) {
           const cachedData = JSON.parse(cachedStr);
-          if (Date.now() - cachedData.timestamp < CACHE_DURATION) {
+          if (Date.now() - cachedData.timestamp < CACHE_DURATION &&
+              Array.isArray(cachedData.videos) && cachedData.videos.length > 0 &&
+              cachedData.videos.every(video => video && typeof video.id === 'string' && video.id)) {
             console.log('[YouTube Playlist] Loaded cached playlist videos:', cachedData.videos.length);
             setVideos(cachedData.videos);
-            setLoading(false);
             return;
           }
         }
@@ -249,22 +252,25 @@ const useYouTubePlaylist = (playlistId) => {
           };
           if (nextPageToken) params.pageToken = nextPageToken;
 
-          const response = await axios.get('https://www.googleapis.com/youtube/v3/playlistItems', { params });
+          const response = await axios.get('https://www.googleapis.com/youtube/v3/playlistItems', {
+            params, signal: controller.signal, timeout: 10000,
+          });
           allItems = allItems.concat(response.data.items);
           nextPageToken = response.data.nextPageToken || null;
         } while (nextPageToken);
 
         const formattedVideos = allItems
-          .filter(item => item.status.privacyStatus === 'public')
+          .filter(item => item?.status?.privacyStatus === 'public' && item.snippet?.resourceId?.videoId)
           .map((item) => ({
             id: item.snippet.resourceId.videoId,
             title: item.snippet.title,
             description: item.snippet.description,
-            thumbnail: item.snippet.thumbnails.high?.url || item.snippet.thumbnails.medium?.url || item.snippet.thumbnails.default?.url,
+            thumbnail: item.snippet.thumbnails?.high?.url || item.snippet.thumbnails?.medium?.url || item.snippet.thumbnails?.default?.url,
             publishedAt: item.snippet.publishedAt,
           }));
 
         const sortedVideos = formattedVideos.slice().sort(byNewestFirst);
+        if (controller.signal.aborted || sortedVideos.length === 0) return;
 
         // Save to cache
         try {
@@ -277,17 +283,20 @@ const useYouTubePlaylist = (playlistId) => {
         }
 
         setVideos(sortedVideos);
-        setLoading(false);
       } catch (err) {
+        if (controller.signal.aborted) return;
         console.error('Error fetching YouTube videos, using fallback:', err);
         setVideos(withFallbackDates());
-        setLoading(false);
       }
     };
 
     if (playlistId) {
-      fetchVideos();
+      fetchVideos().finally(() => clearTimeout(timeoutId));
     }
+    return () => {
+      clearTimeout(timeoutId);
+      controller.abort();
+    };
   }, [playlistId]);
 
   return { videos, loading, error };
