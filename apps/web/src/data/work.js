@@ -40,21 +40,43 @@ export const FLAGSHIP = [
     highlights: ['4 Core Courses', 'Daily Journaling', 'Community'],
     description: 'Build your reality. Where neuroscience meets Neville Goddard. Master your internal state through structured courses, daily journaling, and community.',
     link: 'https://vibehyr.com/'
-  }
-];
-
-export const DASHBOARD_DEMOS = [
+  },
+  {
+    id: 312,
+    title: 'EVOLedger',
+    subtitle: 'Financial Command Center',
+    category: 'SaaS Platform',
+    industry: 'Construction & Finance',
+    image: '/projects/evoledger.png',
+    highlights: ['Job Costing', 'AP / AR', 'Payroll', 'Cash Flow Forecasting'],
+    description: 'A connected financial command center for contractors, bringing job costing, accounts payable and receivable, payroll, cash flow forecasting, and controller review into one workspace.',
+    link: 'https://evobrandconcepts.com/evoledger/'
+  },
   {
     id: 300,
     title: 'EVOCORE',
     subtitle: 'Dual-Screen Simulator',
-    category: 'Dashboard Demo',
+    category: 'SaaS Platform',
     industry: 'SaaS / Operations',
     image: '/projects/evocore.jpeg',
     highlights: ['Interactive Prototype', 'Mobile Crew App', 'Admin Portal', 'Real-Time Sync'],
     description: 'Interactive simulator showing how the Mobile Crew App and Admin Portal sync in real-time.',
     link: 'https://evobrandconcepts.com/evocore/'
   },
+  {
+    id: 311,
+    title: 'EVOSphere',
+    subtitle: 'Real Estate Brokerage Platform',
+    category: 'SaaS Platform',
+    industry: 'Real Estate & PropTech',
+    image: '/projects/evosphere.png',
+    highlights: ['Brokerage Overview', 'AI Matching', 'Sales Pipeline', 'Sphere Intelligence'],
+    description: 'Full-featured real estate brokerage platform with an agent overview dashboard, live sales pipeline, AI-powered property matching, and Sphere Intelligence insights — all in one connected workspace.',
+    link: 'https://evobrandconcepts.com/evoshere/'
+  }
+];
+
+export const DASHBOARD_DEMOS = [
   {
     id: 301,
     title: 'Who Wanna Pho',
@@ -165,17 +187,6 @@ export const DASHBOARD_DEMOS = [
     description: 'Integrated senior living operations dashboard managing resident census capacity, shift rosters, overdue care task queues, and facility incident logs.',
     link: 'https://evobrandconcepts.com/sunnyside/sunny-side-dashboard.html'
   },
-  {
-    id: 311,
-    title: 'EVOSphere',
-    subtitle: 'Real Estate Brokerage Platform',
-    category: 'Dashboard Demo',
-    industry: 'Real Estate & PropTech',
-    image: '/projects/evosphere.png',
-    highlights: ['Brokerage Overview', 'AI Matching', 'Sales Pipeline', 'Sphere Intelligence'],
-    description: 'Full-featured real estate brokerage platform with an agent overview dashboard, live sales pipeline, AI-powered property matching, and Sphere Intelligence insights — all in one connected workspace.',
-    link: 'https://evobrandconcepts.com/evoshere/'
-  }
 ];
 
 export const RECENT_LAUNCHES = [
