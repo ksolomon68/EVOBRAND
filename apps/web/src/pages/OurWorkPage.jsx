@@ -24,7 +24,7 @@ function FlagshipReel() {
 
   useEffect(() => {
     const mm = gsap.matchMedia();
-    mm.add('(min-width: 1024px) and (prefers-reduced-motion: no-preference)', () => {
+    mm.add('(min-width: 1024px) and (min-height: 900px) and (prefers-reduced-motion: no-preference)', () => {
       const track = trackRef.current;
       const section = reelRef.current;
       if (!track || !section) return undefined;

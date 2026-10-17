@@ -22,26 +22,6 @@ export const FLAGSHIP = [
     link: 'https://primereachgov.com/'
   },
   {
-    id: 12,
-    title: 'Pivotal Voice',
-    category: 'Web Development',
-    industry: 'Government',
-    image: '/projects/pivotal-voice.jpg',
-    highlights: ['Civic Engagement', 'Ellis County', 'Public Platform'],
-    description: 'The comprehensive civic engagement platform connecting Ellis County residents with democracy.',
-    link: 'https://pivotalvoice.org/'
-  },
-  {
-    id: 104,
-    title: 'VibeHyr',
-    category: 'Web Development',
-    industry: 'Education',
-    image: '/projects/vibehyr.png',
-    highlights: ['4 Core Courses', 'Daily Journaling', 'Community'],
-    description: 'Build your reality. Where neuroscience meets Neville Goddard. Master your internal state through structured courses, daily journaling, and community.',
-    link: 'https://vibehyr.com/'
-  },
-  {
     id: 312,
     title: 'EVOLedger',
     subtitle: 'Financial Command Center',
@@ -73,6 +53,26 @@ export const FLAGSHIP = [
     highlights: ['Brokerage Overview', 'AI Matching', 'Sales Pipeline', 'Sphere Intelligence'],
     description: 'Full-featured real estate brokerage platform with an agent overview dashboard, live sales pipeline, AI-powered property matching, and Sphere Intelligence insights — all in one connected workspace.',
     link: 'https://evobrandconcepts.com/evoshere/'
+  },
+  {
+    id: 104,
+    title: 'VibeHyr',
+    category: 'Web Development',
+    industry: 'Education',
+    image: '/projects/vibehyr.png',
+    highlights: ['4 Core Courses', 'Daily Journaling', 'Community'],
+    description: 'Build your reality. Where neuroscience meets Neville Goddard. Master your internal state through structured courses, daily journaling, and community.',
+    link: 'https://vibehyr.com/'
+  },
+  {
+    id: 12,
+    title: 'Pivotal Voice',
+    category: 'Web Development',
+    industry: 'Government',
+    image: '/projects/pivotal-voice.jpg',
+    highlights: ['Civic Engagement', 'Ellis County', 'Public Platform'],
+    description: 'The comprehensive civic engagement platform connecting Ellis County residents with democracy.',
+    link: 'https://pivotalvoice.org/'
   }
 ];
 
