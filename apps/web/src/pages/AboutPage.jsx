@@ -21,6 +21,13 @@ const CERTIFICATIONS = [
   { code: 'MBE', title: 'Minority Business Enterprise', agency: 'NCTRCA' },
 ];
 
+const CERTIFICATION_LOGOS = [
+  { name: 'Small Business Enterprise Certified', src: '/brand/certifications/sbe.png' },
+  { name: "Woman-Owned Business Enterprise Certified", src: '/brand/certifications/wbe.png' },
+  { name: 'Minority Business Enterprise Certified', src: '/brand/certifications/mbe.webp' },
+  { name: 'HubSpot Partner', src: '/brand/certifications/hubspot.webp' },
+];
+
 const AFFILIATIONS = [
   { name: 'Common Ground Ministries', src: '/brand/affiliations/common-ground-ministries.webp' },
   { name: 'Dallas Black Chamber of Commerce', src: '/brand/affiliations/dallas-black-chamber-of-commerce.png' },
@@ -294,6 +301,16 @@ export default function AboutPage() {
             <ProofLedger
               items={CERTIFICATIONS.map((c) => ({ value: c.code, label: c.agency ? `${c.title} · ${c.agency}` : c.title }))}
             />
+          </div>
+          <div className="mt-space-xl">
+            <p className="evo-eyebrow">Certification marks</p>
+            <ul className="evo-logo-strip mt-space-s">
+              {CERTIFICATION_LOGOS.map((item) => (
+                <li key={item.name} className="evo-logo-strip__item">
+                  <img src={item.src} alt={item.name} loading="lazy" />
+                </li>
+              ))}
+            </ul>
           </div>
           <div className="mt-space-xl">
             <p className="evo-eyebrow">Affiliations</p>
