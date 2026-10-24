@@ -162,9 +162,9 @@ export default function HomePage() {
       />
       <ScrollSequenceBackdrop
         src="/brand/home-sequence-hd"
-        frames={151}
+        frames={152}
         focus={0.5}
-        alt="A cinematic EVOBRAND team building the future together."
+        alt="A glowing EVOBRAND pod opens to reveal an AI assistant surrounded by holographic dashboards."
       />
 
       <div className="bp-thread">

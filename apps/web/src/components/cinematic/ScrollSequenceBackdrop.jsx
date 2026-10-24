@@ -86,8 +86,8 @@ export default function ScrollSequenceBackdrop({ src, frames, format = 'jpg', fo
         className="sequence-backdrop__poster"
         src={framePath(src, 0, format)}
         alt={alt}
-        width="1920"
-        height="1080"
+        width="1344"
+        height="768"
         decoding="async"
       />
       <canvas ref={canvasRef} className="sequence-backdrop__canvas" />
