@@ -21,20 +21,37 @@ const CERTIFICATIONS = [
   { code: 'MBE', title: 'Minority Business Enterprise', agency: 'NCTRCA' },
 ];
 
-const CERTIFICATION_LOGOS = [
+const AFFILIATIONS_AND_CERTIFICATIONS = [
   { name: 'Small Business Enterprise Certified', src: '/brand/certifications/sbe.png' },
   { name: "Woman-Owned Business Enterprise Certified", src: '/brand/certifications/wbe.png' },
   { name: 'Minority Business Enterprise Certified', src: '/brand/certifications/mbe.webp' },
   { name: 'HubSpot Partner', src: '/brand/certifications/hubspot.webp' },
-];
-
-const AFFILIATIONS = [
   { name: 'Common Ground Ministries', src: '/brand/affiliations/common-ground-ministries.webp' },
   { name: 'Dallas Black Chamber of Commerce', src: '/brand/affiliations/dallas-black-chamber-of-commerce.png' },
   { name: 'Regional Black Contractors Association', src: '/brand/affiliations/rbca.png' },
   { name: 'SCORE', src: '/brand/affiliations/score.png' },
   { name: 'Waxahachie Chamber of Commerce', src: '/brand/affiliations/waxahachie-chamber-of-commerce.png' },
 ];
+
+function AffiliationMarquee() {
+  const logos = [...AFFILIATIONS_AND_CERTIFICATIONS, ...AFFILIATIONS_AND_CERTIFICATIONS];
+  return (
+    <div className="evo-marquee">
+      <ul className="sr-only">
+        {AFFILIATIONS_AND_CERTIFICATIONS.map((item) => (
+          <li key={item.name}>{item.name}</li>
+        ))}
+      </ul>
+      <div className="evo-marquee__track" aria-hidden="true">
+        {logos.map((item, index) => (
+          <div key={`${item.name}-${index}`} className="evo-marquee__item">
+            <img src={item.src} alt="" loading="lazy" />
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
 
 const HISTORY = [
   { meta: '1999', title: 'Code was the foundation', body: 'With credentials in Computer Science and Computer Information Systems, Keisha began coding when websites were still built largely by hand in HTML. She founded EVOBRAND Marketing in 1999 to bring that technical foundation to brand and digital work.' },
@@ -303,24 +320,8 @@ export default function AboutPage() {
             />
           </div>
           <div className="mt-space-xl">
-            <p className="evo-eyebrow">Certification marks</p>
-            <ul className="evo-logo-strip mt-space-s">
-              {CERTIFICATION_LOGOS.map((item) => (
-                <li key={item.name} className="evo-logo-strip__item">
-                  <img src={item.src} alt={item.name} loading="lazy" />
-                </li>
-              ))}
-            </ul>
-          </div>
-          <div className="mt-space-xl">
-            <p className="evo-eyebrow">Affiliations</p>
-            <ul className="evo-logo-strip mt-space-s">
-              {AFFILIATIONS.map((item) => (
-                <li key={item.name} className="evo-logo-strip__item">
-                  <img src={item.src} alt={item.name} loading="lazy" />
-                </li>
-              ))}
-            </ul>
+            <p className="evo-eyebrow">Affiliations &amp; certifications</p>
+            <div className="mt-space-s"><AffiliationMarquee /></div>
           </div>
         </div>
       </section>

@@ -297,42 +297,51 @@
     color: var(--evo-text);
   }
 
-  /* Affiliation / certification logo strip. */
-  .evo-logo-strip {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: var(--space-m);
+  /* Affiliation / certification logo marquee. Logos sit on white chips so
+     full-color marks stay legible on the dark band instead of washing out. */
+  .evo-marquee {
+    position: relative;
+    overflow: hidden;
     border-top: 1px solid var(--evo-line);
     padding-top: var(--space-l);
+    -webkit-mask-image: linear-gradient(to right, transparent, #000 8%, #000 92%, transparent);
+    mask-image: linear-gradient(to right, transparent, #000 8%, #000 92%, transparent);
   }
-  @media (min-width: 640px) {
-    .evo-logo-strip { grid-template-columns: repeat(3, 1fr); }
+  .evo-marquee__track {
+    display: flex;
+    align-items: center;
+    gap: var(--space-l);
+    width: max-content;
+    animation: evo-marquee-scroll 36s linear infinite;
   }
-  @media (min-width: 960px) {
-    .evo-logo-strip { grid-template-columns: repeat(5, 1fr); }
+  .evo-marquee:hover .evo-marquee__track {
+    animation-play-state: paused;
   }
-  .evo-logo-strip__item {
+  @keyframes evo-marquee-scroll {
+    from { transform: translateX(0); }
+    to { transform: translateX(-50%); }
+  }
+  .evo-marquee__item {
+    flex: 0 0 auto;
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: var(--space-m);
-    background: rgba(255,255,255,0.04);
-    border: 1px solid var(--evo-line);
-    border-radius: 0.5rem;
+    width: 10rem;
+    height: 5rem;
+    padding: var(--space-s) var(--space-m);
+    background: #ffffff;
+    border-radius: 0.75rem;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.18);
   }
-  .evo-logo-strip__item img {
+  .evo-marquee__item img {
     max-width: 100%;
-    max-height: 3.5rem;
+    max-height: 3rem;
     width: auto;
     height: auto;
     object-fit: contain;
-    filter: grayscale(1) brightness(1.6);
-    opacity: 0.82;
-    transition: filter 0.2s, opacity 0.2s;
   }
-  .evo-logo-strip__item:hover img {
-    filter: none;
-    opacity: 1;
+  @media (prefers-reduced-motion: reduce) {
+    .evo-marquee__track { animation: none; }
   }
 
   /* Decorative watermark text comes from CSS so it is never read as content. */
