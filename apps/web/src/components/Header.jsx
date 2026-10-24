@@ -200,26 +200,21 @@ export default function Header() {
                 const expanded = mobileGroup === group.id;
                 return (
                   <div key={group.id} className={`site-menu__group ${isGroupActive(group, pathname) ? 'is-active' : ''}`}>
-                    <div className={`site-menu__trigger ${expanded ? 'is-expanded' : ''}`}>
+                    <button
+                      type="button"
+                      className={`site-menu__trigger ${expanded ? 'is-expanded' : ''}`}
+                      aria-expanded={expanded}
+                      aria-controls={`mobile-${group.id}`}
+                      onClick={() => setMobileGroup(expanded ? null : group.id)}
+                    >
                       <span aria-hidden="true">0{index + 1}</span>
-                      <Link
-                        to={group.to}
-                        className="site-menu__parent"
-                        aria-current={pathname === group.to ? 'page' : undefined}
-                      >
+                      <span className="site-menu__parent">
                         {group.label}
-                      </Link>
-                      <button
-                        type="button"
-                        className="site-menu__toggle tap-target"
-                        aria-label={`${expanded ? 'Close' : 'Open'} ${group.label} submenu`}
-                        aria-expanded={expanded}
-                        aria-controls={`mobile-${group.id}`}
-                        onClick={() => setMobileGroup(expanded ? null : group.id)}
-                      >
+                      </span>
+                      <span className="site-menu__toggle tap-target" aria-hidden="true">
                         <ChevronDown className="site-menu__chevron" size={22} aria-hidden="true" />
-                      </button>
-                    </div>
+                      </span>
+                    </button>
                     {expanded ? (
                         <motion.div
                           id={`mobile-${group.id}`}
@@ -229,12 +224,15 @@ export default function Header() {
                           exit={reduce ? { opacity: 0 } : { height: 0, opacity: 0 }}
                           transition={{ duration: 0.4, ease: EASE }}
                         >
+                          <Link to={group.to} className="site-menu__overview" onClick={() => setMobileMenuOpen(false)}>
+                            {group.label} overview <ArrowUpRight size={15} aria-hidden="true" />
+                          </Link>
                           <ul>
                             {group.items.map((item) => {
                               const Icon = item.icon;
                               return (
                                 <li key={item.to + item.title}>
-                                  <Link to={item.to} className="mega-link">
+                                  <Link to={item.to} className="mega-link" onClick={() => setMobileMenuOpen(false)}>
                                     <span className="mega-link__icon" aria-hidden="true"><Icon size={18} strokeWidth={1.6} /></span>
                                     <span className="mega-link__text">
                                       <span className="mega-link__title">{item.title}</span>
