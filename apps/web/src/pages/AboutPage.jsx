@@ -21,6 +21,14 @@ const CERTIFICATIONS = [
   { code: 'MBE', title: 'Minority Business Enterprise', agency: 'NCTRCA' },
 ];
 
+const AFFILIATIONS = [
+  { name: 'Common Ground Ministries', src: '/brand/affiliations/common-ground-ministries.webp' },
+  { name: 'Dallas Black Chamber of Commerce', src: '/brand/affiliations/dallas-black-chamber-of-commerce.png' },
+  { name: 'Regional Black Contractors Association', src: '/brand/affiliations/rbca.png' },
+  { name: 'SCORE', src: '/brand/affiliations/score.png' },
+  { name: 'Waxahachie Chamber of Commerce', src: '/brand/affiliations/waxahachie-chamber-of-commerce.png' },
+];
+
 const HISTORY = [
   { meta: '1999', title: 'Code was the foundation', body: 'With credentials in Computer Science and Computer Information Systems, Keisha began coding when websites were still built largely by hand in HTML. She founded EVOBRAND Marketing in 1999 to bring that technical foundation to brand and digital work.' },
   { meta: '2003', title: 'Early WordPress contributor', body: 'Keisha was one of the first contributors to WordPress, helping shape the open-source platform during its earliest years.' },
@@ -286,6 +294,16 @@ export default function AboutPage() {
             <ProofLedger
               items={CERTIFICATIONS.map((c) => ({ value: c.code, label: c.agency ? `${c.title} · ${c.agency}` : c.title }))}
             />
+          </div>
+          <div className="mt-space-xl">
+            <p className="evo-eyebrow">Affiliations</p>
+            <ul className="evo-logo-strip mt-space-s">
+              {AFFILIATIONS.map((item) => (
+                <li key={item.name} className="evo-logo-strip__item">
+                  <img src={item.src} alt={item.name} loading="lazy" />
+                </li>
+              ))}
+            </ul>
           </div>
         </div>
       </section>

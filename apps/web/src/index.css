@@ -297,6 +297,44 @@
     color: var(--evo-text);
   }
 
+  /* Affiliation / certification logo strip. */
+  .evo-logo-strip {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--space-m);
+    border-top: 1px solid var(--evo-line);
+    padding-top: var(--space-l);
+  }
+  @media (min-width: 640px) {
+    .evo-logo-strip { grid-template-columns: repeat(3, 1fr); }
+  }
+  @media (min-width: 960px) {
+    .evo-logo-strip { grid-template-columns: repeat(5, 1fr); }
+  }
+  .evo-logo-strip__item {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: var(--space-m);
+    background: rgba(255,255,255,0.04);
+    border: 1px solid var(--evo-line);
+    border-radius: 0.5rem;
+  }
+  .evo-logo-strip__item img {
+    max-width: 100%;
+    max-height: 3.5rem;
+    width: auto;
+    height: auto;
+    object-fit: contain;
+    filter: grayscale(1) brightness(1.6);
+    opacity: 0.82;
+    transition: filter 0.2s, opacity 0.2s;
+  }
+  .evo-logo-strip__item:hover img {
+    filter: none;
+    opacity: 1;
+  }
+
   /* Decorative watermark text comes from CSS so it is never read as content. */
   .era-label::before {
     content: attr(data-label);
