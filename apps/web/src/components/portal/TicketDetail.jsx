@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { ArrowLeft, Clock, Send, CheckCircle2, AlertCircle, Shield, MessageSquare, Loader2, DollarSign, CreditCard, Paperclip, X } from 'lucide-react';
+import { ArrowLeft, Clock, Send, CheckCircle2, AlertCircle, Shield, MessageSquare, Loader2, DollarSign, CreditCard, Paperclip, X, UserCircle2 } from 'lucide-react';
 import PaymentModal from './PaymentModal';
 import { formatCST } from '../../lib/datetime';
 
@@ -30,6 +30,30 @@ function Attachment({ url, className = '' }) {
           📎 {url.split('/').pop()}
         </a>
       )}
+    </div>
+  );
+}
+
+function MessageAvatar({ isEvobrand, avatarUrl }) {
+  if (isEvobrand) {
+    return (
+      <div className="w-8 h-8 rounded-full flex items-center justify-center bg-white/10 border border-white/10 overflow-hidden flex-shrink-0">
+        <img src="/logo.png" alt="EVOBRAND" className="w-full h-full object-contain p-1" />
+      </div>
+    );
+  }
+  if (avatarUrl) {
+    return (
+      <img
+        src={avatarUrl}
+        alt="You"
+        className="w-8 h-8 rounded-full object-cover border border-[#22c8e5]/40 flex-shrink-0"
+      />
+    );
+  }
+  return (
+    <div className="w-8 h-8 rounded-full flex items-center justify-center bg-[#22c8e5]/15 border border-[#22c8e5]/40 text-[#22c8e5] flex-shrink-0">
+      <UserCircle2 size={18} />
     </div>
   );
 }
@@ -176,7 +200,7 @@ const TicketDetail = ({ ticket, onBack, onReply, onClose, user, onRefresh }) => 
                                 >
                                     <div className="max-w-[85%]">
                                         <div className="flex items-center gap-3 mb-2 flex-row-reverse">
-                                            <div className="w-8 h-8 rounded-lg flex items-center justify-center text-[10px] font-bold bg-[#22c8e5] text-[#003258]">YOU</div>
+                                            <MessageAvatar isEvobrand={false} avatarUrl={user?.avatar_url} />
                                             <span className="text-[10px] font-bold text-evo-fog uppercase tracking-widest">
                                                 {formatCST(ticket.created_at, { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit', timeZoneName: 'short' })}
                                             </span>
@@ -199,11 +223,7 @@ const TicketDetail = ({ ticket, onBack, onReply, onClose, user, onRefresh }) => 
                                 >
                                     <div className={`max-w-[85%] group`}>
                                         <div className={`flex items-center gap-3 mb-2 ${!msg.sender_is_admin ? 'flex-row-reverse' : ''}`}>
-                                            <div className={`w-8 h-8 rounded-lg flex items-center justify-center text-[10px] font-bold ${
-                                                !msg.sender_is_admin ? 'bg-[#22c8e5] text-[#003258]' : 'bg-white/10 text-white'
-                                            }`}>
-                                                {!msg.sender_is_admin ? 'YOU' : 'EVOBRAND'}
-                                            </div>
+                                            <MessageAvatar isEvobrand={!!msg.sender_is_admin} avatarUrl={!msg.sender_is_admin ? user?.avatar_url : undefined} />
                                             <span className="text-[10px] font-bold text-evo-fog uppercase tracking-widest">
                                                 {formatCST(msg.timestamp || msg.created_at, { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit', timeZoneName: 'short' })}
                                             </span>
