@@ -22,9 +22,7 @@ const NAVY = '#003258';
 const STATUS_OPTS = ['open', 'in_progress', 'resolved', 'closed'];
 const PRIORITY_OPTS = ['low', 'normal', 'high', 'urgent'];
 
-// Mirrors NewTicketForm.jsx's TICKET_TYPES: the pricing tier the client
-// picked when submitting, so admins can see what was actually selected
-// without asking, or re-deriving it from the quoted price after the fact.
+// Mirrors NewTicketForm.jsx's TICKET_TYPES for admin reclassification.
 const TICKET_TYPE_META = {
   simple_update: { label: 'Simple Update', price: '$50–$150', turnaround: '1–2 business days' },
   standard:      { label: 'Single Support Ticket', price: '$149', turnaround: '48-hour turnaround' },
@@ -144,6 +142,7 @@ function TicketDetail({ ticket, onBack, onRefresh }) {
   const [priceInput, setPriceInput] = useState(String(ticket.quoted_price || ''));
   const [saving, setSaving] = useState(false);
   const [saveMsg, setSaveMsg] = useState('');
+  const [ticketType, setTicketType] = useState(ticket.ticket_type || 'standard');
   const [sending, setSending] = useState(false);
   const [planValue, setPlanValue] = useState(ticket.user_support_plan || '');
   const [planSaving, setPlanSaving] = useState(false);
@@ -171,6 +170,7 @@ function TicketDetail({ ticket, onBack, onRefresh }) {
       });
       const data = await res.json().catch(() => ({}));
       if (res.ok) {
+        if (updates.ticket_type) setTicketType(updates.ticket_type);
         setSaveMsg('Saved');
         setTimeout(() => setSaveMsg(''), 2000);
         onRefresh();
@@ -340,7 +340,7 @@ function TicketDetail({ ticket, onBack, onRefresh }) {
         {/* Controls */}
         <div className="w-full lg:w-72 space-y-5 lg:flex-shrink-0">
 
-          {/* Submission Details: exactly what the client selected on the form */}
+          {/* Ticket details and admin reclassification */}
           <div className="bg-white/5 border border-white/10 rounded-2xl p-5 space-y-3">
             <h3 className="text-xs font-bold uppercase tracking-widest text-white/40 flex items-center gap-2">
               <Tag size={12} /> Submission Details
@@ -350,13 +350,30 @@ function TicketDetail({ ticket, onBack, onRefresh }) {
               <p className="text-white text-sm font-semibold">{ticket.service || '-'}</p>
             </div>
             <div>
-              <p className="text-[10px] font-bold uppercase tracking-widest text-white/30 mb-1">Ticket Type</p>
-              <p className="text-white text-sm font-semibold">{ticketTypeLabel(ticket.ticket_type)}</p>
-              {TICKET_TYPE_META[ticket.ticket_type] && (
+              <label htmlFor="admin-ticket-type" className="text-[10px] font-bold uppercase tracking-widest text-white/30 block mb-1.5">Ticket Type</label>
+              <select
+                id="admin-ticket-type"
+                value={ticketType}
+                disabled={saving}
+                onChange={(e) => update({ ticket_type: e.target.value })}
+                className="w-full bg-[#04080f] border border-white/10 text-white text-sm p-2.5 rounded-lg focus:outline-none focus:border-[#22c8e5] disabled:opacity-50"
+              >
+                {ticket.ticket_type && !TICKET_TYPE_META[ticket.ticket_type] && (
+                  <option value={ticket.ticket_type}>{ticketTypeLabel(ticket.ticket_type)}</option>
+                )}
+                {Object.entries(TICKET_TYPE_META).map(([value, meta]) => (
+                  <option key={value} value={value}>{meta.label}</option>
+                ))}
+              </select>
+              {TICKET_TYPE_META[ticketType] && (
                 <p className="text-white/40 text-xs mt-0.5">
-                  {TICKET_TYPE_META[ticket.ticket_type].price} · {TICKET_TYPE_META[ticket.ticket_type].turnaround}
+                  {TICKET_TYPE_META[ticketType].price} · {TICKET_TYPE_META[ticketType].turnaround}
                 </p>
               )}
+              <p className="text-white/40 text-xs mt-2">Changing the type saves automatically. Update priority and quoted price separately if needed.</p>
+              <p role="status" aria-live="polite" className={`text-xs font-bold mt-2 ${saveMsg === 'Saved' ? 'text-green-400' : 'text-red-400'}`}>
+                {saving ? 'Saving…' : saveMsg}
+              </p>
             </div>
             <div>
               <p className="text-[10px] font-bold uppercase tracking-widest text-white/30 mb-1">Billing</p>

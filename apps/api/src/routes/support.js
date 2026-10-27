@@ -369,22 +369,27 @@ router.post('/tickets/:id/reply', authenticateToken, upload.single('file'), asyn
 });
 
 // @route PUT /api/support/tickets/:id
-// @desc  Admin update ticket status, priority, price
+// @desc  Admin update ticket type, status, priority, price
 router.put('/tickets/:id', authenticateToken, async (req, res) => {
-  const { status, priority, quoted_price, is_paid } = req.body;
+  const { status, priority, quoted_price, is_paid, ticket_type } = req.body;
   const ticketId = req.params.id;
 
   try {
     const admin = await isAdminUser(req.user.id);
     if (!admin) return res.status(403).json({ error: 'Admin access required' });
 
+    const ticketTypes = ['simple_update', 'standard', 'urgent', 'custom_dev', 'plan_covered', 'plan_overage'];
+    if (ticket_type !== undefined && !ticketTypes.includes(ticket_type)) {
+      return res.status(400).json({ error: 'Invalid ticket type' });
+    }
+
     const [currentTickets] = await pool.query('SELECT t.*, u.email as user_email, u.name as user_name FROM support_tickets t LEFT JOIN users u ON t.user_id = u.id WHERE t.id = ?', [ticketId]);
     if (currentTickets.length === 0) return res.status(404).json({ error: 'Ticket not found' });
     const currentTicket = currentTickets[0];
 
     await pool.query(
-      'UPDATE support_tickets SET status = COALESCE(?, status), priority = COALESCE(?, priority), quoted_price = COALESCE(?, quoted_price), is_paid = COALESCE(?, is_paid) WHERE id = ?',
-      [status, priority, quoted_price, is_paid, ticketId]
+      'UPDATE support_tickets SET status = COALESCE(?, status), priority = COALESCE(?, priority), quoted_price = COALESCE(?, quoted_price), is_paid = COALESCE(?, is_paid), ticket_type = COALESCE(?, ticket_type) WHERE id = ?',
+      [status, priority, quoted_price, is_paid, ticket_type, ticketId]
     );
 
     // Notifications
