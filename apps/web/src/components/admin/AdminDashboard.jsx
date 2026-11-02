@@ -100,6 +100,7 @@ export default function AdminDashboard({ tickets = [], onViewTicket, setView }) 
   const [analytics, setAnalytics] = useState(null);
   const [crmCount, setCrmCount]   = useState(null);
   const [contracts, setContracts] = useState([]);
+  const [salesLeads, setSalesLeads] = useState([]);
   const [loading, setLoading]     = useState(true);
   const [loadError, setLoadError] = useState(false);
 
@@ -117,9 +118,10 @@ export default function AdminDashboard({ tickets = [], onViewTicket, setView }) 
       read(`${API}/analytics/overview`),
       read(`${API}/crm/contacts`),
       read(`${API}/contracts`),
-    ]).then(([c, m, a, crm, co]) => {
+      read(`${API}/sales`),
+    ]).then(([c, m, a, crm, co, sales]) => {
       clearTimeout(timer);
-      setLoadError([c, m, a, crm, co].some(r => r.status === 'rejected'));
+      setLoadError([c, m, a, crm, co, sales].some(r => r.status === 'rejected'));
       if (c.status === 'fulfilled') setContacts(Array.isArray(c.value) ? c.value : []);
       if (m.status === 'fulfilled') setMeetings(Array.isArray(m.value) ? m.value : []);
       if (a.status === 'fulfilled' && a.value) setAnalytics(a.value);
@@ -128,6 +130,7 @@ export default function AdminDashboard({ tickets = [], onViewTicket, setView }) 
         setCrmCount(arr.length);
       }
       if (co.status === 'fulfilled') setContracts(Array.isArray(co.value) ? co.value : co.value?.contracts || []);
+      if (sales.status === 'fulfilled') setSalesLeads(sales.value.leads || []);
       setLoading(false);
     });
     return () => { clearTimeout(timer); controller.abort(); };
@@ -142,9 +145,12 @@ export default function AdminDashboard({ tickets = [], onViewTicket, setView }) 
   const upcomingMtgs = meetings.filter(m => m.date?.slice(0, 10) >= today && ['scheduled', 'confirmed'].includes(m.status))
     .sort((a, b) => a.date.localeCompare(b.date) || String(a.time).localeCompare(String(b.time))).slice(0, 4);
   const unsignedContracts = contracts.filter(c => c.status === 'sent');
+  const salesToday = new Intl.DateTimeFormat('en-CA', { timeZone: 'America/Chicago', year: 'numeric', month: '2-digit', day: '2-digit' }).format(new Date());
+  const dueSales = salesLeads.filter(lead => !['won', 'lost'].includes(lead.stage) && lead.follow_up_date?.slice(0, 10) <= salesToday);
 
   // Needs-attention alerts
   const alerts = [
+    dueSales.length && { label: `${dueSales.length} sales follow-up${dueSales.length > 1 ? 's' : ''} due`, icon: Clock, action: () => setView('sales'), color: '#22c8e5' },
     pendingTickets.length && { label: `${pendingTickets.length} pending response${pendingTickets.length > 1 ? 's' : ''}`, icon: Clock, action: () => setView('admin'),  color: '#facc15' },
     unsignedContracts.length && { label: `${unsignedContracts.length} unsigned contract${unsignedContracts.length > 1 ? 's' : ''}`, icon: FileText, action: () => setView('contract-builder'), color: '#a78bfa' },
   ].filter(Boolean);

@@ -641,6 +641,10 @@ router.post('/check', async (req, res) => {
       console.error('[Accessibility] Failed to sync lead to CRM:', crmErr.message);
     }
 
+    try {
+      await require('../utils/sales').createSalesService(pool).captureLead({ email: data.contactEmail, name: data.firstName, company: data.businessName, phone: data.phone }, 'accessibility_audit');
+    } catch (error) { console.error('[Accessibility] Failed to capture sales lead:', error.message); }
+
     sendReportEmails(data, report, checkId).catch((err) =>
       console.error('[Accessibility] Failed to send report emails:', err.message)
     );

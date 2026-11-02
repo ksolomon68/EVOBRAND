@@ -27,6 +27,8 @@ const BOOTED_AT = new Date().toISOString();
 // Middleware
 app.use(cors());
 app.use(express.json());
+app.use('/api/sales', require('./routes/sales'));
+app.use('/sales', require('./routes/sales'));
 
 // Serve uploaded ticket attachments as static files.
 // In production the frontend (static public_html) and this API are

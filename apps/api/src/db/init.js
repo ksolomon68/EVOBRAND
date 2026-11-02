@@ -240,6 +240,11 @@ async function initializeDatabase() {
       )
     `);
 
+    const sales = require('../utils/sales').createSalesService(pool);
+    await sales.initialize();
+    await sales.importAudits();
+    await sales.reconcile();
+
     console.log('Database initialization complete.');
   } catch (error) {
     console.error('Error initializing database:', error.message);

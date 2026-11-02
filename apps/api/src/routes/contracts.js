@@ -6,6 +6,11 @@ const { addToCustomersList } = require('../utils/crmHelpers');
 const { getEmailTemplate } = require('../utils/emailTemplate');
 const { sendEmail } = require('../utils/mailer');
 
+async function syncSalesContract(id) {
+  try { await require('../utils/sales').createSalesService(pool).syncContract(id); }
+  catch (error) { console.error('Failed to synchronize signed contract with sales pipeline:', error.message); }
+}
+
 
 const ensureTable = async () => {
   await pool.query(`
@@ -76,6 +81,7 @@ router.post('/', authenticateToken, requireAdmin, async (req, res) => {
       'INSERT INTO contracts (title, client_email, client_user_id, contract_data, created_by, status) VALUES (?, ?, ?, ?, ?, ?)',
       [title, clientEmail || null, clientUserId, JSON.stringify(contractData), req.user.id, contractStatus]
     );
+    if (contractStatus === 'signed') await syncSalesContract(result.insertId);
 
     // Send email notification to client and copy to admin
     if (contractStatus !== 'draft' && clientEmail && clientEmail.includes('@')) {
@@ -146,6 +152,7 @@ router.put('/:id', authenticateToken, requireAdmin, async (req, res) => {
       'UPDATE contracts SET title = ?, client_email = ?, client_user_id = ?, contract_data = ?, status = ? WHERE id = ?',
       [title, clientEmail || null, clientUserId, JSON.stringify(contractData), contractStatus, req.params.id]
     );
+    if (contractStatus === 'signed') await syncSalesContract(req.params.id);
 
     // Send email notification to the updated client email and copy to admin
     if (contractStatus !== 'draft' && clientEmail && clientEmail.includes('@')) {
@@ -239,6 +246,7 @@ router.put('/:id/status', authenticateToken, requireAdmin, async (req, res) => {
   }
   try {
     await pool.query('UPDATE contracts SET status = ? WHERE id = ?', [status, req.params.id]);
+    if (status === 'signed') await syncSalesContract(req.params.id);
     res.json({ message: 'Status updated' });
   } catch (error) {
     res.status(500).json({ error: 'Server error updating status' });
@@ -274,6 +282,7 @@ router.post('/:id/sign', authenticateToken, async (req, res) => {
       'UPDATE contracts SET status = "signed", client_signature = ?, client_signed_at = NOW(), signer_ip = ?, signer_user_agent = ? WHERE id = ?',
       [signature.trim(), req.ip || null, String(req.get('user-agent') || '').slice(0, 500), req.params.id]
     );
+    await syncSalesContract(req.params.id);
 
     // Auto-add signer to Customers CRM list
     const nameParts = (req.user.name || '').split(' ');

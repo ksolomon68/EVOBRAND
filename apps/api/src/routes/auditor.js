@@ -578,6 +578,10 @@ router.post('/audit', async (req, res) => {
       console.error('[Audit] Failed to sync lead to CRM:', crmErr.message);
     }
 
+    try {
+      await require('../utils/sales').createSalesService(pool).captureLead({ email: data.contactEmail, name: data.firstName, company: data.businessName, phone: data.phone }, 'brand_audit');
+    } catch (error) { console.error('[Audit] Failed to capture sales lead:', error.message); }
+
     sendAuditEmails(data, report, auditId, presence).catch((err) =>
       console.error('[Audit] Failed to send audit emails:', err.message)
     );

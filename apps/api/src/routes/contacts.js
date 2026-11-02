@@ -103,6 +103,10 @@ router.post('/submit', uploadLogo.single('logo'), async (req, res) => {
       [name, email, subject || 'General Inquiry', message, requirements || null, logoUrl]
     );
 
+    try {
+      await require('../utils/sales').createSalesService(pool).captureLead({ email, name }, 'inquiry');
+    } catch (error) { console.error('Failed to capture inquiry in sales pipeline:', error.message); }
+
     // 2. Handle Newsletter Opt-in
     if (subscribeNewsletter) {
       try {

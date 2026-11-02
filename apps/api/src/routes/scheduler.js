@@ -347,6 +347,10 @@ router.post('/book', async (req, res) => {
       [resolvedUserId, date, time, bookingType, duration || 30, notes || '', meet_link, 'scheduled']
     );
 
+    try {
+      await require('../utils/sales').createSalesService(pool).syncBooking(result.insertId);
+    } catch (error) { console.error('Failed to synchronize consultation with sales pipeline:', error.message); }
+
     // Fetch user details for email if not provided
     let finalEmail = clientEmail;
     let finalName = clientName;
