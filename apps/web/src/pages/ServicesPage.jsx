@@ -65,7 +65,7 @@ export default function ServicesPage() {
         media={{
           src: `${IMG}/chambercore-1024.webp`,
           width: 1024,
-          height: 495,
+          height: 548,
           alt: 'ChamberCore platform home page',
           caption: 'ChamberCore · Membership and operations platform',
         }}

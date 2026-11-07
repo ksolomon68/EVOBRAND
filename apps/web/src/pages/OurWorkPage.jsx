@@ -27,7 +27,7 @@ function FlagshipCard({ item, i, hidden = false }) {
       tabIndex={hidden ? -1 : undefined}
     >
       <div className="work-card__media">
-        <img src={item.image} alt={hidden ? '' : `${item.title} home page`} loading="lazy" decoding="async" />
+        <img src={item.image} className={item.fit === 'cover' ? 'is-cover' : undefined} alt={hidden ? '' : `${item.title} home page`} loading="lazy" decoding="async" />
         <span className="work-card__index">{pad(i + 1)} / {pad(FLAGSHIP.length)}</span>
       </div>
       <div className="work-card__body">
