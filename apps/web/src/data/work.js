@@ -6,7 +6,7 @@ export const FLAGSHIP = [
     title: 'Chamber Core',
     category: 'SaaS Platform',
     industry: 'Business Solutions',
-    image: '/projects/chamberos.png',
+    image: '/projects/optimized/chambercore-1024.webp',
     highlights: ['Saves 12+ Hrs/Wk', '19 Modules', '$0 Setup'],
     description: 'Stop running your chamber on spreadsheets. The all-in-one platform built to automate dues, events, governance, advocacy, and member engagement.',
     link: 'https://chambercore.net'
@@ -16,7 +16,7 @@ export const FLAGSHIP = [
     title: 'EVOGovCon',
     category: 'SaaS Platform',
     industry: 'Government',
-    image: '/projects/evogovcon.png',
+    image: '/projects/optimized/evogovcon-1024.webp',
     highlights: ['NAICS Matching', 'Free for Labor & Business', 'Prime Diversity Pipelines'],
     description: 'Federal and state contracting infrastructure that maps skilled trade labor to NAICS codes, certifies small business readiness, and delivers audit-ready diversity pipelines for prime contractors.',
     link: 'https://evogovcon.com/'
@@ -50,6 +50,7 @@ export const FLAGSHIP = [
     category: 'SaaS Platform',
     industry: 'Real Estate & PropTech',
     image: '/projects/evosphere.png',
+    fit: 'cover',
     highlights: ['Brokerage Overview', 'AI Matching', 'Sales Pipeline', 'Sphere Intelligence'],
     description: 'Full-featured real estate brokerage platform with an agent overview dashboard, live sales pipeline, AI-powered property matching, and Sphere Intelligence insights — all in one connected workspace.',
     link: 'https://evobrandconcepts.com/evoshere/'

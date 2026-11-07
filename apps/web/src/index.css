@@ -1737,11 +1737,14 @@ html {
   border: 1px solid var(--evo-line);
   box-shadow: 0 30px 60px -30px rgba(0, 0, 0, 0.8);
 }
+.flip-card__media { background: var(--ink-950); }
+/* Site screenshots show whole: the frame matches a desktop screenshot and
+   anything wider is letterboxed on the dark background, never cropped. */
 .flip-card__media img {
   display: block;
   width: 100%;
-  aspect-ratio: 16 / 10;
-  object-fit: cover;
+  aspect-ratio: 1024 / 550;
+  object-fit: contain;
   object-position: top center;
   transition: transform 1.2s cubic-bezier(0.22, 1, 0.36, 1);
 }
@@ -2780,7 +2783,8 @@ html {
    two copies must be identical halves. Spacing comes from each card's margin. */
 .work-reel__track { display: flex; width: max-content; will-change: transform; }
 .work-card--marquee { flex: 0 0 auto; width: clamp(17rem, 30vw, 26rem); margin-right: var(--space-m); }
-.work-card--marquee .work-card__media img { aspect-ratio: 16 / 10; }
+.work-card--marquee .work-card__media img { aspect-ratio: 1024 / 550; object-fit: contain; }
+.work-card--marquee .work-card__media img.is-cover { object-fit: cover; }
 .work-card--marquee .work-card__title { font-size: var(--step-2); }
 .work-card--marquee .work-card__text {
   display: -webkit-box;

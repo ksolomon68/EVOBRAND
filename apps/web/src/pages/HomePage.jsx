@@ -21,7 +21,7 @@ const PROJECTS = [
     url: 'https://evogovcon.com/',
     image: `${IMG}/evogovcon-1024.webp`,
     width: 1024,
-    height: 492,
+    height: 551,
     alt: 'EVOGovCon platform home page',
   },
   {
@@ -32,7 +32,7 @@ const PROJECTS = [
     url: 'https://chambercore.net',
     image: `${IMG}/chambercore-1024.webp`,
     width: 1024,
-    height: 495,
+    height: 548,
     alt: 'ChamberCore platform home page',
   },
   {
