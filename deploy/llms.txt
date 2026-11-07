@@ -1,11 +1,12 @@
 # EVOBRAND Concepts
 
-> Senior-led digital agency in Dallas–Fort Worth, Texas, building websites, custom AI applications, document automation, AI video and WCAG accessibility for government agencies, nonprofits and businesses. SBE, WBE and MBE certified. Contact: info@evobrand.net, +1 214-531-4427.
+> Full-stack digital agency in Dallas–Fort Worth, Texas, building websites, custom AI applications, document automation, AI video and WCAG accessibility for government agencies, nonprofits and businesses. SBE, WBE and MBE certified. Contact: info@evobrand.net, +1 214-531-4427.
 
 ## Pages
 - [Websites, AI & Automation for Your Business | EVOBRAND](https://evobrand.net/): EVOBRAND builds websites, custom applications, and practical AI workflows for businesses and organizations. Based in the Dallas–Fort Worth area. Serving clients nationwide.
-- [Services | Websites, Custom AI Applications, Video & Accessibility | EVOBRAND](https://evobrand.net/services): EVOBRAND builds websites and portals, custom AI applications, document automation, AI visual content and video, and WCAG accessibility. Senior-led since 1999, with transparent pricing.
+- [Services | Websites, Custom AI Applications, Video & Accessibility | EVOBRAND](https://evobrand.net/services): EVOBRAND builds websites and portals, custom AI applications, document automation, AI visual content and video, and WCAG accessibility. In business since 1999, with transparent pricing.
 - [Google Ad Grants for Nonprofits | EVOBRAND Concepts](https://evobrand.net/google-ad-grants): Turn up to $10,000 per month in Google Search advertising into measurable mission impact. Assess readiness, launch campaigns and grow with EVOBRAND.
+- [Government Web, Accessibility & AI | SBE, WBE, MBE Certified | EVOBRAND](https://evobrand.net/government): EVOBRAND Concepts is an NCTRCA-certified SBE, WBE and MBE in Dallas–Fort Worth. Websites, WCAG 2.1 AA accessibility for ADA Title II, custom applications and video for public agencies. NAICS 512110 and 518210.
 - [How We Work | Discovery to Launch | EVOBRAND](https://evobrand.net/how-it-works): EVOBRAND's four-phase delivery process: Discovery & Strategy, Development, Testing & Launch, and ongoing Optimization. Typical timelines from 2 to 12 weeks.
 - [Our Work: Platforms, Websites, Academy and Case Studies | EVOBRAND](https://evobrand.net/our-work): Selected EVOBRAND work for government agencies, nonprofits, and businesses: government contracting platforms, membership systems, live dashboard demos, websites, and EVOBRAND Academy's AI Executive Sandbox.
 - [Video Library | EVOBRAND](https://evobrand.net/our-work/videos): Explore EVOBRAND videos on branding, automation, AI, and business growth: walkthroughs, tutorials, and client stories.
