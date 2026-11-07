@@ -4,6 +4,7 @@ import SEO from '@/components/SEO.jsx';
 import FrameScrub from '@/components/cinematic/FrameScrub.jsx';
 import { CtaBand, InnerHero, LinkCards, SplitSection, useStaggerReveal } from '@/components/inner/InnerKit.jsx';
 import { ButtonLink, ProofLedger, SectionHeading } from '@/components/system/Section.jsx';
+import { CAPABILITY_PROFILE } from '@/data/documents.js';
 import { useMotion } from '@/lib/motion.js';
 
 const CORE_VALUES = [
@@ -334,7 +335,7 @@ export default function AboutPage() {
                 <ButtonLink to="/government" data-cta="about-cert-government">
                   Government &amp; procurement <ArrowRight size={16} aria-hidden="true" />
                 </ButtonLink>
-                <a className="evo-btn evo-btn--secondary" href="/docs/evobrand-capabilities-profile.pdf" download data-cta="about-cert-profile">
+                <a className="evo-btn evo-btn--secondary" href={CAPABILITY_PROFILE} download data-cta="about-cert-profile">
                   <Download size={16} aria-hidden="true" /> Capabilities profile <span className="sr-only">(PDF)</span>
                 </a>
               </div>

@@ -5,6 +5,7 @@ import {
 import SEO from '@/components/SEO.jsx';
 import { CtaBand, Faq, InnerHero, LinkCards, SplitSection, StepList, useStaggerReveal } from '@/components/inner/InnerKit.jsx';
 import { ButtonLink } from '@/components/system/Section.jsx';
+import { CAPABILITY_PROFILE } from '@/data/documents.js';
 
 const PAGE_URL = 'https://evobrand.net/government';
 
@@ -33,7 +34,7 @@ const CERTIFICATIONS = [
 const CERTIFYING_AGENCY = 'North Central Texas Regional Certification Agency (NCTRCA)';
 const CERT_ISSUED = 'October 9, 2025';
 const CERT_EXPIRES = 'October 31, 2027';
-const CAPABILITY_PROFILE = '/docs/evobrand-capabilities-profile.pdf';
+
 
 // NAICS codes on the NCTRCA certificates (titles as printed there).
 const NAICS = [

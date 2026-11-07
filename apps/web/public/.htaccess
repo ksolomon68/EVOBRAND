@@ -53,6 +53,14 @@ ErrorDocument 404 /404.html
   </IfModule>
 </FilesMatch>
 
+# Documents (capabilities profile, certificates) are replaced in place, so
+# caches must check for a newer copy instead of holding one for hours.
+<FilesMatch "\.pdf$">
+  <IfModule mod_headers.c>
+    Header set Cache-Control "no-cache, must-revalidate"
+  </IfModule>
+</FilesMatch>
+
 <IfModule mod_headers.c>
   # Fonts and images rarely change; cache for 30 days.
   <FilesMatch "\.(woff2|png|jpe?g|webp|avif|svg|ico)$">
