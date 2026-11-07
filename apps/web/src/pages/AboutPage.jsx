@@ -302,8 +302,8 @@ export default function AboutPage() {
           <p>
             Keisha founded the company as EVOBRAND Marketing and has spent more than 25 years building brands,
             websites, and digital platforms for government agencies, corporations, and nonprofits. Under her
-            leadership, EVOBRAND built ChamberCore, which runs chambers of commerce, and PrimeReach, which connects
-            government prime contractors with qualified small businesses.
+            leadership, EVOBRAND built ChamberCore, which runs chambers of commerce, and EVOGovCon, which connects
+            skilled trade workers and small businesses with government prime contractors.
           </p>
         </div>
       </FrameScrub>

@@ -169,7 +169,7 @@ const CAPABILITIES = [
 ];
 
 const PLATFORMS = [
-  { label: 'PrimeReach', title: 'Government contracting platform', body: 'A white-label platform that connects prime contractors with qualified small businesses, built for transportation and infrastructure agencies, with SBE matching.' },
+  { label: 'EVOGovCon', title: 'Government contracting platform', body: 'Federal and state contracting infrastructure that maps skilled trade labor to NAICS codes, certifies small business readiness, and gives prime contractors audit-ready diversity pipelines.' },
   { label: 'Concept demo', title: 'Certification agency portal', body: 'A regional certification portal and pipeline CRM covering applicant workflows, review stages, outreach campaigns and agency reporting.' },
   { label: 'Concept demo', title: 'Contractor and bid hub', body: 'A member hub and procurement portal that connects contractors with active bid opportunities, mentorship pairings and partner networks.' },
   { label: 'ChamberCore', title: 'Membership and civic operations', body: 'An all-in-one platform that runs chambers of commerce, covering dues, events, governance, advocacy and member engagement.' },
