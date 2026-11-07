@@ -1,6 +1,6 @@
 import React, { useRef, useState } from 'react';
 import {
-  Accessibility, Check, Clapperboard, Code2, Copy, Download, FileText, Image, Landmark, Sparkles,
+  Accessibility, Check, Clapperboard, Code2, Copy, Download, FileText, Image, Sparkles,
 } from 'lucide-react';
 import SEO from '@/components/SEO.jsx';
 import { CtaBand, Faq, InnerHero, LinkCards, SplitSection, StepList, useStaggerReveal } from '@/components/inner/InnerKit.jsx';
@@ -168,10 +168,10 @@ const CAPABILITIES = [
 ];
 
 const PLATFORMS = [
-  { title: 'Government contracting platform', body: 'PrimeReach: a white-label platform that connects prime contractors with qualified small businesses, built for transportation and infrastructure agencies with SBE matching.' },
-  { title: 'Certification agency portal', body: 'A regional certification portal and pipeline CRM concept covering applicant workflows, review stages, outreach campaigns and agency reporting.' },
-  { title: 'Contractor and bid hub', body: 'A member hub and procurement portal concept that connects contractors with active bid opportunities, mentorship pairings and partner networks.' },
-  { title: 'Membership and civic operations', body: 'ChamberCore: an all-in-one platform that runs chambers of commerce, covering dues, events, governance, advocacy and member engagement.' },
+  { label: 'PrimeReach', title: 'Government contracting platform', body: 'A white-label platform that connects prime contractors with qualified small businesses, built for transportation and infrastructure agencies, with SBE matching.' },
+  { label: 'Concept demo', title: 'Certification agency portal', body: 'A regional certification portal and pipeline CRM covering applicant workflows, review stages, outreach campaigns and agency reporting.' },
+  { label: 'Concept demo', title: 'Contractor and bid hub', body: 'A member hub and procurement portal that connects contractors with active bid opportunities, mentorship pairings and partner networks.' },
+  { label: 'ChamberCore', title: 'Membership and civic operations', body: 'An all-in-one platform that runs chambers of commerce, covering dues, events, governance, advocacy and member engagement.' },
 ];
 
 const STEPS = [
@@ -194,12 +194,14 @@ function PlatformList() {
   const ref = useRef(null);
   useStaggerReveal(ref);
   return (
-    <ul ref={ref} className="value-grid">
+    <ul ref={ref} className="platform-list">
       {PLATFORMS.map((p) => (
-        <li key={p.title} data-reveal-item>
-          <span className="mega-link__icon" aria-hidden="true"><Landmark size={20} strokeWidth={1.6} /></span>
-          <h3>{p.title}</h3>
-          <p>{p.body}</p>
+        <li key={p.title} className="platform-list__item" data-reveal-item>
+          <span className="platform-list__label">{p.label}</span>
+          <div>
+            <h3>{p.title}</h3>
+            <p>{p.body}</p>
+          </div>
         </li>
       ))}
     </ul>
@@ -311,6 +313,7 @@ export default function GovernmentPage() {
         <div className="vendor-sheet__actions">
           <ButtonLink to="/accessibility-checker" data-cta="gov-ada-checker">Run a free accessibility scan</ButtonLink>
           <ButtonLink to="/services/wcag-accessibility" variant="secondary" data-cta="gov-ada-service">Accessibility services</ButtonLink>
+          <ButtonLink to="/blog/ada-title-ii-web-accessibility-guide-for-state-and-local-governments" variant="secondary" data-cta="gov-ada-guide">Read the Title II guide</ButtonLink>
         </div>
       </SplitSection>
 

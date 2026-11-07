@@ -3762,3 +3762,27 @@ body:has(.cta-band) .site-footer__statement { display: none; }
   .gov-callout { grid-template-columns: 1fr; padding: var(--space-l); }
   .gov-callout__actions { grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr)); }
 }
+
+/* ── Government page: experience list ──────────────────────────────────── */
+.platform-list { margin: 0; padding: 0; list-style: none; border-top: 1px solid var(--evo-line); }
+.platform-list__item {
+  display: grid;
+  grid-template-columns: 11rem 1fr;
+  gap: var(--space-m);
+  padding-block: var(--space-l);
+  border-bottom: 1px solid var(--evo-line);
+}
+.platform-list__label {
+  padding-top: 0.45rem;
+  font-family: var(--font-label);
+  font-size: var(--step--2);
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--evo-accent);
+}
+.platform-list h3 { font-family: var(--font-display); font-size: var(--step-1); font-weight: 500; line-height: 1.3; color: var(--evo-text); }
+.platform-list p { margin-top: var(--space-2xs); max-width: 58ch; font-size: var(--step-0); line-height: 1.6; color: var(--evo-muted); }
+@media (max-width: 640px) {
+  .platform-list__item { grid-template-columns: 1fr; gap: var(--space-2xs); }
+}

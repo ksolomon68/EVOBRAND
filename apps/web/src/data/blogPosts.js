@@ -3,19 +3,20 @@ const renderList = (items, ordered = false) => {
   return `<${tag} class="wp-block-list">${items.map((item) => `<li>${item}</li>`).join('')}</${tag}>`;
 };
 
-const buildContent = ({ lead, answer, sections, checklist, questions, sources = [] }) => `
+const buildContent = ({ lead, answer, sections, checklist, questions, sources = [], checklistHeading = 'What to do this week', questionsHeading = 'Questions business owners ask', nextStep }) => `
 <p class="lead font-medium text-lg text-gray-300">${lead}</p>
 <div class="article-summary"><p><strong>Quick answer:</strong> ${answer}</p></div>
-${sections.map(({ heading, paragraphs, bullets }) => `
+${sections.map(({ heading, paragraphs, bullets, after = [] }) => `
 <h2 class="wp-block-heading">${heading}</h2>
 ${paragraphs.map((paragraph) => `<p>${paragraph}</p>`).join('\n')}
-${bullets ? renderList(bullets) : ''}`).join('\n')}
-<h2 class="wp-block-heading">What to do this week</h2>
+${bullets ? renderList(bullets) : ''}
+${after.map((paragraph) => `<p>${paragraph}</p>`).join('\n')}`).join('\n')}
+<h2 class="wp-block-heading">${checklistHeading}</h2>
 ${renderList(checklist, true)}
-<h2 class="wp-block-heading">Questions business owners ask</h2>
+<h2 class="wp-block-heading">${questionsHeading}</h2>
 ${questions.map(({ question, response }) => `<h3 class="wp-block-heading">${question}</h3><p>${response}</p>`).join('\n')}
 ${sources.length ? `<h2 class="wp-block-heading">Trusted resources</h2>${renderList(sources.map(({ href, label }) => `<a href="${href}" target="_blank" rel="noopener noreferrer">${label}</a> <span class="sr-only">(opens in a new tab)</span>`))}` : ''}
-<div class="article-next-step"><h2 class="wp-block-heading">Useful guidance, without the noise</h2><p>EVOBRAND turns technology, accessibility, and digital strategy into clear next steps for busy organizations. Subscribe below for practical guides you can use in your business.</p></div>`;
+<div class="article-next-step">${nextStep || '<h2 class="wp-block-heading">Useful guidance, without the noise</h2><p>EVOBRAND turns technology, accessibility, and digital strategy into clear next steps for busy organizations. Subscribe below for practical guides you can use in your business.</p>'}</div>`;
 
 const post = (data) => ({
   author: 'EVOBRAND Concepts',
@@ -26,6 +27,141 @@ const post = (data) => ({
 });
 
 export const blogPosts = [
+  post({
+    id: 40201,
+    slug: 'ada-title-ii-web-accessibility-guide-for-state-and-local-governments',
+    title: 'ADA Title II Web Accessibility: A Guide for Local Governments',
+    category: 'need-to-know-updates',
+    excerpt: 'What the DOJ’s Title II rule requires, the April 2027 and April 2028 deadlines, the five exceptions, and a practical plan for cities, counties, school districts and special districts.',
+    keywords: 'ADA Title II web accessibility, ADA Title II deadline 2027, WCAG 2.1 AA government website, DOJ web accessibility rule, local government website accessibility, special district accessibility 2028',
+    takeaway: 'Public entities serving 50,000 or more people must meet WCAG 2.1 AA by April 26, 2027. Smaller entities and every special district have until April 26, 2028. The rule covers websites, documents, mobile apps and the vendor platforms you use to deliver services.',
+    checklistHeading: 'What to do in the next 30 days',
+    questionsHeading: 'Questions agencies ask',
+    lead: 'If you run a city, county, school district, transit authority, utility, library or any other state or local government entity, the Department of Justice now sets a specific technical standard for your website and mobile apps. The deadline is closer than most budgets assume, and the rule reaches further than the homepage.',
+    answer: 'Under the DOJ’s Title II rule, your web content and mobile apps must meet <strong>WCAG 2.1 Level AA</strong>. Entities serving <strong>50,000 people or more</strong> must comply by <strong>April 26, 2027</strong>. Smaller entities and <strong>all special districts</strong> must comply by <strong>April 26, 2028</strong>. The rule covers content you publish directly and content you provide through vendors, including payment, permitting and application portals.',
+    sections: [
+      {
+        heading: 'What the rule requires',
+        paragraphs: [
+          'The Department of Justice published its final rule under Title II of the Americans with Disabilities Act in April 2024. It adds a new subpart to the Title II regulations (28 CFR Part 35, Subpart H) that requires state and local governments to make their web content and mobile apps readily accessible to and usable by people with disabilities.',
+          'For the first time, the rule names a technical standard: the success criteria and conformance requirements of the <strong>Web Content Accessibility Guidelines (WCAG) 2.1, Levels A and AA</strong>. That gives agencies, vendors and auditors a shared, testable benchmark instead of a general duty to be accessible.',
+          'The requirement applies to web content and mobile apps a public entity provides or makes available <strong>directly or through contractual, licensing or other arrangements</strong>. If a vendor runs your utility billing portal, your court e-filing system or your job application site, that content is part of your obligation.',
+        ],
+      },
+      {
+        heading: 'The deadlines, and who gets which one',
+        paragraphs: [
+          'In April 2026 the DOJ issued an interim final rule that pushed both compliance dates back by one year. The technical standard did not change. The current dates are:',
+        ],
+        bullets: [
+          '<strong>April 26, 2027:</strong> public entities, other than special district governments, with a total population of 50,000 or more.',
+          '<strong>April 26, 2028:</strong> public entities with a total population under 50,000, and <strong>every special district government</strong> regardless of the population it serves. That includes water, fire, hospital, transit and many school districts.',
+        ],
+        after: [
+          'Population is generally measured using U.S. Census Bureau data for the jurisdiction. Entities that are part of a larger government, such as a city department or a public university system, take the date that applies to the parent entity. Check the definitions in 28 CFR 35.104 if your status is unclear.',
+          'Plan to the published dates. The DOJ has said it may propose further changes to the rule, and the National Federation of the Blind has filed a lawsuit challenging the extension. Neither has changed the dates as of November 2026. Your existing duty under Title II to provide equal access, through accessible content or reasonable modifications, applies today.',
+        ],
+      },
+      {
+        heading: 'What counts as web content and mobile apps',
+        paragraphs: [
+          'Agencies often scope this as a website project. The rule is broader. Inventory everything a resident, student, employee or business uses online to get information or complete a task with you, including:',
+        ],
+        bullets: [
+          'Your main website and every subsite, microsite and department page.',
+          'Online forms, applications, payments, scheduling and account portals.',
+          'Documents posted online: PDFs, Word files, spreadsheets, agendas, minutes, budgets, maps and permits.',
+          'Video and audio, including recorded meetings, which need captions, and live streams.',
+          'Mobile apps you publish or provide through a vendor.',
+          'Third-party platforms you contract for: agenda management, permitting, e-filing, parks reservations, job applications, learning management systems and payment processors.',
+        ],
+        after: [
+          'The documents and vendor platforms are where most agencies find the largest gaps, because they sit outside the web team’s day-to-day control.',
+        ],
+      },
+      {
+        heading: 'The five exceptions, and their limits',
+        paragraphs: [
+          'The rule lists five exceptions in 28 CFR 35.201. Each one is narrower than it first appears.',
+        ],
+        bullets: [
+          '<strong>Archived web content.</strong> Content kept only for reference, research or recordkeeping, created before the compliance date (or a reproduction of pre-existing physical media), not altered after archiving, and stored in a clearly marked archive area. Labeling active content “archived” does not qualify it.',
+          '<strong>Preexisting conventional electronic documents.</strong> PDFs, word-processing files, spreadsheets and presentations posted before your compliance date, <strong>unless</strong> they are currently used to apply for, gain access to or participate in your services. A 2019 permit application still in use must be accessible.',
+          '<strong>Content posted by third parties.</strong> Comments, posts and uploads from members of the public, <strong>unless</strong> the third party posts because of a contractual, licensing or other arrangement with you. Your vendors are not third parties under this exception.',
+          '<strong>Individualized, password-protected documents.</strong> Documents about a specific person, their property or their account, such as a water bill or a tax statement, that are password-protected or otherwise secured. The portal people use to reach those documents is still covered.',
+          '<strong>Preexisting social media posts.</strong> Posts made before your compliance date. New posts after that date must meet the standard.',
+        ],
+        after: [
+          'Even when an exception applies, a person with a disability can still request access to excepted content, and you must provide it through an effective alternative.',
+        ],
+      },
+      {
+        heading: 'Four provisions that shape how you comply',
+        paragraphs: [
+          '<strong>Conforming alternate versions are a last resort.</strong> A separate accessible version of a page may be used only where making the original accessible is not possible because of technical or legal limitations (28 CFR 35.202). A text-only site maintained alongside an inaccessible main site does not meet the rule.',
+          '<strong>Equivalent facilitation is allowed.</strong> You may use a different design, method or technique when it provides substantially equivalent or greater accessibility and usability (28 CFR 35.203).',
+          '<strong>Undue burden and fundamental alteration have a process.</strong> If full compliance would fundamentally alter a program or impose undue financial and administrative burdens, the head of the entity or a designee must make that decision in writing, after considering all resources available for the program, and the entity must still provide access to the maximum extent possible (28 CFR 35.204).',
+          '<strong>Minimal-impact deviations are a narrow defense, not a target.</strong> An entity that is not fully compliant may still meet the rule if it can show the deviation has such a minimal impact that people with disabilities can access the same information, engage in the same interactions, conduct the same transactions and participate in the same services with substantially equivalent timeliness, privacy, independence and ease of use (28 CFR 35.205). Build to full conformance and treat this as protection against small, unavoidable defects.',
+        ],
+      },
+      {
+        heading: 'A practical plan to reach compliance',
+        paragraphs: [
+          'Accessibility programs stall when they start with a site-wide scan and a long list of errors. Start with the services residents depend on, then fix the shared parts that affect every page.',
+        ],
+        bullets: [
+          '<strong>Inventory.</strong> List every site, subsite, app, portal and document library, with an owner and whether you or a vendor controls it.',
+          '<strong>Prioritize by service.</strong> Rank by what people need to do: pay, apply, register, report, attend a meeting, read an emergency notice. Fix those journeys first.',
+          '<strong>Test properly.</strong> Combine automated scanning with manual testing: keyboard-only use, screen readers, 200% and 400% zoom, captions and forms. Automated tools find only part of the WCAG issues that matter.',
+          '<strong>Fix templates and components first.</strong> Headers, navigation, page templates, form controls and color tokens repeat across hundreds of pages. One fix there removes thousands of errors.',
+          '<strong>Decide your document strategy.</strong> Convert high-use documents to accessible web pages, remediate the PDFs people must use, archive what qualifies, and stop publishing new inaccessible files.',
+          '<strong>Bring vendors into scope.</strong> Ask every vendor for an Accessibility Conformance Report (ACR) based on the VPAT, test their product yourself, and set remediation dates in writing.',
+          '<strong>Train the people who publish.</strong> Headings, link text, alt text, tables, captions and documents are content decisions. Code alone cannot fix them.',
+          '<strong>Publish an accessibility statement and a feedback channel.</strong> Tell people how to report a barrier and how to get information in another format, and respond on a defined timeline.',
+          '<strong>Keep it current.</strong> Add accessibility checks to procurement, publishing and every release so new barriers do not replace the ones you fixed.',
+        ],
+      },
+      {
+        heading: 'Put it in your vendor contracts',
+        paragraphs: [
+          'Because the rule covers content provided through contracts and licenses, procurement is now an accessibility tool. For every new purchase and renewal, require conformance with WCAG 2.1 Level AA (or WCAG 2.2 AA, which also covers 2.1 AA requirements), a current ACR, the vendor’s cooperation with your testing, a defined remediation timeline for defects, and notice before updates that change the user interface.',
+          'For existing contracts, start the conversation now. A vendor that needs a product release to fix a checkout flow or an application form may need most of the time you have left.',
+        ],
+      },
+      {
+        heading: 'How long it takes',
+        paragraphs: [
+          'Timelines depend on the number of sites and documents, the age of your platforms and how much sits with vendors. A focused small site can be audited and remediated in weeks. A county with dozens of departments, legacy document libraries and several vendor portals should expect a multi-phase program. For entities on the April 2027 date, that means budget and contracting decisions belong in the current fiscal cycle.',
+        ],
+      },
+    ],
+    checklist: [
+      'Confirm your compliance date: April 26, 2027 or April 26, 2028.',
+      'Assign an owner and build an inventory of sites, apps, portals, documents and vendors.',
+      'Scan your highest-traffic pages and test your top five resident tasks by keyboard.',
+      'Request Accessibility Conformance Reports from every vendor that hosts a public-facing service.',
+      'Stop publishing new inaccessible PDFs and set a captioning rule for recorded meetings.',
+      'Publish or update your accessibility statement with a way to report barriers.',
+    ],
+    questions: [
+      { question: 'Does the rule apply if we serve fewer than 50,000 people?', response: 'Yes. Smaller public entities follow the same WCAG 2.1 AA standard. Your compliance date is April 26, 2028.' },
+      { question: 'We are a special district. Which date applies?', response: 'April 26, 2028, regardless of the population your district serves. That includes school, water, fire, hospital and transit districts.' },
+      { question: 'Is this the same as Section 508?', response: 'No. Section 508 applies to federal agencies and the technology they procure. Title II covers state and local governments. Both rely on WCAG, so work done for one usually supports the other.' },
+      { question: 'Should we target WCAG 2.1 or WCAG 2.2?', response: 'The rule requires WCAG 2.1 AA. Building to WCAG 2.2 AA is a sound choice for new work because it includes the 2.1 requirements and adds a few more, which keeps you ahead of future updates.' },
+      { question: 'Will an accessibility overlay or widget make us compliant?', response: 'No. An overlay cannot repair inaccessible code, documents, video or vendor platforms, and some create new barriers for screen-reader users. Fix the underlying content and code.' },
+      { question: 'Do we have to fix every old PDF?', response: 'Not every one. Documents posted before your compliance date are excepted unless people currently use them to apply for, access or participate in your services. Those must be accessible, as must anything you post after the deadline.' },
+      { question: 'What happens if we miss the deadline?', response: 'Title II is enforced through DOJ investigations and complaints, and individuals can bring lawsuits. Beyond legal exposure, inaccessible services shut residents out of essential programs. Documented, measurable progress is far better than waiting.' },
+    ],
+    sources: [
+      { href: 'https://www.ada.gov/resources/2024-03-08-web-rule/', label: 'ADA.gov: Fact sheet on the Title II web and mobile app accessibility rule' },
+      { href: 'https://www.ada.gov/resources/web-rule-first-steps/', label: 'ADA.gov: First steps toward complying with the Title II web rule' },
+      { href: 'https://www.law.cornell.edu/cfr/text/28/35.200', label: '28 CFR 35.200: Requirements and compliance dates' },
+      { href: 'https://www.law.cornell.edu/cfr/text/28/35.201', label: '28 CFR 35.201: Exceptions' },
+      { href: 'https://www.w3.org/TR/WCAG21/', label: 'W3C: Web Content Accessibility Guidelines (WCAG) 2.1' },
+    ],
+    nextStep: '<h2 class="wp-block-heading">Know where you stand before the deadline</h2><p>EVOBRAND helps cities, counties, school districts and special districts meet WCAG 2.1 AA: audits, template and document remediation, vendor reviews and conformance documentation. Start with a <a href="/accessibility-checker">free accessibility scan</a>, see our <a href="/services/wcag-accessibility">accessibility services</a>, or find our certifications and vendor details on the <a href="/government">government &amp; procurement page</a>. Ready to plan? <a href="/book-consultation">Book a call</a>.</p>',
+    date: '2026-11-07', image: 'https://images.unsplash.com/photo-1611326268719-55a69e4316b9?auto=format&fit=crop&w=1200&q=80', imageAlt: 'Philadelphia City Hall in black and white', featured: true,
+  }),
   post({
     id: 40101,
     slug: 'architecting-enterprise-ai-moving-beyond-chatbots-to-autonomous-business-systems',
