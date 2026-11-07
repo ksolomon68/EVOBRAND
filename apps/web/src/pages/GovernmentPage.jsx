@@ -1,6 +1,6 @@
 import React, { useRef, useState } from 'react';
 import {
-  Accessibility, Check, Clapperboard, Code2, Copy, FileText, Image, Landmark, Sparkles,
+  Accessibility, Check, Clapperboard, Code2, Copy, Download, FileText, Image, Landmark, Sparkles,
 } from 'lucide-react';
 import SEO from '@/components/SEO.jsx';
 import { CtaBand, Faq, InnerHero, LinkCards, SplitSection, StepList, useStaggerReveal } from '@/components/inner/InnerKit.jsx';
@@ -23,18 +23,22 @@ const VENDOR = {
   email: 'info@evobrand.net',
 };
 
+// From the NCTRCA certificates in public/docs. Update numbers, dates and
+// files together when the certificates are renewed.
 const CERTIFICATIONS = [
-  { code: 'SBE', title: 'Small Business Enterprise' },
-  { code: 'WBE', title: "Women's Business Enterprise" },
-  { code: 'MBE', title: 'Minority Business Enterprise' },
+  { code: 'MBE', title: 'Minority Business Enterprise', number: 'BFMB79272N1027', file: '/docs/evobrand-nctrca-mbe-certificate.pdf' },
+  { code: 'WBE', title: "Women's Business Enterprise", number: 'BFWB65235N1027', file: '/docs/evobrand-nctrca-wbe-certificate.pdf' },
+  { code: 'SBE', title: 'Small Business Enterprise', number: 'BFSB13993N1027', file: '/docs/evobrand-nctrca-sbe-certificate.pdf' },
 ];
 const CERTIFYING_AGENCY = 'North Central Texas Regional Certification Agency (NCTRCA)';
+const CERT_ISSUED = 'October 9, 2025';
+const CERT_EXPIRES = 'October 31, 2027';
+const CAPABILITY_PROFILE = '/docs/evobrand-capabilities-profile.pdf';
 
+// NAICS codes on the NCTRCA certificates (titles as printed there).
 const NAICS = [
-  { code: '541511', title: 'Custom Computer Programming Services' },
-  { code: '541512', title: 'Computer Systems Design Services' },
-  { code: '541430', title: 'Graphic Design Services' },
-  { code: '512110', title: 'Motion Picture and Video Production' },
+  { code: '512110', title: 'Video Production and Distribution' },
+  { code: '518210', title: 'Computing Infrastructure Providers, Data Processing, Web Hosting, and Related Services' },
 ];
 
 function vendorRows() {
@@ -42,8 +46,8 @@ function vendorRows() {
     ['Legal name', VENDOR.legalName],
     ['Principal', VENDOR.owner],
     ['Business type', VENDOR.ownership],
-    ['Certifications', `${CERTIFICATIONS.map((c) => c.code).join(', ')} · ${CERTIFYING_AGENCY}`],
-    ['NAICS', NAICS.map((n) => `${n.code} ${n.title}`).join('; ')],
+    ['Certifications', `${CERTIFICATIONS.map((c) => `${c.code} ${c.number}`).join(', ')} · ${CERTIFYING_AGENCY} · expires ${CERT_EXPIRES}`],
+    ['Certified NAICS', NAICS.map((n) => `${n.code} ${n.title}`).join('; ')],
     ['UEI', VENDOR.uei],
     ['CAGE', VENDOR.cage],
     ['Established', VENDOR.established],
@@ -81,14 +85,25 @@ function VendorSheet() {
           <dd>
             <ul className="vendor-sheet__certs">
               {CERTIFICATIONS.map((c) => (
-                <li key={c.code}><strong>{c.code}</strong> {c.title}</li>
+                <li key={c.code} className="vendor-sheet__cert">
+                  <strong>{c.code}</strong>
+                  <span>
+                    {c.title}
+                    <span className="vendor-sheet__certline">
+                      <span className="vendor-sheet__num">No. {c.number}</span>
+                      <a href={c.file} target="_blank" rel="noopener noreferrer" data-cta={`gov-cert-${c.code.toLowerCase()}`}>
+                        View certificate<span className="sr-only"> ({c.code}, PDF, opens in a new tab)</span>
+                      </a>
+                    </span>
+                  </span>
+                </li>
               ))}
             </ul>
-            <span className="vendor-sheet__note">Certified by the {CERTIFYING_AGENCY}</span>
+            <span className="vendor-sheet__note">Certified by the {CERTIFYING_AGENCY}. Issued {CERT_ISSUED}, expires {CERT_EXPIRES}.</span>
           </dd>
         </div>
         <div className="vendor-sheet__row">
-          <dt>NAICS codes</dt>
+          <dt>Certified NAICS</dt>
           <dd>
             <ul className="vendor-sheet__naics">
               {NAICS.map((n) => (
@@ -130,6 +145,9 @@ function VendorSheet() {
         </div>
       </dl>
       <div className="vendor-sheet__actions">
+        <a className="evo-btn evo-btn--primary" href={CAPABILITY_PROFILE} download data-cta="gov-download-profile">
+          <Download size={16} aria-hidden="true" /> Download capabilities profile <span className="vendor-sheet__meta">PDF</span>
+        </a>
         <button type="button" className="evo-btn evo-btn--secondary" onClick={copy} data-cta="gov-copy-vendor">
           {copied ? <Check size={16} aria-hidden="true" /> : <Copy size={16} aria-hidden="true" />}
           {copied ? 'Copied' : 'Copy vendor details'}
@@ -141,12 +159,12 @@ function VendorSheet() {
 }
 
 const CAPABILITIES = [
-  { to: '/services/wcag-accessibility', icon: Accessibility, meta: 'NAICS 541511 · 541512', title: 'WCAG 2.1 AA accessibility', body: 'Audits, remediation, accessible PDFs and conformance reports for ADA Title II and Section 508.', cta: 'Accessibility services' },
-  { to: '/services/web-development', icon: Code2, meta: 'NAICS 541511', title: 'Websites and portals', body: 'Agency websites, resident and vendor portals, and content systems your staff can run.', cta: 'Web development' },
-  { to: '/services/custom-ai-applications', icon: Sparkles, meta: 'NAICS 541511 · 541512', title: 'Custom applications and AI', body: 'Case tracking, intake, dashboards and AI assistants built around your processes and policies.', cta: 'Custom applications' },
-  { to: '/services/document-generation', icon: FileText, meta: 'NAICS 541511', title: 'Document automation', body: 'Permits, letters, reports and notices generated from your data, consistent and accessible.', cta: 'Document generation' },
+  { to: '/services/wcag-accessibility', icon: Accessibility, meta: 'Accessibility', title: 'WCAG 2.1 AA accessibility', body: 'Audits, remediation, accessible PDFs and conformance reports for ADA Title II and Section 508.', cta: 'Accessibility services' },
+  { to: '/services/web-development', icon: Code2, meta: 'NAICS 518210', title: 'Websites, portals and hosting', body: 'Agency websites, resident and vendor portals, hosting and content systems your staff can run.', cta: 'Web development' },
+  { to: '/services/custom-ai-applications', icon: Sparkles, meta: 'Applications', title: 'Custom applications and AI', body: 'Case tracking, intake, dashboards and AI assistants built around your processes and policies.', cta: 'Custom applications' },
+  { to: '/services/document-generation', icon: FileText, meta: 'NAICS 518210', title: 'Document automation and data processing', body: 'Permits, letters, reports and notices generated from your data, consistent and accessible.', cta: 'Document generation' },
   { to: '/services/ai-video-production', icon: Clapperboard, meta: 'NAICS 512110', title: 'Video production', body: 'Explainers, public announcements and training video, captioned and ready to publish.', cta: 'Video production' },
-  { to: '/services/ai-visual-content', icon: Image, meta: 'NAICS 541430', title: 'Brand and visual design', body: 'Program branding, campaign graphics and print or digital materials for public outreach.', cta: 'Visual content' },
+  { to: '/services/ai-visual-content', icon: Image, meta: 'Communications', title: 'Brand and visual design', body: 'Program branding, campaign graphics and print or digital materials for public outreach.', cta: 'Visual content' },
 ];
 
 const PLATFORMS = [
@@ -164,9 +182,9 @@ const STEPS = [
 ];
 
 const FAQS = [
-  { q: 'Is EVOBRAND a certified small, woman-owned and minority-owned business?', a: 'Yes. EVOBRAND Concepts LLC is certified as a Small Business Enterprise (SBE), Women’s Business Enterprise (WBE) and Minority Business Enterprise (MBE) by the North Central Texas Regional Certification Agency (NCTRCA). You can confirm current status in the NCTRCA directory.' },
+  { q: 'Is EVOBRAND a certified small, woman-owned and minority-owned business?', a: 'Yes. EVOBRAND Concepts LLC is certified as a Small Business Enterprise (SBE), Women’s Business Enterprise (WBE) and Minority Business Enterprise (MBE) by the North Central Texas Regional Certification Agency (NCTRCA). Certificate numbers are MBE BFMB79272N1027, WBE BFWB65235N1027 and SBE BFSB13993N1027, valid through October 31, 2027. Copies are linked on this page, and you can confirm current status with NCTRCA.' },
   { q: 'Can you subcontract to help a prime meet SBE, WBE or MBE goals?', a: 'Yes. We can team with a prime contractor as a certified subcontractor for the digital, web, accessibility and video scope of a project. Contact us with the solicitation number and the scope you want to assign.' },
-  { q: 'Which NAICS codes do you work under?', a: '541511 Custom Computer Programming Services, 541512 Computer Systems Design Services, 541430 Graphic Design Services and 512110 Motion Picture and Video Production.' },
+  { q: 'Which NAICS codes are you certified under?', a: 'Our NCTRCA certifications cover NAICS 512110 (Video Production and Distribution) and 518210 (Computing Infrastructure Providers, Data Processing, Web Hosting, and Related Services). Ask us if your solicitation lists a different code; our capabilities profile explains how our services align.' },
   { q: 'What does the ADA Title II rule require, and when?', a: 'The Department of Justice’s 2024 rule requires state and local government websites and mobile apps to meet WCAG 2.1 Level AA. In April 2026 the DOJ extended the compliance dates by one year: April 26, 2027 for entities serving 50,000 people or more, and April 26, 2028 for smaller entities and special districts. The DOJ has signaled it may propose further changes, so confirm the current dates on ADA.gov.' },
   { q: 'Do you provide accessibility conformance documentation?', a: 'Yes. Accessibility work can include a written audit listing the WCAG 2.1 criteria tested, a remediation log, and an accessibility conformance report (ACR) for your records.' },
   { q: 'Do you only work with agencies in Texas?', a: 'No. We are based in the Dallas–Fort Worth area and work with public-sector, nonprofit and business clients nationwide, remotely or on site.' },
@@ -193,7 +211,7 @@ export default function GovernmentPage() {
     <>
       <SEO
         title="Government Web, Accessibility & AI | SBE, WBE, MBE Certified | EVOBRAND"
-        description="EVOBRAND Concepts is an NCTRCA-certified SBE, WBE and MBE in Dallas–Fort Worth. Websites, WCAG 2.1 AA accessibility for ADA Title II, custom applications and video for public agencies. NAICS 541511, 541512, 541430, 512110."
+        description="EVOBRAND Concepts is an NCTRCA-certified SBE, WBE and MBE in Dallas–Fort Worth. Websites, WCAG 2.1 AA accessibility for ADA Title II, custom applications and video for public agencies. NAICS 512110 and 518210."
         canonical={PAGE_URL}
         structuredData={{
           '@context': 'https://schema.org',
@@ -223,12 +241,12 @@ export default function GovernmentPage() {
         intro="Websites, WCAG 2.1 AA accessibility, custom applications and video for state and local government, and for the prime contractors who serve them. SBE, WBE and MBE certified."
         actions={[
           { to: '/book-consultation', label: 'Book a capability briefing', cta: 'gov-hero-briefing' },
-          { to: '#vendor-details', label: 'Vendor details', cta: 'gov-hero-vendor' },
+          { to: '#vendor-details', label: 'Vendor details & downloads', cta: 'gov-hero-vendor' },
         ]}
         facts={[
           { label: 'Certified', value: 'SBE · WBE · MBE' },
           { label: 'Certifier', value: 'NCTRCA' },
-          { label: 'NAICS', value: '541511 · 541512 · 541430 · 512110' },
+          { label: 'NAICS', value: '512110 · 518210' },
           { label: 'Since', value: '1999' },
         ]}
         jumps={[
@@ -257,7 +275,7 @@ export default function GovernmentPage() {
         label="Capabilities"
         lead="What we deliver"
         emphasis="for the public sector."
-        intro="Each capability maps to the NAICS codes we work under."
+        intro="What we deliver for agencies and the primes who serve them. Our certified NAICS codes are 512110 and 518210."
       >
         <LinkCards columns={2} items={CAPABILITIES} />
       </SplitSection>

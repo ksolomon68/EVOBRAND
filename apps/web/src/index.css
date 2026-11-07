@@ -3725,3 +3725,10 @@ body:has(.cta-band) .site-footer__statement { display: none; }
 @media (max-width: 640px) {
   .vendor-sheet__row { grid-template-columns: 1fr; gap: var(--space-2xs); }
 }
+.vendor-sheet__certs li { line-height: 1.5; }
+.vendor-sheet__num { font-variant-numeric: tabular-nums; letter-spacing: 0.02em; color: var(--evo-muted); }
+.vendor-sheet__certs a { color: var(--evo-accent); text-decoration: underline; text-underline-offset: 3px; white-space: nowrap; }
+.vendor-sheet__meta { font-size: var(--step--2); letter-spacing: 0.08em; opacity: 0.75; }
+.vendor-sheet__certs { gap: var(--space-s); }
+.vendor-sheet__cert { display: grid; grid-template-columns: 4.25rem 1fr; }
+.vendor-sheet__certline { display: flex; flex-wrap: wrap; gap: 0.25rem 1rem; font-size: var(--step--1); }
