@@ -2,12 +2,12 @@
 deployment:
   tasks:
     # Deploy frontend
-    - export DEPLOYPATH=/home/evobrandconcepts/public_html
+    - export DEPLOYPATH=$HOME/public_html
     - /bin/cp -R dist/apps/web/* $DEPLOYPATH || true
     - /bin/cp dist/apps/web/.htaccess $DEPLOYPATH/ || true
 
     # Deploy API source files
-    - mkdir -p /home/evobrandconcepts/EVOBRAND/apps/api && /usr/bin/rsync -a --exclude 'node_modules' apps/api/ /home/evobrandconcepts/EVOBRAND/apps/api/ > /home/evobrandconcepts/public_html/deploy.log 2>&1
+    - mkdir -p $HOME/EVOBRAND/apps/api && /usr/bin/rsync -a --exclude 'node_modules' apps/api/ $HOME/EVOBRAND/apps/api/ > $HOME/public_html/deploy.log 2>&1
 
     # Install any new/updated apps/api dependencies. node_modules is excluded from
     # the rsync above (it's huge and machine-specific), so package.json changes
@@ -25,10 +25,10 @@ deployment:
     # Selector's virtualenv for this app if one exists, so npm/node resolve to the
     # version cPanel assigned it. Hard-capped with `timeout` — a hung or slow
     # install must never be able to block the deployment task indefinitely.
-    - timeout 240 bash -c 'source $(ls -d /home/evobrandconcepts/nodevenv/EVOBRAND/apps/api/*/bin/activate 2>/dev/null | head -1) 2>/dev/null; cd /home/evobrandconcepts/EVOBRAND/apps/api && npm ci --omit=dev --no-audit --no-fund' >> /home/evobrandconcepts/public_html/deploy.log 2>&1 || echo "npm ci timed out or failed — see deploy.log" >> /home/evobrandconcepts/public_html/deploy.log
+    - timeout 240 bash -c 'source $(ls -d $HOME/nodevenv/EVOBRAND/apps/api/*/bin/activate 2>/dev/null | head -1) 2>/dev/null; cd $HOME/EVOBRAND/apps/api && npm ci --omit=dev --no-audit --no-fund' >> $HOME/public_html/deploy.log 2>&1 || echo "npm ci timed out or failed — see deploy.log" >> $HOME/public_html/deploy.log
 
     # Force-kill stale LiteSpeed Node (lsnode) process — LiteSpeed ignores restart.txt
     # and caches the running process indefinitely. Killing it forces a clean respawn
     # from the updated files on the next request.
-    - pkill -9 -f "lsnode:/home/evobrandconcepts/EVOBRAND/apps/api" || true
-    - mkdir -p /home/evobrandconcepts/EVOBRAND/apps/api/tmp && touch /home/evobrandconcepts/EVOBRAND/apps/api/tmp/restart.txt
+    - pkill -9 -f "lsnode:$HOME/EVOBRAND/apps/api" || true
+    - mkdir -p $HOME/EVOBRAND/apps/api/tmp && touch $HOME/EVOBRAND/apps/api/tmp/restart.txt
