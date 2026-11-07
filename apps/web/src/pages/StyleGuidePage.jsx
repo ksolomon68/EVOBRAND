@@ -28,7 +28,7 @@ export default function StyleGuidePage() {
           display
           label="Design system"
           lead="Proof before promises."
-          emphasis="Senior-led since 1999."
+          emphasis="Building since 1999."
           intro="The section rhythm in one block: a short label, a two-part headline with an emphasized second half, supporting copy, then proof."
         >
           <div className="mt-space-s flex flex-wrap gap-space-s">

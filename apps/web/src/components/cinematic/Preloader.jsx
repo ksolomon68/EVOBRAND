@@ -101,7 +101,7 @@ export default function Preloader() {
         <div className="evo-intro-rule">
           <span ref={barRef} />
         </div>
-        <p className="evo-intro-caption">Senior-led since 1999</p>
+        <p className="evo-intro-caption">Digital agency since 1999</p>
       </div>
       <button type="button" className="evo-intro-skip" onClick={() => setLeaving(true)}>
         Skip intro

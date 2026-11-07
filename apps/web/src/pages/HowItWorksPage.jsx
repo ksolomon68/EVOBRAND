@@ -83,7 +83,7 @@ const FAQS = [
   },
   {
     q: 'How do you keep a project on track?',
-    a: 'Clear milestones, regular communication, quality assurance testing and agreed measures of success, all led by the same senior person from the first call to launch.',
+    a: 'Clear milestones, regular communication, quality assurance testing and agreed measures of success, all led by the same person from the first call to launch.',
   },
 ];
 
@@ -134,7 +134,7 @@ export default function HowItWorksPage() {
         label="Discovery · Launch · Beyond"
         lead="Clear steps."
         emphasis="Shared visibility."
-        intro="You always know what we are making, what comes next, and where your feedback fits. The same senior lead runs every phase."
+        intro="You always know what we are making, what comes next, and where your feedback fits. The same lead runs every phase."
         actions={[
           { to: '/book-consultation', label: 'Start with discovery', cta: 'process-hero-call' },
           { to: '#faq', label: 'Common questions', cta: 'process-hero-faq' },

@@ -32,7 +32,7 @@ export const NAV_GROUPS = [
     title: 'About the studio',
     feature: {
       eyebrow: 'Since 1999 · Dallas–Fort Worth',
-      lead: 'Senior-led',
+      lead: 'Building what works',
       emphasis: 'for 25+ years.',
       cta: { to: '/about', label: 'Read our story' },
     },

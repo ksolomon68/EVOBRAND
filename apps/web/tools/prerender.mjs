@@ -146,7 +146,7 @@ async function main() {
   const llmsTxt = [
     '# EVOBRAND Concepts',
     '',
-    '> Senior-led digital agency in Dallas–Fort Worth, Texas, building websites, custom AI applications, document automation, AI video and WCAG accessibility for government agencies, nonprofits and businesses. SBE, WBE and MBE certified. Contact: info@evobrand.net, +1 214-531-4427.',
+    '> Full-stack digital agency in Dallas–Fort Worth, Texas, building websites, custom AI applications, document automation, AI video and WCAG accessibility for government agencies, nonprofits and businesses. SBE, WBE and MBE certified. Contact: info@evobrand.net, +1 214-531-4427.',
     '',
     section('Pages', (r) => !r.startsWith('/services/') && !r.startsWith('/blog/')),
     section('Services', (r) => r.startsWith('/services/')),

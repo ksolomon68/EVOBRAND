@@ -37,7 +37,7 @@ export default function ServicesPage() {
     <>
       <SEO
         title="Services | Websites, Custom AI Applications, Video & Accessibility"
-        description="EVOBRAND builds websites and portals, custom AI applications, document automation, AI visual content and video, and WCAG accessibility. Senior-led since 1999, with transparent pricing."
+        description="EVOBRAND builds websites and portals, custom AI applications, document automation, AI visual content and video, and WCAG accessibility. In business since 1999, with transparent pricing."
         keywords="AI services, custom AI development, AI video production, intelligent document generation, WCAG accessibility, AI visual content, web development Ellis County"
         canonical="https://evobrand.net/services"
         structuredData={{
@@ -57,7 +57,7 @@ export default function ServicesPage() {
         label="Services"
         lead="Start with the problem."
         emphasis="Build the right system."
-        intro="Websites, custom applications, AI workflows and creative work, planned and built by a senior-led team. Strategy, design and technology stay connected, so the finished work is useful, not merely impressive."
+        intro="Websites, custom applications, AI workflows and creative work, planned and built by an experienced team. Strategy, design and technology stay connected, so the finished work is useful, not merely impressive."
         actions={[
           { to: '/book-consultation', label: 'Book a strategy call', cta: 'services-hero-call' },
           { to: '/free-demo-portal', label: 'Get a free demo portal', cta: 'services-hero-demo' },

@@ -4,7 +4,7 @@ import { Helmet } from 'react-helmet';
 const SITE_NAME = 'EVOBRAND';
 const SITE_URL = 'https://evobrand.net';
 const DEFAULT_OG_IMAGE = `${SITE_URL}/og-image.png`;
-const DEFAULT_DESCRIPTION = 'EVOBRAND Concepts is a senior-led, full-stack digital agency for government agencies, corporations, and nonprofits. SBE, WBE, and MBE certified. 25+ years. Dallas–Fort Worth, Texas.';
+const DEFAULT_DESCRIPTION = 'EVOBRAND Concepts is a full-stack digital agency for government agencies, corporations, and nonprofits. SBE, WBE, and MBE certified. 25+ years. Dallas–Fort Worth, Texas.';
 
 const SEO = ({
   title,
@@ -19,7 +19,7 @@ const SEO = ({
   // Pages sometimes include the brand in their own title; only append it once.
   const fullTitle = title
     ? (title.includes(SITE_NAME) ? title : `${title} | ${SITE_NAME}`)
-    : `${SITE_NAME} Concepts | Senior-led digital agency`;
+    : `${SITE_NAME} Concepts | Digital agency since 1999`;
 
   // Canonical is always the clean evobrand.net path: no query string (utm_*,
   // fbclid…), no hash, no trailing slash, and never the www/old-domain host —

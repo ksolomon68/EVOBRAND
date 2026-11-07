@@ -64,7 +64,7 @@ export default function MotionLabPage() {
         eyebrow="EVOBRAND Concepts · Dallas–Fort Worth"
         lead="Digital systems"
         emphasis="for public work."
-        intro="A senior-led, full-stack agency for government agencies, corporations, and nonprofits. SBE, WBE, and MBE certified. In operation since 1999."
+        intro="A full-stack agency for government agencies, corporations, and nonprofits. SBE, WBE, and MBE certified. In operation since 1999."
         primary={{ to: '/contact', label: 'Start a project', cta: 'hero-start' }}
         secondary={{ to: '/our-work', label: 'See the work', cta: 'hero-work' }}
         media={{

@@ -218,7 +218,7 @@ export default function ServiceDetailPage() {
           { label: 'Service', value: service.title },
           { label: 'Timeline', value: service.timeline },
           { label: 'Starting at', value: service.pricing[0].price },
-          { label: 'Led by', value: 'A senior lead, start to finish' },
+          { label: 'Led by', value: 'One lead, start to finish' },
         ]}
         jumps={[
           { href: '#included', label: 'What is included' },

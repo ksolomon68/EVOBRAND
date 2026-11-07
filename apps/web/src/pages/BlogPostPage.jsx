@@ -200,7 +200,7 @@ const BlogPostPage = () => {
                                 </div>
                                 <div>
                                     <h3 className="text-white font-bold">{post.author}</h3>
-                                    <p className="text-gray-400 text-sm">Senior-led strategy, design, and technology since 1999.</p>
+                                    <p className="text-gray-400 text-sm">Strategy, design, and technology since 1999.</p>
                                 </div>
                             </div>
                         </div>

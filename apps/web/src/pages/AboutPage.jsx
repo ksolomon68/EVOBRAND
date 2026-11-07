@@ -8,7 +8,7 @@ import { useMotion } from '@/lib/motion.js';
 
 const CORE_VALUES = [
   { icon: Target, title: 'Plain answers', body: 'Clear scope, honest timelines, and written decisions. You always know where the project stands.' },
-  { icon: Users, title: 'Senior-led', body: 'The person who scopes the work stays on it through launch and after.' },
+  { icon: Users, title: 'One accountable lead', body: 'The person who scopes the work stays on it through launch and after.' },
   { icon: Lightbulb, title: 'Built to be run', body: 'We design systems your staff can operate after we hand them over, not just launch.' },
   { icon: Award, title: 'Accountable', body: 'Every project starts with agreed outcomes, and we report against them.' },
 ];
@@ -252,7 +252,7 @@ export default function AboutPage() {
         crumbs={[{ label: 'About' }]}
         label="Since 1999 · Dallas–Fort Worth"
         lead="Full-stack digital agency."
-        emphasis="Senior-led for 25+ years."
+        emphasis="Building what works for 25+ years."
         intro="EVOBRAND Concepts plans, designs, and builds websites, platforms, and brand systems for government agencies, corporations, and nonprofits."
         actions={[
           { to: '/book-consultation', label: 'Book a strategy call', cta: 'about-hero-call' },

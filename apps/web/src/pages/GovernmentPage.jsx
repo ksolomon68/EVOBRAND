@@ -177,7 +177,7 @@ const PLATFORMS = [
 const STEPS = [
   { meta: 'Week 1', title: 'Capability briefing', body: 'A 30-minute call or written response covering your requirement, our fit, and the vendor details your office needs.' },
   { meta: 'Quote or response', title: 'Fixed scope, written down', body: 'For informal quotes we return a priced scope with deliverables and milestones. For RFQs and RFPs we respond to your format and evaluation criteria.' },
-  { meta: 'Delivery', title: 'Senior-led from start to finish', body: 'The person who scopes the work leads it, with scheduled check-ins and a shared project view.' },
+  { meta: 'Delivery', title: 'One lead from start to finish', body: 'The person who scopes the work leads it, with scheduled check-ins and a shared project view.' },
   { meta: 'Close-out', title: 'Documentation you can keep', body: 'You keep the source files and admin access, your staff get trained to run what we built, and accessibility work comes with conformance documentation (an ACR on request) so it stands up after launch.' },
 ];
 
@@ -236,7 +236,7 @@ export default function GovernmentPage() {
       <InnerHero
         crumbs={[{ label: 'Government & procurement' }]}
         label="Government & procurement"
-        lead="Certified, senior-led"
+        lead="Certified, accountable"
         emphasis="digital work for public agencies."
         intro="Websites, WCAG 2.1 AA accessibility, custom applications and video for state and local government, and for the prime contractors who serve them. SBE, WBE and MBE certified."
         actions={[
