@@ -57,7 +57,7 @@ jobs:
           VITE_YOUTUBE_API_KEY: AIzaSyB7Akidw7RMlWPX5erpbxh_OJhTo4ch5Vg
           VITE_SITE_URL: https://evobrand.net
 
-      - name: Sync deploy/ (the folder actually served at evobrandconcepts.com)
+      - name: Sync deploy/ (the folder actually served at evobrand.net)
         # deploy/ mirrors dist/apps/web's app shell — index.html, the hashed
         # JS/CSS bundle, and the route-list files (llms.txt, robots.txt,
         # sitemap.xml) — so a merge to main is always live, not just built.
@@ -112,10 +112,10 @@ jobs:
         id: cpanel_update
         continue-on-error: true
         run: |
-          echo "=== cPanel Git/update ==="
+          echo "=== cPanel VersionControl/update ==="
           resp=$(curl -sS \
-            -H "Authorization: cpanel evobrandconcepts:${{ secrets.CPANEL_API_TOKEN }}" \
-            "https://evobrandconcepts.com:2083/execute/Git/update?repository_root=/home/evobrandconcepts/EVOBRAND")
+            -H "Authorization: cpanel websit33:${{ secrets.CPANEL_API_TOKEN }}" \
+            "https://evobrand.net:2083/execute/VersionControl/update?repository_root=/home/websit33/EVOBRAND&branch=main")
           echo "$resp" | python3 -m json.tool || echo "$resp"
           ok=$(echo "$resp" | python3 -c "import json,sys; d=json.load(sys.stdin); print('true' if not d.get('errors') else 'false')" 2>/dev/null || echo false)
           echo "ok=$ok" >> "$GITHUB_OUTPUT"
@@ -126,17 +126,17 @@ jobs:
           } >> "$GITHUB_OUTPUT"
 
       - name: Tell cPanel to deploy (runs .cpanel.yml — rsyncs apps/api and restarts the Node API)
-        # Git/update only pulls the repo; it does not run .cpanel.yml. The API
+        # VersionControl/update only pulls the repo; it does not run .cpanel.yml. The API
         # process (Passenger/lsnode) keeps running the old code until
         # .cpanel.yml's rsync + restart.txt touch + lsnode kill actually run,
-        # which only happens via this separate Git/deploy call.
+        # which only happens via this separate VersionControlDeployment/create call.
         id: cpanel_deploy
         continue-on-error: true
         run: |
-          echo "=== cPanel Git/deploy ==="
+          echo "=== cPanel VersionControlDeployment/create ==="
           resp=$(curl -sS \
-            -H "Authorization: cpanel evobrandconcepts:${{ secrets.CPANEL_API_TOKEN }}" \
-            "https://evobrandconcepts.com:2083/execute/Git/deploy?repository_root=/home/evobrandconcepts/EVOBRAND")
+            -H "Authorization: cpanel websit33:${{ secrets.CPANEL_API_TOKEN }}" \
+            "https://evobrand.net:2083/execute/VersionControlDeployment/create?repository_root=/home/websit33/EVOBRAND")
           echo "$resp" | python3 -m json.tool || echo "$resp"
           ok=$(echo "$resp" | python3 -c "import json,sys; d=json.load(sys.stdin); print('true' if not d.get('errors') else 'false')" 2>/dev/null || echo false)
           echo "ok=$ok" >> "$GITHUB_OUTPUT"
@@ -173,7 +173,7 @@ jobs:
           else
             echo "cPanel deploy call(s) failed."
             body=$(printf '%s\n' \
-              "The automated cPanel deploy step in \`build-and-deploy.yml\` failed on commit \`${SHA:0:7}\`, meaning **this push was NOT deployed to evobrandconcepts.com**." \
+              "The automated cPanel deploy step in \`build-and-deploy.yml\` failed on commit \`${SHA:0:7}\`, meaning **this push was NOT deployed to evobrand.net**." \
               "" \
               "- \`Git/update\`: ${UPDATE_OK}" \
               "- \`Git/deploy\`: ${DEPLOY_OK}" \
