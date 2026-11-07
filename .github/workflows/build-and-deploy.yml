@@ -115,7 +115,7 @@ jobs:
           echo "=== cPanel VersionControl/update ==="
           resp=$(curl -sS \
             -H "Authorization: cpanel websit33:${{ secrets.CPANEL_API_TOKEN }}" \
-            "https://evobrand.net:2083/execute/VersionControl/update?repository_root=/home/websit33/EVOBRAND&branch=main")
+            "https://evobrand.net:2083/execute/VersionControl/update?repository_root=/home/websit33/repositories/EVOBRAND&branch=main")
           echo "$resp" | python3 -m json.tool || echo "$resp"
           ok=$(echo "$resp" | python3 -c "import json,sys; d=json.load(sys.stdin); print('true' if not d.get('errors') else 'false')" 2>/dev/null || echo false)
           echo "ok=$ok" >> "$GITHUB_OUTPUT"
@@ -136,7 +136,7 @@ jobs:
           echo "=== cPanel VersionControlDeployment/create ==="
           resp=$(curl -sS \
             -H "Authorization: cpanel websit33:${{ secrets.CPANEL_API_TOKEN }}" \
-            "https://evobrand.net:2083/execute/VersionControlDeployment/create?repository_root=/home/websit33/EVOBRAND")
+            "https://evobrand.net:2083/execute/VersionControlDeployment/create?repository_root=/home/websit33/repositories/EVOBRAND")
           echo "$resp" | python3 -m json.tool || echo "$resp"
           ok=$(echo "$resp" | python3 -c "import json,sys; d=json.load(sys.stdin); print('true' if not d.get('errors') else 'false')" 2>/dev/null || echo false)
           echo "ok=$ok" >> "$GITHUB_OUTPUT"
