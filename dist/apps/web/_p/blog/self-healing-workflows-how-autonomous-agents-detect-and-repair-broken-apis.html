@@ -67,9 +67,9 @@
 		]
 	}
 	</script>
-  <script type="module" crossorigin src="/assets/index-584ef69a.js"></script>
+  <script type="module" crossorigin src="/assets/index-5fa49219.js"></script>
   <link rel="modulepreload" crossorigin href="/assets/react-7e4aae97.js">
-  <link rel="stylesheet" href="/assets/index-0271b666.css">
+  <link rel="stylesheet" href="/assets/index-2ea430d2.css">
 <link rel="canonical" href="https://evobrand.net/blog/self-healing-workflows-how-autonomous-agents-detect-and-repair-broken-apis" data-react-helmet="true">
 <meta name="description" content="Learn why automations fail, how to design safer recovery steps, and what owners should monitor before customers are affected." data-react-helmet="true">
 <meta name="keywords" content="business automation maintenance, automation monitoring, workflow errors, reliable integrations" data-react-helmet="true">
@@ -108,13 +108,16 @@
 <p>A retry may solve an outage. It will not solve a renamed field or expired credential, and repeated actions can create duplicates.</p>
 <ul class="wp-block-list"><li>Access: expired password or revoked permission.</li><li>Data: missing field, new format, or duplicate record.</li><li>Service: timeout, outage, or usage limit.</li><li>Process: a business exception the workflow never considered.</li></ul>
 
+
 <h2 class="wp-block-heading">Build a safe failure path</h2>
 <p>Validate fields before acting. Use a unique reference to prevent duplicate invoices, messages, or records. Stop after a small number of retries and send the full context to the owner.</p>
 <p>For important workflows, queue the failed item instead of discarding it so the team can correct and resume it.</p>
 
 
+
 <h2 class="wp-block-heading">Monitor the business result</h2>
 <p>Technical “success” is not enough. Confirm that the customer received the message, the record reached the correct system, and the status is accurate. Review failure rate, recovery time, and repeated exceptions monthly.</p>
+
 
 <h2 class="wp-block-heading">What to do this week</h2>
 <ol class="wp-block-list"><li>Name an owner for every automation.</li><li>Confirm where failures are logged and who receives alerts.</li><li>Add duplicate protection and a retry limit.</li><li>Write a manual fallback for critical work.</li><li>Review recurring exceptions monthly.</li></ol>

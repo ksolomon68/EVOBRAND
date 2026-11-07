@@ -30,6 +30,7 @@
 - [WCAG Accessibility | EVOBRAND Services](https://evobrand.net/services/wcag-accessibility): Ensure your digital experiences are universally accessible. We audit, remediate, and maintain your platforms to meet and exceed WCAG standards. Typical timeline 2-6 weeks. Plans from $2,500.
 
 ## Guides
+- [ADA Title II Web Accessibility: A Guide for Local Governments | EVOBRAND](https://evobrand.net/blog/ada-title-ii-web-accessibility-guide-for-state-and-local-governments): What the DOJ’s Title II rule requires, the April 2027 and April 2028 deadlines, the five exceptions, and a practical plan for cities, counties, school districts and special districts.
 - [AI Automation for Business: Where to Start | EVOBRAND](https://evobrand.net/blog/architecting-enterprise-ai-moving-beyond-chatbots-to-autonomous-business-systems): Learn which business tasks are ready for AI automation, what to keep human, and how to choose a first project that saves measurable time.
 - [AI Agents for Business: A Practical Owner’s Guide | EVOBRAND](https://evobrand.net/blog/the-rise-of-agentic-ai-autonomous-workflows-redefining-modern-operations): Understand what AI agents can handle, where human approval belongs, and how to evaluate agentic AI without technical jargon.
 - [How to Make Business Knowledge Searchable with AI | EVOBRAND](https://evobrand.net/blog/scaling-rag-systems-overcoming-vector-database-latency-and-retrieval-bottlenecks): A plain-English guide to AI knowledge search, including document preparation, permissions, testing, and trustworthy answers.
