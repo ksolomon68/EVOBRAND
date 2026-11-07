@@ -1,25 +1,35 @@
+# evobrandconcepts.com -> evobrand.net (permanent).
+#
+# The main site now lives at https://evobrand.net. Every page of the old copy
+# here 301-redirects to the same path there, so search engines move rankings
+# and links to the one domain.
+#
+# Real files and folders on this server are NOT redirected, so the client
+# demos hosted here keep working: /evocore/, /aacpa, /nctrca, /sunnyside/,
+# /rbca1/, /evoledger/, /DFWUL/, /ttt/, /bigals, /jewels/, /whowannapho/,
+# /bhs1/, /walls1/, /rehab/ ...
+#
+# This file is not deployed automatically: copy it to the top of
+# public_html/.htaccess on the evobrandconcepts.com cPanel account.
+
 <IfModule mod_rewrite.c>
-	RewriteEngine On
-	RewriteBase /
-	RewriteCond %{REQUEST_FILENAME} !-f
-	RewriteCond %{REQUEST_FILENAME} !-d
-	RewriteRule ^ /index.html [L]
-</IfModule>
+  RewriteEngine On
+  RewriteBase /
 
-<IfModule mod_headers.c>
-	Header set X-Powered-By "Hostinger Horizons"
+  # Leave Let's Encrypt / cPanel domain validation alone.
+  RewriteRule ^\.well-known/ - [L]
 
-	# Cache in browser all assets
-	<If "%{REQUEST_URI} =~ m#^/assets/.*$#">
-		Header set Cache-Control "public, max-age=31536000, immutable"
-	</If>
+  # Homepage and the old copy's site-wide files always go to evobrand.net,
+  # even though they exist here as real files.
+  RewriteRule ^(index\.html?)?$ https://evobrand.net/ [R=301,L]
+  RewriteRule ^(robots\.txt|sitemap\.xml|llms\.txt)$ https://evobrand.net/$1 [R=301,L]
 
-	# Force no caching for HTML and JSON files to ensure updates reflect immediately
-	<FilesMatch "\.(html|htm|json)$">
-		FileETag None
-		Header unset ETag
-		Header set Cache-Control "max-age=0, no-cache, no-store, must-revalidate"
-		Header set Pragma "no-cache"
-		Header set Expires "Wed, 11 Jan 1984 05:00:00 GMT"
-	</FilesMatch>
+  # Old site API calls go to the new server.
+  RewriteRule ^api/(.*)$ https://evobrand.net/api/$1 [R=307,L]
+
+  # Anything that is not a real file or folder here (all the old site's
+  # pages: /services, /about, /blog/..., /contact ...) -> same path on evobrand.net.
+  RewriteCond %{REQUEST_FILENAME} !-f
+  RewriteCond %{REQUEST_FILENAME} !-d
+  RewriteRule ^(.*)$ https://evobrand.net/$1 [R=301,L]
 </IfModule>
