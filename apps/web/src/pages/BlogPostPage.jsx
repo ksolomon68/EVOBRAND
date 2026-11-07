@@ -125,7 +125,7 @@ const BlogPostPage = () => {
                             <div className="flex flex-wrap gap-4 items-center mb-6">
                                 <span className="bg-[#22c8e5]/10 text-[#22c8e5] px-3 py-1 rounded-full text-sm font-semibold uppercase tracking-wide flex items-center gap-2">
                                     <Tag size={14} />
-                                    {post.category.replace('-', ' ')}
+                                    {post.category.replace(/-/g, ' ')}
                                 </span>
                                 <span className="flex items-center space-x-2 text-gray-400 text-sm">
                                     <Calendar size={16} />
