@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Helmet } from 'react-helmet';
 
 const SITE_NAME = 'EVOBRAND';
@@ -21,8 +21,18 @@ const SEO = ({
     ? (title.includes(SITE_NAME) ? title : `${title} | ${SITE_NAME}`)
     : `${SITE_NAME} Concepts | Senior-led digital agency`;
 
-  const canonicalUrl = canonical || (typeof window !== 'undefined' ? window.location.href : SITE_URL);
+  // Canonical is always the clean evobrand.net path: no query string (utm_*,
+  // fbclid…), no hash, no trailing slash, and never the www/old-domain host —
+  // so tracked links and mirrors consolidate onto one URL in search results.
+  const path = typeof window !== 'undefined' ? window.location.pathname.replace(/\/+$/, '') : '';
+  const canonicalUrl = canonical || `${SITE_URL}${path || '/'}`;
   const resolvedImage = image.startsWith('http') ? image : `${SITE_URL}${image}`;
+
+  // index.html ships a default description for crawlers that don't run JS;
+  // drop it once a page renders its own so there is only ever one.
+  useEffect(() => {
+    document.querySelectorAll('meta[data-default-meta]').forEach((el) => el.remove());
+  }, []);
 
   return (
     <Helmet>
@@ -32,7 +42,8 @@ const SEO = ({
       <meta name="description" content={description} />
       {keywords && <meta name="keywords" content={keywords} />}
       <meta name="author" content="Keisha Solomon, EVOBRAND Concepts LLC" />
-      <link rel="canonical" href={canonicalUrl} />
+      {/* A noindex page has nothing to consolidate, so no canonical. */}
+      {!noindex && <link rel="canonical" href={canonicalUrl} />}
 
       {/* ── Robots ── */}
       {noindex

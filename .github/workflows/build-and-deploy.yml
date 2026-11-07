@@ -48,7 +48,7 @@ jobs:
         working-directory: apps/web
 
       - name: Clean old dist assets
-        run: rm -rf dist/apps/web/assets/ dist/apps/web/index.html
+        run: rm -rf dist/apps/web/assets/ dist/apps/web/index.html dist/apps/web/_p/ dist/apps/web/404.html dist/apps/web/app.html
 
       - name: Build frontend
         run: npm run build
@@ -56,6 +56,18 @@ jobs:
         env:
           VITE_YOUTUBE_API_KEY: AIzaSyB7Akidw7RMlWPX5erpbxh_OJhTo4ch5Vg
           VITE_SITE_URL: https://evobrand.net
+
+      - name: Install Chromium for prerendering
+        run: npx playwright install --with-deps chromium
+        working-directory: apps/web
+
+      - name: Prerender public pages to static HTML (SEO)
+        # Turns every route in tools/routes.mjs into real HTML (title, meta,
+        # structured data, content) so crawlers don't depend on running JS.
+        # Writes dist/apps/web/index.html, _p/**, 404.html and app.html, which
+        # public/.htaccess routes requests to.
+        run: npm run prerender
+        working-directory: apps/web
 
       - name: Sync deploy/ (the folder actually served at evobrand.net)
         # deploy/ mirrors dist/apps/web's app shell — index.html, the hashed

@@ -1,23 +1,66 @@
+# Not-found pages get a real 404 status and the prerendered 404 page.
+ErrorDocument 404 /404.html
+
 <IfModule mod_rewrite.c>
   RewriteEngine On
   RewriteBase /
-  RewriteRule ^index\.html$ - [L]
-  RewriteCond %{REQUEST_FILENAME} !-f
+
+  # One canonical host: www.evobrand.net -> evobrand.net (http -> https is
+  # handled by the host already).
+  RewriteCond %{HTTP_HOST} ^www\.evobrand\.net$ [NC]
+  RewriteRule ^(.*)$ https://evobrand.net/$1 [R=301,L]
+
+  # The Node API owns /api; leave it alone.
+  RewriteRule ^api(/|$) - [L]
+
+  # Drop trailing slashes so each page has exactly one URL (/services/ -> /services).
   RewriteCond %{REQUEST_FILENAME} !-d
-  RewriteCond %{REQUEST_URI} !^/api [NC]
-  RewriteRule . /index.html [L]
+  RewriteRule ^(.+)/$ /$1 [R=301,L]
+
+  # Old or alias URLs -> their real pages (these used to be client-side only).
+  RewriteRule ^services/google-ad-grants$ /google-ad-grants [R=301,L]
+  RewriteRule ^videos$ /our-work/videos [R=301,L]
+  RewriteRule ^book$ /book-consultation [R=301,L]
+  RewriteRule ^motion-lab/blueprint$ / [R=301,L]
+  RewriteRule ^contract-builder$ /client-portal [R=301,L]
+
+  # Real files (assets, images, sitemap...) are served as-is.
+  RewriteCond %{REQUEST_FILENAME} -f
+  RewriteRule ^ - [L]
+
+  # Prerendered pages (tools/prerender.mjs): /services/web-development is
+  # served from /_p/services/web-development.html.
+  RewriteCond %{DOCUMENT_ROOT}/_p/$1.html -f
+  RewriteRule ^(.+)$ /_p/$1.html [L]
+
+  # Client-only pages (portal, login, tool results...) load the plain app shell.
+  RewriteRule ^(client-portal|login|reset-password|payment-success|style-guide|motion-lab)$ /app.html [L]
+  RewriteRule ^(auditor|accessibility-checker)/results/[^/]+$ /app.html [L]
+
+  # Anything else falls through to a genuine 404 (ErrorDocument above).
 </IfModule>
 
 <IfModule LiteSpeed>
   CacheDisable public /
 </IfModule>
 
-<FilesMatch "\.(html|htm|js|css)$">
+# HTML is never cached, so a deploy is visible immediately.
+<FilesMatch "\.html?$">
   FileETag None
   <IfModule mod_headers.c>
     Header unset ETag
-    Header set Cache-Control "max-age=0, no-cache, no-store, must-revalidate"
-    Header set Pragma "no-cache"
-    Header set Expires "Wed, 11 Jan 1984 05:00:00 GMT"
+    Header set Cache-Control "no-cache, must-revalidate"
   </IfModule>
 </FilesMatch>
+
+<IfModule mod_headers.c>
+  # Fonts and images rarely change; cache for 30 days.
+  <FilesMatch "\.(woff2|png|jpe?g|webp|avif|svg|ico)$">
+    Header set Cache-Control "public, max-age=2592000"
+  </FilesMatch>
+  # Vite's bundles carry a content hash (index-cd8243a2.js), so a changed file
+  # always gets a new name: safe to cache for a year. Listed last so it wins.
+  <FilesMatch "-[0-9a-f]{8}\.(js|css|woff2|png|jpe?g|webp|avif|svg)$">
+    Header set Cache-Control "public, max-age=31536000, immutable"
+  </FilesMatch>
+</IfModule>

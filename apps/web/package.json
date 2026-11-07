@@ -5,7 +5,8 @@
   "private": true,
   "scripts": {
     "dev": "vite --host 0.0.0.0 --port 3000",
-    "build": "node tools/generate-llms.js && vite build --outDir ../../dist/apps/web",
+    "build": "node tools/generate-sitemap.mjs && vite build --outDir ../../dist/apps/web",
+    "prerender": "node tools/prerender.mjs",
     "start": "vite preview --outDir ../../dist/apps/web --host 0.0.0.0 --port 3000",
     "lint": "eslint . --quiet",
     "lint:warn": "eslint ."
@@ -55,6 +56,7 @@
     "eslint-plugin-react": "^7.37.3",
     "eslint-plugin-react-hooks": "^5.1.0",
     "globals": "^15.14.0",
+    "playwright": "1.63.0",
     "postcss": "^8.4.49",
     "tailwindcss": "^3.4.17",
     "terser": "^5.37.0",
