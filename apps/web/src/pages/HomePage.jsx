@@ -14,15 +14,15 @@ const IMG = '/projects/optimized';
 
 const PROJECTS = [
   {
-    title: 'PrimeReach',
+    title: 'EVOGovCon',
     series: 'Platform series',
     type: 'Government contracting',
-    description: 'A platform connecting prime contractors with qualified small businesses for transportation and infrastructure work.',
-    url: 'https://primereachgov.com/',
-    image: `${IMG}/primereach-1024.webp`,
+    description: 'Contracting infrastructure that connects skilled trade workers, small businesses, and prime contractors, matched by NAICS code.',
+    url: 'https://evogovcon.com/',
+    image: `${IMG}/evogovcon-1024.webp`,
     width: 1024,
-    height: 506,
-    alt: 'PrimeReach platform home page',
+    height: 492,
+    alt: 'EVOGovCon platform home page',
   },
   {
     title: 'ChamberCore',

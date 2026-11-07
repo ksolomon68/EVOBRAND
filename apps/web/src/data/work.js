@@ -13,13 +13,13 @@ export const FLAGSHIP = [
   },
   {
     id: 103,
-    title: 'PrimeReach',
+    title: 'EVOGovCon',
     category: 'SaaS Platform',
     industry: 'Government',
-    image: '/projects/primereach.png',
-    highlights: ['White-Label', 'State DOT Ready', 'SBE Matching'],
-    description: 'Connect your prime contractors with qualified small businesses. A turnkey, white-label government contracting platform built for transportation and infrastructure agencies.',
-    link: 'https://primereachgov.com/'
+    image: '/projects/evogovcon.png',
+    highlights: ['NAICS Matching', 'Free for Labor & Business', 'Prime Diversity Pipelines'],
+    description: 'Federal and state contracting infrastructure that maps skilled trade labor to NAICS codes, certifies small business readiness, and delivers audit-ready diversity pipelines for prime contractors.',
+    link: 'https://evogovcon.com/'
   },
   {
     id: 312,

@@ -76,7 +76,7 @@ export const NAV_GROUPS = [
     },
     items: [
       { to: '/our-work#academy', icon: GraduationCap, title: 'EVOBRAND Academy', body: 'The AI Executive Sandbox cohort' },
-      { to: '/our-work#flagship', icon: Rocket, title: 'Flagship platforms', body: 'ChamberCore, PrimeReach and more' },
+      { to: '/our-work#flagship', icon: Rocket, title: 'Flagship platforms', body: 'ChamberCore, EVOGovCon and more' },
       { to: '/our-work#dashboard-demos', icon: LayoutDashboard, title: 'Dashboard demos', body: 'Live portals you can click through' },
       { to: '/our-work#recent-launches', icon: Newspaper, title: 'Recent launches', body: 'Websites for businesses and nonprofits' },
       { to: '/our-work/videos', icon: PlayCircle, title: 'Video library', body: 'Walkthroughs, tutorials and client stories' },
