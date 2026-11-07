@@ -16,73 +16,123 @@ gsap.registerPlugin(ScrollTrigger);
 
 const pad = (n) => String(n).padStart(2, '0');
 
-/** Flagship platforms: pinned and sliding sideways on desktop, stacked on phones. */
+function FlagshipCard({ item, i, hidden = false }) {
+  return (
+    <a
+      href={item.link}
+      target="_blank"
+      rel="noopener noreferrer"
+      className="work-card work-card--marquee"
+      aria-hidden={hidden || undefined}
+      tabIndex={hidden ? -1 : undefined}
+    >
+      <div className="work-card__media">
+        <img src={item.image} alt={hidden ? '' : `${item.title} home page`} loading="lazy" decoding="async" />
+        <span className="work-card__index">{pad(i + 1)} / {pad(FLAGSHIP.length)}</span>
+      </div>
+      <div className="work-card__body">
+        <p className="work-card__meta">{item.category} · {item.industry}</p>
+        <h3 className="work-card__title">{item.title}</h3>
+        <p className="work-card__text">{item.description}</p>
+        <ul className="work-card__chips">
+          {item.highlights.map((h) => <li key={h}>{h}</li>)}
+        </ul>
+        <span className="work-card__cta">Visit the live site <ExternalLink size={15} aria-hidden="true" /><span className="sr-only"> (opens in new tab)</span></span>
+      </div>
+    </a>
+  );
+}
+
+/**
+ * Flagship platforms as a scroll-driven marquee. The row loops on its own,
+ * scrolling speeds it up (scrolling up runs it backwards), and it eases back
+ * to a slow drift. Hover, keyboard focus or the Pause button stop it, and
+ * reduced motion shows a still, swipeable row. The second copy of the cards
+ * exists only to make the loop seamless, so it is hidden from assistive tech.
+ */
 function FlagshipReel() {
   const reelRef = useRef(null);
   const trackRef = useRef(null);
-  const progressRef = useRef(null);
+  const loopRef = useRef(null);
+  const holdRef = useRef({ hover: false, focus: false, user: false });
+  const [userPaused, setUserPaused] = useState(false);
+  const reduce = useReducedMotion();
+
+  const applyHold = () => {
+    const loop = loopRef.current;
+    if (!loop) return;
+    const { hover, focus, user } = holdRef.current;
+    if (hover || focus || user) gsap.to(loop, { timeScale: 0, duration: 0.4, overwrite: true });
+    else gsap.to(loop, { timeScale: 1, duration: 0.6, overwrite: true });
+  };
 
   useEffect(() => {
-    const mm = gsap.matchMedia();
-    mm.add('(min-width: 1024px) and (prefers-reduced-motion: no-preference)', () => {
-      const track = trackRef.current;
-      const section = reelRef.current;
-      if (!track || !section) return undefined;
-      const distance = () => Math.max(0, track.scrollWidth - track.parentElement.clientWidth);
-      const tween = gsap.to(track, {
-        x: () => -distance(),
-        ease: 'none',
-        scrollTrigger: {
-          trigger: section,
-          start: 'top 80px', // below the sticky header
-          end: () => `+=${distance()}`,
-          pin: true,
-          scrub: 0.8,
-          anticipatePin: 1,
-          invalidateOnRefresh: true,
-          onUpdate: (self) => {
-            if (progressRef.current) progressRef.current.style.transform = `scaleX(${self.progress})`;
-          },
-        },
-      });
-      // Reveals further down were measured before this pin existed.
-      ScrollTrigger.sort();
-      ScrollTrigger.refresh();
-      return () => {
-        tween.scrollTrigger?.kill();
-        tween.kill();
-      };
+    if (reduce) return undefined;
+    const track = trackRef.current;
+    const section = reelRef.current;
+    if (!track || !section) return undefined;
+
+    // One copy of the cards is exactly half the track, so -50% loops seamlessly.
+    const loop = gsap.to(track, { xPercent: -50, ease: 'none', duration: FLAGSHIP.length * 9, repeat: -1 });
+    loopRef.current = loop;
+    let direction = 1;
+
+    const st = ScrollTrigger.create({
+      trigger: section,
+      start: 'top bottom',
+      end: 'bottom top',
+      onToggle: (self) => (self.isActive ? loop.resume() : loop.pause()),
+      onUpdate: (self) => {
+        const { hover, focus, user } = holdRef.current;
+        if (hover || focus || user) return;
+        direction = self.direction;
+        const boost = Math.min(8, 1 + Math.abs(self.getVelocity()) / 250);
+        gsap.timeline({ overwrite: true })
+          .to(loop, { timeScale: boost * direction, duration: 0.2, ease: 'power1.out' })
+          .to(loop, { timeScale: direction, duration: 1.2, ease: 'power2.out' });
+      },
     });
-    return () => mm.revert();
-  }, []);
+
+    return () => {
+      st.kill();
+      loop.kill();
+      gsap.set(track, { clearProps: 'transform' });
+      loopRef.current = null;
+    };
+  }, [reduce]);
+
+  const setHold = (key, value) => {
+    holdRef.current[key] = value;
+    applyHold();
+  };
+
+  const togglePause = () => {
+    const next = !userPaused;
+    setUserPaused(next);
+    setHold('user', next);
+  };
 
   return (
-    <section id="flagship" ref={reelRef} className="work-reel" aria-labelledby="flagship-heading">
-      <div className="work-reel__stage">
-        <div className="evo-container work-reel__head">
-          <SectionHeading id="flagship-heading" label="02 · Flagship platforms" lead="Products we built" emphasis="and still run." />
-          <div className="work-reel__progress" aria-hidden="true"><span ref={progressRef} /></div>
-        </div>
-        <div className="work-reel__viewport">
-          <div ref={trackRef} className="work-reel__track">
-            {FLAGSHIP.map((item, i) => (
-              <a key={item.id} href={item.link} target="_blank" rel="noopener noreferrer" className="work-card work-card--wide">
-                <div className="work-card__media">
-                  <img src={item.image} alt={`${item.title} home page`} loading="lazy" decoding="async" />
-                  <span className="work-card__index">{pad(i + 1)} / {pad(FLAGSHIP.length)}</span>
-                </div>
-                <div className="work-card__body">
-                  <p className="work-card__meta">{item.category} · {item.industry}</p>
-                  <h3 className="work-card__title">{item.title}</h3>
-                  <p className="work-card__text">{item.description}</p>
-                  <ul className="work-card__chips">
-                    {item.highlights.map((h) => <li key={h}>{h}</li>)}
-                  </ul>
-                  <span className="work-card__cta">Visit the live site <ExternalLink size={15} aria-hidden="true" /><span className="sr-only"> (opens in new tab)</span></span>
-                </div>
-              </a>
-            ))}
-          </div>
+    <section id="flagship" ref={reelRef} className={`work-reel${reduce ? ' is-static' : ''}`} aria-labelledby="flagship-heading">
+      <div className="evo-container work-reel__head">
+        <SectionHeading id="flagship-heading" label="02 · Flagship platforms" lead="Products we built" emphasis="and still run." />
+        {!reduce && (
+          <button type="button" className="work-reel__toggle" onClick={togglePause} aria-pressed={userPaused}>
+            {userPaused ? <Play size={14} aria-hidden="true" /> : <span className="work-reel__pause-icon" aria-hidden="true" />}
+            {userPaused ? 'Play' : 'Pause'}<span className="sr-only"> the platform carousel</span>
+          </button>
+        )}
+      </div>
+      <div
+        className="work-reel__viewport"
+        onMouseEnter={() => setHold('hover', true)}
+        onMouseLeave={() => setHold('hover', false)}
+        onFocus={() => setHold('focus', true)}
+        onBlur={(e) => { if (!e.currentTarget.contains(e.relatedTarget)) setHold('focus', false); }}
+      >
+        <div ref={trackRef} className="work-reel__track">
+          {FLAGSHIP.map((item, i) => <FlagshipCard key={item.id} item={item} i={i} />)}
+          {!reduce && FLAGSHIP.map((item, i) => <FlagshipCard key={`dup-${item.id}`} item={item} i={i} hidden />)}
         </div>
       </div>
     </section>
