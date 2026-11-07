@@ -38,7 +38,7 @@ const QUESTIONS = [
   },
   {
     q: 'Do you work with nonprofits and government agencies?',
-    a: 'Absolutely. We have deep experience with nonprofits, chambers of commerce, workforce development programs, and government contracting platforms like PrimeReach and Caltrans BizConnect.',
+    a: 'Absolutely. We have deep experience with nonprofits, chambers of commerce, workforce development programs, and government contracting platforms like EVOGovCon and Caltrans BizConnect.',
   },
   {
     q: 'How do I get started?',
