@@ -16,6 +16,7 @@ const STATIC_ROUTES = [
   ['/', 'weekly', '1.0'],
   ['/services', 'monthly', '0.9'],
   ['/google-ad-grants', 'monthly', '0.8'],
+  ['/government', 'monthly', '0.9'],
   ['/how-it-works', 'monthly', '0.7'],
   ['/our-work', 'monthly', '0.8'],
   ['/our-work/videos', 'monthly', '0.6'],

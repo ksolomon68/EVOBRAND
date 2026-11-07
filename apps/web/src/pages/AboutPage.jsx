@@ -3,7 +3,7 @@ import { ArrowUpRight, Award, Lightbulb, Route, Target, Users } from 'lucide-rea
 import SEO from '@/components/SEO.jsx';
 import FrameScrub from '@/components/cinematic/FrameScrub.jsx';
 import { CtaBand, InnerHero, LinkCards, SplitSection, useStaggerReveal } from '@/components/inner/InnerKit.jsx';
-import { ProofLedger, SectionHeading } from '@/components/system/Section.jsx';
+import { ButtonLink, ProofLedger, SectionHeading } from '@/components/system/Section.jsx';
 import { useMotion } from '@/lib/motion.js';
 
 const CORE_VALUES = [
@@ -318,6 +318,11 @@ export default function AboutPage() {
             <ProofLedger
               items={CERTIFICATIONS.map((c) => ({ value: c.code, label: c.agency ? `${c.title} · ${c.agency}` : c.title }))}
             />
+            <div className="mt-space-l">
+              <ButtonLink to="/government" variant="secondary" data-cta="about-cert-government">
+                Vendor details for procurement
+              </ButtonLink>
+            </div>
           </div>
           <div className="mt-space-xl">
             <p className="evo-eyebrow">Affiliations &amp; certifications</p>
