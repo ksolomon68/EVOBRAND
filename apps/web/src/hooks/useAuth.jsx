@@ -3,7 +3,7 @@ import { useState, useEffect, createContext, useContext } from 'react';
 const AuthContext = createContext();
 const API_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
   ? 'http://localhost:5000/api/auth'
-  : 'https://evobrandconcepts.com/api/auth';
+  : '/api/auth';
 const TIMEOUT_MS = 10000;
 
 function fetchWithTimeout(url, options = {}) {
