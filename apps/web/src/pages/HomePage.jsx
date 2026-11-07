@@ -214,7 +214,7 @@ export default function HomePage() {
             label="The record"
             lead="Experience you can verify."
             emphasis="Work you can open."
-            intro="Senior-led from the first conversation through launch, with a track record spanning public, private, and nonprofit work."
+            intro="One accountable lead from the first conversation through launch, with a track record spanning public, private, and nonprofit work."
           />
           <ProofLedger
             items={[

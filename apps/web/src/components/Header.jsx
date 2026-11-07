@@ -287,7 +287,7 @@ export default function Header() {
         <div className="site-header__inner evo-container">
           <Link to="/" className="site-brand">
             <img src="/logo.png" alt="EVOBRAND" />
-            <span>Senior-led<br />since 1999</span>
+            <span>Digital agency<br />since 1999</span>
           </Link>
 
           <nav className="site-header__nav" aria-label="Primary">

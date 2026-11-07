@@ -1,14 +1,14 @@
 import React, { useLayoutEffect, useRef } from 'react';
-import { ArrowUpRight, Award, Lightbulb, Route, Target, Users } from 'lucide-react';
+import { ArrowRight, ArrowUpRight, Award, Download, Landmark, Lightbulb, Route, Target, Users } from 'lucide-react';
 import SEO from '@/components/SEO.jsx';
 import FrameScrub from '@/components/cinematic/FrameScrub.jsx';
 import { CtaBand, InnerHero, LinkCards, SplitSection, useStaggerReveal } from '@/components/inner/InnerKit.jsx';
-import { ProofLedger, SectionHeading } from '@/components/system/Section.jsx';
+import { ButtonLink, ProofLedger, SectionHeading } from '@/components/system/Section.jsx';
 import { useMotion } from '@/lib/motion.js';
 
 const CORE_VALUES = [
   { icon: Target, title: 'Plain answers', body: 'Clear scope, honest timelines, and written decisions. You always know where the project stands.' },
-  { icon: Users, title: 'Senior-led', body: 'The person who scopes the work stays on it through launch and after.' },
+  { icon: Users, title: 'One accountable lead', body: 'The person who scopes the work stays on it through launch and after.' },
   { icon: Lightbulb, title: 'Built to be run', body: 'We design systems your staff can operate after we hand them over, not just launch.' },
   { icon: Award, title: 'Accountable', body: 'Every project starts with agreed outcomes, and we report against them.' },
 ];
@@ -25,6 +25,7 @@ const AFFILIATIONS_AND_CERTIFICATIONS = [
   { name: 'Small Business Enterprise Certified', src: '/brand/certifications/sbe.png' },
   { name: "Woman-Owned Business Enterprise Certified", src: '/brand/certifications/wbe.png' },
   { name: 'Minority Business Enterprise Certified', src: '/brand/certifications/mbe.webp' },
+  { name: 'North Central Texas Regional Certification Agency (NCTRCA)', src: '/brand/certifications/nctrca.webp' },
   { name: 'HubSpot Partner', src: '/brand/certifications/hubspot.webp' },
   { name: 'Common Ground Ministries', src: '/brand/affiliations/common-ground-ministries.webp' },
   { name: 'Dallas Black Chamber of Commerce', src: '/brand/affiliations/dallas-black-chamber-of-commerce.png' },
@@ -251,7 +252,7 @@ export default function AboutPage() {
         crumbs={[{ label: 'About' }]}
         label="Since 1999 · Dallas–Fort Worth"
         lead="Full-stack digital agency."
-        emphasis="Senior-led for 25+ years."
+        emphasis="Building what works for 25+ years."
         intro="EVOBRAND Concepts plans, designs, and builds websites, platforms, and brand systems for government agencies, corporations, and nonprofits."
         actions={[
           { to: '/book-consultation', label: 'Book a strategy call', cta: 'about-hero-call' },
@@ -268,6 +269,7 @@ export default function AboutPage() {
           { href: '#values', label: 'How we work' },
           { href: '#leadership', label: 'Leadership' },
           { href: '#certifications', label: 'Certifications' },
+          { href: '/government', label: 'Government & procurement' },
         ]}
       />
 
@@ -318,6 +320,25 @@ export default function AboutPage() {
             <ProofLedger
               items={CERTIFICATIONS.map((c) => ({ value: c.code, label: c.agency ? `${c.title} · ${c.agency}` : c.title }))}
             />
+            <aside className="gov-callout mt-space-xl" aria-labelledby="gov-callout-heading">
+              <span className="gov-callout__icon" aria-hidden="true"><Landmark size={24} strokeWidth={1.6} /></span>
+              <div className="gov-callout__copy">
+                <p className="evo-eyebrow">For agencies and prime contractors</p>
+                <h3 id="gov-callout-heading">Buying for a public agency or meeting SBE, WBE or MBE goals?</h3>
+                <p>
+                  See our certificate numbers, certified NAICS codes (512110, 518210), capabilities, and how we work as
+                  a prime or certified subcontractor.
+                </p>
+              </div>
+              <div className="gov-callout__actions">
+                <ButtonLink to="/government" data-cta="about-cert-government">
+                  Government &amp; procurement <ArrowRight size={16} aria-hidden="true" />
+                </ButtonLink>
+                <a className="evo-btn evo-btn--secondary" href="/docs/evobrand-capabilities-profile.pdf" download data-cta="about-cert-profile">
+                  <Download size={16} aria-hidden="true" /> Capabilities profile <span className="sr-only">(PDF)</span>
+                </a>
+              </div>
+            </aside>
           </div>
           <div className="mt-space-xl">
             <p className="evo-eyebrow">Affiliations &amp; certifications</p>
@@ -333,10 +354,11 @@ export default function AboutPage() {
         emphasis="then see the results."
       >
         <LinkCards
-          columns={2}
+          columns={3}
           items={[
             { to: '/how-it-works', icon: Route, meta: 'Process', title: 'How we work', body: 'Discovery to launch and beyond, with clear milestones and shared visibility.', cta: 'See the process' },
             { to: '/our-work', icon: Award, meta: 'Portfolio', title: 'Our work', body: 'Platforms for contracting, membership, workforce development and civic participation.', cta: 'See the work' },
+            { to: '/government', icon: Landmark, meta: 'Procurement', title: 'Government & procurement', body: 'Certificates, NAICS codes, vendor details and our capabilities profile.', cta: 'Vendor details' },
           ]}
         />
       </SplitSection>

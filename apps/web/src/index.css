@@ -3690,3 +3690,75 @@ body:has(.cta-band) .site-footer__statement { display: none; }
 /* Homepage sections sit on the blueprint's tinted field, so the colour
    shifts between them instead of cutting from block to block. */
 .bp-page .evo-block { background: transparent; }
+
+/* ── Government page: vendor quick reference ───────────────────────────── */
+.vendor-sheet { display: grid; gap: var(--space-l); }
+.vendor-sheet__list { display: grid; border-top: 1px solid var(--evo-line); }
+.vendor-sheet__row {
+  display: grid;
+  grid-template-columns: 11rem 1fr;
+  gap: var(--space-m);
+  padding-block: var(--space-m);
+  border-bottom: 1px solid var(--evo-line);
+}
+.vendor-sheet__row dt {
+  padding-top: 0.2rem;
+  font-family: var(--font-label);
+  font-size: var(--step--2);
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--evo-accent);
+}
+.vendor-sheet__row dd { font-size: var(--step-0); line-height: 1.55; color: var(--evo-text); }
+.vendor-sheet__row dd a { color: var(--evo-text); text-decoration: underline; text-underline-offset: 3px; }
+.vendor-sheet__row dd a:hover { color: var(--evo-accent-hover); }
+.vendor-sheet__row code { font-size: var(--step-0); letter-spacing: 0.06em; }
+.vendor-sheet__certs,
+.vendor-sheet__naics { display: grid; gap: 0.35rem; margin: 0; padding: 0; list-style: none; }
+.vendor-sheet__certs strong,
+.vendor-sheet__naics strong { display: inline-block; min-width: 4.25rem; color: var(--evo-text); font-variant-numeric: tabular-nums; }
+.vendor-sheet__note { display: block; margin-top: var(--space-2xs); font-size: var(--step--1); color: var(--evo-muted); }
+.vendor-sheet__note a { color: var(--evo-accent); text-decoration: underline; text-underline-offset: 3px; }
+.vendor-sheet__actions { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-s); margin-top: var(--space-l); }
+.vendor-sheet__actions .evo-btn { gap: 0.5rem; }
+@media (max-width: 640px) {
+  .vendor-sheet__row { grid-template-columns: 1fr; gap: var(--space-2xs); }
+}
+.vendor-sheet__certs li { line-height: 1.5; }
+.vendor-sheet__num { font-variant-numeric: tabular-nums; letter-spacing: 0.02em; color: var(--evo-muted); }
+.vendor-sheet__certs a { color: var(--evo-accent); text-decoration: underline; text-underline-offset: 3px; white-space: nowrap; }
+.vendor-sheet__meta { font-size: var(--step--2); letter-spacing: 0.08em; opacity: 0.75; }
+.vendor-sheet__certs { gap: var(--space-s); }
+.vendor-sheet__cert { display: grid; grid-template-columns: 4.25rem 1fr; }
+.vendor-sheet__certline { display: flex; flex-wrap: wrap; gap: 0.25rem 1rem; font-size: var(--step--1); }
+
+/* ── About: government & procurement callout ───────────────────────────── */
+.gov-callout {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: var(--space-l);
+  padding: var(--space-l) var(--space-xl);
+  border: 1px solid var(--evo-accent);
+  border-radius: var(--evo-radius);
+  background: linear-gradient(120deg, rgba(34, 200, 229, 0.12), rgba(34, 200, 229, 0.02) 60%);
+}
+.gov-callout__icon {
+  display: grid;
+  place-items: center;
+  width: 3.25rem;
+  height: 3.25rem;
+  border-radius: 50%;
+  background: var(--evo-accent);
+  color: var(--evo-on-accent);
+}
+.gov-callout__copy { display: grid; gap: var(--space-2xs); max-width: 60ch; }
+.gov-callout__copy h3 { font-family: var(--font-display); font-size: var(--step-2); line-height: 1.2; color: var(--evo-text); }
+.gov-callout__copy p:last-child { color: var(--evo-muted); line-height: 1.55; }
+.gov-callout__actions { display: grid; gap: var(--space-s); justify-items: stretch; }
+.gov-callout__actions .evo-btn { justify-content: center; gap: 0.5rem; white-space: nowrap; }
+@media (max-width: 960px) {
+  .gov-callout { grid-template-columns: 1fr; padding: var(--space-l); }
+  .gov-callout__actions { grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr)); }
+}

@@ -32,7 +32,7 @@ export const NAV_GROUPS = [
     title: 'About the studio',
     feature: {
       eyebrow: 'Since 1999 · Dallas–Fort Worth',
-      lead: 'Senior-led',
+      lead: 'Building what works',
       emphasis: 'for 25+ years.',
       cta: { to: '/about', label: 'Read our story' },
     },
@@ -40,7 +40,7 @@ export const NAV_GROUPS = [
       { to: '/about', icon: Compass, title: 'Our story', body: 'From a 1999 creative agency to full-stack delivery' },
       { to: '/how-it-works', icon: Route, title: 'How we work', body: 'Discovery to launch, with you in the room' },
       { to: '/about#leadership', icon: UserRound, title: 'Leadership', body: 'The person who scopes the work stays on it' },
-      { to: '/about#certifications', icon: BadgeCheck, title: 'Certifications', body: 'SBE, WBE and MBE certified' },
+      { to: '/government', icon: BadgeCheck, title: 'Government & procurement', body: 'SBE, WBE and MBE certified · vendor details' },
     ],
   },
   {

@@ -25,6 +25,7 @@ function lazyPage(factory) {
 }
 const ServicesPage = lazyPage(() => import('@/pages/ServicesPage.jsx'));
 const GoogleAdGrantsPage = lazyPage(() => import('@/pages/GoogleAdGrantsPage.jsx'));
+const GovernmentPage = lazyPage(() => import('@/pages/GovernmentPage.jsx'));
 const ServiceDetailPage = lazyPage(() => import('@/pages/ServiceDetailPage.jsx'));
 const HowItWorksPage = lazyPage(() => import('@/pages/HowItWorksPage.jsx'));
 const OurWorkPage = lazyPage(() => import('@/pages/OurWorkPage.jsx'));
@@ -56,6 +57,7 @@ import { trackPageView } from '@/lib/analytics.js';
 const PRELOADABLE = [
   ['/services', ServicesPage],
   ['/google-ad-grants', GoogleAdGrantsPage],
+  ['/government', GovernmentPage],
   ['/services/:slug', ServiceDetailPage],
   ['/how-it-works', HowItWorksPage],
   ['/our-work', OurWorkPage],
@@ -110,6 +112,7 @@ function SiteLayout() {
                 <Route path="/" element={<HomePage />} />
                 <Route path="/services" element={<ServicesPage />} />
                 <Route path="/google-ad-grants" element={<GoogleAdGrantsPage />} />
+                <Route path="/government" element={<GovernmentPage />} />
                 <Route path="/services/google-ad-grants" element={<Navigate to="/google-ad-grants" replace />} />
                 <Route path="/services/:slug" element={<ServiceDetailPage />} />
                 <Route path="/how-it-works" element={<HowItWorksPage />} />
