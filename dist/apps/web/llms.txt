@@ -1,25 +1,44 @@
+# EVOBRAND Concepts
+
+> Senior-led digital agency in Dallas–Fort Worth, Texas, building websites, custom AI applications, document automation, AI video and WCAG accessibility for government agencies, nonprofits and businesses. SBE, WBE and MBE certified. Contact: info@evobrand.net, +1 214-531-4427.
+
 ## Pages
-- [404: Page Not Found | EVOBRAND](/notfound): The page you
-- [About EVOBRAND Concepts](/about): EVOBRAND Concepts is a full-stack digital agency led by Keisha Solomon, with 25+ years of work for government agencies, corporations, and nonprofits. SBE, WBE, and MBE certified. Based in the Dallas–Fort Worth area.
-- [Accessibility Report](/accessibilitycheckerresults): View your personalized WCAG accessibility report from EVOBRAND.
-- [Accessibility Statement | EVOBRAND](/accessibilitystatement): EVOBRAND
-- [Audit Results](/auditorresults): View your personalized AI-powered brand audit report from EVOBRAND.
-- [Blog Post](/blogpost): No description available
-- [Book a Free Strategy Consultation | EVOBRAND](/bookconsultation): Schedule a free 30-minute consultation with EVOBRAND to discuss websites, automation, custom AI applications and your digital goals.
-- [Business Technology Guides | EVOBRAND](/resources): Practical guides for business owners on AI, automation, websites, accessibility, brand strategy, and choosing better digital systems.
-- [Client Portal](/clientportal): EVOBRAND Client Portal - Secure access to your projects and meetings.
-- [Client Portal Login](/clientportallogin): Access your EVOBRAND client portal.
-- [Contact EVOBRAND Concepts](/contact): Ready to transform your business with AI? Contact EVOBRAND for a free 30-minute strategy call. Based in the Dallas–Fort Worth area, serving clients nationwide. Call +1 214-531-4427 or email info@evobrand.net.
-- [Free AI Brand Audit Tool | Instant Score & Action Plan | EVOBRAND](/auditor): Get a free AI-powered brand audit in under 4 minutes. Score your brand across SEO, design, accessibility, social, and digital presence. Instant report + personalized action plan. No sign-up required.
-- [Free Audit Tools | Brand & Accessibility Scans | EVOBRAND](/auditors): Two free audit tools from EVOBRAND: a brand auditor that scores your digital presence, and an accessibility checker that scans your site against WCAG 2.1. Instant results, no sign-up.
-- [Free Custom Demo Portal | Custom AI Applications | EVOBRAND](/freedemoportal): Get a free, custom-built demo portal for your business. Share your requirements and logo, and EVOBRAND will build a live demo tailored to you at no cost.
-- [Free Website Accessibility Checker | WCAG Scan & Report | EVOBRAND](/accessibilitychecker): Scan any page of your website for WCAG A/AA accessibility issues in about a minute. Real Google Lighthouse data, the exact elements that fail, prioritized fixes, and a suggested remediation plan, all free.
-- [Google Ad Grants for Nonprofits | EVOBRAND Concepts](/googleadgrants): Turn up to $10,000 per month in Google Search advertising into measurable mission impact. Assess readiness, launch campaigns and grow with EVOBRAND.
-- [Motion lab](/motionlab): No description available
-- [Our Work: Platforms, Websites, Academy and Case Studies](/ourwork): Selected EVOBRAND work for government agencies, nonprofits, and businesses: government contracting platforms, membership systems, live dashboard demos, websites, and EVOBRAND Academy
-- [Payment Success - EVOBRAND](/paymentsuccess): Thank you for your purchase. Your payment was verified successfully.
-- [Reset Password](/resetpassword): Reset your EVOBRAND client portal password.
-- [Style guide](/styleguide): No description available
-- [Video Library | EVOBRAND](/videolibrary): Explore EVOBRAND videos on branding, automation, AI, and business growth: walkthroughs, tutorials, and client stories.
-- [Websites, AI & Automation for Your Business](/home): EVOBRAND builds websites, custom applications, and practical AI workflows for businesses and organizations. Based in the Dallas–Fort Worth area. Serving clients nationwide.
-- [WordPress Maintenance & Support Plans | EVOBRAND](/maintenanceplans): Keep your WordPress site secure, fast, and up to date with EVOBRAND
+- [Websites, AI & Automation for Your Business | EVOBRAND](https://evobrand.net/): EVOBRAND builds websites, custom applications, and practical AI workflows for businesses and organizations. Based in the Dallas–Fort Worth area. Serving clients nationwide.
+- [Services | Websites, Custom AI Applications, Video & Accessibility | EVOBRAND](https://evobrand.net/services): EVOBRAND builds websites and portals, custom AI applications, document automation, AI visual content and video, and WCAG accessibility. Senior-led since 1999, with transparent pricing.
+- [Google Ad Grants for Nonprofits | EVOBRAND Concepts](https://evobrand.net/google-ad-grants): Turn up to $10,000 per month in Google Search advertising into measurable mission impact. Assess readiness, launch campaigns and grow with EVOBRAND.
+- [How We Work | Discovery to Launch | EVOBRAND](https://evobrand.net/how-it-works): EVOBRAND's four-phase delivery process: Discovery & Strategy, Development, Testing & Launch, and ongoing Optimization. Typical timelines from 2 to 12 weeks.
+- [Our Work: Platforms, Websites, Academy and Case Studies | EVOBRAND](https://evobrand.net/our-work): Selected EVOBRAND work for government agencies, nonprofits, and businesses: government contracting platforms, membership systems, live dashboard demos, websites, and EVOBRAND Academy's AI Executive Sandbox.
+- [Video Library | EVOBRAND](https://evobrand.net/our-work/videos): Explore EVOBRAND videos on branding, automation, AI, and business growth: walkthroughs, tutorials, and client stories.
+- [Business Technology Guides | EVOBRAND](https://evobrand.net/resources): Practical guides for business owners on AI, automation, websites, accessibility, brand strategy, and choosing better digital systems.
+- [About EVOBRAND Concepts](https://evobrand.net/about): EVOBRAND Concepts is a full-stack digital agency led by Keisha Solomon, with 25+ years of work for government agencies, corporations, and nonprofits. SBE, WBE, and MBE certified. Based in the Dallas–Fort Worth area.
+- [Contact EVOBRAND Concepts](https://evobrand.net/contact): Ready to transform your business with AI? Contact EVOBRAND for a free 30-minute strategy call. Based in the Dallas–Fort Worth area, serving clients nationwide. Call +1 214-531-4427 or email info@evobrand.net.
+- [Free Audit Tools | Brand & Accessibility Scans | EVOBRAND](https://evobrand.net/auditors): Two free audit tools from EVOBRAND: a brand auditor that scores your digital presence, and an accessibility checker that scans your site against WCAG 2.1. Instant results, no sign-up.
+- [Free AI Brand Audit Tool | Instant Score & Action Plan | EVOBRAND](https://evobrand.net/auditor): Get a free AI-powered brand audit in under 4 minutes. Score your brand across SEO, design, accessibility, social, and digital presence. Instant report + personalized action plan. No sign-up required.
+- [Free Website Accessibility Checker | WCAG Scan & Report | EVOBRAND](https://evobrand.net/accessibility-checker): Scan any page of your website for WCAG A/AA accessibility issues in about a minute. Real Google Lighthouse data, the exact elements that fail, prioritized fixes, and a suggested remediation plan, all free.
+- [WordPress Maintenance & Support Plans | EVOBRAND](https://evobrand.net/maintenance-plans): Keep your WordPress site secure, fast, and up to date with EVOBRAND's maintenance plans. Basic, Pro, and Elite tiers, plus pay-as-you-go support tickets.
+- [Book a Free Strategy Consultation | EVOBRAND](https://evobrand.net/book-consultation): Schedule a free 30-minute consultation with EVOBRAND to discuss websites, automation, custom AI applications and your digital goals.
+- [Free Custom Demo Portal | Custom AI Applications | EVOBRAND](https://evobrand.net/free-demo-portal): Get a free, custom-built demo portal for your business. Share your requirements and logo, and EVOBRAND will build a live demo tailored to you at no cost.
+- [Accessibility Statement | EVOBRAND](https://evobrand.net/accessibility-statement): EVOBRAND's commitment to digital accessibility. Learn about our WCAG 2.1 AA/AAA compliance efforts, known limitations, and how to contact us for assistance.
+
+## Services
+- [Custom AI Applications | EVOBRAND Services](https://evobrand.net/services/custom-ai-applications): Tailored AI solutions designed to solve your unique business challenges and drive measurable results. Typical timeline 6-12 weeks. Plans from $5,000.
+- [AI Visual Content Creation | EVOBRAND Services](https://evobrand.net/services/ai-visual-content): Generate stunning visuals, graphics, and brand assets using cutting-edge AI technology. Typical timeline 2-4 weeks. Plans from $2,000.
+- [Intelligent Document Generation | EVOBRAND Services](https://evobrand.net/services/document-generation): Automate document creation with AI-powered templates and smart data integration. Typical timeline 4-8 weeks. Plans from $3,000.
+- [AI Video Production | EVOBRAND Services](https://evobrand.net/services/ai-video-production): Create professional videos with AI-assisted scripting, editing, and production. Typical timeline 3-6 weeks. Plans from $4,000.
+- [WordPress & Web Development | EVOBRAND Services](https://evobrand.net/services/web-development): Professional web solutions and WordPress development for modern businesses. Typical timeline 4-8 weeks. Plans from $3,000.
+- [WCAG Accessibility | EVOBRAND Services](https://evobrand.net/services/wcag-accessibility): Ensure your digital experiences are universally accessible. We audit, remediate, and maintain your platforms to meet and exceed WCAG standards. Typical timeline 2-6 weeks. Plans from $2,500.
+
+## Guides
+- [AI Automation for Business: Where to Start | EVOBRAND](https://evobrand.net/blog/architecting-enterprise-ai-moving-beyond-chatbots-to-autonomous-business-systems): Learn which business tasks are ready for AI automation, what to keep human, and how to choose a first project that saves measurable time.
+- [AI Agents for Business: A Practical Owner’s Guide | EVOBRAND](https://evobrand.net/blog/the-rise-of-agentic-ai-autonomous-workflows-redefining-modern-operations): Understand what AI agents can handle, where human approval belongs, and how to evaluate agentic AI without technical jargon.
+- [How to Make Business Knowledge Searchable with AI | EVOBRAND](https://evobrand.net/blog/scaling-rag-systems-overcoming-vector-database-latency-and-retrieval-bottlenecks): A plain-English guide to AI knowledge search, including document preparation, permissions, testing, and trustworthy answers.
+- [How to Keep Business Automations from Breaking | EVOBRAND](https://evobrand.net/blog/self-healing-workflows-how-autonomous-agents-detect-and-repair-broken-apis): Learn why automations fail, how to design safer recovery steps, and what owners should monitor before customers are affected.
+- [What Makes a Business Website Fast and Useful? | EVOBRAND](https://evobrand.net/blog/next-gen-web-architecture-micro-frontends-serverless-api-scaling-and-modern-ux): Learn the website choices that matter to customers, search visibility, accessibility, and future growth—without the technical sales pitch.
+- [Does Your Business Need Edge Functions? | EVOBRAND](https://evobrand.net/blog/server-driven-ui-and-edge-functions-the-blueprint-for-instantaneous-web-apps): A plain-English guide to edge functions, when they improve an application, and when simpler hosting is the smarter choice.
+- [How to Use AI Without Losing Your Brand Voice | EVOBRAND](https://evobrand.net/blog/ai-driven-brand-strategy-crafting-cohesive-visual-identities-at-enterprise-scale): Create faster with AI while keeping your business recognizable, accurate, and human across emails, proposals, social posts, and web content.
+- [Better AI Image Prompts for Consistent Brand Content | EVOBRAND](https://evobrand.net/blog/prompt-engineering-for-designers-mastering-fine-tuned-visual-generative-models): Use a practical prompt framework to create consistent AI images while avoiding common brand, rights, and accessibility problems.
+- [AI Governance for Small Business: A Practical Policy | EVOBRAND](https://evobrand.net/blog/navigating-ai-governance-data-privacy-and-digital-compliance-in-2026): Build a straightforward AI policy covering approved tools, sensitive data, human review, vendor checks, and incident response.
+- [How to Calculate ROI on Business Automation | EVOBRAND](https://evobrand.net/blog/the-2026-digital-roi-report-how-automation-and-ai-drive-10x-operational-speed): Use a simple automation ROI formula to compare time saved, error reduction, software cost, maintenance, and payback before investing.
+- [How to Choose a Digital Agency in the AI Era | EVOBRAND](https://evobrand.net/blog/the-future-of-digital-agencies-blending-bespoke-design-with-ai-velocity): Compare digital agencies on strategy, accessibility, AI practices, ownership, support, and measurable results.
+- [Website Accessibility Costs: A Business Owner’s Guide | EVOBRAND](https://evobrand.net/blog/understanding-website-accessibility-costs-and-the-need-for-ongoing-support): Understand what drives accessibility costs, what an audit should include, and why accessible websites require ongoing maintenance.
+- [How to Build an Accessible WordPress Website | EVOBRAND](https://evobrand.net/blog/how-to-build-a-wcag-compliant-wordpress-website-and-why-it-matters-more-than-you-think): A practical WordPress accessibility checklist covering themes, plugins, content, forms, testing, and maintenance.
