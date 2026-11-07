@@ -38,7 +38,7 @@ export default function GrantAssessment() {
     const controller = new AbortController();
     const timer = setTimeout(() => controller.abort(), 15000);
     try {
-      const base = ['localhost', '127.0.0.1'].includes(window.location.hostname) ? 'http://localhost:5000' : 'https://evobrandconcepts.com';
+      const base = ['localhost', '127.0.0.1'].includes(window.location.hostname) ? 'http://localhost:5000' : '';
       const response = await fetch(`${base}/api/contacts/submit`, { method: 'POST', signal: controller.signal, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({
         name: fields.get('name').trim(), email: fields.get('email').trim(), website: fields.get('website'),
         subject: 'Google Ad Grants for Nonprofits', subscribeNewsletter: false,

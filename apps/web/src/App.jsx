@@ -1,39 +1,83 @@
 
-import React, { Suspense, lazy, useEffect } from 'react';
-import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom';
+import React, { Suspense, lazy, useEffect, useState } from 'react';
+import { BrowserRouter, Routes, Route, Navigate, useLocation, matchPath } from 'react-router-dom';
 import ScrollToTop from '@/components/ScrollToTop.jsx';
 import RouteCurtain from '@/components/RouteCurtain.jsx';
 import Header from '@/components/Header.jsx';
 import Footer from '@/components/Footer.jsx';
 import ChatWidget from '@/components/ChatWidget.jsx';
 import HomePage from '@/pages/HomePage.jsx';
-const ServicesPage = lazy(() => import('@/pages/ServicesPage.jsx'));
-const GoogleAdGrantsPage = lazy(() => import('@/pages/GoogleAdGrantsPage.jsx'));
-const ServiceDetailPage = lazy(() => import('@/pages/ServiceDetailPage.jsx'));
-const HowItWorksPage = lazy(() => import('@/pages/HowItWorksPage.jsx'));
-const OurWorkPage = lazy(() => import('@/pages/OurWorkPage.jsx'));
-const ResourcesPage = lazy(() => import('@/pages/ResourcesPage.jsx'));
-const AboutPage = lazy(() => import('@/pages/AboutPage.jsx'));
-const ContactPage = lazy(() => import('@/pages/ContactPage.jsx'));
-const ClientPortalPage = lazy(() => import('@/pages/ClientPortalPage.jsx'));
-const BlogPostPage = lazy(() => import('@/pages/BlogPostPage.jsx'));
-const AuditorsPage = lazy(() => import('@/pages/AuditorsPage.jsx'));
-const AuditorPage = lazy(() => import('@/pages/AuditorPage.jsx'));
-const AuditorResultsPage = lazy(() => import('@/pages/AuditorResultsPage.jsx'));
-const AccessibilityCheckerPage = lazy(() => import('@/pages/AccessibilityCheckerPage.jsx'));
-const AccessibilityCheckerResultsPage = lazy(() => import('@/pages/AccessibilityCheckerResultsPage.jsx'));
-const ClientPortalLoginPage = lazy(() => import('@/pages/ClientPortalLoginPage.jsx'));
-const ResetPasswordPage = lazy(() => import('@/pages/ResetPasswordPage.jsx'));
-const MaintenancePlansPage = lazy(() => import('@/pages/MaintenancePlansPage.jsx'));
-const PaymentSuccessPage = lazy(() => import('@/pages/PaymentSuccessPage.jsx'));
-const NotFoundPage = lazy(() => import('@/pages/NotFoundPage.jsx'));
-const AccessibilityStatementPage = lazy(() => import('@/pages/AccessibilityStatementPage.jsx'));
-const BookConsultationPage = lazy(() => import('@/pages/BookConsultationPage.jsx'));
-const FreeDemoPortalPage = lazy(() => import('@/pages/FreeDemoPortalPage.jsx'));
-const MotionLabPage = lazy(() => import('@/pages/MotionLabPage.jsx'));
-const StyleGuidePage = lazy(() => import('@/pages/StyleGuidePage.jsx'));
-const VideoLibraryPage = lazy(() => import('@/pages/VideoLibraryPage.jsx'));
+
+// lazy() that can also be preloaded. When a prerendered page boots, main.jsx
+// preloads the current route's chunk before rendering, so the first render
+// uses the module directly instead of flashing the Suspense fallback over the
+// prerendered HTML. The choice is fixed per mount so a page never remounts.
+function lazyPage(factory) {
+  let Loaded = null;
+  const load = () => factory().then((m) => { Loaded = m.default; return m; });
+  const Lazy = lazy(load);
+  function Page(props) {
+    const [Comp] = useState(() => Loaded || Lazy);
+    return <Comp {...props} />;
+  }
+  Page.preload = load;
+  return Page;
+}
+const ServicesPage = lazyPage(() => import('@/pages/ServicesPage.jsx'));
+const GoogleAdGrantsPage = lazyPage(() => import('@/pages/GoogleAdGrantsPage.jsx'));
+const ServiceDetailPage = lazyPage(() => import('@/pages/ServiceDetailPage.jsx'));
+const HowItWorksPage = lazyPage(() => import('@/pages/HowItWorksPage.jsx'));
+const OurWorkPage = lazyPage(() => import('@/pages/OurWorkPage.jsx'));
+const ResourcesPage = lazyPage(() => import('@/pages/ResourcesPage.jsx'));
+const AboutPage = lazyPage(() => import('@/pages/AboutPage.jsx'));
+const ContactPage = lazyPage(() => import('@/pages/ContactPage.jsx'));
+const ClientPortalPage = lazyPage(() => import('@/pages/ClientPortalPage.jsx'));
+const BlogPostPage = lazyPage(() => import('@/pages/BlogPostPage.jsx'));
+const AuditorsPage = lazyPage(() => import('@/pages/AuditorsPage.jsx'));
+const AuditorPage = lazyPage(() => import('@/pages/AuditorPage.jsx'));
+const AuditorResultsPage = lazyPage(() => import('@/pages/AuditorResultsPage.jsx'));
+const AccessibilityCheckerPage = lazyPage(() => import('@/pages/AccessibilityCheckerPage.jsx'));
+const AccessibilityCheckerResultsPage = lazyPage(() => import('@/pages/AccessibilityCheckerResultsPage.jsx'));
+const ClientPortalLoginPage = lazyPage(() => import('@/pages/ClientPortalLoginPage.jsx'));
+const ResetPasswordPage = lazyPage(() => import('@/pages/ResetPasswordPage.jsx'));
+const MaintenancePlansPage = lazyPage(() => import('@/pages/MaintenancePlansPage.jsx'));
+const PaymentSuccessPage = lazyPage(() => import('@/pages/PaymentSuccessPage.jsx'));
+const NotFoundPage = lazyPage(() => import('@/pages/NotFoundPage.jsx'));
+const AccessibilityStatementPage = lazyPage(() => import('@/pages/AccessibilityStatementPage.jsx'));
+const BookConsultationPage = lazyPage(() => import('@/pages/BookConsultationPage.jsx'));
+const FreeDemoPortalPage = lazyPage(() => import('@/pages/FreeDemoPortalPage.jsx'));
+const MotionLabPage = lazyPage(() => import('@/pages/MotionLabPage.jsx'));
+const StyleGuidePage = lazyPage(() => import('@/pages/StyleGuidePage.jsx'));
+const VideoLibraryPage = lazyPage(() => import('@/pages/VideoLibraryPage.jsx'));
 import { trackPageView } from '@/lib/analytics.js';
+
+// Route → page, for preloading the current page before the first render
+// (see lazyPage). Must mirror the <Route> table below for prerendered pages.
+const PRELOADABLE = [
+  ['/services', ServicesPage],
+  ['/google-ad-grants', GoogleAdGrantsPage],
+  ['/services/:slug', ServiceDetailPage],
+  ['/how-it-works', HowItWorksPage],
+  ['/our-work', OurWorkPage],
+  ['/our-work/videos', VideoLibraryPage],
+  ['/resources', ResourcesPage],
+  ['/about', AboutPage],
+  ['/contact', ContactPage],
+  ['/blog/:slug', BlogPostPage],
+  ['/auditors', AuditorsPage],
+  ['/auditor', AuditorPage],
+  ['/accessibility-checker', AccessibilityCheckerPage],
+  ['/maintenance-plans', MaintenancePlansPage],
+  ['/accessibility-statement', AccessibilityStatementPage],
+  ['/book-consultation', BookConsultationPage],
+  ['/free-demo-portal', FreeDemoPortalPage],
+];
+
+export function preloadRoute(pathname) {
+  const hit = PRELOADABLE.find(([pattern]) => matchPath(pattern, pathname));
+  // Unknown paths render NotFoundPage, so preload that instead.
+  return (hit ? hit[1] : NotFoundPage).preload().catch(() => {});
+}
 
 function AnalyticsTracker() {
   const location = useLocation();
