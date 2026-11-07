@@ -2754,50 +2754,38 @@ html {
 
 /* Our work */
 .work-reel { position: relative; background: var(--evo-bg); padding-block: var(--space-2xl); overflow: hidden; }
-.work-reel__head { display: flex; flex-wrap: wrap; align-items: end; justify-content: space-between; gap: var(--space-m); }
-.work-reel__toggle {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-  min-height: var(--tap);
-  padding: 0 1rem;
-  border: 1px solid var(--evo-line);
-  border-radius: 999px;
-  background: transparent;
-  color: var(--evo-text);
-  font-size: var(--step--1);
-  font-weight: 600;
-  cursor: pointer;
-  transition: border-color 0.2s ease, color 0.2s ease;
+.work-reel__head { display: grid; gap: var(--space-m); }
+.work-reel__progress { display: none; height: 1px; background: var(--evo-line); }
+.work-reel__progress span { display: block; height: 100%; background: var(--evo-accent); transform: scaleX(0); transform-origin: left center; box-shadow: 0 0 10px var(--evo-accent); }
+.work-reel__viewport { margin-top: var(--space-xl); overflow: hidden; }
+.work-reel__track { display: grid; gap: var(--space-m); padding-inline: var(--gutter); }
+@media (min-width: 1024px) and (prefers-reduced-motion: no-preference) {
+  .work-reel { padding-block: 0; }
+  .work-reel__stage { height: calc(100svh - 80px); display: flex; flex-direction: column; padding-block: 1rem; }
+  .work-reel__head { grid-template-columns: 1fr minmax(12rem, 22rem); align-items: end; }
+  .work-reel__head { flex-shrink: 0; }
+  .work-reel__head > div:first-child { gap: 0.5rem; }
+  .work-reel__head .evo-heading { font-size: clamp(1.75rem, 4.5svh, 3rem); }
+  .work-reel__viewport { margin-top: 1rem; flex: 1; min-height: 0; }
+  .work-reel__track { height: 100%; }
+  .work-reel .work-card--wide { grid-template-rows: minmax(0, 1fr) auto; height: 100%; }
+  .work-reel .work-card__media { min-height: 0; }
+  /* Screenshots show whole, letterboxed on the dark media background. */
+  .work-reel .work-card__media img { height: 100%; aspect-ratio: auto; object-fit: contain; }
+  .work-reel .work-card__media img.is-cover { object-fit: cover; }
+  .work-reel .work-card__body { padding: clamp(0.75rem, 2svh, 1.25rem); gap: 0.4rem; }
+  .work-reel .work-card__title { font-size: 2rem; }
+  .work-reel .work-card__text { font-size: 0.875rem; }
+  .work-reel__progress { display: block; margin-bottom: 1.2rem; }
+  .work-reel__track {
+    display: flex;
+    width: max-content;
+    padding-inline: max(var(--gutter), calc((100vw - 1400px) / 2 + var(--gutter))) 10vw;
+  }
+  .work-reel .work-card--wide { width: min(40rem, 46vw); flex-shrink: 0; }
 }
-.work-reel__toggle:hover,
-.work-reel__toggle:focus-visible { border-color: var(--evo-accent); color: var(--evo-accent); }
-.work-reel__pause-icon { display: inline-block; width: 10px; height: 12px; border-inline: 3px solid currentColor; }
-.work-reel__viewport {
-  margin-top: var(--space-xl);
-  overflow: hidden;
-  -webkit-mask-image: linear-gradient(to right, transparent, #000 4%, #000 96%, transparent);
-  mask-image: linear-gradient(to right, transparent, #000 4%, #000 96%, transparent);
-}
-/* No gap or padding on the track: the loop moves it by exactly -50%, so the
-   two copies must be identical halves. Spacing comes from each card's margin. */
-.work-reel__track { display: flex; width: max-content; will-change: transform; }
-.work-card--marquee { flex: 0 0 auto; width: clamp(17rem, 30vw, 26rem); margin-right: var(--space-m); }
-.work-card--marquee .work-card__media img { aspect-ratio: 1024 / 550; object-fit: contain; }
-.work-card--marquee .work-card__media img.is-cover { object-fit: cover; }
-.work-card--marquee .work-card__title { font-size: var(--step-2); }
-.work-card--marquee .work-card__text {
-  display: -webkit-box;
-  -webkit-line-clamp: 3;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-}
-/* Reduced motion: one still row the visitor can swipe or scroll through. */
-.work-reel.is-static .work-reel__viewport { overflow-x: auto; scroll-snap-type: x mandatory; -webkit-mask-image: none; mask-image: none; }
-.work-reel.is-static .work-reel__track { padding-inline: var(--gutter); }
-.work-reel.is-static .work-card--marquee { scroll-snap-align: start; }
-@media (max-width: 640px) {
-  .work-card--marquee { width: 78vw; }
+@media (prefers-reduced-motion: reduce) {
+  .work-reel__track { display: grid; width: auto; }
 }
 
 .work-section-head { display: flex; flex-wrap: wrap; align-items: end; justify-content: space-between; gap: var(--space-m); margin-bottom: var(--space-xl); }
