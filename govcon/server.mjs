@@ -34,7 +34,12 @@ async function body(req) {
 createServer(async (req,res)=>{
  res.setHeader('Cache-Control','no-store');
  res.setHeader('X-Content-Type-Options','nosniff');
- res.setHeader('Referrer-Policy','no-referrer');
+ // 'same-origin' still blocks leaking this page's URL to any external site —
+ // the same intent as 'no-referrer' — but 'no-referrer' has a documented
+ // Fetch-spec side effect: it forces browsers to send `Origin: null` on this
+ // page's own POST (the /login form), instead of the real origin, which made
+ // the Origin check below reject every real-browser login unconditionally.
+ res.setHeader('Referrer-Policy','same-origin');
  res.setHeader('Content-Security-Policy',"default-src 'none'; style-src 'self'; form-action 'self'; frame-ancestors 'none'; base-uri 'none'");
  if(req.headers.host!==originHost) return send(res,403,'Invalid host. Use '+origin,'text/plain');
  const url=new URL(req.url,origin), path=url.pathname;
