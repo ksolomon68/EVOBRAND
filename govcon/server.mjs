@@ -5,11 +5,17 @@ import { validate } from './model.mjs';
 import { render, login } from './view.mjs';
 
 const port = Number(process.env.PORT || 4173);
-const origin = 'http://127.0.0.1:'+port;
+const bindHost = process.env.HOST || '127.0.0.1';
+// PUBLIC_ORIGIN is the address users actually reach this at (e.g. behind a
+// reverse proxy on a real domain). Defaults to the plain local address so
+// nothing changes for the local, single-machine setup described in README.md.
+const origin = process.env.PUBLIC_ORIGIN || 'http://127.0.0.1:'+port;
+const originHost = new URL(origin).host;
+const secure = origin.startsWith('https://');
 const get = id => db.prepare('SELECT * FROM records WHERE id=?').get(id);
 const css = readFileSync(new URL('./style.css',import.meta.url));
 const attempts = new Map();
-const cookie = (token,seconds) => 'capture='+token+'; Path=/; HttpOnly; SameSite=Strict; Max-Age='+seconds;
+const cookie = (token,seconds) => 'capture='+token+'; Path=/; HttpOnly; SameSite=Strict'+(secure?'; Secure':'')+'; Max-Age='+seconds;
 function send(res,status,body,type='text/html; charset=utf-8') {
  res.writeHead(status,{'Content-Type':type});
  res.end(body);
@@ -30,7 +36,7 @@ createServer(async (req,res)=>{
  res.setHeader('X-Content-Type-Options','nosniff');
  res.setHeader('Referrer-Policy','no-referrer');
  res.setHeader('Content-Security-Policy',"default-src 'none'; style-src 'self'; form-action 'self'; frame-ancestors 'none'; base-uri 'none'");
- if(req.headers.host!=='127.0.0.1:'+port) return send(res,403,'Invalid host. Use '+origin,'text/plain');
+ if(req.headers.host!==originHost) return send(res,403,'Invalid host. Use '+origin,'text/plain');
  const url=new URL(req.url,origin), path=url.pathname;
  const token=req.headers.cookie?.match(/(?:^|; )capture=([a-f0-9]{64})(?:;|$)/)?.[1]||'';
  if(req.method==='GET' && path==='/style.css') return send(res,200,css,'text/css');
@@ -89,4 +95,4 @@ createServer(async (req,res)=>{
   const message=error.code==='ERR_SQLITE_ERROR'?'Database rejected the change. Check for an existing record with the same source and external ID.':error.message;
   return send(res,400,render(url,user,[],[],message));
  }
-}).listen(port,'127.0.0.1',()=>console.log('EVOBRAND Capture Desk '+origin));
+}).listen(port,bindHost,()=>console.log('EVOBRAND Capture Desk '+origin));

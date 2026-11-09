@@ -56,6 +56,10 @@ jobs:
         env:
           VITE_YOUTUBE_API_KEY: AIzaSyB7Akidw7RMlWPX5erpbxh_OJhTo4ch5Vg
           VITE_SITE_URL: https://evobrand.net
+          # Public address of the GovCon capture desk (see govcon/README.md).
+          # Baked into the dashboard build so the "GovCon capture desk" link
+          # works from any machine, not just the one running the server.
+          VITE_GOVCON_URL: https://govcon.evobrand.net
 
       - name: Install Chromium for prerendering
         run: npx playwright install --with-deps chromium
