@@ -32,3 +32,14 @@ deployment:
     # from the updated files on the next request.
     - pkill -9 -f "lsnode:$HOME/EVOBRAND/apps/api" || true
     - mkdir -p $HOME/EVOBRAND/apps/api/tmp && touch $HOME/EVOBRAND/apps/api/tmp/restart.txt
+
+    # Deploy GovCon capture desk source. --exclude 'data' keeps the live SQLite
+    # database (and any sidecar files) untouched by every future deploy — it is
+    # not part of the repo and must never be overwritten or deleted here.
+    - mkdir -p $HOME/EVOBRAND/govcon && /usr/bin/rsync -a --exclude 'data' govcon/ $HOME/EVOBRAND/govcon/ >> $HOME/public_html/deploy.log 2>&1
+
+    # Restart GovCon's Node app the same way as apps/api above. A no-op until
+    # the one-time "Setup Node.js App" step in cPanel points an app at
+    # EVOBRAND/govcon — see govcon/README.md for that setup.
+    - pkill -9 -f "lsnode:$HOME/EVOBRAND/govcon" || true
+    - mkdir -p $HOME/EVOBRAND/govcon/tmp && touch $HOME/EVOBRAND/govcon/tmp/restart.txt
