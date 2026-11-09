@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 
 import {
   AlertCircle, Ticket, Mail, Calendar, Users, Eye, FileText,
-  ArrowRight, Clock, CheckCircle2, Circle, Loader2
+  ArrowRight, Clock, CheckCircle2, Circle, Loader2, Landmark, ExternalLink
 } from 'lucide-react';
 import { parseServerDate } from '../../lib/datetime';
 
@@ -11,6 +11,10 @@ const GOLD = '#22c8e5';
 const API = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
   ? 'http://localhost:5000/api'
   : window.location.origin + '/api';
+
+// Local-only GovCon capture desk — separate Node+SQLite process the operator
+// runs on their own machine (see /govcon/README.md). Never bundled or deployed.
+const GOVCON_URL = import.meta.env.VITE_GOVCON_URL || 'http://127.0.0.1:4173';
 
 function authHeaders() {
   return { Authorization: `Bearer ${localStorage.getItem('evobrand_token')}` };
@@ -165,7 +169,14 @@ export default function AdminDashboard({ tickets = [], onViewTicket, setView }) 
           <h1 className="text-3xl font-bold text-white">Studio overview</h1>
           <p className="text-sm mt-1" style={{ color: 'var(--evo-muted)' }}>{now} · Your work, in one place.</p>
         </div>
-        {loading && <Loader2 size={18} className="animate-spin mt-1" style={{ color: 'rgba(255,255,255,0.3)' }} />}
+        <div className="flex items-center gap-3">
+          <a href={GOVCON_URL} target="_blank" rel="noopener noreferrer"
+            className="flex items-center gap-2 px-3 py-2 rounded-xl text-xs font-semibold transition-all hover:brightness-125"
+            style={{ background: 'rgba(34,200,229,0.12)', border: '1px solid rgba(34,200,229,0.3)', color: GOLD }}>
+            <Landmark size={13} /> GovCon capture desk <ExternalLink size={11} style={{ opacity: 0.6 }} />
+          </a>
+          {loading && <Loader2 size={18} className="animate-spin mt-1" style={{ color: 'rgba(255,255,255,0.3)' }} />}
+        </div>
       </div>
 
       {loadError && <p role="alert" className="portal-notice">Some information could not be loaded. Refresh to try again; the counts below may be incomplete.</p>}

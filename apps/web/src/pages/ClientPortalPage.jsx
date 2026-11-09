@@ -4,7 +4,7 @@ import SEO from '@/components/SEO.jsx';
 import {
   LayoutDashboard, Plus, LogOut, Ticket, Bell,
   Loader2, Calendar, ShieldCheck, Users, FileText, Menu, X, CheckCircle2, AlertCircle, BarChart2,
-  Layers,
+  Layers, Landmark, ExternalLink,
 } from 'lucide-react';
 import ClientOverview from '../components/portal/ClientOverview';
 import TicketList from '../components/portal/TicketList';
@@ -33,20 +33,17 @@ const NAVY = '#003258';
 
 // ─── Nav item component ───────────────────────────────────────────────────────
 
-function NavItem({ icon: Icon, label, active, onClick, badge }) {
-  return (
-    <button
-      onClick={onClick}
-      aria-current={active ? 'page' : undefined}
-      className={`w-full flex items-center gap-3 px-3 py-3 rounded-lg transition-colors font-medium text-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 ${
-        active
-          ? 'text-[#003258]'
-          : 'text-slate-300 hover:text-white hover:bg-white/5'
-      }`}
-      style={active ? { background: GOLD } : {}}
-    >
+function NavItem({ icon: Icon, label, active, onClick, badge, href }) {
+  const classes = `w-full flex items-center gap-3 px-3 py-3 rounded-lg transition-colors font-medium text-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 ${
+    active
+      ? 'text-[#003258]'
+      : 'text-slate-300 hover:text-white hover:bg-white/5'
+  }`;
+  const content = (
+    <>
       <Icon size={16} aria-hidden="true" />
       <span className="flex-1 text-left">{label}</span>
+      {href && <ExternalLink size={12} aria-hidden="true" style={{ opacity: 0.5 }} />}
       {badge != null && badge > 0 && (
         <span
           className="text-[10px] font-bold px-1.5 py-0.5 rounded-full"
@@ -59,9 +56,30 @@ function NavItem({ icon: Icon, label, active, onClick, badge }) {
           {badge}
         </span>
       )}
+    </>
+  );
+  if (href) {
+    return (
+      <a href={href} target="_blank" rel="noopener noreferrer" className={classes} style={active ? { background: GOLD } : {}}>
+        {content}
+      </a>
+    );
+  }
+  return (
+    <button
+      onClick={onClick}
+      aria-current={active ? 'page' : undefined}
+      className={classes}
+      style={active ? { background: GOLD } : {}}
+    >
+      {content}
     </button>
   );
 }
+
+// Local-only GovCon capture desk (/govcon) — a separate Node process the
+// operator runs on their own machine; never bundled or deployed with this site.
+const GOVCON_URL = import.meta.env.VITE_GOVCON_URL || 'http://127.0.0.1:4173';
 
 // ─── Sidebar ──────────────────────────────────────────────────────────────────
 
@@ -106,6 +124,7 @@ function Sidebar({ user, view, setView, setSelectedTicket, openTicketCount, hand
         { key: 'analytics', icon: BarChart2, label: 'Analytics' },
         { key: 'contract-builder', icon: FileText, label: 'Contract builder' },
         { key: 'nda-builder', icon: ShieldCheck, label: 'Mutual NDA' },
+        { key: 'govcon', icon: Landmark, label: 'GovCon capture desk', href: GOVCON_URL },
       ] },
     ] : []),
   ];
@@ -127,10 +146,10 @@ function Sidebar({ user, view, setView, setSelectedTicket, openTicketCount, hand
           <nav className="space-y-6" aria-label="Main portal navigation">
             {navGroups.map(group => <div key={group.label}>
               <p className="portal-nav-label">{group.label}</p>
-              <div className="space-y-1">{group.items.map(({ key, icon, label }) => (
-                <NavItem key={key} icon={icon} label={label}
-                  active={view === key || (view === 'detail' && key === (isAdmin ? 'admin' : 'my-tickets'))}
-                  onClick={() => { setView(key); setSelectedTicket(null); setMobileOpen(false); }} />
+              <div className="space-y-1">{group.items.map(({ key, icon, label, href }) => (
+                <NavItem key={key} icon={icon} label={label} href={href}
+                  active={!href && (view === key || (view === 'detail' && key === (isAdmin ? 'admin' : 'my-tickets')))}
+                  onClick={href ? undefined : () => { setView(key); setSelectedTicket(null); setMobileOpen(false); }} />
               ))}</div>
             </div>)}
           </nav>
