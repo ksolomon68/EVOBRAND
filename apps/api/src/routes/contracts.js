@@ -82,6 +82,12 @@ const ensureTable = async () => {
   try {
     await pool.query('ALTER TABLE contracts ADD COLUMN signer_user_agent VARCHAR(500)');
   } catch (e) {}
+  try {
+    await pool.query("ALTER TABLE contracts ADD COLUMN payment_status ENUM('unpaid','deposit_paid','paid') DEFAULT 'unpaid'");
+  } catch (e) {}
+  try {
+    await pool.query('ALTER TABLE contracts ADD COLUMN final_payment_requested_at TIMESTAMP NULL');
+  } catch (e) {}
 };
 
 // @route POST /api/contracts — admin saves a contract and associates it with a client
@@ -222,7 +228,7 @@ router.put('/:id', authenticateToken, requireAdmin, async (req, res) => {
 // @route POST /api/contracts/upload — admin uploads a contract file (PDF/DOC/DOCX)
 // and sends it to a client to review, approve, and pay
 router.post('/upload', authenticateToken, requireAdmin, contractUpload.single('file'), async (req, res) => {
-  const { title, clientEmail, fee, status } = req.body;
+  const { title, clientEmail, fee, status, splitPayment } = req.body;
   if (!title || !clientEmail) {
     return res.status(400).json({ error: 'Title and client email are required' });
   }
@@ -242,7 +248,7 @@ router.post('/upload', authenticateToken, requireAdmin, contractUpload.single('f
       agreementType: 'uploaded',
       fileUrl: `/uploads/${req.file.filename}`,
       fileName: req.file.originalname,
-      project: { fee: isNaN(feeAmount) ? 0 : feeAmount },
+      project: { fee: isNaN(feeAmount) ? 0 : feeAmount, paymentSplit: splitPayment === 'true' || splitPayment === true },
     };
 
     const contractStatus = status || 'sent';
@@ -254,10 +260,14 @@ router.post('/upload', authenticateToken, requireAdmin, contractUpload.single('f
 
     if (contractStatus !== 'draft' && clientEmail.includes('@')) {
       try {
+        const splitEnabled = contractData.project.paymentSplit && feeAmount > 0;
+        const depositAmount = splitEnabled ? Math.round(feeAmount / 2 * 100) / 100 : 0;
         const emailBody = `
           <p>Hi,</p>
           <p>A contract document (<strong>${title}</strong>) has been uploaded and sent to you by <strong>EVOBRAND Concepts LLC</strong> for review and approval.</p>
-          ${feeAmount > 0 ? `<p><strong>Amount Due:</strong> $${feeAmount.toLocaleString('en-US', { minimumFractionDigits: 2 })}</p>` : ''}
+          ${feeAmount > 0 ? (splitEnabled
+            ? `<p><strong>Total Due:</strong> $${feeAmount.toLocaleString('en-US', { minimumFractionDigits: 2 })} (50% deposit of $${depositAmount.toLocaleString('en-US', { minimumFractionDigits: 2 })} upfront, remaining balance due once work is complete)</p>`
+            : `<p><strong>Amount Due:</strong> $${feeAmount.toLocaleString('en-US', { minimumFractionDigits: 2 })}</p>`) : ''}
           <p>Please log in to your EVOBRAND Client Portal to review, approve, and ${feeAmount > 0 ? 'pay for' : 'sign'} the agreement:</p>
           <p><a href="https://evobrandconcepts.com/login" style="color: #22c8e5; font-weight: bold; text-decoration: none;">Go to Client Portal</a></p>
           <p>If you don't have an active password yet, you can set one using the <strong>Forgot Password</strong> link on the login page.</p>
@@ -289,11 +299,11 @@ router.get('/', authenticateToken, async (req, res) => {
     let rows;
     if (req.user.is_admin) {
       [rows] = await pool.query(
-        'SELECT id, title, client_email, status, created_at FROM contracts ORDER BY created_at DESC'
+        'SELECT id, title, client_email, status, payment_status, final_payment_requested_at, created_at FROM contracts ORDER BY created_at DESC'
       );
     } else {
       [rows] = await pool.query(
-        'SELECT id, title, client_email, status, created_at FROM contracts WHERE (client_user_id = ? OR client_email = ?) AND status != \'draft\' ORDER BY created_at DESC',
+        'SELECT id, title, client_email, status, payment_status, final_payment_requested_at, created_at FROM contracts WHERE (client_user_id = ? OR client_email = ?) AND status != \'draft\' ORDER BY created_at DESC',
         [req.user.id, req.user.email]
       );
     }
@@ -397,6 +407,53 @@ router.post('/:id/sign', authenticateToken, async (req, res) => {
   } catch (error) {
     console.error('Sign contract error:', error);
     res.status(500).json({ error: 'Server error signing contract' });
+  }
+});
+
+// @route PUT /api/contracts/:id/request-final-payment — admin marks the work
+// complete on a split-payment (50% upfront / 50% on completion) contract,
+// unlocking the final-balance checkout for the client
+router.put('/:id/request-final-payment', authenticateToken, requireAdmin, async (req, res) => {
+  try {
+    const [rows] = await pool.query('SELECT * FROM contracts WHERE id = ?', [req.params.id]);
+    if (rows.length === 0) return res.status(404).json({ error: 'Contract not found' });
+
+    const contract = rows[0];
+    if (contract.payment_status !== 'deposit_paid') {
+      return res.status(400).json({ error: 'The 50% deposit must be paid before requesting the final balance' });
+    }
+    if (contract.final_payment_requested_at) {
+      return res.json({ message: 'Final payment was already requested' });
+    }
+
+    await pool.query('UPDATE contracts SET final_payment_requested_at = NOW() WHERE id = ?', [req.params.id]);
+
+    const contractData = typeof contract.contract_data === 'string' ? JSON.parse(contract.contract_data) : contract.contract_data;
+    const fee = Number(contractData?.project?.fee) || 0;
+    const finalAmount = fee - Math.round(fee / 2 * 100) / 100;
+
+    if (contract.client_email && contract.client_email.includes('@')) {
+      try {
+        await sendEmail({
+          from: `"EVOBRAND" <${process.env.RESEND_FROM_EMAIL || 'info@evobrand.net'}>`,
+          to: [contract.client_email, 'ks@evobrand.net'],
+          subject: `Final Balance Due: ${contract.title}`,
+          html: getEmailTemplate('Final Balance Due', `
+            <p>Hi,</p>
+            <p>The work on <strong>${contract.title}</strong> has been completed. The remaining balance of <strong>$${finalAmount.toLocaleString('en-US', { minimumFractionDigits: 2 })}</strong> is now due.</p>
+            <p>Please log in to your EVOBRAND Client Portal to pay the final balance:</p>
+            <p><a href="https://evobrandconcepts.com/login" style="color: #22c8e5; font-weight: bold; text-decoration: none;">Go to Client Portal</a></p>
+          `)
+        });
+      } catch (emailErr) {
+        console.error('Failed to send final payment request email:', emailErr);
+      }
+    }
+
+    res.json({ message: 'Final payment requested' });
+  } catch (error) {
+    console.error('Request final payment error:', error);
+    res.status(500).json({ error: 'Server error requesting final payment' });
   }
 });
 

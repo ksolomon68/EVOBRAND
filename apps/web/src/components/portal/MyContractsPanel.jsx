@@ -17,9 +17,19 @@ const statusConfig = {
 };
 
 const paymentStatusConfig = {
-  paid:   { label: 'Paid', color: '#34d399' },
-  unpaid: { label: 'Unpaid', color: '#facc15' },
+  paid:         { label: 'Paid', color: '#34d399' },
+  deposit_paid: { label: 'Deposit Paid', color: '#22c8e5' },
+  unpaid:       { label: 'Unpaid', color: '#facc15' },
 };
+
+const fmtMoney = (v) => {
+  const n = Number(v);
+  return isNaN(n) ? '$0.00' : n.toLocaleString('en-US', { style: 'currency', currency: 'USD' });
+};
+
+const isSplitPayment = (contractData) =>
+  contractData?.project?.paymentSplit === true ||
+  contractData?.project?.payment === '50% upfront, 50% on delivery';
 
 const formatDate = (str) => {
   if (!str) return '-';
@@ -88,7 +98,11 @@ function UploadedContractModal({ contract, data, onClose, onSign }) {
             <h3 className="text-lg font-bold text-white mb-2">Approve this contract</h3>
             <p className="text-sm text-white/55 mb-4">
               Your typed name becomes your electronic signature of approval.
-              {!isNaN(fee) && fee > 0 && ` You'll be prompted to pay $${fee.toLocaleString('en-US', { minimumFractionDigits: 2 })} once approved.`}
+              {!isNaN(fee) && fee > 0 && (
+                isSplitPayment(data)
+                  ? ` You'll be prompted to pay a 50% deposit of ${fmtMoney(fee / 2)} once approved, with the remaining ${fmtMoney(fee - Math.round(fee / 2 * 100) / 100)} due once EVOBRAND marks the work complete.`
+                  : ` You'll be prompted to pay ${fmtMoney(fee)} once approved.`
+              )}
             </p>
             <label className="flex items-start gap-3 mb-4 text-sm text-white/75 cursor-pointer">
               <input type="checkbox" checked={consented} onChange={(e) => setConsented(e.target.checked)} className="mt-1 accent-[#22c8e5]" />
@@ -375,6 +389,39 @@ export default function MyContractsPanel({ user, onEditContract, onDuplicateCont
     }
   };
 
+  const openPaymentForContract = async (c) => {
+    const full = await fetch(`${API_BASE}/contracts/${c.id}`, {
+      headers: { Authorization: `Bearer ${localStorage.getItem('evobrand_token')}` },
+    }).then(r => r.json()).catch(() => null);
+    const contractData = full?.contract?.contract_data
+      ? (typeof full.contract.contract_data === 'string' ? JSON.parse(full.contract.contract_data) : full.contract.contract_data)
+      : {};
+    const fee = Number(contractData?.project?.fee) || 0;
+    const split = isSplitPayment(contractData);
+    const depositAmount = Math.round(fee / 2 * 100) / 100;
+    let amount = fee;
+    let stage;
+    if (split) {
+      if (c.payment_status === 'deposit_paid') { amount = fee - depositAmount; stage = 'final'; }
+      else { amount = depositAmount; stage = 'deposit'; }
+    }
+    setPaymentModal({ type: 'contract', id: c.id, amount, stage, description: c.title });
+  };
+
+  const handleRequestFinalPayment = async (c) => {
+    try {
+      const res = await fetch(`${API_BASE}/contracts/${c.id}/request-final-payment`, {
+        method: 'PUT',
+        headers: { Authorization: `Bearer ${localStorage.getItem('evobrand_token')}` },
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(data.error || 'Request failed');
+      setContracts(prev => prev.map(x => x.id === c.id ? { ...x, final_payment_requested_at: new Date().toISOString() } : x));
+    } catch (err) {
+      alert(err.message);
+    }
+  };
+
   const handleSignContract = async (signature, acceptedElectronic = false) => {
     try {
       const token = localStorage.getItem('evobrand_token');
@@ -402,10 +449,12 @@ export default function MyContractsPanel({ user, onEditContract, onDuplicateCont
             : selected.contract_data;
           const fee = Number(contractData?.project?.fee);
           if (contractData?.agreementType !== 'mutual-nda' && !isNaN(fee) && fee > 0) {
+            const split = isSplitPayment(contractData);
             setPaymentModal({
               type: 'contract',
               id: selected.id,
-              amount: fee,
+              amount: split ? fee / 2 : fee,
+              stage: split ? 'deposit' : undefined,
               description: selected.title,
             });
           }
@@ -440,7 +489,6 @@ export default function MyContractsPanel({ user, onEditContract, onDuplicateCont
           {contracts.map(c => {
             const cfg = statusConfig[c.status] || statusConfig.sent;
             const StatusIcon = cfg.icon;
-            const isSignedUnpaid = c.status === 'signed' && c.payment_status !== 'paid';
             return (
               <motion.div
                 key={c.id}
@@ -505,33 +553,34 @@ export default function MyContractsPanel({ user, onEditContract, onDuplicateCont
                       </button>
                     </>
                   )}
-                  {isSignedUnpaid && (
+                  {isAdmin && c.status === 'signed' && c.payment_status === 'deposit_paid' && !c.final_payment_requested_at && (
                     <button
-                      onClick={async () => {
-                        const full = await fetch(`${API_BASE}/contracts/${c.id}`, {
-                          headers: { 'Authorization': `Bearer ${localStorage.getItem('evobrand_token')}` },
-                        }).then(r => r.json()).catch(() => null);
-                        const fee = Number(full?.contract?.contract_data
-                          ? (typeof full.contract.contract_data === 'string'
-                              ? JSON.parse(full.contract.contract_data)
-                              : full.contract.contract_data)?.project?.fee
-                          : 0);
-                        setPaymentModal({
-                          type: 'contract',
-                          id: c.id,
-                          amount: fee || 0,
-                          description: c.title,
-                        });
-                      }}
-                      className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold uppercase tracking-wider transition-all"
-                      style={{ background: 'rgba(34,200,229,0.12)', color: GOLD, border: '1px solid rgba(34,200,229,0.25)' }}
-                      onMouseEnter={e => e.currentTarget.style.background = 'rgba(34,200,229,0.22)'}
-                      onMouseLeave={e => e.currentTarget.style.background = 'rgba(34,200,229,0.12)'}
+                      title="Unlock the final-balance checkout for the client"
+                      onClick={(e) => { e.stopPropagation(); handleRequestFinalPayment(c); }}
+                      className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[10px] font-bold uppercase tracking-wider transition-all hover:bg-white/10"
+                      style={{ background: 'rgba(52,211,153,0.1)', color: '#34d399', border: '1px solid rgba(52,211,153,0.25)' }}
                     >
-                      <CreditCard size={13} /> Pay Now
+                      Mark Work Complete
                     </button>
                   )}
-                  {c.status === 'signed' && c.payment_status === 'paid' && (
+                  {!isAdmin && c.status === 'signed' && c.payment_status !== 'paid' && (
+                    c.payment_status === 'deposit_paid' && !c.final_payment_requested_at ? (
+                      <span className="text-[10px] font-bold px-2.5 py-1 rounded-full uppercase tracking-wider" style={{ background: 'rgba(34,200,229,0.1)', color: GOLD }}>
+                        Deposit Paid
+                      </span>
+                    ) : (
+                      <button
+                        onClick={(e) => { e.stopPropagation(); openPaymentForContract(c); }}
+                        className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold uppercase tracking-wider transition-all"
+                        style={{ background: 'rgba(34,200,229,0.12)', color: GOLD, border: '1px solid rgba(34,200,229,0.25)' }}
+                        onMouseEnter={e => e.currentTarget.style.background = 'rgba(34,200,229,0.22)'}
+                        onMouseLeave={e => e.currentTarget.style.background = 'rgba(34,200,229,0.12)'}
+                      >
+                        <CreditCard size={13} /> {c.payment_status === 'deposit_paid' ? 'Pay Remaining Balance' : 'Pay Now'}
+                      </button>
+                    )
+                  )}
+                  {c.payment_status === 'paid' && (
                     <span className="text-[10px] font-bold px-2.5 py-1 rounded-full uppercase tracking-wider" style={{ background: 'rgba(52,211,153,0.12)', color: '#34d399' }}>Paid</span>
                   )}
                   <StatusIcon size={14} style={{ color: cfg.color }} />
@@ -563,6 +612,7 @@ export default function MyContractsPanel({ user, onEditContract, onDuplicateCont
           id={paymentModal.id}
           amount={paymentModal.amount}
           description={paymentModal.description}
+          stage={paymentModal.stage}
           onClose={() => setPaymentModal(null)}
         />
       )}

@@ -13,6 +13,7 @@ export default function ContractUploadPanel() {
   const [title, setTitle] = useState('');
   const [clientEmail, setClientEmail] = useState('');
   const [fee, setFee] = useState('');
+  const [splitPayment, setSplitPayment] = useState(false);
   const [file, setFile] = useState(null);
   const [saving, setSaving] = useState(false);
   const [savedStatus, setSavedStatus] = useState(''); // '', 'draft', 'sent'
@@ -23,6 +24,7 @@ export default function ContractUploadPanel() {
     setTitle('');
     setClientEmail('');
     setFee('');
+    setSplitPayment(false);
     setFile(null);
     if (fileInputRef.current) fileInputRef.current.value = '';
   };
@@ -41,6 +43,7 @@ export default function ContractUploadPanel() {
       formData.append('title', title.trim());
       formData.append('clientEmail', clientEmail.trim());
       formData.append('fee', fee);
+      formData.append('splitPayment', String(splitPayment));
       formData.append('status', status);
       formData.append('file', file);
 
@@ -86,6 +89,14 @@ export default function ContractUploadPanel() {
             <input type="number" min="0" step="0.01" className={inputClass} placeholder="5000" value={fee} onChange={e => setFee(e.target.value)} />
             <p className="text-[#8892a4] text-xs mt-1">If set, the client is prompted to pay this amount via card after approving the contract. Leave blank for an approval-only contract.</p>
           </div>
+          {Number(fee) > 0 && (
+            <label className="flex items-start gap-3 cursor-pointer">
+              <input type="checkbox" checked={splitPayment} onChange={e => setSplitPayment(e.target.checked)} className="mt-1 accent-[#22c8e5]" />
+              <span className="text-sm text-white/75">
+                Split into <strong>50% upfront</strong> and <strong>50% after work is complete</strong>, instead of charging the full amount at approval.
+              </span>
+            </label>
+          )}
           <div>
             <label className={labelClass}>Contract File *</label>
             <label

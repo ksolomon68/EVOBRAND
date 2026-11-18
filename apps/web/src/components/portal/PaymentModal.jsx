@@ -13,11 +13,13 @@ const GOLD = '#22c8e5';
  * Props:
  *  - type:        'contract' | 'ticket'
  *  - id:          number: the contract or ticket ID
- *  - amount:      number: dollar amount (e.g. 2500)
+ *  - amount:      number: dollar amount (e.g. 2500) — for display only; the
+ *                 server recomputes the authoritative amount for contracts
  *  - description: string: e.g. "Brand Identity Package"
+ *  - stage:       optional 'deposit' | 'final', for split-payment contracts
  *  - onClose:     () => void
  */
-export default function PaymentModal({ type, id, amount, description, onClose }) {
+export default function PaymentModal({ type, id, amount, description, stage, onClose }) {
   const [status, setStatus] = useState('idle'); // 'idle' | 'loading' | 'error'
   const [errorMsg, setErrorMsg] = useState('');
 
@@ -38,7 +40,7 @@ export default function PaymentModal({ type, id, amount, description, onClose })
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`,
         },
-        body: JSON.stringify({ type, id, amount, description }),
+        body: JSON.stringify({ type, id, amount, description, stage }),
       });
 
       const data = await res.json();
@@ -116,7 +118,9 @@ export default function PaymentModal({ type, id, amount, description, onClose })
               className="rounded-2xl p-6 text-center"
               style={{ background: 'rgba(34,200,229,0.05)', border: '1px solid rgba(34,200,229,0.12)' }}
             >
-              <p className="text-evo-fog text-xs font-bold uppercase tracking-widest mb-2">Amount Due</p>
+              <p className="text-evo-fog text-xs font-bold uppercase tracking-widest mb-2">
+                {stage === 'deposit' ? '50% Deposit Due' : stage === 'final' ? 'Final Balance Due' : 'Amount Due'}
+              </p>
               <p
                 className="text-5xl font-bold mb-1 tracking-tight"
                 style={{ color: GOLD }}

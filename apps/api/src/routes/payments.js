@@ -15,8 +15,22 @@ const ensurePaymentColumns = async () => {
     );
   } catch (e) {} // already exists
   try {
+    // 'deposit_paid' sits between 'unpaid' and 'paid' for contracts billed
+    // as a 50% upfront deposit + 50% final balance once work is complete.
+    await pool.query(
+      "ALTER TABLE contracts MODIFY COLUMN payment_status ENUM('unpaid','deposit_paid','paid') DEFAULT 'unpaid'"
+    );
+  } catch (e) {}
+  try {
     await pool.query(
       "ALTER TABLE contracts ADD COLUMN stripe_session_id VARCHAR(255)"
+    );
+  } catch (e) {}
+  try {
+    // Set by an admin once the work tied to a split-payment contract is
+    // done — unlocks the final-balance checkout for the client.
+    await pool.query(
+      "ALTER TABLE contracts ADD COLUMN final_payment_requested_at TIMESTAMP NULL"
     );
   } catch (e) {}
   try {
@@ -28,35 +42,74 @@ const ensurePaymentColumns = async () => {
 
 ensurePaymentColumns();
 
+// A contract is split-pay if the admin set the explicit flag (upload flow)
+// or chose the "50% upfront, 50% on delivery" payment structure in the
+// contract builder — the same string already shown on the agreement itself.
+const isSplitPayment = (contractData) =>
+  contractData?.project?.paymentSplit === true ||
+  contractData?.project?.payment === '50% upfront, 50% on delivery';
+
 // ─────────────────────────────────────────────────────────────────────────────
 // POST /api/payments/create-checkout-session
 // Body: { type: 'contract' | 'ticket', id: number, amount: number, description: string }
+// For contracts, the amount actually charged is always computed here from the
+// contract's own stored fee and payment state — the client-supplied `amount`
+// is only used (as before) for tickets, where there is no stored fee to check it against.
 // Returns: { url } — the Stripe Checkout hosted page URL
 // ─────────────────────────────────────────────────────────────────────────────
 router.post('/create-checkout-session', authenticateToken, async (req, res) => {
   const { type, id, amount, description } = req.body;
 
-  if (!type || !id || !amount || amount <= 0) {
-    return res.status(400).json({ error: 'type, id, and a positive amount are required' });
+  if (!type || !id) {
+    return res.status(400).json({ error: 'type and id are required' });
   }
 
   if (!['contract', 'ticket'].includes(type)) {
     return res.status(400).json({ error: 'type must be "contract" or "ticket"' });
   }
 
-  const amountCents = Math.round(parseFloat(amount) * 100);
-  if (isNaN(amountCents) || amountCents < 50) {
-    return res.status(400).json({ error: 'Amount must be at least $0.50' });
-  }
+  let amountCents;
+  let stage = 'full';
+  let contract = null;
 
-  // Verify ownership
   try {
     if (type === 'contract') {
       const [rows] = await pool.query('SELECT * FROM contracts WHERE id = ?', [id]);
       if (rows.length === 0) return res.status(404).json({ error: 'Contract not found' });
-      const contract = rows[0];
+      contract = rows[0];
       if (contract.client_user_id !== req.user.id && contract.client_email !== req.user.email) {
         return res.status(403).json({ error: 'Access denied' });
+      }
+
+      const contractData = typeof contract.contract_data === 'string'
+        ? JSON.parse(contract.contract_data)
+        : contract.contract_data;
+      const feeCents = Math.round((Number(contractData?.project?.fee) || 0) * 100);
+      if (isNaN(feeCents) || feeCents < 50) {
+        return res.status(400).json({ error: 'This contract has no amount due' });
+      }
+
+      if (isSplitPayment(contractData)) {
+        const depositCents = Math.round(feeCents / 2);
+        const finalCents = feeCents - depositCents;
+        if (!contract.payment_status || contract.payment_status === 'unpaid') {
+          amountCents = depositCents;
+          stage = 'deposit';
+        } else if (contract.payment_status === 'deposit_paid') {
+          if (!contract.final_payment_requested_at) {
+            return res.status(403).json({ error: "The remaining balance unlocks once EVOBRAND marks this contract's work complete." });
+          }
+          amountCents = finalCents;
+          stage = 'final';
+        } else {
+          return res.status(400).json({ error: 'This contract is already fully paid' });
+        }
+      } else {
+        if (contract.payment_status === 'paid') {
+          return res.status(400).json({ error: 'This contract is already fully paid' });
+        }
+        amountCents = feeCents;
+        stage = 'full';
       }
     } else {
       const [rows] = await pool.query('SELECT * FROM support_tickets WHERE id = ?', [id]);
@@ -64,6 +117,14 @@ router.post('/create-checkout-session', authenticateToken, async (req, res) => {
       const ticket = rows[0];
       if (ticket.user_id !== req.user.id) {
         return res.status(403).json({ error: 'Access denied' });
+      }
+
+      if (!amount || amount <= 0) {
+        return res.status(400).json({ error: 'A positive amount is required' });
+      }
+      amountCents = Math.round(parseFloat(amount) * 100);
+      if (isNaN(amountCents) || amountCents < 50) {
+        return res.status(400).json({ error: 'Amount must be at least $0.50' });
       }
     }
   } catch (err) {
@@ -75,6 +136,9 @@ router.post('/create-checkout-session', authenticateToken, async (req, res) => {
   const successUrl = `${origin}/client-portal?payment=success&type=${type}&id=${id}`;
   const cancelUrl  = `${origin}/client-portal?payment=cancelled`;
 
+  const baseName = description || (type === 'contract' ? `Contract #${id}` : `Support Ticket #${id}`);
+  const stageSuffix = stage === 'deposit' ? ' — 50% Deposit' : stage === 'final' ? ' — Final Balance' : '';
+
   try {
     const session = await stripe.checkout.sessions.create({
       payment_method_types: ['card'],
@@ -85,7 +149,7 @@ router.post('/create-checkout-session', authenticateToken, async (req, res) => {
           price_data: {
             currency: 'usd',
             product_data: {
-              name: description || (type === 'contract' ? `Contract #${id}` : `Support Ticket #${id}`),
+              name: `${baseName}${stageSuffix}`,
               description: `EVOBRAND Concepts LLC — ${type === 'contract' ? 'Contract' : 'Ticket'} payment`,
               images: [`${origin}/logo.png`],
             },
@@ -94,7 +158,7 @@ router.post('/create-checkout-session', authenticateToken, async (req, res) => {
           quantity: 1,
         },
       ],
-      metadata: { type, id: String(id), userId: String(req.user.id) },
+      metadata: { type, id: String(id), userId: String(req.user.id), stage },
       success_url: successUrl,
       cancel_url: cancelUrl,
     });
@@ -106,7 +170,7 @@ router.post('/create-checkout-session', authenticateToken, async (req, res) => {
       await pool.query('UPDATE support_tickets SET stripe_session_id = ? WHERE id = ?', [session.id, id]);
     }
 
-    res.json({ url: session.url, sessionId: session.id });
+    res.json({ url: session.url, sessionId: session.id, stage });
   } catch (err) {
     console.error('Stripe session error:', err);
     res.status(500).json({ error: 'Failed to create payment session', details: err.message });
@@ -133,10 +197,35 @@ router.get('/verify-session', authenticateToken, async (req, res) => {
 
     // Mark as paid in the DB
     if (type === 'contract') {
-      await pool.query(
-        "UPDATE contracts SET payment_status = 'paid' WHERE id = ? AND stripe_session_id = ?",
-        [id, sessionId]
+      const stage = session.metadata?.stage;
+      const newStatus = stage === 'deposit' ? 'deposit_paid' : 'paid';
+      const [result] = await pool.query(
+        'UPDATE contracts SET payment_status = ? WHERE id = ? AND stripe_session_id = ?',
+        [newStatus, id, sessionId]
       );
+
+      // Notify admins the first time this session lands (re-verifies on a
+      // refreshed success page shouldn't re-fire the email/notification).
+      if (result.affectedRows > 0) {
+        const [rows] = await pool.query('SELECT title FROM contracts WHERE id = ?', [id]);
+        const contractTitle = rows[0]?.title || `Contract #${id}`;
+        const amountPaid = typeof session.amount_total === 'number' ? (session.amount_total / 100).toFixed(2) : '';
+        const label = stage === 'deposit' ? '50% deposit' : stage === 'final' ? 'final balance' : 'full balance';
+
+        await notifyAdmins(
+          'Contract Payment Received',
+          `${req.user.name || req.user.email || 'A client'} paid the ${label} ($${amountPaid}) on contract: ${contractTitle}`,
+          '/client-portal',
+          'contract'
+        ).catch(err => console.error('Contract payment admin notification failed:', err));
+
+        sendEmail({
+          from: `"EVOBRAND" <${process.env.RESEND_FROM_EMAIL || 'info@evobrand.net'}>`,
+          to: ADMIN_NOTIFY_EMAIL,
+          subject: `Payment Received: ${contractTitle}`,
+          html: getEmailTemplate('Payment Received', `<p><strong>${req.user.name || req.user.email || 'A client'}</strong> just paid the <strong>${label}</strong> of <strong>$${amountPaid}</strong> on contract: ${contractTitle}.</p>`)
+        }).catch(err => console.error('Contract payment admin email failed:', err));
+      }
     } else {
       const [result] = await pool.query(
         "UPDATE support_tickets SET is_paid = 1 WHERE id = ? AND stripe_session_id = ?",
