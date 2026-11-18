@@ -4,7 +4,7 @@ import SEO from '@/components/SEO.jsx';
 import {
   LayoutDashboard, Plus, LogOut, Ticket, Bell,
   Loader2, Calendar, ShieldCheck, Users, FileText, Menu, X, CheckCircle2, AlertCircle, BarChart2,
-  Layers, Landmark, ExternalLink,
+  Layers, Landmark, ExternalLink, UploadCloud,
 } from 'lucide-react';
 import ClientOverview from '../components/portal/ClientOverview';
 import TicketList from '../components/portal/TicketList';
@@ -17,6 +17,7 @@ import AdminCRMPanel from '../components/admin/AdminCRMPanel';
 import AdminSalesPanel from '../components/admin/AdminSalesPanel';
 import AdminClientPlansPanel from '../components/admin/AdminClientPlansPanel';
 import ContractBuilderPanel from '../components/admin/ContractBuilderPanel';
+import ContractUploadPanel from '../components/admin/ContractUploadPanel';
 import MutualNdaPanel from '../components/admin/MutualNdaPanel';
 import AdminBlackoutPanel from '../components/admin/AdminBlackoutPanel';
 import AdminContactFormsPanel from '../components/admin/AdminContactFormsPanel';
@@ -123,6 +124,7 @@ function Sidebar({ user, view, setView, setSelectedTicket, openTicketCount, hand
         { key: 'scheduler-admin', icon: Calendar, label: 'Booking availability' },
         { key: 'analytics', icon: BarChart2, label: 'Analytics' },
         { key: 'contract-builder', icon: FileText, label: 'Contract builder' },
+        { key: 'contract-upload', icon: UploadCloud, label: 'Upload contract' },
         { key: 'nda-builder', icon: ShieldCheck, label: 'Mutual NDA' },
         { key: 'govcon', icon: Landmark, label: 'GovCon capture desk', href: GOVCON_URL },
       ] },
@@ -215,7 +217,7 @@ const ClientPortalPage = () => {
   const isAdmin = user?.is_admin === 1 || user?.is_admin === true;
   const navigate = useNavigate();
   const location = useLocation();
-  const VALID_VIEWS = ['dashboard','sales','meetings','analytics','admin','client-plans','contact-forms','scheduler-admin','crm','contracts','my-tickets','blackout','my-contracts','contract-builder','project-tracker','my-projects','nda-builder'];
+  const VALID_VIEWS = ['dashboard','sales','meetings','analytics','admin','client-plans','contact-forms','scheduler-admin','crm','contracts','my-tickets','blackout','my-contracts','contract-builder','contract-upload','project-tracker','my-projects','nda-builder'];
   const [view, setView] = useState(() => {
     const hash = window.location.hash.replace('#', '');
     return VALID_VIEWS.includes(hash) ? hash : 'dashboard';
@@ -773,6 +775,19 @@ const ClientPortalPage = () => {
                       duplicatingContract={duplicatingContract}
                       onClear={() => { setEditingContract(null); setDuplicatingContract(null); }}
                     />
+                  </motion.div>
+                )}
+
+                {/* ── Contract Upload (admin) ── */}
+                {view === 'contract-upload' && isAdmin && (
+                  <motion.div
+                    key="contract-upload"
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -10 }}
+                    transition={{ duration: 0.2 }}
+                  >
+                    <ContractUploadPanel />
                   </motion.div>
                 )}
 

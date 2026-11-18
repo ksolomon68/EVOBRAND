@@ -1,10 +1,35 @@
 const express = require('express');
 const router = express.Router();
 const pool = require('../db/connection');
+const path = require('path');
+const fs = require('fs');
+const multer = require('multer');
 const { authenticateToken, requireAdmin } = require('../middleware/auth');
 const { addToCustomersList } = require('../utils/crmHelpers');
 const { getEmailTemplate } = require('../utils/emailTemplate');
 const { sendEmail } = require('../utils/mailer');
+
+// ── Contract file upload setup ──────────────────────────────────────────────
+const UPLOADS_DIR = path.join(__dirname, '../../uploads');
+if (!fs.existsSync(UPLOADS_DIR)) fs.mkdirSync(UPLOADS_DIR, { recursive: true });
+
+const contractUpload = multer({
+  storage: multer.diskStorage({
+    destination: (req, file, cb) => cb(null, UPLOADS_DIR),
+    filename: (req, file, cb) => {
+      const safe = file.originalname.replace(/[^a-zA-Z0-9._-]/g, '_');
+      cb(null, `${Date.now()}-${safe}`);
+    },
+  }),
+  limits: { fileSize: 20 * 1024 * 1024 }, // 20 MB
+  fileFilter: (req, file, cb) => {
+    const ok = /\.(pdf|doc|docx)$/i.test(file.originalname);
+    if (ok) return cb(null, true);
+    const err = new Error('Only PDF, DOC, or DOCX files are supported');
+    err.status = 400;
+    cb(err);
+  },
+});
 
 async function syncSalesContract(id) {
   try { await require('../utils/sales').createSalesService(pool).syncContract(id); }
@@ -191,6 +216,68 @@ router.put('/:id', authenticateToken, requireAdmin, async (req, res) => {
   } catch (error) {
     console.error('Update contract error:', error);
     res.status(500).json({ error: 'Server error updating contract' });
+  }
+});
+
+// @route POST /api/contracts/upload — admin uploads a contract file (PDF/DOC/DOCX)
+// and sends it to a client to review, approve, and pay
+router.post('/upload', authenticateToken, requireAdmin, contractUpload.single('file'), async (req, res) => {
+  const { title, clientEmail, fee, status } = req.body;
+  if (!title || !clientEmail) {
+    return res.status(400).json({ error: 'Title and client email are required' });
+  }
+  if (!req.file) {
+    return res.status(400).json({ error: 'A contract file is required' });
+  }
+
+  try {
+    await ensureTable();
+
+    let clientUserId = null;
+    const [users] = await pool.query('SELECT id FROM users WHERE email = ?', [clientEmail]);
+    if (users.length > 0) clientUserId = users[0].id;
+
+    const feeAmount = fee ? Number(fee) : 0;
+    const contractData = {
+      agreementType: 'uploaded',
+      fileUrl: `/uploads/${req.file.filename}`,
+      fileName: req.file.originalname,
+      project: { fee: isNaN(feeAmount) ? 0 : feeAmount },
+    };
+
+    const contractStatus = status || 'sent';
+    const [result] = await pool.query(
+      'INSERT INTO contracts (title, client_email, client_user_id, contract_data, created_by, status) VALUES (?, ?, ?, ?, ?, ?)',
+      [title, clientEmail, clientUserId, JSON.stringify(contractData), req.user.id, contractStatus]
+    );
+    if (contractStatus === 'signed') await syncSalesContract(result.insertId);
+
+    if (contractStatus !== 'draft' && clientEmail.includes('@')) {
+      try {
+        const emailBody = `
+          <p>Hi,</p>
+          <p>A contract document (<strong>${title}</strong>) has been uploaded and sent to you by <strong>EVOBRAND Concepts LLC</strong> for review and approval.</p>
+          ${feeAmount > 0 ? `<p><strong>Amount Due:</strong> $${feeAmount.toLocaleString('en-US', { minimumFractionDigits: 2 })}</p>` : ''}
+          <p>Please log in to your EVOBRAND Client Portal to review, approve, and ${feeAmount > 0 ? 'pay for' : 'sign'} the agreement:</p>
+          <p><a href="https://evobrandconcepts.com/login" style="color: #22c8e5; font-weight: bold; text-decoration: none;">Go to Client Portal</a></p>
+          <p>If you don't have an active password yet, you can set one using the <strong>Forgot Password</strong> link on the login page.</p>
+        `;
+
+        await sendEmail({
+          from: `"EVOBRAND" <${process.env.RESEND_FROM_EMAIL || 'info@evobrand.net'}>`,
+          to: [clientEmail, 'ks@evobrand.net'],
+          subject: `New Contract Uploaded: ${title}`,
+          html: getEmailTemplate(`New Contract Uploaded`, emailBody)
+        });
+      } catch (emailErr) {
+        console.error('Failed to send uploaded contract notification email:', emailErr);
+      }
+    }
+
+    res.status(201).json({ message: 'Contract uploaded', id: result.insertId });
+  } catch (error) {
+    console.error('Upload contract error:', error);
+    res.status(500).json({ error: error.message || 'Server error uploading contract' });
   }
 });
 
