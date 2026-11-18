@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { FileText, X, Download, Clock, CheckCircle2, Send, CreditCard, Copy, Trash2, Loader2 } from 'lucide-react';
+import { FileText, X, Download, Clock, CheckCircle2, Send, CreditCard, Copy, Trash2, Loader2, ExternalLink } from 'lucide-react';
 import PaymentModal from './PaymentModal';
 import MutualNdaDocument from '../contracts/MutualNdaDocument';
 
@@ -25,6 +25,85 @@ const formatDate = (str) => {
   if (!str) return '-';
   return new Date(str).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
 };
+
+const resolveFileUrl = (url) => {
+  if (!url) return '';
+  if (url.startsWith('http')) return url;
+  const base = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+    ? 'http://localhost:5000'
+    : `${window.location.origin}/api`;
+  return `${base}${url}`;
+};
+
+function UploadedContractModal({ contract, data, onClose, onSign }) {
+  const [signature, setSignature] = useState('');
+  const [consented, setConsented] = useState(false);
+  const [signing, setSigning] = useState(false);
+  const fileUrl = resolveFileUrl(data.fileUrl);
+  const isPdf = /\.pdf$/i.test(data.fileName || data.fileUrl || '');
+  const fee = Number(data?.project?.fee);
+
+  const handleSign = async () => {
+    if (!signature.trim() || !consented) return;
+    setSigning(true);
+    await onSign(signature, true);
+    setSigning(false);
+  };
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-start justify-center p-4 pt-10 overflow-y-auto" style={{ background: 'rgba(0,0,0,0.88)' }}>
+      <div className="relative w-full max-w-4xl">
+        <div className="flex flex-wrap items-center justify-between gap-3 mb-4 no-print">
+          <div><p className="text-[#22c8e5] text-[0.68rem] uppercase tracking-[0.18em] font-bold">Contract document</p><h2 className="text-white font-bold text-lg">{contract.title}</h2></div>
+          <div className="flex items-center gap-3">
+            <a href={fileUrl} target="_blank" rel="noreferrer" download={data.fileName} className="flex items-center gap-2 px-4 py-2 rounded-xl font-bold text-sm" style={{ background: GOLD, color: '#003258' }}><Download size={14} /> Download</a>
+            <button onClick={onClose} aria-label="Close contract" className="p-2 rounded-lg text-white/50 hover:text-white hover:bg-white/10"><X size={20} /></button>
+          </div>
+        </div>
+
+        <div className="bg-white rounded-xl overflow-hidden shadow-2xl" style={{ height: '70vh' }}>
+          {isPdf ? (
+            <iframe src={fileUrl} title={data.fileName || 'Contract document'} className="w-full h-full border-0" />
+          ) : (
+            <div className="w-full h-full flex flex-col items-center justify-center gap-4 text-center p-10">
+              <FileText size={40} className="text-[#003258]" />
+              <p className="text-[#003258] font-semibold">{data.fileName}</p>
+              <a href={fileUrl} target="_blank" rel="noreferrer" className="flex items-center gap-2 px-5 py-2.5 rounded-xl font-bold text-sm" style={{ background: GOLD, color: '#003258' }}>
+                <ExternalLink size={14} /> Open document
+              </a>
+            </div>
+          )}
+        </div>
+
+        {contract.status === 'signed' ? (
+          <div className="mt-6 rounded-2xl p-6 border border-emerald-400/20 bg-[#07111d] shadow-xl no-print flex items-center gap-3">
+            <CheckCircle2 size={20} className="text-emerald-400" />
+            <p className="text-sm text-white/80">
+              Approved by <strong>{contract.client_signature}</strong>
+              {contract.client_signed_at && ` on ${new Date(contract.client_signed_at).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}`}.
+            </p>
+          </div>
+        ) : contract.status !== 'draft' && (
+          <div className="mt-6 rounded-2xl p-6 border border-[#22c8e5]/20 bg-[#07111d] shadow-xl no-print">
+            <h3 className="text-lg font-bold text-white mb-2">Approve this contract</h3>
+            <p className="text-sm text-white/55 mb-4">
+              Your typed name becomes your electronic signature of approval.
+              {!isNaN(fee) && fee > 0 && ` You'll be prompted to pay $${fee.toLocaleString('en-US', { minimumFractionDigits: 2 })} once approved.`}
+            </p>
+            <label className="flex items-start gap-3 mb-4 text-sm text-white/75 cursor-pointer">
+              <input type="checkbox" checked={consented} onChange={(e) => setConsented(e.target.checked)} className="mt-1 accent-[#22c8e5]" />
+              <span>I have reviewed the attached document, consent to use an electronic record and signature, and intend to approve and be bound by its terms.</span>
+            </label>
+            <div className="flex flex-col sm:flex-row gap-4">
+              <input type="text" autoComplete="name" placeholder="Type your full legal name" value={signature} onChange={(e) => setSignature(e.target.value)} className="flex-1 px-4 py-3 rounded-xl text-sm bg-white/5 border border-white/10 text-white focus:outline-none focus:border-[#22c8e5]/50" />
+              <button onClick={handleSign} disabled={signing || !signature.trim() || !consented} className="px-8 py-3 rounded-xl font-bold text-sm disabled:opacity-45 uppercase tracking-wider" style={{ background: GOLD, color: '#003258' }}>{signing ? 'Approving…' : 'Approve contract'}</button>
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
 
 function NdaContractModal({ contract, data, onClose, onSign }) {
   const [signature, setSignature] = useState('');
@@ -84,9 +163,12 @@ function ContractModal({ contract, onClose, onSign, isAdmin, onEditContract }) {
   if (data?.agreementType === 'mutual-nda') {
     return <NdaContractModal contract={contract} data={data} onClose={onClose} onSign={onSign} />;
   }
+  if (data?.agreementType === 'uploaded') {
+    return <UploadedContractModal contract={contract} data={data} onClose={onClose} onSign={onSign} />;
+  }
   const { clientInfo = {}, project = {}, selectedServices = [], clauses = {} } = data;
 
-  const agency = { name: 'EVOBRAND Concepts LLC', address: 'Ellis County, Texas 75165', email: 'info@evobrand.net' };
+  const agency = { name: 'EVOBRAND Concepts LLC', address: 'Ellis County, Texas 76651', email: 'info@evobrand.net' };
   const fmtDate = (d) => { if (!d) return '[DATE]'; const dt = new Date(`${d}T00:00:00`); return isNaN(dt) ? d : dt.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }); };
   const fmtCurrency = (v) => { const n = Number(v); return (!v || isNaN(n)) ? '$0.00' : n.toLocaleString('en-US', { style: 'currency', currency: 'USD' }); };
 
