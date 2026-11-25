@@ -1,9 +1,12 @@
+import VideoBlockFields from './VideoBlockFields.jsx';
+import { videoEmailHtml } from './videoEmail.js';
 import React, { useRef, useState } from 'react';
 import { Heading2, Type, MousePointerClick, Image as ImageIcon, Calendar, Minus, MoveVertical, GripVertical, Copy, Trash2, Bold, Italic, Link2, List } from 'lucide-react';
 
 const ACCENT_SWATCHES = ['#00bcd4', '#2dd4a7', '#3b82f6', '#22c55e', '#a855f7'];
 
 const BLOCK_TYPES = [
+  { type: 'video', label: 'Video', icon: ImageIcon },
   { type: 'heading', label: 'Heading', icon: Heading2 },
   { type: 'text', label: 'Text', icon: Type },
   { type: 'button', label: 'Button', icon: MousePointerClick },
@@ -20,6 +23,7 @@ const nextBlockId = () => `blk_${Date.now()}_${blockIdCounter++}`;
 export function createBlock(type) {
   const base = { id: nextBlockId(), type };
   switch (type) {
+    case 'video': return { ...base, title: 'Your video', cta: 'Watch video', previewType: 'gif', align: 'center', width: 560, radius: 4, background: '#003258' };
     case 'heading': return { ...base, text: 'Your Heading' };
     case 'text': return { ...base, content: 'Write something for your subscribers...' };
     case 'button': return { ...base, label: 'Learn More', url: 'https://evobrand.net', style: 'primary' };
@@ -63,6 +67,7 @@ export function blocksToHtml(blocks, accentColor = '#00bcd4') {
 
   return blocks.map((b) => {
     switch (b.type) {
+      case 'video': return videoEmailHtml(b);
       case 'heading':
         return `<h2>${escapeHtml(b.text)}</h2>`;
       case 'text':
@@ -155,6 +160,7 @@ function BlockFields({ block, onChange }) {
   const set = (patch) => onChange({ ...block, ...patch });
 
   switch (block.type) {
+    case 'video': return <VideoBlockFields block={block} onChange={onChange} />;
     case 'heading':
       return (
         <input className={fieldClass} value={block.text} onChange={(e) => set({ text: e.target.value })} placeholder="Heading text" />
@@ -265,6 +271,7 @@ function BlockFields({ block, onChange }) {
 
 function BlockPreview({ block, accentColor }) {
   switch (block.type) {
+    case 'video': return <div dangerouslySetInnerHTML={{ __html: videoEmailHtml(block) }} />;
     case 'heading':
       return <h3 className="text-white font-bold text-lg">{block.text || 'Heading'}</h3>;
     case 'text':

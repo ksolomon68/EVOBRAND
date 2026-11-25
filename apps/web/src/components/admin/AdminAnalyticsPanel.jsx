@@ -1,3 +1,4 @@
+import VideoAnalyticsPanel from './VideoAnalyticsPanel.jsx';
 import { useState, useEffect, useCallback, useRef } from 'react';
 import {
   LineChart, Line, AreaChart, Area, BarChart, Bar, PieChart, Pie, Cell,
@@ -875,6 +876,7 @@ export default function AdminAnalyticsPanel() {
 
   return (
     <div className="space-y-6">
+      <VideoAnalyticsPanel />
       {/* Header */}
       <div className="flex items-center justify-between flex-wrap gap-3">
         <div>

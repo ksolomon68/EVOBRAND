@@ -38,3 +38,5 @@ test_gemini.js
 *.xml
 mockup.html
 wp-maintenance/
+
+apps/api/private-videos/

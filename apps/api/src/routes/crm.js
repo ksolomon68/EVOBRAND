@@ -1,3 +1,4 @@
+const { unavailableVideo } = require('../video/campaign');
 const express = require('express');
 const router = express.Router();
 const pool = require('../db/connection');
@@ -426,6 +427,8 @@ router.post('/campaigns/:id/send', async (req, res) => {
       return res.status(404).json({ error: 'Campaign not found or already sent' });
     }
     const campaign = campaignRows[0];
+    const videoError = await unavailableVideo(pool, campaign);
+    if (videoError) return res.status(409).json({ error: videoError });
 
     const listIds = campaign.target_list_ids
       ? JSON.parse(campaign.target_list_ids)
@@ -510,6 +513,8 @@ router.post('/campaigns/:id/preview', async (req, res) => {
       return res.status(404).json({ error: 'Campaign not found' });
     }
     const campaign = campaignRows[0];
+    const videoError = await unavailableVideo(pool, campaign);
+    if (videoError) return res.status(409).json({ error: videoError });
     
     const adminEmail = process.env.RESEND_FROM_EMAIL || process.env.ADMIN_EMAIL || 'info@evobrand.net';
 

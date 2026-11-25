@@ -27,6 +27,8 @@ const BOOTED_AT = new Date().toISOString();
 // Middleware
 app.use(cors());
 app.use(express.json());
+app.use('/api/videos', require('./routes/videos'));
+app.use('/videos', require('./routes/videos'));
 app.use('/api/sales', require('./routes/sales'));
 app.use('/sales', require('./routes/sales'));
 

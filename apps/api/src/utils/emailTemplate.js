@@ -7,6 +7,7 @@ function wrapLinks(html, campaignId, siteUrl) {
   return html.replace(/href="(https?:[^"]+)"/gi, (match, url) => {
     // Don't double-wrap tracking URLs or mailto/tel links
     if (url.includes('/api/crm/track/')) return match;
+    if (/\/api\/videos\/watch\/[a-f0-9-]+$/i.test(url)) url += `?cid=${encodeURIComponent(campaignId)}`;
     const encoded = encodeURIComponent(url);
     return `href="${siteUrl}/api/crm/track/click?cid=${campaignId}&url=${encoded}"`;
   });

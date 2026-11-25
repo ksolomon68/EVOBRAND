@@ -6,7 +6,10 @@
   "scripts": {
     "start": "node src/index.js",
     "dev": "nodemon src/index.js",
-    "install-dep": "node install_nodemailer.js"
+    "install-dep": "node install_nodemailer.js",
+    "video:worker": "node src/video/worker.js",
+    "video:migrate": "node src/video/migrate.js",
+    "test:video": "node --test src/video/*.test.js"
   },
   "dependencies": {
     "@google/generative-ai": "^0.24.1",
