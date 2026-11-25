@@ -26,3 +26,12 @@ test('cron setup is repeatable, preserves existing jobs and quotes paths', () =>
   assert.throws(() => updateCrontab(old, '/home/bad%path'), /Unsupported/);
   assert.throws(() => updateCrontab(old, '/home/bad\npath'), /Unsupported/);
 });
+test('processing failures identify the stage and actionable reason without exposing paths', () => {
+  const { processingError } = require('./errors');
+  assert.match(processingError({stage:'Source inspection',tool:'FFprobe',code:'ENOENT'}), /Source inspection: FFprobe is not installed/);
+  assert.match(processingError({stage:'MP4 conversion',stderr:'Error while opening encoder'}), /MP4 conversion: The video encoder could not start/);
+  assert.match(processingError({signal:'SIGKILL'}), /resources/);
+  assert.match(processingError({code:'ENOSPC'}), /storage is full/);
+  assert.match(processingError({validation:true,message:'GIF start must be before the end of the video.'}), /GIF start/);
+  assert(!processingError({message:'/private/path/secret',stderr:'/private/path/secret'}).includes('/private'));
+});

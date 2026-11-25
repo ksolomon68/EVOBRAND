@@ -51,7 +51,7 @@ export default function VideoBlockFields({ block, onChange }) {
     <div className="flex gap-3"><label>GIF start (seconds)<input className={field} type="number" min="0" max="1800" step="0.1" value={start} onChange={e=>setStart(e.target.value)}/></label><label>GIF duration (seconds)<input className={field} type="number" min="0.5" max="10" step="0.1" value={duration} onChange={e=>setDuration(e.target.value)}/></label></div>
     <label className="block">Upload MP4 (250 MB maximum)<input className={field} type="file" accept="video/mp4,.mp4" disabled={progress!==null} onChange={e=>sendFile(e.target.files[0])}/></label>
     {progress!==null && <div role="status"><progress max="100" value={progress}/> {progress}% uploaded</div>}
-    {pending && <p role="status">{selected?.status || 'queued'} — processing continues in the background.</p>}
+    {pending && <p role="status">{selected?.status === 'failed' ? 'Processing stopped. Review the error below, then retry.' : selected?.status === 'processing' ? 'Processing your video in the background…' : 'Queued — waiting for the video worker.'}</p>}
     {selected?.error && <p role="alert">{selected.error}</p>}
     {selected?.status==='failed' && <button type="button" onClick={()=>action(()=>videoRequest(`/${selected.id}/retry`,{method:'POST',body:JSON.stringify({gifStart:start,gifDuration:duration})}))}>Retry processing</button>}
     {selected?.gif_bytes>=1000000 && <p>GIF exceeds 1 MB. Choose JPEG for a lighter email.</p>}

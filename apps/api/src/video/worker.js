@@ -1,6 +1,7 @@
 require('dotenv').config();
 const pool = require('../db/connection');
 const { processVideo } = require('./process');
+const { processingError } = require('./errors');
 const { ensureVideoSchema } = require('./schema');
 async function tick() {
   await ensureVideoSchema(pool);
@@ -17,8 +18,8 @@ async function tick() {
       const result = await processVideo(job.id, job.gif_start, job.gif_duration);
       await connection.query("UPDATE crm_videos SET status='ready', duration=?, gif_bytes=?, error=NULL WHERE id=?", [result.duration, result.bytes, job.id]);
     } catch (error) {
-      console.error('Video processing failed', job.id, error.message);
-      await connection.query("UPDATE crm_videos SET status='failed', error=? WHERE id=?", ['Processing failed. Check the MP4, GIF range, and server FFmpeg installation, then retry.', job.id]);
+      console.error('Video processing failed', job.id, { stage: error.stage, code: error.code, signal: error.signal, message: error.message, stderr: String(error.stderr || '').slice(-8000) });
+      await connection.query("UPDATE crm_videos SET status='failed', error=? WHERE id=?", [processingError(error), job.id]);
     }
   } finally {
     await connection.query("SELECT RELEASE_LOCK('evobrand_video_worker')").catch(() => {});
