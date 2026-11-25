@@ -43,3 +43,7 @@ deployment:
     # EVOBRAND/govcon — see govcon/README.md for that setup.
     - pkill -9 -f "lsnode:$HOME/EVOBRAND/govcon" || true
     - mkdir -p $HOME/EVOBRAND/govcon/tmp && touch $HOME/EVOBRAND/govcon/tmp/restart.txt
+
+    # Initialize video tables and register an idempotent per-minute cron worker.
+    # Fail explicitly if FFmpeg/cron cannot be provisioned; never report success.
+    - /bin/bash "$HOME/EVOBRAND/apps/api/scripts/setup-video-worker.sh" >> "$HOME/public_html/deploy.log" 2>&1

@@ -8,11 +8,11 @@ The implementation adds two independent tables without altering contacts, campai
 
 ## Deployment
 
-1. Back up the database. Run `npm run video:migrate --prefix apps/api` with the existing database environment. The additive migration is repeatable. No migration runs implicitly on API startup.
+1. Back up the database. Run `npm run video:migrate --prefix apps/api` with the existing database environment. The additive migration is repeatable. Video API requests and worker runs also await this same idempotent migration automatically, preventing queries against missing tables. Concurrent requests share one initialization; failures can retry.
 2. Install system `ffmpeg` and `ffprobe` with libx264, AAC, GIF palette, and image support. No new npm dependencies were introduced.
 3. Configure `VIDEO_STORAGE_DIR` to a persistent private directory outside all web/static roots. API and worker must share it and have write permission. The default is `apps/api/private-videos`, ignored by Git. Back it up with the database. Mount the same volume on every API instance. Original uploads are inaccessible through media routes; only ready derivatives are public by unguessable UUID.
 4. Set `SITE_URL` to the public HTTPS origin forwarding `/api/*` to the API. Set the existing `JWT_SECRET`; video event tokens require it. Optional executable overrides are `FFMPEG_PATH` and `FFPROBE_PATH`.
-5. Run `npm run video:worker --prefix apps/api` under the deployment's process supervisor alongside the API, with automatic restart. Allow the API proxy uploads up to 250 MB with suitable request timeouts. Allow up to 30 minutes / 4K source video; processing commands have a ten-minute timeout.
+5. cPanel deployment now runs `bash apps/api/scripts/setup-video-worker.sh` after restarting the API. It runs the migration, checks FFmpeg/FFprobe and required encoders, and installs one cron entry that processes a queued video every minute. Existing cron jobs are preserved; repeat deployments replace only the marked video-worker entry. The worker runs outside the web process, so it does not depend on website traffic. Overlapping runs are serialized by the existing MySQL advisory lock. Alternatively, run `npm run video:worker --prefix apps/api` under a process supervisor with automatic restart (choose one scheduling mode). Allow the API proxy uploads up to 250 MB with suitable request timeouts. Allow up to 30 minutes / 4K source video; processing commands have a ten-minute timeout.
 6. Deploy the web build after the migration and API. Verify public JPEG/GIF/video URLs and MP4 range responses through the actual production proxy. No campaign or test emails are automatically sent by deployment.
 
 Rollback: deploy the previous frontend/API and stop the worker. Preserve the additive tables and media; deleting them breaks already-sent email links. Do not drop tables as a routine rollback.
@@ -42,3 +42,10 @@ A synthetic four-second 640×360 source generated a three-second GIF of 364,779 
 Validation limitations: Playwright Chromium installation was blocked by the environment's outbound policy (`cdn.playwright.dev`: HTTP 403, Domain forbidden), so browser interaction checks could not run. Targeted frontend lint and the production build passed; the build retains its existing large-chunk warning.
 
 Authentication inspection: new video management and analytics routes use both the existing JWT middleware and database-backed `requireAdmin`. The inspected legacy CRM router is mounted without those middleware checks in this repository; this implementation does not change its existing access behavior. Deployment should verify whether the hosting layer supplies the intended protection for those legacy routes.
+
+
+### cPanel worker troubleshooting
+
+The setup script requires the host to provide FFmpeg/FFprobe and `crontab`. It does not install OS packages or download an unverified executable. If preflight fails, ask hosting support to install FFmpeg with libx264/AAC/GIF/MJPEG support, or configure absolute `FFMPEG_PATH` and `FFPROBE_PATH` values in `apps/api/.env`, then rerun `bash "$HOME/EVOBRAND/apps/api/scripts/setup-video-worker.sh"`. The database migration runs before preflight, so missing binaries do not prevent creation of the tables. The deployed API also initializes the schema before video requests. Database credentials must allow CREATE TABLE, matching the existing CRM initialization model.
+
+Check `crontab -l` for `EVOBRAND_VIDEO_WORKER`. Worker errors are logged outside the public web root in `apps/api/video-worker.log`. Each cron invocation processes at most one job; larger queues may take several minutes. Failed jobs remain available for explicit retry. To disable this mode, remove only the cron line ending with `# EVOBRAND_VIDEO_WORKER`. cPanel setup, hosting binaries and database privileges still require verification on the live server; local tests cannot establish their availability.

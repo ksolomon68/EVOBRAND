@@ -1,7 +1,9 @@
 require('dotenv').config();
 const pool = require('../db/connection');
 const { processVideo } = require('./process');
+const { ensureVideoSchema } = require('./schema');
 async function tick() {
+  await ensureVideoSchema(pool);
   const connection = await pool.getConnection();
   try {
     const [[lock]] = await connection.query("SELECT GET_LOCK('evobrand_video_worker', 0) AS acquired");
@@ -27,5 +29,9 @@ async function loop() {
   try { await tick(); } catch (error) { console.error('Video worker:', error.message); }
   setTimeout(loop, 3000);
 }
-if (require.main === module) loop();
+if (require.main === module) {
+  if (process.argv.includes('--once')) {
+    tick().catch(error => { console.error('Video worker:', error.message); process.exitCode = 1; }).finally(() => pool.end());
+  } else loop();
+}
 module.exports = { tick };

@@ -7,8 +7,9 @@ const pool = require('../db/connection');
 const { authenticateToken, requireAdmin } = require('../middleware/auth');
 const { root } = require('../video/process');
 const { automated, sign, verify, landing } = require('../video/public');
+const { ensureVideoSchema } = require('../video/schema');
 const router = express.Router();
-const wrap = fn => (req, res, next) => Promise.resolve(fn(req, res)).catch(next);
+const wrap = fn => (req, res, next) => ensureVideoSchema(pool).then(() => fn(req, res)).catch(next);
 const validId = id => /^[a-f0-9-]{36}$/.test(id);
 const site = () => (process.env.SITE_URL || 'https://evobrandconcepts.com').replace(/\/$/, '');
 const serialize = row => ({ ...row, landingUrl: `${site()}/api/videos/watch/${row.id}`, gifUrl: `${site()}/api/videos/media/${row.id}/preview.gif`, posterUrl: `${site()}/api/videos/media/${row.id}/poster.jpg` });
@@ -47,6 +48,7 @@ router.post('/events/:id', wrap(async (req, res) => {
   res.sendStatus(204);
 }));
 router.use(authenticateToken, requireAdmin);
+router.use((req, res, next) => ensureVideoSchema(pool).then(() => next()).catch(next));
 router.get('/analytics', wrap(async (req, res) => {
   const [rows] = await pool.query(`SELECT v.id,v.title,e.campaign_id,e.event_type,e.automated,COUNT(*) AS total FROM crm_video_events e JOIN crm_videos v ON v.id=e.video_id GROUP BY v.id,v.title,e.campaign_id,e.event_type,e.automated ORDER BY v.title,e.campaign_id`);
   res.json(rows);
