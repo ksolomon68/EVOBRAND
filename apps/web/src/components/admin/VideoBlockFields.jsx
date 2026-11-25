@@ -18,6 +18,12 @@ export default function VideoBlockFields({ block, onChange }) {
     let active = true;
     async function load() { try {
       const rows = await videoRequest(); if (!active) return; setVideos(rows.filter(v=>v.status!=='deleted'));
+      // Refresh generated URLs in reopened drafts without overwriting authored copy.
+      const current = latest.current.block;
+      const savedVideo = rows.find(v => v.id === current.videoId && v.status === 'ready');
+      if (savedVideo && ['landingUrl', 'gifUrl', 'posterUrl'].some(key => current[key] !== savedVideo[key])) {
+        latest.current.onChange({...current, landingUrl:savedVideo.landingUrl, gifUrl:savedVideo.gifUrl, posterUrl:savedVideo.posterUrl});
+      }
       if (pending) { const v = rows.find(v=>v.id===pending); if (v?.status==='ready') { latest.current.onChange({...latest.current.block,videoId:v.id,landingUrl:v.landingUrl,gifUrl:v.gifUrl,posterUrl:v.posterUrl,title:v.title});setPending(''); } }
     } catch(e) { if(active)setError(e.message); } }
     load(); const timer=setInterval(load,4000); return()=>{active=false;clearInterval(timer);};

@@ -11,8 +11,8 @@ const { ensureVideoSchema } = require('../video/schema');
 const router = express.Router();
 const wrap = fn => (req, res, next) => ensureVideoSchema(pool).then(() => fn(req, res)).catch(next);
 const validId = id => /^[a-f0-9-]{36}$/.test(id);
-const site = () => (process.env.SITE_URL || 'https://evobrandconcepts.com').replace(/\/$/, '');
-const serialize = row => ({ ...row, landingUrl: `${site()}/api/videos/watch/${row.id}`, gifUrl: `${site()}/api/videos/media/${row.id}/preview.gif`, posterUrl: `${site()}/api/videos/media/${row.id}/poster.jpg` });
+const { videoUrls } = require('../video/urls');
+const serialize = row => ({ ...row, ...videoUrls(row.id) });
 async function ready(id) {
   if (!validId(id)) return null;
   const [[row]] = await pool.query("SELECT * FROM crm_videos WHERE id=? AND status='ready'", [id]);
