@@ -19,7 +19,7 @@ async function ready(id) {
   return row;
 }
 async function record(video, campaign, session, type, bot) {
-  await pool.query('INSERT IGNORE INTO crm_video_events (video_id,campaign_id,session_id,event_type,automated) VALUES (?,?,?,?,?,?)', [video, campaign, session, type, bot]);
+  await pool.query('INSERT IGNORE INTO crm_video_events (video_id,campaign_id,session_id,event_type,automated) VALUES (?,?,?,?,?)', [video, campaign, session, type, bot]);
 }
 router.get('/media/:id/:asset', wrap(async (req, res) => {
   if (!['preview.gif','poster.jpg','video.mp4'].includes(req.params.asset) || !await ready(req.params.id)) return res.sendStatus(404);
@@ -34,7 +34,13 @@ router.get('/watch/:id', wrap(async (req, res) => {
   const session = crypto.randomUUID(), bot = automated(req);
   if (!process.env.JWT_SECRET) return res.status(503).send('Video tracking configuration is unavailable.');
   const token = sign({video: video.id, campaign, session, bot, exp: Date.now() + 86400000});
-  if (campaign && req.method !== 'HEAD') await record(video.id, campaign, session, 'click', bot);
+  if (campaign && req.method !== 'HEAD') {
+    try { await record(video.id, campaign, session, 'click', bot); }
+    catch (error) {
+      // Tracking is best-effort; a write failure must not hide a ready video.
+      console.error('Video click tracking failed', { videoId: video.id, campaignId: campaign, code: error.code || 'TRACKING_WRITE_FAILED' });
+    }
+  }
   res.set('Cache-Control','no-store');
   res.set('Referrer-Policy','no-referrer');
   res.set('X-Content-Type-Options','nosniff');

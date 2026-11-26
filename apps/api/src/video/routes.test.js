@@ -11,8 +11,15 @@ test('HTTP API enforces admin permissions, upload validation, public boundaries 
   const id='12345678-1234-1234-1234-123456789abc';
   const row={id,status:'ready',title:'Thanksgiving test fixture',copy:'Hello',cta_url:''};
   const queries=[];
+  let failTracking=false;
   const pool={query:async(sql,args)=>{
     queries.push([sql,args]);
+    if (sql.startsWith('INSERT IGNORE')) {
+      const formatted = require('mysql2').format(sql, args);
+      assert(!/\?\s*\)/.test(formatted), 'Tracking SQL contains an unbound placeholder');
+      assert.equal(args.length, 5);
+      if (failTracking) throw Object.assign(new Error('Simulated tracking outage'), {code:'ER_TEST_OUTAGE'});
+    }
     if(sql.includes('is_admin'))return [[{is_admin:args[0]===1}]];
     if(sql.includes("status='ready'"))return [[args[0]===id?row:undefined].filter(Boolean)];
     if(sql.startsWith('SELECT *'))return [[row]];
@@ -31,10 +38,17 @@ test('HTTP API enforces admin permissions, upload validation, public boundaries 
     assert.equal((await fetch(base+'/analytics')).status,401);
     assert.equal((await fetch(base+`/media/${id}/source.mp4`)).status,404);
     assert.equal((await fetch(base+'/media/invalid/video.mp4')).status,404);
+    failTracking=true;
+    const degraded=await fetch(base+`/watch/${id}?cid=9`);
+    assert.equal(degraded.status,200);assert((await degraded.text()).includes('<video'));
+    failTracking=false;
+    const countBeforeHead=queries.filter(([sql])=>sql.startsWith('INSERT IGNORE')).length;
+    assert.equal((await fetch(base+`/watch/${id}?cid=9`,{method:'HEAD'})).status,200);
+    assert.equal(queries.filter(([sql])=>sql.startsWith('INSERT IGNORE')).length,countBeforeHead);
     const page=await fetch(base+`/watch/${id}?cid=9`,{headers:{'User-Agent':'Proofpoint scanner'}});
     assert.equal(page.status,200);const html=await page.text();
     const token=JSON.parse(html.match(/token:("[^"]+")/)[1]);
-    const tracked=queries.find(([sql,args])=>sql.startsWith('INSERT IGNORE')&&args[3]==='click');
+    const tracked=queries.find(([sql,args])=>sql.startsWith('INSERT IGNORE')&&args[3]==='click'&&args[4]===true);
     assert.equal(tracked[1][4],true);
     const event=body=>fetch(base+`/events/${id}`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
     assert.equal((await event({token,type:'25'})).status,204);
