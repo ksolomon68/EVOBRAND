@@ -1,7 +1,7 @@
 import VideoBlockFields from './VideoBlockFields.jsx';
 import { videoEmailHtml } from './videoEmail.js';
 import React, { useRef, useState } from 'react';
-import { Heading2, Type, MousePointerClick, Image as ImageIcon, Calendar, Minus, MoveVertical, GripVertical, Copy, Trash2, Bold, Italic, Link2, List } from 'lucide-react';
+import { Heading2, Type, MousePointerClick, Image as ImageIcon, Calendar, Minus, MoveVertical, GripVertical, ArrowUp, ArrowDown, Copy, Trash2, Bold, Italic, Link2, List } from 'lucide-react';
 
 const ACCENT_SWATCHES = ['#00bcd4', '#2dd4a7', '#3b82f6', '#22c55e', '#a855f7'];
 
@@ -146,7 +146,7 @@ function TextBlockFields({ block, onChange }) {
       </div>
       <textarea
         ref={taRef}
-        rows={4}
+        rows={8}
         className={fieldClass}
         value={block.content}
         onChange={(e) => onChange({ ...block, content: e.target.value })}
@@ -319,10 +319,11 @@ function BlockPreview({ block, accentColor }) {
 function DropZone({ index, dragActive, onDrop, onDragOver }) {
   return (
     <div
+      data-drop-index={index}
       onDragOver={(e) => { e.preventDefault(); onDragOver(index); }}
       onDrop={(e) => { e.preventDefault(); onDrop(index, e); }}
-      className={`transition-all rounded-lg ${dragActive ? 'h-10 bg-[#22c8e5]/10 border-2 border-dashed border-[#22c8e5]/50' : 'h-2'}`}
-    />
+      className={`transition-all rounded-lg flex items-center justify-center text-xs text-[#22c8e5] ${dragActive ? 'h-12 bg-[#22c8e5]/10 border-2 border-dashed border-[#22c8e5]/50' : 'h-8 border border-dashed border-white/10'}`}
+    >{dragActive ? 'Drop block here' : null}</div>
   );
 }
 
@@ -347,6 +348,14 @@ export default function CampaignBlockEditor({ blocks, setBlocks, accentColor, se
   const updateBlock = (id, updated) => {
     setBlocks((prev) => prev.map((b) => (b.id === id ? updated : b)));
   };
+
+  const moveBlock = (index, direction) => setBlocks(prev => {
+    const destination = index + direction;
+    if (destination < 0 || destination >= prev.length) return prev;
+    const next = [...prev];
+    [next[index], next[destination]] = [next[destination], next[index]];
+    return next;
+  });
 
   const removeBlock = (id) => setBlocks((prev) => prev.filter((b) => b.id !== id));
 
@@ -381,9 +390,9 @@ export default function CampaignBlockEditor({ blocks, setBlocks, accentColor, se
       return;
     }
     if (!data) return;
-    if (data.kind === 'new') {
+    if (data.kind === 'new' && BLOCK_TYPES.some(t => t.type === data.blockType)) {
       addBlock(data.blockType, atIndex);
-    } else if (data.kind === 'reorder') {
+    } else if (data.kind === 'reorder' && Number.isInteger(data.index) && data.index >= 0 && data.index < blocks.length) {
       setBlocks((prev) => {
         const next = [...prev];
         const [moved] = next.splice(data.index, 1);
@@ -395,29 +404,60 @@ export default function CampaignBlockEditor({ blocks, setBlocks, accentColor, se
   };
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-[200px_1fr_240px] gap-5">
+    <div className="flex flex-col gap-5 min-w-0">
       {/* Palette */}
-      <div className="space-y-2">
-        <p className="text-[10px] font-bold text-white/40 uppercase tracking-wider mb-1">Blocks</p>
+      <div className="flex flex-wrap gap-2 rounded-xl bg-[#003258]/25 border border-white/10 p-3">
+        <p className="w-full text-[10px] font-bold text-white/40 uppercase tracking-wider mb-1">Blocks</p>
         {BLOCK_TYPES.map(({ type, label, icon: Icon }) => (
           <button
             key={type}
             type="button"
             draggable
             onDragStart={(e) => handlePaletteDragStart(e, type)}
+            onDragEnd={() => setDragOverIndex(null)}
             onClick={() => addBlock(type)}
-            className="w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xl bg-[#1a2332] border border-white/10 text-white/70 text-sm hover:border-[#22c8e5]/40 hover:text-white transition-colors cursor-grab active:cursor-grabbing"
+            className="flex items-center gap-2.5 px-3 py-2.5 rounded-xl bg-[#1a2332] border border-white/10 text-white/70 text-sm hover:border-[#22c8e5]/40 hover:text-white transition-colors cursor-grab active:cursor-grabbing"
           >
             <Icon size={16} className="text-[#22c8e5] flex-shrink-0" />
             {label}
           </button>
         ))}
-        <p className="text-[11px] text-white/25 pt-1">Drag blocks onto the canvas, or click one to add it.</p>
+        <p className="w-full text-[11px] text-white/40 pt-1">Click a block to add it, or drag it into a gap below. Reorder with the grip or arrow buttons.</p>
+      </div>
+
+      {/* Design */}
+      <div className="flex flex-wrap gap-6 items-end rounded-xl border border-white/10 p-3">
+        <div>
+          <p className="text-[10px] font-bold text-white/40 uppercase tracking-wider mb-2">Accent Color</p>
+          <div className="flex gap-2 flex-wrap">
+            {ACCENT_SWATCHES.map((c) => (
+              <button
+                key={c}
+                type="button"
+                onClick={() => setAccentColor(c)}
+                title={c}
+                className="w-7 h-7 rounded-full transition-transform hover:scale-110"
+                style={{ background: c, boxShadow: accentColor.toLowerCase() === c.toLowerCase() ? '0 0 0 2px #0f1419, 0 0 0 4px white' : 'none' }}
+              />
+            ))}
+          </div>
+        </div>
+        <div>
+          <p className="text-[10px] font-bold text-white/40 uppercase tracking-wider mb-2">Heading Font</p>
+          <select
+            value={headingFont}
+            onChange={(e) => setHeadingFont(e.target.value)}
+            className="w-full bg-[#1a2332] border border-white/10 rounded-xl px-3 py-2.5 text-white text-sm focus:outline-none focus:border-[#22c8e5]"
+          >
+            <option value="bebas">Display (Bebas Neue)</option>
+            <option value="playfair">Serif (Playfair)</option>
+          </select>
+        </div>
       </div>
 
       {/* Canvas */}
       <div
-        className="rounded-xl border-2 border-dashed border-white/10 p-4 min-h-[320px] bg-[#0b0f1a]/60"
+        className="min-w-0 rounded-xl border-2 border-dashed border-white/10 p-4 min-h-[320px] bg-[#0b0f1a]/60"
         onDragOver={(e) => e.preventDefault()}
       >
         {blocks.length === 0 ? (
@@ -433,7 +473,7 @@ export default function CampaignBlockEditor({ blocks, setBlocks, accentColor, se
             }}
             className="h-full min-h-[280px] flex items-center justify-center text-center text-white/30 text-sm px-6"
           >
-            Drag a block here, or click one on the left, to start building your email.
+            Drag a block here, or click one above, to start building your email.
           </div>
         ) : (
           <div>
@@ -448,18 +488,17 @@ export default function CampaignBlockEditor({ blocks, setBlocks, accentColor, se
               return (
                 <React.Fragment key={block.id}>
                   <div
-                    draggable
-                    onDragStart={(e) => handleBlockDragStart(e, index)}
-                    onDragEnd={() => setDragOverIndex(null)}
                     className="group bg-[#1a2332] border border-white/10 rounded-xl p-4 hover:border-white/20 transition-colors"
                   >
                     <div className="flex items-center justify-between mb-3">
                       <div className="flex items-center gap-2 text-white/40 cursor-grab active:cursor-grabbing">
-                        <GripVertical size={14} />
+                        <button type="button" draggable onDragStart={e => handleBlockDragStart(e, index)} onDragEnd={() => setDragOverIndex(null)} aria-label={`Drag ${block.type} block ${index + 1}`} className="p-2 cursor-grab active:cursor-grabbing rounded hover:bg-white/10"><GripVertical size={18} /></button>
                         {Icon && <Icon size={13} className="text-[#22c8e5]" />}
                         <span className="text-[10px] font-bold uppercase tracking-wider">{block.type}</span>
                       </div>
-                      <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                      <div className="flex items-center gap-1">
+                        <button type="button" disabled={index === 0} onClick={() => moveBlock(index, -1)} aria-label={`Move block ${index + 1} up`} className="p-2 text-white/60 disabled:opacity-20 hover:text-[#22c8e5]"><ArrowUp size={16} /></button>
+                        <button type="button" disabled={index === blocks.length - 1} onClick={() => moveBlock(index, 1)} aria-label={`Move block ${index + 1} down`} className="p-2 text-white/60 disabled:opacity-20 hover:text-[#22c8e5]"><ArrowDown size={16} /></button>
                         <button type="button" onClick={() => duplicateBlock(block.id)} title="Duplicate block" className="p-1.5 text-white/30 hover:text-[#22c8e5] hover:bg-[#22c8e5]/10 rounded-lg transition-colors">
                           <Copy size={13} />
                         </button>
@@ -488,35 +527,6 @@ export default function CampaignBlockEditor({ blocks, setBlocks, accentColor, se
         )}
       </div>
 
-      {/* Design */}
-      <div className="space-y-5">
-        <div>
-          <p className="text-[10px] font-bold text-white/40 uppercase tracking-wider mb-2">Accent Color</p>
-          <div className="flex gap-2 flex-wrap">
-            {ACCENT_SWATCHES.map((c) => (
-              <button
-                key={c}
-                type="button"
-                onClick={() => setAccentColor(c)}
-                title={c}
-                className="w-7 h-7 rounded-full transition-transform hover:scale-110"
-                style={{ background: c, boxShadow: accentColor.toLowerCase() === c.toLowerCase() ? '0 0 0 2px #0f1419, 0 0 0 4px white' : 'none' }}
-              />
-            ))}
-          </div>
-        </div>
-        <div>
-          <p className="text-[10px] font-bold text-white/40 uppercase tracking-wider mb-2">Heading Font</p>
-          <select
-            value={headingFont}
-            onChange={(e) => setHeadingFont(e.target.value)}
-            className="w-full bg-[#1a2332] border border-white/10 rounded-xl px-3 py-2.5 text-white text-sm focus:outline-none focus:border-[#22c8e5]"
-          >
-            <option value="bebas">Display (Bebas Neue)</option>
-            <option value="playfair">Serif (Playfair)</option>
-          </select>
-        </div>
-      </div>
     </div>
   );
 }

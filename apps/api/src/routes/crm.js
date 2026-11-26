@@ -1,3 +1,4 @@
+const { campaignMessage } = require('../readiness/message');
 const { unavailableVideo } = require('../video/campaign');
 const express = require('express');
 const router = express.Router();
@@ -459,7 +460,7 @@ router.post('/campaigns/:id/send', async (req, res) => {
             from: FROM,
             to: [email],
             subject: campaign.subject,
-            html: getEmailTemplate(campaign.subject, campaign.html_content, campaign.id, SITE_URL, email, campaign.accent_color, campaign.heading_font),
+            ...campaignMessage(campaign.subject, campaign.html_content, campaign.id, SITE_URL, email, campaign.accent_color, campaign.heading_font),
           })
         )
       );
@@ -523,7 +524,7 @@ router.post('/campaigns/:id/preview', async (req, res) => {
       from: `"EVOBRAND" <${process.env.RESEND_FROM_EMAIL || 'info@evobrand.net'}>`,
       to: [adminEmail],
       subject: `[PREVIEW] ${campaign.subject}`,
-      html: getEmailTemplate(`[PREVIEW] ${campaign.subject}`, campaign.html_content, null, SITE_URL, null, campaign.accent_color, campaign.heading_font),
+      ...campaignMessage(`[PREVIEW] ${campaign.subject}`, campaign.html_content, null, SITE_URL, null, campaign.accent_color, campaign.heading_font),
     });
     
     // Status is NOT updated to 'sent'

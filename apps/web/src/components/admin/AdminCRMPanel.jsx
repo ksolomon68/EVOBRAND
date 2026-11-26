@@ -10,6 +10,7 @@ const API_BASE = window.location.hostname === 'localhost' || window.location.hos
 const BEIGE = '#b49969';
 
 export default function AdminCRMPanel({ user }) {
+  const [composerView, setComposerView] = useState('compose');
   const [activeTab, setActiveTab] = useState('audience'); // 'audience' or 'campaigns'
   
   // State for Audience Tab
@@ -712,9 +713,12 @@ export default function AdminCRMPanel({ user }) {
           })()}
 
           <div className="space-y-6">
-            <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_480px] items-start">
+            <div className="space-y-4 min-w-0">
+            <div className="flex flex-wrap gap-2" role="tablist" aria-label="Campaign workspace">
+              {[['compose','Compose email'],['review','Preview & readiness']].map(([view,label]) => <button type="button" role="tab" id={`campaign-tab-${view}`} aria-controls={`campaign-panel-${view}`} aria-selected={composerView === view} key={view} onClick={() => setComposerView(view)} className={`px-4 py-3 rounded-xl text-sm font-bold border ${composerView === view ? 'bg-[#22c8e5] text-[#003258] border-[#22c8e5]' : 'text-white/60 border-white/15'}`}>{label}</button>)}
+            </div>
             {/* Compose Panel */}
-            <div className="bg-[#0f1419] rounded-2xl border border-white/5 p-6">
+            <div hidden={composerView !== 'compose'} role="tabpanel" id="campaign-panel-compose" aria-labelledby="campaign-tab-compose" className="min-w-0 bg-[#0f1419] rounded-2xl border border-white/5 p-4 sm:p-6">
               <div className="flex items-center justify-between mb-5">
                 <h3 className="text-lg font-bold text-white flex items-center gap-2">
                   <Mail size={18} className="text-[#22c8e5]" />
@@ -812,8 +816,8 @@ export default function AdminCRMPanel({ user }) {
               </form>
             </div>
 
-            {/* Live preview stays in view while editing */}
-            <div className="xl:sticky xl:top-6">
+            {/* Full-width review keeps the composer clear while preserving live state. */}
+            <div hidden={composerView !== 'review'} role="tabpanel" id="campaign-panel-review" aria-labelledby="campaign-tab-review" className="min-w-0">
               <CampaignLivePreview
                 apiBase={API_BASE}
                 subject={draft.subject}
@@ -822,6 +826,8 @@ export default function AdminCRMPanel({ user }) {
                 headingFont={headingFont}
                 lists={lists}
                 targetListIds={campaignListIds}
+                purpose={blocks.find(b => b.readinessPurpose)?.readinessPurpose || 'newsletter'}
+                onPurposeChange={purpose => setBlocks(prev => prev.map(b => ({...b, readinessPurpose: purpose})))}
               />
             </div>
             </div>

@@ -11,6 +11,8 @@ export default function VideoBlockFields({ block, onChange }) {
   const [videos,setVideos] = useState([]), [error,setError] = useState(''), [progress,setProgress] = useState(null), [pending,setPending] = useState('');
   const [start,setStart] = useState(0), [duration,setDuration] = useState(3), [copy,setCopy] = useState(''), [ctaUrl,setCtaUrl] = useState(''), [ctaLabel,setCtaLabel] = useState('Learn more');
   const latest = useRef({block,onChange}); latest.current = {block,onChange};
+  const [landingTitle, setLandingTitle] = useState('');
+  const [landingSaved, setLandingSaved] = useState(false);
   const upload = useRef(null);
   const hydrated = useRef('');
   const set = patch => onChange({...block,...patch});
@@ -33,6 +35,8 @@ export default function VideoBlockFields({ block, onChange }) {
   useEffect(() => {
     if (!selected || hydrated.current === selected.id) return;
     hydrated.current = selected.id;
+    setLandingTitle(selected.title === 'Your video' && latest.current.block.title !== 'Your video' ? latest.current.block.title || selected.title : selected.title);
+    setLandingSaved(false);
     setCopy(selected.copy || ''); setCtaUrl(selected.cta_url || ''); setCtaLabel(selected.cta_label || 'Learn more');
     setStart(selected.gif_start ?? 0); setDuration(selected.gif_duration ?? 3);
   }, [selected]);
@@ -65,7 +69,7 @@ export default function VideoBlockFields({ block, onChange }) {
     <label className="block">Preview<select className={field} value={block.previewType || 'gif'} onChange={e=>set({previewType:e.target.value})}><option value="gif">Animated GIF</option><option value="jpeg">Static JPEG</option></select></label>
     <label className="block">Alignment<select className={field} value={block.align || 'center'} onChange={e=>set({align:e.target.value})}>{['left','center','right'].map(v=><option key={v}>{v}</option>)}</select></label>
     <div className="flex gap-3">{[['width','Width (height scales automatically)',160,600],['radius','Corner radius',0,40]].map(([key,label,min,max])=><label key={key}>{label}<input className={field} type="number" min={min} max={max} value={block[key] ?? min} onChange={e=>set({[key]:e.target.value})}/></label>)}<label>Background<input type="color" value={block.background || '#003258'} onChange={e=>set({background:e.target.value})}/></label></div>
-    {selected?.status==='ready' && <fieldset className="space-y-2 border border-white/20 p-3"><legend>Public landing page (shared by campaigns using this video)</legend><label className="block">Campaign copy<textarea className={field} value={copy} onChange={e=>setCopy(e.target.value)}/></label><label className="block">Landing CTA label<input className={field} value={ctaLabel} onChange={e=>setCtaLabel(e.target.value)}/></label><label className="block">Landing CTA URL<input className={field} type="url" value={ctaUrl} onChange={e=>setCtaUrl(e.target.value)}/></label><button type="button" onClick={()=>action(()=>videoRequest(`/${selected.id}`,{method:'PATCH',body:JSON.stringify({title:block.title,copy,ctaLabel,ctaUrl})}))}>Save landing page</button><a className="ml-4 underline" href={selected.landingUrl} target="_blank" rel="noreferrer">Open landing page</a></fieldset>}
+    {selected?.status==='ready' && <fieldset className="space-y-2 border border-white/20 p-3"><legend>Public landing page (shared by campaigns using this video)</legend><label className="block">Video title on landing page<input className={field} maxLength={200} value={landingTitle} onChange={e=>{setLandingTitle(e.target.value);setLandingSaved(false);}} placeholder="Bolt vs. The Turkey"/></label><label className="block">Campaign copy<textarea className={field} value={copy} onChange={e=>setCopy(e.target.value)}/></label><label className="block">Landing CTA label<input className={field} value={ctaLabel} onChange={e=>setCtaLabel(e.target.value)}/></label><label className="block">Landing CTA URL<input className={field} type="url" value={ctaUrl} onChange={e=>setCtaUrl(e.target.value)}/></label><button type="button" onClick={()=>action(async()=>{await videoRequest(`/${selected.id}`,{method:'PATCH',body:JSON.stringify({title:landingTitle,copy,ctaLabel,ctaUrl})});setLandingSaved(true);})}>Save landing page</button>{landingSaved && <span role="status" className="ml-2 text-emerald-300">Landing page saved</span>}<a className="ml-4 underline" href={selected.landingUrl} target="_blank" rel="noreferrer">Open landing page</a></fieldset>}
     {selected && ['ready','failed'].includes(selected.status) && <button className="text-red-300" type="button" onClick={()=>{if(window.confirm('Permanently delete this media? Existing emails linking to it will stop working.'))action(async()=>{await videoRequest(`/${selected.id}`,{method:'DELETE'});setPending('');set({videoId:'',gifUrl:'',posterUrl:'',landingUrl:''});});}}>Delete media</button>}
     {error && <p role="alert" className="text-red-300">{error}</p>}
   </div>;

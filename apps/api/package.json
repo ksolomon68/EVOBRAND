@@ -9,7 +9,8 @@
     "install-dep": "node install_nodemailer.js",
     "video:worker": "node src/video/worker.js",
     "video:migrate": "node src/video/migrate.js",
-    "test:video": "node --test src/video/*.test.js"
+    "test:video": "node --test src/video/*.test.js",
+    "test:readiness": "node --test src/readiness/*.test.js"
   },
   "dependencies": {
     "@google/generative-ai": "^0.24.1",

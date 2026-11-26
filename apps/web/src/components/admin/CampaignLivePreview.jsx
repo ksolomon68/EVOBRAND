@@ -1,55 +1,53 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { Monitor, Smartphone, Loader2, Check, AlertTriangle, Eye } from 'lucide-react';
 import { blocksToHtml } from './CampaignBlockEditor.jsx';
+import { getReadinessChecks, collectResources } from './campaignReadiness.js';
+export { getReadinessChecks } from './campaignReadiness.js';
 
 const FRAMES = {
   desktop: { width: 640, height: 760, label: 'Desktop', icon: Monitor },
   mobile: { width: 375, height: 760, label: 'Mobile', icon: Smartphone },
 };
 
-const SPAM_WORDS = /\b(free|act now|urgent|guarantee|winner|click here)\b|!!/i;
-
-/** Pre-send checks, shown beside the preview so problems surface before Send. */
-export function getReadinessChecks({ subject, blocks, listCount }) {
-  const subjectLen = subject.trim().length;
-  const buttons = blocks.filter((b) => b.type === 'button').length;
-  const images = blocks.filter((b) => b.type === 'image');
-  const copy = JSON.stringify(blocks.map((b) => ({ ...b, id: undefined }))) + ' ' + subject;
-
-  const checks = [
-    { ok: subjectLen >= 25 && subjectLen <= 65, label: `Subject is 25 to 65 characters (${subjectLen} now)` },
-    { ok: blocks.length > 0, label: 'Email has content' },
-    { ok: listCount > 0, label: 'At least one list selected' },
-    {
-      ok: buttons === 1,
-      label: buttons === 1 ? 'One clear button' : buttons === 0 ? 'Add a button so readers know what to do' : `Use one main button, not ${buttons}`,
-    },
-    {
-      ok: images.every((b) => b.src && b.alt),
-      label: images.length ? 'Every image has a source and alt text' : 'Images (none added)',
-      skip: images.length === 0,
-    },
-    { ok: !SPAM_WORDS.test(copy), label: 'No spam trigger words' },
-  ].filter((c) => !c.skip);
-
-  const score = Math.round((checks.filter((c) => c.ok).length / checks.length) * 100);
-  return { checks, score };
-}
-
 /**
  * Live, in-browser preview of the email as subscribers will receive it.
  * The HTML comes from the server's real email template, so the preview
  * cannot drift from what actually gets sent.
  */
-export default function CampaignLivePreview({ apiBase, subject, blocks, accentColor, headingFont, lists, targetListIds }) {
+export default function CampaignLivePreview({ apiBase, subject, blocks, accentColor, headingFont, lists, targetListIds, purpose = 'newsletter', onPurposeChange }) {
   const [device, setDevice] = useState('desktop');
   const [html, setHtml] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [boxWidth, setBoxWidth] = useState(0);
+  const [technical, setTechnical] = useState(null);
+  const [checking, setChecking] = useState(false);
+  const [checkVersion, setCheckVersion] = useState(0);
+  const [verifyKey, setVerifyKey] = useState('');
   const boxRef = useRef(null);
 
   const contentHtml = useMemo(() => blocksToHtml(blocks, accentColor), [blocks, accentColor]);
+
+  const assessmentKey = JSON.stringify([subject, contentHtml]);
+  useEffect(() => {
+    const controller = new AbortController();
+    setChecking(true);
+    const timer = setTimeout(async () => {
+      try {
+        const response = await fetch(`${apiBase}/api/crm/readiness`, {
+          method: 'POST', signal: controller.signal,
+          headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${localStorage.getItem('evobrand_token')}` },
+          body: JSON.stringify({ subject, html_content: contentHtml, resources: collectResources(contentHtml), verifyLinks: verifyKey === assessmentKey }),
+        });
+        const data = await response.json();
+        if (!response.ok) throw new Error(data.error || 'Technical checks unavailable');
+        if (!controller.signal.aborted) setTechnical({ ...data, key: assessmentKey });
+      } catch (error) {
+        if (!controller.signal.aborted) setTechnical({key:assessmentKey, checks:[{id:'technical-error',status:'unknown',severity:'advisory',label:'Technical checks could not be completed',recommendation:`${error.message}. Recheck technical setup after resolving the connection or sign-in issue.`}]});
+      } finally { if (!controller.signal.aborted) setChecking(false); }
+    }, 700);
+    return () => { clearTimeout(timer); controller.abort(); };
+  }, [apiBase, subject, contentHtml, assessmentKey, checkVersion, verifyKey]);
 
   // Re-render shortly after the admin stops typing.
   useEffect(() => {
@@ -97,7 +95,8 @@ export default function CampaignLivePreview({ apiBase, subject, blocks, accentCo
   const scale = boxWidth ? Math.min(1, boxWidth / frame.width) : 1;
   const selected = lists.filter((l) => targetListIds.includes(String(l.id)));
   const recipients = selected.reduce((sum, l) => sum + (Number(l.contact_count) || 0), 0);
-  const { checks, score } = getReadinessChecks({ subject, blocks, listCount: targetListIds.length });
+  const currentTechnical = technical?.key === assessmentKey ? technical : null;
+  const { checks, score, critical, unverified } = getReadinessChecks({ subject, blocks, listCount: targetListIds.length, purpose, technical: currentTechnical?.checks });
   const scoreColor = score === 100 ? 'text-emerald-400' : score >= 70 ? 'text-amber-400' : 'text-red-400';
 
   return (
@@ -160,19 +159,48 @@ export default function CampaignLivePreview({ apiBase, subject, blocks, accentCo
       </div>
 
       {/* Send readiness */}
-      <div className="flex items-start gap-4">
-        <div className={`text-3xl font-black leading-none tabular-nums ${scoreColor}`} aria-label={`Send readiness ${score} percent`}>{score}</div>
-        <div className="flex-1 min-w-0">
-          <p className="text-xs font-bold text-white/40 uppercase tracking-wider mb-2">Send readiness</p>
-          <ul className="space-y-1">
-            {checks.map((c) => (
-              <li key={c.label} className={`flex items-start gap-2 text-xs ${c.ok ? 'text-white/60' : 'text-amber-300'}`}>
-                {c.ok ? <Check size={13} className="text-emerald-400 mt-0.5 flex-shrink-0" /> : <AlertTriangle size={13} className="mt-0.5 flex-shrink-0" />}
-                <span>{c.label}</span>
-              </li>
-            ))}
-          </ul>
+      <div className="space-y-4">
+        <div className="flex items-start gap-4">
+          <div className={`text-3xl font-black leading-none tabular-nums ${scoreColor}`} aria-label={`Send readiness ${score} percent`}>{score}</div>
+          <div>
+            <p className="text-xs font-bold text-white/40 uppercase tracking-wider">Send readiness</p>
+            <p className="text-xs text-white/60 mt-1" aria-live="polite">{critical ? `${critical} critical error${critical === 1 ? '' : 's'} to resolve` : 'No critical errors detected'} · {unverified} unverified</p>
+            <p className="text-[11px] text-white/40 mt-1">Score covers assessed checks only. It does not guarantee delivery or inbox placement.</p>
+          </div>
         </div>
+        <label className="block text-xs text-white/60">Campaign purpose
+          <select value={purpose} onChange={e => onPurposeChange?.(e.target.value)} className="mt-1 w-full bg-[#1a2332] border border-white/10 rounded-xl px-3 py-2 text-white">
+            <option value="newsletter">Informational newsletter (CTA optional)</option>
+            <option value="holiday">Holiday greeting (CTA optional)</option>
+            <option value="promotion">Promotion (CTA recommended)</option>
+          </select>
+        </label>
+        {[
+          ['Critical errors', checks.filter(c => c.status === 'fail' && c.severity === 'critical')],
+          ['Recommendations', checks.filter(c => c.status === 'fail' && c.severity !== 'critical')],
+          ['Not verified', checks.filter(c => c.status === 'unknown')],
+          ['Checks passed', checks.filter(c => c.status === 'pass')],
+        ].map(([label, items]) => items.length > 0 && <details key={label} open={label !== 'Checks passed'} className="text-xs">
+          <summary className={`cursor-pointer font-bold ${label === 'Critical errors' ? 'text-red-300' : 'text-white/60'}`}>{label} ({items.length})</summary>
+          <ul className="space-y-3 mt-2">
+            {items.map(c => <li key={c.id} className={`flex items-start gap-2 ${c.status === 'pass' ? 'text-white/60' : c.severity === 'critical' ? 'text-red-300' : 'text-amber-200'}`}>
+              {c.status === 'pass' ? <Check size={13} className="text-emerald-400 mt-0.5 flex-shrink-0" /> : <AlertTriangle size={13} className="mt-0.5 flex-shrink-0" />}
+              <div className="min-w-0 break-words"><p>{c.label}</p>{c.recommendation && <p className="text-white/60 mt-1">{c.recommendation}</p>}
+                {c.details?.map((detail,i) => typeof detail === 'string' ? <p className="text-white/50 mt-1 break-all" key={i}>{detail}</p> : <div key={i} className="mt-2 border-l border-[#22c8e5]/40 pl-2">
+                  <p><strong>“{detail.word}”</strong> — {detail.location}, characters {detail.start}–{detail.end}</p>
+                  <p className="text-white/60 mt-1">“{detail.excerpt}”</p><p className="text-white/50 mt-1">{detail.reason} {detail.recommendation}</p>
+                </div>)}
+              </div>
+            </li>)}
+          </ul>
+        </details>)}
+        <div className="flex flex-wrap gap-2">
+          <button type="button" disabled={checking} onClick={() => setCheckVersion(v => v + 1)} className="text-xs border border-white/15 rounded-lg px-3 py-2 text-white/70 disabled:opacity-40">Recheck technical setup</button>
+          <button type="button" disabled={checking} onClick={() => { setVerifyKey(assessmentKey); setCheckVersion(v => v + 1); }} className="text-xs bg-[#22c8e5] text-[#003258] rounded-lg px-3 py-2 font-bold disabled:opacity-40">Check links &amp; image sizes</button>
+          {checking && <span className="text-xs text-white/50 flex items-center gap-1"><Loader2 size={12} className="animate-spin" />Checking…</span>}
+        </div>
+        <p className="text-[11px] text-white/40">Link checks use HEAD requests. Tracking, video landing and unsubscribe URLs are skipped to avoid recording clicks or changing subscriptions. DNS checks confirm published records, not actual message authentication.</p>
+        {currentTechnical?.plainText && <details className="text-xs text-white/60"><summary className="cursor-pointer">Plain-text email preview</summary><pre className="mt-2 max-h-64 overflow-auto whitespace-pre-wrap break-words bg-black/20 rounded p-3">{currentTechnical.plainText}</pre></details>}
       </div>
     </aside>
   );

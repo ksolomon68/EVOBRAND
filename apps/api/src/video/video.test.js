@@ -18,6 +18,10 @@ test('landing escapes campaign content and has mobile player and milestones',()=
   const html=landing({title:'<script>alert(1)</script>',copy:'<img src=x>',cta_url:'https://example.com',cta_label:'Go'},'/api/videos/media/test','token');
   assert(!html.includes('<script>alert(1)'));
   assert(html.includes('playsinline'));
+  assert(html.includes('https://evobrand.net/logo.png'));
+  assert(html.includes('<h1>&lt;script&gt;alert(1)&lt;/script&gt;</h1>'));
+  assert(html.includes('player-shell'));
+  assert(html.includes('max-width:100%'));
   assert(html.includes('[25,50,75]'));
   assert(html.includes("event('100')"));
   assert(html.includes('/api/videos/events/test'));

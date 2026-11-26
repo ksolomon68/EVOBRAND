@@ -74,7 +74,7 @@ const resend = new Resend(process.env.RESEND_API_KEY || 're_placeholder');
  * @param {string}          options.html    HTML body
  * @returns {Promise<Object>}
  */
-async function sendEmail({ from, to, subject, html }) {
+async function sendEmail({ from, to, subject, html, text }) {
   const recipients  = Array.isArray(to) ? to : [to];
   const fromAddress = from || process.env.RESEND_FROM_EMAIL || 'info@evobrand.net';
 
@@ -88,6 +88,7 @@ async function sendEmail({ from, to, subject, html }) {
         to:      recipients.join(', '),
         subject,
         html,
+        ...(text ? { text } : {}),
       });
       console.log(`[mailer] ✅ SMTP email sent — id=${info.messageId} to=${recipients.join(', ')}`);
       return { success: true, messageId: info.messageId };
@@ -103,6 +104,7 @@ async function sendEmail({ from, to, subject, html }) {
     to:      recipients,
     subject,
     html,
+    ...(text ? { text } : {}),
   });
   if (res.error) throw new Error(res.error.message || JSON.stringify(res.error));
   console.log(`[mailer] ✅ Resend email sent — id=${res.data?.id} to=${recipients.join(', ')}`);
