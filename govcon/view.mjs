@@ -17,7 +17,7 @@ function page(body,user,path) {
  '<main class="'+(user?'':'signin')+'">'+body+'</main></body></html>';
 }
 export function login(error) {
- return page('<section class="panel"><div class="eyebrow">EVOBRAND / GOVCON INTELLIGENCE</div><h1>Capture Desk</h1><p>Sign in to your internal capture workspace.</p>'+errorBox(error)+'<form method="post" action="/login"><label>Email<input required type="email" name="email" autocomplete="username"></label><label>Password<input required type="password" name="password" autocomplete="current-password"></label>'+formButton('Sign in')+'</form></section>');
+ return page('<section class="panel"><div class="eyebrow">EVOBRAND / GOVCON INTELLIGENCE</div><h1>Capture Desk</h1><p>Sign in to your internal capture workspace.</p>'+errorBox(error)+'<form method="post" action="/login"><label>Email<input required type="email" name="email" autocomplete="username"></label><label>Password<input required type="password" name="password" autocomplete="current-password"></label>'+formButton('Sign in')+'</form><p><a href="/forgot-password">Forgot password?</a></p></section>');
 }
 const empty = text => '<p class="empty">'+esc(text)+'</p>';
 const panel=(title,content)=>'<section class="panel"><h2>'+esc(title)+'</h2>'+content+'</section>';
@@ -98,4 +98,20 @@ export function render(url,user,rows,history,error) {
  else if(path==='/import' && user.role==='admin') content=headings('Data intake','Import records','Paste a JSON array of 1–250 records. The batch commits only when every row is valid.')+
  panel('Import batch',(url.searchParams.has('count')?'<p role="status">Imported '+esc(url.searchParams.get('count'))+' records.</p>':'')+'<form method="post" action="/import"><label>JSON records<textarea name="rows" rows="10" required placeholder=\'[{"kind":"partners","title":"Partner organization","status":"Prospective"}]\'></textarea></label>'+formButton('Validate and import')+'</form>');
  return content?page(content,user,path):null;
+}
+
+
+export function forgotPassword(message='', error='') {
+ return page('<section class="panel"><div class="eyebrow">EVOBRAND / GOVCON INTELLIGENCE</div><h1>Reset password</h1><p>Enter your account email to request a reset link.</p>'+
+ errorBox(error)+(message?'<p role="status">'+esc(message)+'</p>':'')+
+ '<form method="post" action="/forgot-password"><label>Email<input required type="email" name="email" maxlength="254" autocomplete="username"></label>'+
+ formButton('Send reset link')+'</form><p><a href="/login">Back to sign in</a></p></section>');
+}
+export function resetPassword(token, error='', valid=true) {
+ return page('<section class="panel"><div class="eyebrow">EVOBRAND / GOVCON INTELLIGENCE</div><h1>Choose a password</h1>'+errorBox(error)+
+ (valid?'<form method="post" action="/reset-password"><input type="hidden" name="token" value="'+esc(token)+'">'+
+ '<label>New password<input required type="password" name="password" minlength="16" maxlength="256" autocomplete="new-password"></label>'+
+ '<label>Confirm password<input required type="password" name="confirmation" minlength="16" maxlength="256" autocomplete="new-password"></label>'+
+ '<p>Use at least 16 characters.</p>'+formButton('Save new password')+'</form>':'')+
+ '<p><a href="/forgot-password">Request a new reset link</a></p><p><a href="/login">Back to sign in</a></p></section>');
 }

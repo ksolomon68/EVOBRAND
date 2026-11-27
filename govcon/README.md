@@ -110,3 +110,27 @@ own logins and roles — not needed just to reach this from anywhere.
 2. **USAspending award intake.** Use Award Search v2 and award detail endpoints. Store stable external award IDs, canonical record links, source timestamps and retrieval timestamps. Keep obligations, potential values and current vs. potential end dates in separate fields. Bring candidate rows into a review queue and reconcile later modifications before changing expiration alerts. [USAspending API endpoints](https://api.usaspending.gov/docs/endpoints)
 3. **SAM.gov notice intake.** Use the official Opportunities Public API with a server-side API key. Start with targeted buying offices and notice types, paginate date windows, and deduplicate by notice ID. Track amendments and deadline changes while preserving internal notes and decisions. Use overlapping windows and monitor sync failures and quota use. [GSA Opportunities Public API](https://open.gsa.gov/api/get-opportunities-public-api/)
 4. **Capture reporting.** Add dated KPI targets, submissions by response type, an outreach event log, effort tracking for the prime/sub split, and scheduled alerts after the team agrees on delivery channels. Keep source revisions separate from manual capture activity.
+## Password recovery
+
+The login page includes **Forgot password?**. A user can request an email link,
+choose a new password of 16–256 characters, and sign in again. Links expire
+after 30 minutes, work once, and are invalidated by any password change.
+Successful resets revoke existing sessions and preserve the account role.
+Requests return the same response for known and unknown addresses. Request
+limits persist in SQLite across restarts.
+
+In cPanel → Setup Node.js App → GovCon → Environment variables, set:
+
+- `RESET_FROM` to a working mailbox on your domain, for example
+  `ks@evobrand.net`.
+- `SENDMAIL_PATH` only if your hosting provider uses a different path than
+  `/usr/sbin/sendmail`.
+- Keep `PUBLIC_ORIGIN=https://govcon.evobrand.net` so reset links use the
+  trusted public address.
+
+Restart the app after saving. The server uses cPanel's local mail service.
+Check delivery using an account you control, including the spam folder. A
+successful local sendmail exit indicates mail submission, not inbox delivery.
+Mail failures are logged without the address or reset token. If RESET_FROM is
+missing, the recovery page explains that email setup is required. The schema
+for recovery tables is created automatically on startup for existing databases.

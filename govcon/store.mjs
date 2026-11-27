@@ -15,11 +15,14 @@ export function transaction(fn) {
   try { const result = fn(); db.exec('COMMIT'); return result; }
   catch (error) { db.exec('ROLLBACK'); throw error; }
 }
+export function passwordSecret(password) {
+  const salt = randomBytes(16).toString('hex');
+  return salt + ':' + derive(password, salt).toString('hex');
+}
 export function provision(email, role, password) {
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) || !['admin','editor','viewer'].includes(role) || password.length < 16 || password.length > 256)
     throw new Error('Use an email, admin/editor/viewer role, and a 16–256 character password.');
-  const salt = randomBytes(16).toString('hex');
-  const secret = salt + ':' + derive(password, salt).toString('hex');
+  const secret = passwordSecret(password);
   transaction(() => {
     db.prepare('INSERT INTO users VALUES (?,?,?) ON CONFLICT(email) DO UPDATE SET password=excluded.password,role=excluded.role').run(email, secret, role);
     db.prepare('DELETE FROM sessions WHERE email=?').run(email);

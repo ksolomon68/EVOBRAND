@@ -2,7 +2,8 @@ import { createServer } from 'node:http';
 import { readFileSync } from 'node:fs';
 import { db, authenticate, issue, session, hash, transaction, write } from './store.mjs';
 import { validate } from './model.mjs';
-import { render, login } from './view.mjs';
+import { requestReset, resetAccount, completeReset, resetNotice, mailConfigured } from './reset.mjs';
+import { forgotPassword, resetPassword, render, login } from './view.mjs';
 
 const port = Number(process.env.PORT || 4173);
 const bindHost = process.env.HOST || '127.0.0.1';
@@ -48,6 +49,32 @@ createServer(async (req,res)=>{
  const user=session(token);
  if(req.method==='POST' && req.headers.origin!==origin) return send(res,403,'Invalid request origin.','text/plain');
  try {
+  if(path==='/forgot-password') {
+   if(req.method==='GET') return send(res,200,forgotPassword('',mailConfigured()?'':'Password-reset email is awaiting setup. Contact the dashboard administrator.'));
+   if(req.method==='POST') {
+    const form=await body(req);
+    try {
+     await requestReset(form.email,origin);
+     return send(res,200,forgotPassword(resetNotice));
+    } catch {
+     return send(res,503,forgotPassword('','Password-reset email is awaiting setup. Contact the dashboard administrator.'));
+    }
+   }
+  }
+  if(path==='/reset-password') {
+   if(req.method==='GET') {
+    const resetToken=url.searchParams.get('token')||'';
+    const valid=!!resetAccount(resetToken);
+    return send(res,valid?200:400,resetPassword(resetToken,valid?'':'This reset link has expired or already been used. Request a new link.',valid));
+   }
+   if(req.method==='POST') {
+    const form=await body(req);
+    try { completeReset(form.token,form.password,form.confirmation); }
+    catch(error) { return send(res,400,resetPassword(form.token,error.message,!!resetAccount(form.token))); }
+    res.setHeader('Set-Cookie',cookie('',0));
+    return send(res,200,login('Password updated. Sign in with your new password.'));
+   }
+  }
   if(req.method==='POST' && path==='/login'){
    const form=await body(req);
    const time=Date.now(), key=req.socket.remoteAddress;
